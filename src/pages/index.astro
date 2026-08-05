@@ -5,17 +5,11 @@ import Base from '../layouts/Base.astro';
 import Work from '../components/Work.astro';
 import Now from '../components/Now.astro';
 
-import hero from '../assets/works/hero.jpg';
+import heroPoster from '../assets/works/hero-poster.jpg';
 import glitchesCover from '../assets/works/glitches-cover.jpg';
 import glitchesSpread from '../assets/works/glitches-spread.jpg';
 
 const works = (await getCollection('works')).sort((a, b) => a.data.order - b.data.order);
-
-// the rotating caption under the hero film
-const credits = works.map((w) => ({
-  work: w.data.title,
-  meta: `${w.data.tag} — ${w.data.where === 'Autonomous work' ? 'personal work' : w.data.where}, ${w.data.year}`,
-}));
 
 const institutions = [
   'Centre Pompidou', 'Staatsoper Hamburg', 'MUDEC Milano', 'Ars Electronica',
@@ -34,22 +28,16 @@ const routes = [
 <Base>
   <section class="hero">
     <div class="hero-media">
-      <Image src={hero} alt="Concert visuals on LED towers before a crowd" widths={[900, 1400, 2000]}
-             sizes="100vw" loading="eager" fetchpriority="high" />
+      <Image src={heroPoster} alt="" class="hero-poster" widths={[900, 1600]} sizes="100vw"
+             loading="eager" fetchpriority="high" />
+      <video class="hero-video" src="/video/hero.mp4" poster={heroPoster.src}
+             autoplay muted loop playsinline preload="auto"
+             aria-label="Showreel"></video>
     </div>
     <div class="hero-in">
       <h1>David Szauder</h1>
       <p class="hero-line">Builds complete visual universes.</p>
 
-      <div class="credit" id="credit">
-        <div class="credit-slot">
-          <span class="credit-work" id="cw">{credits[0].work}</span>
-          <span class="credit-meta" id="cm">{credits[0].meta}</span>
-        </div>
-        <div class="ticks" id="ticks" aria-hidden="true">
-          {credits.map(() => <span class="tick"><i></i></span>)}
-        </div>
-      </div>
     </div>
   </section>
 
@@ -112,37 +100,25 @@ const routes = [
     </div>
   </section>
 
-  <script define:vars={{ credits }}>
-    const cw = document.getElementById('cw');
-    const cm = document.getElementById('cm');
-    const credit = document.getElementById('credit');
-    const ticks = [...document.querySelectorAll('.tick')];
-    let i = 0;
 
-    const paint = () => {
-      ticks.forEach((t, n) => { t.classList.remove('on', 'done'); if (n < i) t.classList.add('done'); });
-      void ticks[i].offsetWidth;
-      ticks[i].classList.add('on');
-    };
-    paint();
-
-    setInterval(() => {
-      credit.classList.add('fade');
-      setTimeout(() => {
-        i = (i + 1) % credits.length;
-        cw.textContent = credits[i].work;
-        cm.textContent = credits[i].meta;
-        credit.classList.remove('fade');
-        paint();
-      }, 450);
-    }, 3600);
+  <script>
+    const v = document.querySelector<HTMLVideoElement>('.hero-video');
+    if (v) {
+      const show = () => v.classList.add('ready');
+      if (v.readyState >= 3) show();
+      v.addEventListener('playing', show, { once: true });
+      v.play().catch(() => {});
+    }
   </script>
 </Base>
 
 <style is:global>
 .hero{position:relative;height:100svh;min-height:560px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
 .hero-media{position:absolute;inset:0}
-.hero-media img{width:100%;height:100%;object-fit:cover}
+.hero-media img,.hero-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero-video{opacity:0;transition:opacity 1.1s ease}
+.hero-video.ready{opacity:1}
+@media (prefers-reduced-motion:reduce){.hero-video{display:none}}
 .hero-media::after{content:"";position:absolute;inset:0;
   background:radial-gradient(130% 95% at 50% 30%,transparent 12%,rgba(14,12,14,.42) 62%,rgba(14,12,14,.9) 100%),
              linear-gradient(to top,rgba(14,12,14,.95) 0%,rgba(14,12,14,.4) 34%,transparent 60%)}
