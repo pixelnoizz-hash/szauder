@@ -1,0 +1,156 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+
+import fainPoster from '../../assets/commercial/fain-poster.jpg';
+---
+
+<Base title="Commercial — David Szauder"
+      description="Brand campaigns: Hendrick's Gin Anotherland, Martin Auer Café Phantastique, FAIN.">
+  <article class="wrap commercial">
+    <header class="rv">
+      <span class="tag">Brand work</span>
+      <h1>Commercial</h1>
+      <p class="cm-lead">Campaigns where a brand asks for a world rather than a picture — built
+        with the same studio, the same archive and the same hands as everything else here.</p>
+    </header>
+
+    <!-- HENDRICK'S -->
+    <section class="cm-item rv">
+      <div class="cm-head">
+        <h2>Hendrick's Gin</h2>
+        <span class="cm-kind">Anotherland — 2026</span>
+      </div>
+
+      <div class="cm-body">
+        <div class="cm-text">
+          <p>Hendrick's Gin Palace is a real place: a Victorian distillery in Girvan, on the Scottish
+            coast, with a cabinet of curiosities, a walled garden and a resident tortoise. It is not
+            open to the public. <em>Anotherland</em> is the world built so that people could visit it
+            anyway.</p>
+          <p>Six short films, set in a botanical world modelled on the Gin Palace, following two
+            creatures whose heads are giant eyeballs. The campaign launched the first addition to the
+            Hendrick's range in nearly a decade, and extended into live theatrical events — designed
+            by the creator of <em>Sleep No More</em> — in New York, Los Angeles, Chicago and Miami,
+            then Berlin, Milan and London.</p>
+        </div>
+
+        <dl class="cm-specs">
+          <div><dt>Role</dt><dd>Creative director and creator — creative visualisation &amp; production, David Szauder Studio</dd></div>
+          <div><dt>Agency</dt><dd>Ace of Hearts, London</dd></div>
+          <div><dt>Scope</dt><dd>Six films, seven cities</dd></div>
+          <div><dt>Studio</dt><dd>Creative producer: Anna Réka Baktay</dd></div>
+          <div><dt>Year</dt><dd>2026</dd></div>
+        </dl>
+      </div>
+
+      <ul class="cm-press">
+        <li><a href="https://www.thestable.com.au/hendricks-gin-takes-fans-into-its-whimsical-world-anotherland/" target="_blank" rel="noopener"><span class="p-outlet">The Stable</span><span class="p-title">Hendrick's Gin takes fans into its whimsical world, Anotherland</span><span class="p-arrow">&nearr;</span></a></li>
+        <li><a href="https://ialternativemedia.com/how-hendricks-blended-ai-and-theater-for-its-biggest-launchin-a-decade/" target="_blank" rel="noopener"><span class="p-outlet">iAlternative</span><span class="p-title">How Hendrick's blended AI and theatre for its biggest launch in a decade</span><span class="p-arrow">&nearr;</span></a></li>
+      </ul>
+    </section>
+
+    <!-- MARTIN AUER -->
+    <section class="cm-item rv">
+      <div class="cm-head">
+        <h2>Martin Auer</h2>
+        <span class="cm-kind">Café Phantastique — 2026</span>
+      </div>
+
+      <div class="cm-body">
+        <div class="cm-text">
+          <p>A campaign for an Austrian bakery and roastery, running across Graz and Klagenfurt.
+            The work did not start at a computer. I like coffee a great deal, so the starting point
+            was simple: I began thinking about what good coffee does to me, closed my eyes, and
+            started to fantasise.</p>
+          <p>What came out is a surreal world populated by figures who love coffee so much that
+            they almost completely transform under its influence.</p>
+        </div>
+
+        <dl class="cm-specs">
+          <div><dt>Role</dt><dd>Artist — campaign imagery</dd></div>
+          <div><dt>Client</dt><dd>Martin Auer, Graz</dd></div>
+          <div><dt>Where</dt><dd>Graz and Klagenfurt, across channels</dd></div>
+          <div><dt>Year</dt><dd>2026</dd></div>
+        </dl>
+      </div>
+
+      <ul class="cm-press">
+        <li><a href="https://www.5min.at/graz/5202601231450/martin-auer-startet-ki-kampagne-in-graz-und-klagenfurt/" target="_blank" rel="noopener"><span class="p-outlet">5 Minuten</span><span class="p-title">Martin Auer startet KI-Kampagne in Graz und Klagenfurt</span><span class="p-arrow">&nearr;</span></a></li>
+        <li><a href="https://www.kleinezeitung.at/artikel/20493903/martin-auer-serviert-bio-kaffee-mit-einer-ungewoehnlichen-werbekampagne" target="_blank" rel="noopener"><span class="p-outlet">Kleine Zeitung</span><span class="p-title">Martin Auer serviert Bio-Kaffee mit einer ungewöhnlichen Werbekampagne</span><span class="p-arrow">&nearr;</span></a></li>
+        <li><a href="https://www.falstaff.com/at/news/grazer-baecker-martin-auer-setzt-auf-ki-kampagne-fuer-kaffee" target="_blank" rel="noopener"><span class="p-outlet">Falstaff</span><span class="p-title">Grazer Bäcker Martin Auer setzt auf KI-Kampagne für Kaffee</span><span class="p-arrow">&nearr;</span></a></li>
+      </ul>
+    </section>
+
+    <!-- FAIN -->
+    <section class="cm-item rv">
+      <div class="cm-head">
+        <h2>FAIN</h2>
+        <span class="cm-kind">Film — 2026</span>
+      </div>
+
+      <figure class="cm-film">
+        <span class="aperture">
+          <video src="/video/fain.mp4" poster={fainPoster.src}
+                 autoplay muted loop playsinline preload="metadata"
+                 aria-label="Film for FAIN: a figure in a tailcoat with a clock for a head, inside an ornate lift"></video>
+        </span>
+      </figure>
+
+      <div class="cm-body">
+        <div class="cm-text">
+          <p>A film for a lift company. A figure in a tailcoat, a clock where the face should be,
+            a yellow bird — waiting, riding, and eventually playing the violin inside an ornate
+            cabin. A lift is one of the few rooms where strangers agree to stand still together
+            and watch the numbers.</p>
+        </div>
+
+        <dl class="cm-specs">
+          <div><dt>Role</dt><dd>Direction, image</dd></div>
+          <div><dt>Client</dt><dd>FAIN</dd></div>
+          <div><dt>Year</dt><dd>2026</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <p class="cm-enquiry rv">
+      For campaigns and brand commissions: <a href="mailto:davidszauderstudio@gmail.com">davidszauderstudio@gmail.com</a>
+    </p>
+  </article>
+</Base>
+
+<style is:global>
+.commercial{padding:clamp(110px,15vh,180px) 0 clamp(60px,9vw,120px)}
+.commercial .tag{display:block;margin-bottom:14px}
+.commercial h1{font-family:var(--serif);font-size:clamp(2.4rem,6.5vw,5rem);line-height:.98;margin:0;font-weight:400}
+.cm-lead{color:var(--dust);line-height:1.7;max-width:52ch;margin:24px 0 clamp(46px,6vw,84px);font-size:1.02rem}
+.cm-item{margin-bottom:clamp(56px,8vw,110px)}
+.cm-head{display:flex;justify-content:space-between;align-items:baseline;gap:18px;flex-wrap:wrap;
+  padding-bottom:16px;margin-bottom:clamp(20px,2.6vw,32px);border-bottom:1px solid var(--hair)}
+.cm-head h2{font-family:var(--serif);font-size:clamp(1.7rem,3.6vw,2.6rem);font-weight:400;margin:0;line-height:1}
+.cm-kind{font-family:var(--mono);font-size:.62rem;letter-spacing:.17em;text-transform:uppercase;color:var(--ember)}
+.cm-film{margin:0 0 clamp(20px,2.6vw,32px)}
+.cm-film .aperture{aspect-ratio:16/10}
+.cm-film video{display:block;width:100%;height:100%;object-fit:cover}
+.cm-body{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(24px,4vw,60px);align-items:start}
+.cm-text p{color:var(--dust);line-height:1.7;margin:0 0 20px;max-width:52ch;font-size:1.02rem}
+.cm-text em{font-style:italic;color:var(--bone)}
+.cm-specs{margin:0;border-top:1px solid var(--hair)}
+.cm-specs div{display:grid;grid-template-columns:clamp(70px,8vw,96px) minmax(0,1fr);gap:16px;
+  padding:12px 0;border-bottom:1px solid var(--hair)}
+.cm-specs dt{font-family:var(--mono);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust)}
+.cm-specs dd{margin:0;font-size:.93rem;line-height:1.5}
+.cm-press{list-style:none;margin:clamp(22px,2.8vw,34px) 0 0;padding:0;border-top:1px solid var(--hair)}
+.cm-press li{border-bottom:1px solid var(--hair)}
+.cm-press a{display:grid;grid-template-columns:clamp(110px,14vw,160px) minmax(0,1fr) auto;
+  gap:clamp(12px,2vw,26px);align-items:baseline;padding:14px 0;transition:padding-left .3s ease}
+.cm-press a:hover{padding-left:10px}
+.cm-enquiry{font-family:var(--mono);font-size:.64rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--dust);margin:0;padding-top:26px;border-top:1px solid var(--hair)}
+.cm-enquiry a{color:var(--bone);border-bottom:1px solid var(--ember);padding-bottom:3px;margin-left:8px}
+@media (max-width:900px){
+  .cm-body{grid-template-columns:1fr;gap:24px}
+  .cm-press a{grid-template-columns:1fr auto;row-gap:5px}
+  .cm-press .p-outlet{grid-column:1/-1}
+}
+</style>
