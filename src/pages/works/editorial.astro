@@ -37,6 +37,8 @@ import wpCard from '../../assets/editorial/wp-card.jpg';
           <figcaption>
             <strong>Moment of Truth</strong>
             April 2026 — Ronan Farrow &amp; Andrew Marantz on Sam Altman
+            <a class="read" href="https://www.newyorker.com/magazine/2026/04/13/sam-altman-may-control-our-future-can-he-be-trusted"
+               target="_blank" rel="noopener">Read the article &nearr;</a>
           </figcaption>
         </figure>
 
@@ -49,6 +51,8 @@ import wpCard from '../../assets/editorial/wp-card.jpg';
           <figcaption>
             <strong>A.I. Is Coming for Culture</strong>
             September 2025 — Joshua Rothman
+            <a class="read" href="https://www.newyorker.com/magazine/2025/09/01/ai-is-coming-for-culture"
+               target="_blank" rel="noopener">Read the article &nearr;</a>
           </figcaption>
         </figure>
       </div>
@@ -102,6 +106,8 @@ import wpCard from '../../assets/editorial/wp-card.jpg';
             <Image src={wpCard} alt="The article's share card: the same illustration beside the headline"
                    widths={[500, 900]} sizes="(max-width: 900px) 92vw, 42vw" />
           </span>
+          <p><a class="read" href="https://www.washingtonpost.com/magazine/2022/10/10/country-after-second-trump-term/"
+                target="_blank" rel="noopener">Read the article &nearr;</a></p>
           <p class="wp-credit">Credited in the magazine as: David Szauder for The Washington Post</p>
         </div>
       </div>
@@ -128,6 +134,11 @@ import wpCard from '../../assets/editorial/wp-card.jpg';
   color:var(--dust);margin-top:12px;line-height:1.7}
 .ny-fig figcaption strong{display:block;color:var(--bone);font-weight:400;font-family:var(--serif);
   font-size:1.05rem;letter-spacing:0;text-transform:none;margin-bottom:5px}
+.read{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--bone);border-bottom:1px solid var(--ember);padding-bottom:3px;
+  transition:color .25s}
+.read:hover{color:var(--dust)}
+.wp-text .read{margin-top:0}
 .ed-note{color:var(--dust);line-height:1.7;max-width:54ch;margin:clamp(20px,2.6vw,32px) 0 0;font-size:.98rem}
 .wired-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(24px,4vw,60px);align-items:start}
 .wired-text p{color:var(--dust);line-height:1.7;margin:0 0 26px;max-width:44ch;font-size:1.02rem}
