@@ -1,0 +1,25 @@
+backend:
+  name: github
+  repo: USERNAME/szauder      # <- change to your GitHub username
+  branch: main
+media_folder: src/assets/works
+public_folder: /src/assets/works
+
+collections:
+  - name: works
+    label: Works
+    folder: src/content/works
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { name: title,  label: Title,   widget: string }
+      - { name: tag,    label: Medium,  widget: string, hint: "e.g. Costume design, Concert visuals" }
+      - { name: role,   label: My role, widget: string }
+      - { name: where,  label: Where,   widget: string }
+      - { name: year,   label: Year,    widget: string }
+      - { name: note,   label: Note,    widget: text }
+      - { name: from,   label: Comes from, widget: string, required: false }
+      - { name: photoCredit, label: Photo credit, widget: string, required: false }
+      - { name: order,  label: Order on home page, widget: number, value_type: int }
+      - { name: cover,  label: Main image, widget: image }
+      - { name: gallery, label: Smaller images, widget: list, field: { name: image, widget: image } }

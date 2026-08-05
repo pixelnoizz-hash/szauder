@@ -1,0 +1,26 @@
+:root{
+  --void:#0E0C0E; --box:#171317; --bone:#EDE5DA; --dust:#948880; --ember:#B33A2B;
+  --hair:rgba(237,229,218,.14); --gut:clamp(20px,5vw,76px);
+  --serif:"Instrument Serif",Georgia,serif;
+  --sans:"Instrument Sans",system-ui,sans-serif;
+  --mono:"Space Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--void);color:var(--bone);font-family:var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:1.5px solid var(--ember);outline-offset:4px}
+.wrap{max-width:1440px;margin:0 auto;padding:0 var(--gut)}
+.tag{font-family:var(--mono);font-size:.63rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dust)}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .9s ease,transform .9s cubic-bezier(.3,0,.2,1)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+
+/* aperture — looking into a lit box */
+.aperture{position:relative;display:block;overflow:hidden;background:#000;border:1px solid var(--hair)}
+.aperture img{width:100%;height:100%;object-fit:cover;transition:transform 1.5s cubic-bezier(.2,0,.15,1),filter .8s ease}
+.aperture::after{content:"";position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 0 70px 12px rgba(14,12,14,.5);transition:box-shadow .8s ease}
