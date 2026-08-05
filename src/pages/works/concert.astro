@@ -1,0 +1,176 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+
+import geszti1 from '../../assets/concert/geszti-1.jpg';
+import geszti2 from '../../assets/concert/geszti-2.jpg';
+import jarre1 from '../../assets/concert/jarre-1.jpg';
+import jarre2 from '../../assets/concert/jarre-2.jpg';
+import jarre3 from '../../assets/concert/jarre-3.jpg';
+import dd1 from '../../assets/concert/dd-1.jpg';
+import dd2 from '../../assets/concert/dd-2.jpg';
+import dd3 from '../../assets/concert/dd-3.jpg';
+---
+
+<Base title="Concert visuals — David Szauder"
+      description="Concert visuals for Jean-Michel Jarre, Duran Duran and Geszti Sixty at the Budapest Arena.">
+  <article class="wrap concert">
+    <header class="rv">
+      <span class="tag">Stage</span>
+      <h1>Concert<br />visuals</h1>
+      <p class="c-lead">Three scales of the same problem: a picture that has to survive an arena,
+        hold a song from beginning to end, and disappear the moment the performer needs the room.</p>
+    </header>
+
+    <!-- GESZTI SIXTY -->
+    <section class="c-item rv">
+      <figure class="c-hero">
+        <span class="aperture">
+          <Image src={geszti1} alt="A figure with red hair in a striped suit stretched across the full width of an arena screen, above the band and the crowd"
+                 widths={[900, 1400, 1700]} sizes="(max-width: 900px) 94vw, 84vw" />
+        </span>
+      </figure>
+
+      <div class="c-body">
+        <div class="c-title">
+          <h2>Geszti Sixty</h2>
+          <span class="c-kind">Full show — every song</span>
+        </div>
+        <div class="c-text">
+          <p>Péter Geszti's sixtieth birthday, two sold-out nights at the Papp László Budapest
+            Sportaréna. Eight months of work with him, and a distinct visual world for every
+            song in the set — two and a half hours of material.</p>
+          <p>In one number he stretches across the entire width of the screen as David Bowie;
+            in another he becomes a run of famous film characters. The screen is the length of
+            the arena, so a single image can hold the whole room, or step back to a window.</p>
+          <dl class="c-specs">
+            <div><dt>Role</dt><dd>Visual design, full show</dd></div>
+            <div><dt>Where</dt><dd>Papp László Budapest Sportaréna</dd></div>
+            <div><dt>When</dt><dd>25 &amp; 26 January 2025</dd></div>
+          </dl>
+        </div>
+      </div>
+
+      <div class="c-strip">
+        <span class="aperture"><Image src={geszti2} alt="Dancers in silver suits before red panels with bear silhouettes" widths={[600, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
+      </div>
+
+      <ul class="c-press">
+        <li><a href="https://hvg.hu/360/20250129_A-mu-mesterseges-intelligencia-muveszet-treneles-promptolas-interju-Szauder-David" target="_blank" rel="noopener"><span class="p-outlet">hvg360</span><span class="p-title">Interview on working with machine images</span><span class="p-arrow">&nearr;</span></a></li>
+        <li><a href="https://www.youtube.com/watch?v=muuCnS68OJI" target="_blank" rel="noopener"><span class="p-outlet">Official video</span><span class="p-title">Geszti Sixty — Live, Budapest Arena 2025</span><span class="p-arrow">&nearr;</span></a></li>
+      </ul>
+    </section>
+
+    <!-- JEAN-MICHEL JARRE -->
+    <section class="c-item rv">
+      <figure class="c-hero">
+        <span class="aperture">
+          <Image src={jarre1} alt="Concert stage in deep red, LED columns carrying a masked portrait"
+                 widths={[900, 1400, 1700]} sizes="(max-width: 900px) 94vw, 84vw" />
+        </span>
+      </figure>
+
+      <div class="c-body">
+        <div class="c-title">
+          <h2>Jean-Michel Jarre</h2>
+          <span class="c-kind">Three tracks</span>
+        </div>
+        <div class="c-text">
+          <p>Visuals for three tracks of the touring show, each a different world — one in deep
+            red around a single portrait, one in teal and magenta with creatures on the towers.</p>
+          <p class="c-from">The creatures are New Year's Swing, an autonomous series, standing
+            forty metres tall.</p>
+          <dl class="c-specs">
+            <div><dt>Role</dt><dd>Concert visuals, three tracks</dd></div>
+            <div><dt>Where</dt><dd>Live tour</dd></div>
+            <div><dt>When</dt><dd>2025 — 2026</dd></div>
+          </dl>
+        </div>
+      </div>
+
+      <div class="c-strip two">
+        <span class="aperture"><Image src={jarre2} alt="Green creatures on LED towers under teal lasers before a crowd" widths={[600, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
+        <span class="aperture"><Image src={jarre3} alt="Green and magenta lasers across the LED towers" widths={[600, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
+      </div>
+    </section>
+
+    <!-- DURAN DURAN -->
+    <section class="c-item rv">
+      <figure class="c-hero">
+        <span class="aperture">
+          <Image src={dd1} alt="Arena stage with a crescent face and a receding row of identical figures"
+                 widths={[900, 1400, 1700]} sizes="(max-width: 900px) 94vw, 84vw" />
+        </span>
+      </figure>
+
+      <div class="c-body">
+        <div class="c-title">
+          <h2>Duran Duran</h2>
+          <span class="c-kind">New Moon</span>
+        </div>
+        <div class="c-text">
+          <p>One world sustained across a whole song: hooded figures, moons, and the same man
+            repeating into the distance until he disappears. Where the Jarre work changes
+            character between tracks, this one holds a single register for four minutes.</p>
+          <dl class="c-specs">
+            <div><dt>Role</dt><dd>Concert visuals</dd></div>
+            <div><dt>Where</dt><dd>Live tour</dd></div>
+            <div><dt>When</dt><dd>2026</dd></div>
+          </dl>
+          <p class="c-credit">Photos: Anna Réka Baktay</p>
+        </div>
+      </div>
+
+      <div class="c-strip two">
+        <span class="aperture"><Image src={dd2} alt="Robed figures around a burning ring on the arena screen" widths={[600, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
+        <span class="aperture"><Image src={dd3} alt="Seated hooded figures with green and white moons behind them" widths={[600, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
+      </div>
+    </section>
+
+    <p class="c-enquiry rv">
+      For tours and live production: <a href="mailto:davidszauderstudio@gmail.com">davidszauderstudio@gmail.com</a>
+    </p>
+  </article>
+</Base>
+
+<style is:global>
+.concert{padding:clamp(110px,15vh,180px) 0 clamp(60px,9vw,120px)}
+.concert .tag{display:block;margin-bottom:14px}
+.concert h1{font-family:var(--serif);font-size:clamp(2.4rem,6.5vw,5rem);line-height:.96;margin:0;font-weight:400}
+.c-lead{color:var(--dust);line-height:1.7;max-width:50ch;margin:24px 0 clamp(46px,6vw,84px);font-size:1.02rem}
+.c-item{margin-bottom:clamp(60px,9vw,120px)}
+.c-hero{margin:0}
+.c-hero .aperture img{aspect-ratio:16/9}
+.c-body{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(20px,3.4vw,52px);
+  margin:clamp(22px,3vw,36px) 0 clamp(14px,1.6vw,20px);align-items:start}
+.c-title h2{font-family:var(--serif);font-size:clamp(1.8rem,3.8vw,2.8rem);font-weight:400;margin:0;line-height:1}
+.c-kind{display:block;margin-top:10px;font-family:var(--mono);font-size:.6rem;letter-spacing:.17em;
+  text-transform:uppercase;color:var(--ember)}
+.c-text p{color:var(--dust);line-height:1.7;margin:0 0 18px;max-width:52ch;font-size:1.02rem}
+.c-from{font-family:var(--serif);font-style:italic;color:var(--bone)!important;font-size:1.08rem;
+  padding-left:16px;border-left:1px solid var(--ember)}
+.c-specs{margin:22px 0 0;border-top:1px solid var(--hair)}
+.c-specs div{display:grid;grid-template-columns:clamp(70px,8vw,100px) minmax(0,1fr);gap:18px;
+  padding:11px 0;border-bottom:1px solid var(--hair)}
+.c-specs dt{font-family:var(--mono);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust)}
+.c-specs dd{margin:0;font-size:.94rem;line-height:1.5}
+.c-credit{font-family:var(--mono)!important;font-size:.56rem!important;letter-spacing:.14em;
+  text-transform:uppercase;margin:16px 0 0!important}
+.c-strip{display:grid;gap:clamp(10px,1.4vw,18px)}
+.c-strip.two{grid-template-columns:1fr 1fr}
+.c-strip .aperture img{aspect-ratio:3/2}
+.c-press{list-style:none;margin:clamp(20px,2.6vw,32px) 0 0;padding:0;border-top:1px solid var(--hair)}
+.c-press li{border-bottom:1px solid var(--hair)}
+.c-press a{display:grid;grid-template-columns:clamp(110px,14vw,170px) minmax(0,1fr) auto;
+  gap:clamp(12px,2vw,26px);align-items:baseline;padding:14px 0;transition:padding-left .3s ease}
+.c-press a:hover{padding-left:10px}
+.c-enquiry{font-family:var(--mono);font-size:.64rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--dust);margin:0;padding-top:26px;border-top:1px solid var(--hair)}
+.c-enquiry a{color:var(--bone);border-bottom:1px solid var(--ember);padding-bottom:3px;margin-left:8px}
+@media (max-width:900px){
+  .c-body{grid-template-columns:1fr;gap:20px}
+  .c-strip.two{grid-template-columns:1fr}
+  .c-press a{grid-template-columns:1fr auto;row-gap:5px}
+  .c-press .p-outlet{grid-column:1/-1}
+}
+</style>
