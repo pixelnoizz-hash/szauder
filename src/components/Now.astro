@@ -1,0 +1,69 @@
+---
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import kafka from '../assets/works/kafka-1.jpg';
+
+const items = (await getCollection('now')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<section class="wrap now" id="now">
+  <div class="now-grid">
+    <div class="now-list rv">
+      <span class="tag">Now</span>
+      <ul>
+        {items.map((i) => {
+          const d = i.data;
+          const Row = d.link ? 'a' : 'div';
+          return (
+            <li>
+              <Row class="now-row" href={d.link || undefined}>
+                <span class="now-when">{d.when}</span>
+                <span class="now-what">
+                  <strong>{d.title}</strong>
+                  {d.detail && <em>{d.detail}</em>}
+                </span>
+                <span class="now-where">{d.where}</span>
+              </Row>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+
+    <figure class="now-media rv">
+      <span class="aperture">
+        <Image src={kafka} alt="Six figures in suits and pyjamas lying on beds, pillows where their heads should be"
+               widths={[600, 900, 1400]} sizes="(max-width: 1000px) 92vw, 42vw" />
+      </span>
+      <figcaption>Kafka-Fragmente — projections for Kurtág's cycle, Seoul</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style is:global>
+.now{padding:clamp(56px,8vw,104px) 0 0}
+.now-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(30px,5vw,72px);align-items:start}
+.now-list .tag{display:block;margin-bottom:clamp(20px,2.6vw,32px)}
+.now-list ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--hair)}
+.now-list li{border-bottom:1px solid var(--hair)}
+.now-row{display:grid;grid-template-columns:minmax(96px,.42fr) 1.5fr auto;gap:clamp(12px,2vw,28px);
+  align-items:baseline;padding:18px 0;transition:padding-left .35s ease}
+a.now-row:hover{padding-left:10px}
+.now-when{font-family:var(--mono);font-size:.63rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ember)}
+.now-what strong{display:block;font-family:var(--serif);font-weight:400;font-size:clamp(1.05rem,1.7vw,1.35rem);line-height:1.15}
+.now-what em{display:block;font-style:normal;font-family:var(--mono);font-size:.6rem;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dust);margin-top:7px;line-height:1.5}
+.now-where{font-family:var(--mono);font-size:.62rem;letter-spacing:.13em;text-transform:uppercase;color:var(--dust);text-align:right}
+.now-media{margin:0}
+.now-media .aperture img{aspect-ratio:16/9}
+.now-media figcaption{font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dust);margin-top:12px;line-height:1.6}
+@media (max-width:1000px){
+  .now-grid{grid-template-columns:1fr;gap:32px}
+  .now-media{order:-1}
+}
+@media (max-width:640px){
+  .now-row{grid-template-columns:1fr;row-gap:7px;padding:16px 0}
+  .now-where{text-align:left}
+}
+</style>

@@ -19,4 +19,17 @@ const works = defineCollection({
     }),
 });
 
-export const collections = { works };
+const now = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/now' }),
+  schema: z.object({
+    when: z.string(),          // "27 August 2026", "In repertoire", "Out now"
+    title: z.string(),
+    where: z.string(),
+    detail: z.string().optional(),
+    role: z.string().optional(),
+    order: z.number(),
+    link: z.string().optional(),
+  }),
+});
+
+export const collections = { works, now };

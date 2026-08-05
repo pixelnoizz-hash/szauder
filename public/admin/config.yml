@@ -23,3 +23,17 @@ collections:
       - { name: order,  label: Order on home page, widget: number, value_type: int }
       - { name: cover,  label: Main image, widget: image }
       - { name: gallery, label: Smaller images, widget: list, field: { name: image, widget: image } }
+
+  - name: now
+    label: Now — current & upcoming
+    folder: src/content/now
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { name: when,  label: When, widget: string, hint: "27 August 2026 / In repertoire / Out now" }
+      - { name: title, label: Title, widget: string }
+      - { name: where, label: Where, widget: string }
+      - { name: detail, label: Detail line, widget: string, required: false }
+      - { name: role,  label: My role, widget: string, required: false }
+      - { name: order, label: Order, widget: number, value_type: int }
+      - { name: link,  label: Link, widget: string, required: false }
