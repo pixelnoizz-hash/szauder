@@ -13,15 +13,16 @@ const works = (await getCollection('works')).sort((a, b) => a.data.order - b.dat
 
 const institutions = [
   'Centre Pompidou', 'Staatsoper Hamburg', 'MUDEC Milano', 'Ars Electronica',
-  'Műcsarnok Budapest', 'Kiscelli Museum', 'Ludwig Museum', 'Festival dei Due Mondi',
-  'The New Yorker', 'The Washington Post', 'WIRED', 'TED', 'Lumas', 'Gestalten',
+  'Elza Kayal Gallery New York', 'Műcsarnok Budapest', 'Kiscelli Museum', 'Ludwig Museum',
+  'Festival dei Due Mondi', 'The New Yorker', 'The Washington Post', 'WIRED',
+  'TED Next', 'LUMAS', 'Gestalten', 'Oxford University Press',
 ];
 
 const routes = [
   { label: 'Studio enquiries', value: 'davidszauderstudio@gmail.com', href: 'mailto:davidszauderstudio@gmail.com' },
-  { label: 'Press & images', value: 'press@', href: '#' },
-  { label: 'Talks & institutions', value: 'talks@', href: '#' },
-  { label: 'Representation', value: 'Agency name', href: '#' },
+  { label: 'Press & images', value: 'davidszauderstudio@gmail.com', href: 'mailto:davidszauderstudio@gmail.com' },
+  { label: 'Prints', value: 'LUMAS galleries', href: 'https://www.lumas.de/search/?q=david+szauder' },
+  { label: 'Bio & CV', value: 'Full biography', href: '/bio' },
 ];
 ---
 

@@ -1,0 +1,70 @@
+---
+import Base from '../layouts/Base.astro';
+
+const facts = [
+  ['Solo exhibition', 'Glitches & Glory — Elza Kayal Gallery, New York, 2025'],
+  ['Monograph', 'Glitches & Glory — Gestalten, 2025'],
+  ['Speaking', 'TED Next, 2025'],
+  ['Representation', 'LUMAS galleries, 21 countries — Folkloric Robots'],
+  ['Teaching', 'Founded and led the first AI Storytelling Course, Moholy-Nagy University of Art and Design, 2023—2025'],
+  ['Awards', 'British Creative Cover of the Year — The Washington Post Magazine, 2022 · EDIDA Award — Spheres wallpaper, 2025'],
+  ['Festival', 'Ars Electronica, 2023—2026'],
+  ['Published by', 'Gestalten · Oxford University Press'],
+  ['Education', 'MA Intermedia, Hungarian University of Fine Arts'],
+];
+---
+
+<Base title="Bio — David Szauder" description="David Szauder is a visual artist based in Berlin, working between conceptual art, machine learning and visual culture.">
+  <article class="wrap bio">
+    <header class="rv">
+      <span class="tag">Bio</span>
+      <h1>David Szauder</h1>
+    </header>
+
+    <div class="bio-grid">
+      <div class="bio-text rv">
+        <p class="lead">A visual artist based in Berlin, working between conceptual art, machine
+          learning and visual culture. His work deals with authorship, perception and machine
+          subjectivity, using glitch, generative systems and speculative narrative.</p>
+
+        <p>His solo exhibition <em>Glitches &amp; Glory</em> opened at Elza Kayal Gallery, New York,
+          in 2025, alongside the monograph of the same name published by Gestalten. The same year he
+          spoke at TED Next on the cultural implications of artificial intelligence.</p>
+
+        <p>The <em>Folkloric Robots</em> series is shown through LUMAS galleries in 21 countries.
+          Between 2023 and 2025 he founded and led the first AI Storytelling Course at Moholy-Nagy
+          University of Art and Design in Budapest.</p>
+
+        <p>In 2025 he made animations for Jean-Michel Jarre's concert tour. His 2022 cover for
+          The Washington Post Magazine received the British Creative Cover of the Year award, and the
+          <em>Spheres</em> wallpaper collection received an EDIDA Award in 2025. He has worked with the
+          Ars Electronica Festival since 2023, and his work has been published by Oxford University Press.</p>
+
+        <p>He holds an MA in Intermedia from the Hungarian University of Fine Arts.</p>
+      </div>
+
+      <dl class="bio-facts rv">
+        {facts.map(([k, v]) => (
+          <div class="fact"><dt>{k}</dt><dd>{v}</dd></div>
+        ))}
+      </dl>
+    </div>
+  </article>
+</Base>
+
+<style is:global>
+.bio{padding:clamp(110px,15vh,180px) 0 clamp(60px,9vw,120px)}
+.bio .tag{display:block;margin-bottom:14px}
+.bio h1{font-family:var(--serif);font-size:clamp(2.4rem,6.5vw,5rem);line-height:.98;margin:0 0 clamp(38px,5vw,64px);font-weight:400}
+.bio-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:clamp(32px,5vw,80px);align-items:start}
+.bio-text{font-size:1.02rem;line-height:1.75;color:var(--dust);max-width:62ch}
+.bio-text p{margin:0 0 1.3em}
+.bio-text .lead{font-family:var(--serif);font-style:italic;font-size:clamp(1.15rem,2vw,1.5rem);
+  line-height:1.45;color:var(--bone);margin-bottom:1.6em}
+.bio-text em{font-style:italic;color:var(--bone)}
+.bio-facts{margin:0;border-top:1px solid var(--hair)}
+.fact{padding:15px 0;border-bottom:1px solid var(--hair)}
+.fact dt{font-family:var(--mono);font-size:.58rem;letter-spacing:.17em;text-transform:uppercase;color:var(--dust);margin-bottom:7px}
+.fact dd{margin:0;font-size:.95rem;line-height:1.5}
+@media (max-width:900px){ .bio-grid{grid-template-columns:1fr;gap:36px} }
+</style>

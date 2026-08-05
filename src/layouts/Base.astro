@@ -10,20 +10,16 @@ const {
   description = 'David Szauder builds complete visual universes for stage, architecture, concert and print.',
 } = Astro.props;
 
+// Only pages that actually exist. Add back as they are built.
 const nav = [
-  { label: 'Exhibitions', href: '/exhibitions' },
-  { label: 'Talks', href: '/talks' },
-  { label: 'Press', href: '/press' },
   { label: 'Bio', href: '/bio' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Contact', href: '/#contact' },
 ];
 const worksMenu = [
-  { label: 'Selected works', href: '#works' },
-  { label: 'Stage & performance', href: '/works/stage' },
-  { label: 'Concert visuals', href: '/works/concert' },
-  { label: 'Public space', href: '/works/public-space' },
-  { label: 'Editorial', href: '/works/editorial' },
-  { label: 'Series', href: '/works/series' },
+  { label: 'Wunderland', href: '/works/wunderland' },
+  { label: 'Festival dei Due Mondi', href: '/works/festival-dei-due-mondi' },
+  { label: 'Jean-Michel Jarre', href: '/works/jean-michel-jarre' },
+  { label: 'Babel', href: '/works/babel' },
 ];
 ---
 
