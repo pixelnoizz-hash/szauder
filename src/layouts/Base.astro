@@ -10,8 +10,29 @@ const {
   description = 'David Szauder builds complete visual universes for stage, architecture, concert and print.',
 } = Astro.props;
 
+const canonical = new URL(Astro.url.pathname, Astro.site).href.replace(/\/$/, '') || Astro.site!.href;
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'David Szauder',
+  alternateName: 'Dávid Szauder',
+  birthDate: '1976',
+  jobTitle: 'Visual artist',
+  description:
+    'Visual artist working between conceptual art, machine learning and visual culture. Costume design, concert visuals, projection and editorial illustration.',
+  url: 'https://www.davidarielszauder.com',
+  image: 'https://www.davidarielszauder.com/og.jpg',
+  sameAs: ['https://www.instagram.com/davidszauder/'],
+  knowsAbout: ['Generative image', 'Costume design', 'Concert visuals', 'Projection', 'Editorial illustration'],
+  alumniOf: { '@type': 'CollegeOrUniversity', name: 'Hungarian University of Fine Arts' },
+  worksFor: { '@type': 'Organization', name: 'Szauder Studio' },
+  address: { '@type': 'PostalAddress', addressLocality: 'Berlin', addressCountry: 'DE' },
+};
+
 // Only pages that actually exist. Add back as they are built.
 const nav = [
+  { label: 'Book', href: '/book' },
   { label: 'Talks & Teaching', href: '/talks' },
   { label: 'Bio', href: '/bio' },
   { label: 'Contact', href: '/#contact' },
@@ -32,9 +53,23 @@ const worksMenu = [
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
   <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="sitemap" href="/sitemap-index.xml" />
+  <meta name="author" content="David Szauder" />
+  <meta property="og:site_name" content="David Szauder" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={new URL('/og.jpg', Astro.site)} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={new URL('/og.jpg', Astro.site)} />
+  <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link

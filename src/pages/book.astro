@@ -1,0 +1,122 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+
+import cover from '../assets/works/glitches-cover.jpg';
+import spread from '../assets/works/glitches-spread.jpg';
+
+const facts = [
+  ['Title', 'Glitches & Glory — The Digitally Rewired Art of David Szauder'],
+  ['Publisher', 'gestalten, Berlin'],
+  ['Year', '2025, first printing'],
+  ['Extent', '256 pages'],
+  ['ISBN', '978-3-96704-204-7'],
+  ['Images', 'David Szauder'],
+  ['Texts', 'Scott Minneman'],
+  ['Prefaces', 'Lynn Goldsmith · Jean-Michel Jarre'],
+  ['Afterword', 'David Szauder'],
+  ['Edited by', 'François-Luc Giraldeau, David Szauder, Anna Réka Baktay'],
+  ['Design', 'Benjamin Wolbergs'],
+  ['Typefaces', 'Rauschen B (Philipp Herrmann) · Aether (Dominik Thieme)'],
+  ['Printing', 'aprinta druck, Germany — FSC certified paper'],
+];
+
+const series = [
+  ['Confidence', '2024'], ['Bestiarium', '2023'], ['Folkloric Robots', '2024'],
+  ['Art of Hiding', '2023'], ['Hypnosis', '2024'], ["New Year's Swing", '2024'],
+  ['Anatomy Sweaters', '2024'], ['Sweet Dreams', '2024'], ['Heroism', '2024'],
+  ['Swan Lake', '2024'], ['Memento Mori', '2024'], ['Super Ladies', '2024'],
+  ['Angels and Demons', '2024'], ['Food Memories', '2024'], ['Innocent Game', '2024'],
+  ['Perfect Day', '2024'], ['The Peaceful Era', '2024'], ['Waltzer', '2024'],
+  ['Faith', '2025'], ['Catsy', '2025'], ['Irrational Harmonies', '2023'],
+  ['Gender Issues', '2023'], ['Improvisation', '2023'], ['Generative Paintings', '2023'],
+  ['Transhumanism', '2022'], ['Explosions', '2022'], ['Mondrian Study', '2022'],
+  ['Failed Memories', '2013'],
+];
+---
+
+<Base title="Glitches & Glory — David Szauder"
+      description="Glitches & Glory: The Digitally Rewired Art of David Szauder. 256 pages, published by gestalten, 2025. Prefaces by Lynn Goldsmith and Jean-Michel Jarre.">
+  <article class="wrap bookpage">
+    <div class="book-top">
+      <div class="book-intro rv">
+        <span class="tag">Monograph</span>
+        <h1>Glitches<br />&amp; Glory</h1>
+        <p class="sub">The Digitally Rewired Art of David Szauder</p>
+
+        <blockquote class="own-quote">
+          For almost 42 years, I haven't been able to decide whether I'm an artist or a programmer.
+          <cite>From the afterword</cite>
+        </blockquote>
+
+        <p class="body">Twelve years of image-making collected in one volume — the series, the
+          failures kept on purpose, and the archive they were built from. Published by gestalten
+          in 2025, with prefaces by the photographer Lynn Goldsmith and the composer
+          Jean-Michel Jarre, and texts by Scott Minneman.</p>
+
+        <a class="btn" href="https://gestalten.com/products/glitches-and-glory"
+           target="_blank" rel="noopener">Order from gestalten</a>
+      </div>
+
+      <div class="book-shots rv">
+        <span class="aperture"><Image src={cover} alt="Cover of Glitches & Glory" widths={[400, 800]} sizes="(max-width: 900px) 92vw, 40vw" /></span>
+        <span class="aperture"><Image src={spread} alt="Inside spread from Glitches & Glory" widths={[500, 900]} sizes="(max-width: 900px) 92vw, 40vw" /></span>
+      </div>
+    </div>
+
+    <section class="book-sec">
+      <h2 class="sec-h rv">Series in the book</h2>
+      <ul class="series-list rv">
+        {series.map(([n, y]) => (
+          <li><span class="s-name">{n}</span><span class="s-year">{y}</span></li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="book-sec">
+      <h2 class="sec-h rv">Details</h2>
+      <dl class="book-facts rv">
+        {facts.map(([k, v]) => (
+          <div class="bfact"><dt>{k}</dt><dd>{v}</dd></div>
+        ))}
+      </dl>
+    </section>
+  </article>
+</Base>
+
+<style is:global>
+.bookpage{padding:clamp(110px,15vh,180px) 0 clamp(60px,9vw,120px)}
+.book-top{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,5vw,80px);align-items:start;margin-bottom:clamp(52px,7vw,100px)}
+.bookpage .tag{display:block;margin-bottom:14px}
+.bookpage h1{font-family:var(--serif);font-size:clamp(2.6rem,7vw,5.2rem);line-height:.94;margin:0;font-weight:400}
+.bookpage .sub{font-family:var(--mono);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust);margin:18px 0 0;line-height:1.7}
+.own-quote{margin:clamp(28px,3.6vw,44px) 0 0;padding-left:20px;border-left:1px solid var(--ember);
+  font-family:var(--serif);font-style:italic;font-size:clamp(1.15rem,2vw,1.5rem);line-height:1.35;max-width:32ch}
+.own-quote cite{display:block;margin-top:12px;font-family:var(--mono);font-style:normal;font-size:.6rem;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dust)}
+.bookpage .body{color:var(--dust);line-height:1.7;margin:clamp(26px,3.2vw,40px) 0 0;max-width:46ch;font-size:1.02rem}
+.book-shots{display:grid;gap:clamp(12px,1.6vw,22px)}
+.book-shots .aperture img{width:100%}
+.book-sec{margin-bottom:clamp(46px,6vw,86px)}
+.sec-h{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.2rem);font-weight:400;margin:0 0 26px;line-height:1}
+.series-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);
+  gap:0 clamp(20px,3vw,50px);border-top:1px solid var(--hair)}
+.series-list li{display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  padding:12px 0;border-bottom:1px solid var(--hair)}
+.s-name{font-family:var(--serif);font-size:1.02rem}
+.s-year{font-family:var(--mono);font-size:.58rem;letter-spacing:.13em;color:var(--dust)}
+.book-facts{margin:0;border-top:1px solid var(--hair)}
+.bfact{display:grid;grid-template-columns:clamp(110px,15vw,190px) minmax(0,1fr);gap:clamp(14px,2vw,30px);
+  padding:14px 0;border-bottom:1px solid var(--hair)}
+.bfact dt{font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust)}
+.bfact dd{margin:0;font-size:.95rem;line-height:1.5}
+@media (max-width:900px){
+  .book-top{grid-template-columns:1fr;gap:36px}
+  .book-shots{order:-1;max-width:520px}
+  .series-list{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:600px){
+  .series-list{grid-template-columns:1fr}
+  .bfact{grid-template-columns:1fr;row-gap:5px}
+}
+</style>

@@ -104,7 +104,8 @@
 # other old pages
 /about        /bio        301
 /home-new     /           301
-/glitches-glory-the-book  /  301
+/glitches-glory-the-book  /book  301
+/glitches-glory-the-book/ /book  301
 /glitch       /           301
 /memyself     /archive#me-myself-and-ai  301
 /news2/       /           301
