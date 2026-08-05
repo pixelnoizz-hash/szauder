@@ -1,0 +1,94 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Every project from the previous site, so that links in catalogues,
+// press articles and institutional pages still land somewhere meaningful.
+const archive = [
+  { slug: 'bestiarium', title: 'Bestiarium', year: '2023—24' },
+  { slug: 'new-gallery-5', title: 'Folkloric Robots', year: '2024' },
+  { slug: 'anatomy-sweaters', title: 'Anatomy Sweaters', year: '2024' },
+  { slug: 'ars-electronica-festival-2024', title: 'Ars Electronica Festival', year: '2024' },
+  { slug: 'new-gallery-4', title: "Earth's Spheres — Freeform & Szauder", year: '2024' },
+  { slug: 'illuminated-canvases', title: 'Illuminated Canvases', year: '2024' },
+  { slug: 'me-myself-and-ai', title: 'Me, Myself and AI', year: '2022—' },
+  { slug: 'tango-in-wonderland-ars-electronica', title: 'Tango in Wonderland — Ars Electronica', year: '2023' },
+  { slug: 'dream-come-true-salon-budapest', title: 'Dream Come True — S/alon Budapest', year: '2023' },
+  { slug: 'ai-poetry', title: 'Poesieversum — Festival of Lights, Berlin', year: '2023' },
+  { slug: 'art-of-hiding', title: 'Art of Hiding — Gallery East of Eden', year: '2023' },
+  { slug: 'the-washington-post', title: 'The Washington Post Magazine', year: '2022' },
+  { slug: 'dioramaludwig-museum', title: 'Diorama — Ludwig Museum, Budapest', year: '2022' },
+  { slug: 'sama', title: 'Samaritaine — Art Point, Paris', year: '2022' },
+  { slug: 'the-visions-of-leonardo', title: 'The Visions of Leonardo — Milan', year: '2022' },
+  { slug: 'intimate-lights', title: 'Intimate Lights', year: '2007—22' },
+  { slug: 'the-abstract-image-of-the-pandemic', title: 'The Abstract Image of the Pandemic — Diskurs Berlin', year: '2021' },
+  { slug: 'quantum-emotions', title: 'Quantum Emotions', year: '2022' },
+  { slug: 'themes-of-contemporary-art', title: 'Themes of Contemporary Art — Oxford University Press', year: '2021' },
+  { slug: 'modulator-v3', title: 'Modulator V3 — MOMENTUM, Berlin', year: '2019—20' },
+  { slug: 'mondrian-studies', title: 'Mondrian Studies', year: '2022' },
+  { slug: 'rare-rarity-rarible', title: 'Rare Rarity Rarible', year: '2021' },
+  { slug: 'quarantine-stories', title: 'Quarantine Stories (VR) — Diskurs Berlin', year: '2021' },
+  { slug: 'taking-flight', title: 'Parallel Universes — MOMENTUM Worldwide', year: '2021' },
+  { slug: 'nft', title: 'NFT', year: '2021' },
+  { slug: 'sixshort', title: 'Six Short Pieces About Nothing', year: '2021' },
+  { slug: 'ikono-tv', title: 'Ikono TV', year: '2021' },
+  { slug: 'hymn', title: 'Hymn', year: '2021' },
+  { slug: 'super8', title: 'The Story of My Grandfather', year: '2021' },
+  { slug: 'kinetic-dreams', title: 'Kinetic Dreams', year: '2021' },
+  { slug: 'light-sculptures', title: 'Light Sculptures', year: '2016—19' },
+  { slug: 'videosketches', title: 'Video Sketches', year: '2020' },
+  { slug: 'sketches', title: 'Sketches', year: '2020' },
+  { slug: 'rcuts', title: 'Reality Cuts', year: '2020' },
+  { slug: 'my-grandma-was-here-2019', title: 'My Grandma Was Here', year: '2019' },
+  { slug: 'failed', title: 'Failed Memories', year: '2016' },
+  { slug: 'modulator1', title: 'Light Space Modulator — Seoul, Berlin', year: '2019' },
+  { slug: 'organic', title: 'The Organic Monument of the First World War — Berlin', year: '2014' },
+  { slug: 'pier', title: 'TOUCH.GL — Centre Pompidou, Paris', year: '2013' },
+  { slug: 'kinetic-study-no-68', title: 'Kinetic Study no. 68', year: '2013' },
+  { slug: 'new-page-2', title: 'Meditation About the Image Architecture', year: '2011' },
+  { slug: 'vergnugungspark', title: 'Selected Installations & Shows', year: '2011—14' },
+  { slug: 'comfortzone', title: 'Comfort Zone — Berlin Cookbook', year: '2016' },
+  { slug: 'gebaude', title: 'Curatorial Works', year: '2013—16' },
+  { slug: 'skyline-1', title: 'Cinema Total — Collegium Hungaricum Berlin', year: '2014' },
+  { slug: 'nacht', title: 'LightBox', year: '2016' },
+  { slug: 'eden-2015', title: 'Eden', year: '2015' },
+  { slug: 'weg', title: 'Published Works', year: '2016' },
+  { slug: 'the-constructionsite-as-a-space-of-art', title: 'The Constructionsite as a Space of Art', year: '2013' },
+  { slug: 'artnomads', title: 'ArtNomads', year: '2016' },
+];
+---
+
+<Base title="Archive — David Szauder" description="A chronological index of David Szauder's projects, 2011 to 2024.">
+  <article class="wrap archive">
+    <header class="rv">
+      <span class="tag">Archive</span>
+      <h1>Earlier work</h1>
+      <p class="arch-lead">Projects from 2011 onward. Individual pages are being rebuilt —
+        if you arrived from a catalogue or an article and need material on a particular work,
+        <a href="mailto:davidszauderstudio@gmail.com">write to the studio</a>.</p>
+    </header>
+
+    <ul class="arch-list rv">
+      {archive.map((a) => (
+        <li id={a.slug} class="arch-row">
+          <span class="arch-year">{a.year}</span>
+          <span class="arch-title">{a.title}</span>
+        </li>
+      ))}
+    </ul>
+  </article>
+</Base>
+
+<style is:global>
+.archive{padding:clamp(110px,15vh,180px) 0 clamp(60px,9vw,120px)}
+.archive .tag{display:block;margin-bottom:14px}
+.archive h1{font-family:var(--serif);font-size:clamp(2.4rem,6.5vw,5rem);line-height:.98;margin:0;font-weight:400}
+.arch-lead{color:var(--dust);line-height:1.7;max-width:56ch;margin:24px 0 clamp(34px,4.5vw,58px);font-size:1rem}
+.arch-lead a{border-bottom:1px solid var(--ember);padding-bottom:2px;color:var(--bone)}
+.arch-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--hair)}
+.arch-row{display:grid;grid-template-columns:clamp(90px,10vw,130px) minmax(0,1fr);gap:clamp(12px,2vw,26px);
+  align-items:baseline;padding:15px 0;border-bottom:1px solid var(--hair);scroll-margin-top:110px}
+.arch-row:target{background:rgba(179,58,43,.10);padding-left:12px;padding-right:12px}
+.arch-year{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dust)}
+.arch-title{font-family:var(--serif);font-size:clamp(1rem,1.6vw,1.24rem);line-height:1.3}
+@media (max-width:640px){ .arch-row{grid-template-columns:1fr;row-gap:5px} }
+</style>
