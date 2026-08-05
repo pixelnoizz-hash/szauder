@@ -1,8 +1,8 @@
 ---
-when: Jun — Jul 2026
+when: 26 Jun — 12 Jul 2026
 title: Festival dei Due Mondi
 where: Spoleto
-detail: Works on five facades
+detail: Evocation of Spirits — seven facades
 role: ""
 order: 2
 link: ""

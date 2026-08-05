@@ -46,6 +46,23 @@ const images = [d.cover, ...d.gallery];
 
     {d.photoCredit && <p class="photo-credit">{d.photoCredit}</p>}
 
+    {d.press.length > 0 && (
+      <section class="press-block rv">
+        <span class="tag">Press</span>
+        <ul>
+          {d.press.map((p: any) => (
+            <li>
+              <a href={p.url} target="_blank" rel="noopener">
+                <span class="p-outlet">{p.outlet}</span>
+                <span class="p-title">{p.title}</span>
+                <span class="p-arrow">&nearr;</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
     <nav class="proj-next rv">
       <a href={`/works/${next.id}`}>
         <span class="tag">Next work</span>
@@ -68,6 +85,18 @@ const images = [d.cover, ...d.gallery];
 .plate{margin:0}
 .plate .aperture img{aspect-ratio:3/2}
 .plate.wide{grid-column:1/-1}
+.press-block{margin-top:clamp(44px,6vw,80px)}
+.press-block .tag{display:block;margin-bottom:18px}
+.press-block ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--hair)}
+.press-block li{border-bottom:1px solid var(--hair)}
+.press-block a{display:grid;grid-template-columns:clamp(110px,14vw,170px) minmax(0,1fr) auto;
+  gap:clamp(12px,2vw,26px);align-items:baseline;padding:15px 0;transition:padding-left .3s ease}
+.press-block a:hover{padding-left:10px}
+.p-outlet{font-family:var(--mono);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ember)}
+.p-title{font-family:var(--serif);font-size:1.02rem;line-height:1.35}
+.p-arrow{color:var(--dust);font-size:.9rem}
+@media (max-width:700px){ .press-block a{grid-template-columns:1fr auto;row-gap:5px}
+  .p-outlet{grid-column:1/-1} }
 .proj-next{margin-top:clamp(50px,7vw,90px);padding-top:26px;border-top:1px solid var(--hair);
   display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
 .proj-next .tag{display:block;margin-bottom:8px}

@@ -16,6 +16,9 @@ const works = defineCollection({
       order: z.number(),
       cover: image(),
       gallery: z.array(image()).default([]),
+      press: z
+        .array(z.object({ outlet: z.string(), title: z.string(), url: z.string() }))
+        .default([]),
     }),
 });
 
