@@ -1,0 +1,132 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+
+import altmanPoster from '../../assets/editorial/altman-poster.jpg';
+import culturePoster from '../../assets/editorial/culture-poster.jpg';
+import wiredCover from '../../assets/editorial/wired-cover.jpg';
+---
+
+<Base title="Editorial — David Szauder"
+      description="Commissioned illustration for The New Yorker, The Washington Post Magazine and WIRED Italia.">
+  <article class="wrap editorial">
+    <header class="rv">
+      <span class="tag">Commissioned</span>
+      <h1>Editorial</h1>
+      <p class="ed-lead">Magazines writing about artificial intelligence, asking for pictures made
+        with it. Each of these was drawn from a private archive, and each exists as a moving image
+        the printed page could not hold.</p>
+    </header>
+
+    <!-- THE NEW YORKER — both commissions in one block, because the point is the return -->
+    <section class="ed-item rv">
+      <div class="ed-head">
+        <h2>The New Yorker</h2>
+        <span class="ed-kind">Illustration — two commissions</span>
+      </div>
+
+      <div class="ny-pair">
+        <figure class="ny-fig sq">
+          <span class="aperture">
+            <video src="/video/newyorker-altman.mp4" poster={altmanPoster.src}
+                   autoplay muted loop playsinline preload="metadata"
+                   aria-label="Animated illustration: Sam Altman changing faces"></video>
+          </span>
+          <figcaption>
+            <strong>Moment of Truth</strong>
+            April 2026 — Ronan Farrow &amp; Andrew Marantz on Sam Altman
+          </figcaption>
+        </figure>
+
+        <figure class="ny-fig">
+          <span class="aperture">
+            <video src="/video/newyorker-culture.mp4" poster={culturePoster.src}
+                   autoplay muted loop playsinline preload="metadata"
+                   aria-label="Animated illustration: a figure at the rim of a crater lined with artworks"></video>
+          </span>
+          <figcaption>
+            <strong>A.I. Is Coming for Culture</strong>
+            September 2025 — Joshua Rothman
+          </figcaption>
+        </figure>
+      </div>
+
+      <p class="ed-note">Two commissions in seven months, both for the magazine's lead stories on
+        artificial intelligence. The printed versions are still; these are the works as they were made.</p>
+    </section>
+
+    <!-- WIRED ITALIA -->
+    <section class="ed-item rv">
+      <div class="ed-head">
+        <h2>WIRED Italia</h2>
+        <span class="ed-kind">Cover &amp; portrait series</span>
+      </div>
+
+      <div class="wired-grid">
+        <span class="aperture">
+          <Image src={wiredCover} alt="WIRED Italia cover: figures in historical dress on a classical tower"
+                 widths={[420, 800]} sizes="(max-width: 900px) 92vw, 42vw" />
+        </span>
+        <div class="wired-text">
+          <p>Not a single image but the visual identity of a whole issue: the cover plus ten
+            portrait illustrations for <em>L'Italia che verrà</em>, the magazine's survey of the
+            people building the country's next eighty years.</p>
+          <dl class="mini">
+            <div><dt>Issue</dt><dd>117, Summer 2026</dd></div>
+            <div><dt>Scope</dt><dd>Cover and ten portraits</dd></div>
+            <div><dt>Also</dt><dd>Interview — <em>Autoritratto con IA</em>, by Laura Pezzino</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- WASHINGTON POST -->
+    <section class="ed-item rv">
+      <div class="ed-head">
+        <h2>The Washington Post Magazine</h2>
+        <span class="ed-kind">Cover</span>
+      </div>
+      <div class="wp">
+        <p>Cover illustration, 2022.</p>
+        <p class="award">British Creative Cover of the Year</p>
+      </div>
+    </section>
+  </article>
+</Base>
+
+<style is:global>
+.editorial{padding:clamp(110px,15vh,180px) 0 clamp(60px,9vw,120px)}
+.editorial .tag{display:block;margin-bottom:14px}
+.editorial h1{font-family:var(--serif);font-size:clamp(2.4rem,6.5vw,5rem);line-height:.98;margin:0;font-weight:400}
+.ed-lead{color:var(--dust);line-height:1.7;max-width:52ch;margin:24px 0 clamp(46px,6vw,84px);font-size:1.02rem}
+.ed-item{margin-bottom:clamp(56px,8vw,110px)}
+.ed-head{display:flex;justify-content:space-between;align-items:baseline;gap:18px;flex-wrap:wrap;
+  padding-bottom:16px;margin-bottom:clamp(20px,2.6vw,32px);border-bottom:1px solid var(--hair)}
+.ed-head h2{font-family:var(--serif);font-size:clamp(1.7rem,3.6vw,2.6rem);font-weight:400;margin:0;line-height:1}
+.ed-kind{font-family:var(--mono);font-size:.62rem;letter-spacing:.17em;text-transform:uppercase;color:var(--ember)}
+.ny-pair{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(14px,2.2vw,32px);align-items:start}
+.ny-fig{margin:0}
+.ny-fig .aperture video{display:block;width:100%;height:100%;object-fit:cover}
+.ny-fig.sq .aperture{aspect-ratio:1/1}
+.ny-fig:not(.sq) .aperture{aspect-ratio:16/9}
+.ny-fig figcaption{font-family:var(--mono);font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--dust);margin-top:12px;line-height:1.7}
+.ny-fig figcaption strong{display:block;color:var(--bone);font-weight:400;font-family:var(--serif);
+  font-size:1.05rem;letter-spacing:0;text-transform:none;margin-bottom:5px}
+.ed-note{color:var(--dust);line-height:1.7;max-width:54ch;margin:clamp(20px,2.6vw,32px) 0 0;font-size:.98rem}
+.wired-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(24px,4vw,60px);align-items:start}
+.wired-text p{color:var(--dust);line-height:1.7;margin:0 0 26px;max-width:44ch;font-size:1.02rem}
+.wired-text em{font-style:italic;color:var(--bone)}
+.mini{margin:0;border-top:1px solid var(--hair)}
+.mini div{display:grid;grid-template-columns:clamp(70px,8vw,100px) minmax(0,1fr);gap:18px;
+  padding:12px 0;border-bottom:1px solid var(--hair)}
+.mini dt{font-family:var(--mono);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust)}
+.mini dd{margin:0;font-size:.94rem;line-height:1.5}
+.wp p{color:var(--dust);line-height:1.7;margin:0;font-size:1.02rem}
+.wp .award{font-family:var(--serif);font-style:italic;font-size:clamp(1.15rem,2vw,1.5rem);
+  color:var(--bone);margin-top:12px;padding-left:18px;border-left:1px solid var(--ember)}
+@media (max-width:900px){
+  .ny-pair,.wired-grid{grid-template-columns:1fr;gap:26px}
+  .ny-fig.sq .aperture{aspect-ratio:1/1;max-width:520px}
+}
+</style>
