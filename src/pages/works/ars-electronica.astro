@@ -1,0 +1,147 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+
+import ars1 from '../../assets/ars/ars-1.jpg';
+import ars2 from '../../assets/ars/ars-2.jpg';
+import ars3 from '../../assets/ars/ars-3.jpg';
+
+const works = [
+  {
+    year: '2023',
+    title: 'Tango in Wonderland',
+    place: 'Ars Electronica Center — Deep Space 8K',
+    note: 'A dance in a closed space that keeps rearranging itself, producing social situations nobody chose.',
+    url: 'https://ars.electronica.art/center/en/tango-in-wonderland/',
+  },
+  {
+    year: '2024',
+    title: 'Illuminated Canvases',
+    place: 'Festival — HOPE',
+    note: '',
+    url: 'https://ars.electronica.art/hope/en/events/illuminated-canvases/',
+  },
+  {
+    year: '2025',
+    title: 'Glitches & Glory',
+    place: 'Festival — PANIC',
+    note: '',
+    url: 'https://ars.electronica.art/panic/en/view/glitches-glory-22238ddb450c805bb968de94bbaf1637/',
+  },
+  {
+    year: '2025',
+    title: 'Me, Myself and AI',
+    place: 'Festival — PANIC',
+    note: '',
+    url: 'https://ars.electronica.art/panic/en/view/me-myself-and-ai-22238ddb450c81af8f2df8991ee264f5/',
+  },
+  {
+    year: 'Ongoing',
+    title: 'Hypnosis',
+    place: 'Deep Space Community — Linz and Shanghai',
+    note: 'Still in the programme.',
+    url: 'https://ars.electronica.art/solutions/en/hypnosis/',
+  },
+];
+---
+
+<Base title="Ars Electronica — David Szauder"
+      description="Four years of work with Ars Electronica: Deep Space 8K, the festival, and the Deep Space Community in Linz and Shanghai.">
+  <article class="wrap ars">
+    <header class="rv">
+      <span class="tag">Institution</span>
+      <h1>Ars<br />Electronica</h1>
+      <p class="ars-lead">Four years, across three parts of the same institution: the Center's
+        permanent Deep Space programme, the festival, and the Deep Space Community — the network
+        that carries the work beyond Linz.</p>
+    </header>
+
+    <figure class="ars-hero rv">
+      <span class="aperture">
+        <Image src={ars1} alt="A face with closed eyes encircled by rings of light, projected across a Deep Space wall above a seated audience"
+               widths={[900, 1400, 1600]} sizes="(max-width: 900px) 94vw, 84vw" />
+      </span>
+      <figcaption>Deep Space 8K — 8K video across wall and floor</figcaption>
+    </figure>
+
+    <section class="ars-sec rv">
+      <h2 class="ars-h">The format</h2>
+      <p class="ars-p">Deep Space projects onto the wall <em>and</em> the floor at once. The audience
+        stands inside the image rather than in front of it, which changes what an image has to do:
+        it cannot rely on a frame, and it has to hold people who are looking down as well as up.</p>
+    </section>
+
+    <div class="ars-pair rv">
+      <figure>
+        <span class="aperture"><Image src={ars2} alt="A large figure in a polka-dot coat projected over a seated audience" widths={[600, 1000]} sizes="(max-width: 900px) 94vw, 44vw" /></span>
+      </figure>
+      <figure>
+        <span class="aperture"><Image src={ars3} alt="Speaking about the book to an audience seated on the floor" widths={[600, 1000]} sizes="(max-width: 900px) 94vw, 44vw" /></span>
+        <figcaption>Book talk during the festival</figcaption>
+      </figure>
+    </div>
+
+    <section class="ars-sec rv">
+      <h2 class="ars-h">Works</h2>
+      <ul class="ars-list">
+        {works.map((w) => (
+          <li>
+            <a href={w.url} target="_blank" rel="noopener">
+              <span class="a-year">{w.year}</span>
+              <span class="a-main">
+                <strong>{w.title}</strong>
+                <em>{w.place}</em>
+                {w.note && <span class="a-note">{w.note}</span>}
+              </span>
+              <span class="a-arrow">&nearr;</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="ars-sec rv">
+      <h2 class="ars-h">Beyond Linz</h2>
+      <p class="ars-p"><em>Hypnosis</em> is part of the Deep Space Community, the shared programme
+        that runs in Deep Space venues outside Austria. It plays in Linz and in Shanghai — a work
+        that keeps moving without me having to travel with it.</p>
+      <p class="ars-credit">Installation photos: Ars Electronica</p>
+    </section>
+  </article>
+</Base>
+
+<style is:global>
+.ars{padding:clamp(110px,15vh,180px) 0 clamp(60px,9vw,120px)}
+.ars .tag{display:block;margin-bottom:14px}
+.ars h1{font-family:var(--serif);font-size:clamp(2.4rem,6.5vw,5rem);line-height:.96;margin:0;font-weight:400}
+.ars-lead{color:var(--dust);line-height:1.7;max-width:54ch;margin:24px 0 clamp(40px,5vw,72px);font-size:1.02rem}
+.ars-hero{margin:0 0 clamp(40px,5.5vw,76px)}
+.ars-hero .aperture img{aspect-ratio:16/9}
+.ars figcaption{font-family:var(--mono);font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--dust);margin-top:12px}
+.ars-sec{margin-bottom:clamp(40px,5.5vw,76px)}
+.ars-h{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.1rem);font-weight:400;margin:0 0 20px;line-height:1}
+.ars-p{color:var(--dust);line-height:1.75;max-width:54ch;margin:0 0 16px;font-size:1.02rem}
+.ars-p em{font-style:italic;color:var(--bone)}
+.ars-pair{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.8vw,24px);margin-bottom:clamp(40px,5.5vw,76px)}
+.ars-pair figure{margin:0}
+.ars-pair .aperture img{aspect-ratio:3/2}
+.ars-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--hair)}
+.ars-list li{border-bottom:1px solid var(--hair)}
+.ars-list a{display:grid;grid-template-columns:clamp(90px,10vw,130px) minmax(0,1fr) auto;
+  gap:clamp(14px,2vw,28px);align-items:baseline;padding:17px 0;transition:padding-left .3s ease}
+.ars-list a:hover{padding-left:10px}
+.a-year{font-family:var(--mono);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ember)}
+.a-main strong{display:block;font-family:var(--serif);font-weight:400;font-size:clamp(1.05rem,1.7vw,1.3rem);line-height:1.15}
+.a-main em{display:block;font-style:normal;font-family:var(--mono);font-size:.58rem;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dust);margin-top:7px}
+.a-note{display:block;color:var(--dust);font-size:.93rem;line-height:1.5;margin-top:9px;max-width:46ch}
+.a-arrow{color:var(--dust);font-size:.9rem}
+.ars-credit{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dust);margin:26px 0 0}
+@media (max-width:900px){
+  .ars-pair{grid-template-columns:1fr}
+  .ars-list a{grid-template-columns:1fr auto;row-gap:6px}
+  .a-year{grid-column:1/-1}
+}
+</style>
