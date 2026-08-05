@@ -5,6 +5,8 @@ import Base from '../../layouts/Base.astro';
 import altmanPoster from '../../assets/editorial/altman-poster.jpg';
 import culturePoster from '../../assets/editorial/culture-poster.jpg';
 import wiredCover from '../../assets/editorial/wired-cover.jpg';
+import wpCover from '../../assets/editorial/wp-cover.jpg';
+import wpCard from '../../assets/editorial/wp-card.jpg';
 ---
 
 <Base title="Editorial — David Szauder"
@@ -86,9 +88,22 @@ import wiredCover from '../../assets/editorial/wired-cover.jpg';
         <h2>The Washington Post Magazine</h2>
         <span class="ed-kind">Cover</span>
       </div>
-      <div class="wp">
-        <p>Cover illustration, 2022.</p>
-        <p class="award">British Creative Cover of the Year</p>
+      <div class="wp-grid">
+        <span class="aperture">
+          <Image src={wpCover} alt="The Washington Post Magazine cover, October 2022: a modelled caricature head under the headline If He Runs — And Wins"
+                 widths={[420, 800]} sizes="(max-width: 900px) 92vw, 42vw" />
+        </span>
+        <div class="wp-text">
+          <p class="award">British Creative Cover of the Year</p>
+          <p>Cover for the issue of 16 October 2022, illustrating David Montgomery's analysis
+            <em>If He Runs — And Wins</em>, in which the magazine asked experts to game out the
+            next four years.</p>
+          <span class="aperture wp-card">
+            <Image src={wpCard} alt="The article's share card: the same illustration beside the headline"
+                   widths={[500, 900]} sizes="(max-width: 900px) 92vw, 42vw" />
+          </span>
+          <p class="wp-credit">Credited in the magazine as: David Szauder for The Washington Post</p>
+        </div>
       </div>
     </section>
   </article>
@@ -122,11 +137,16 @@ import wiredCover from '../../assets/editorial/wired-cover.jpg';
   padding:12px 0;border-bottom:1px solid var(--hair)}
 .mini dt{font-family:var(--mono);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust)}
 .mini dd{margin:0;font-size:.94rem;line-height:1.5}
-.wp p{color:var(--dust);line-height:1.7;margin:0;font-size:1.02rem}
-.wp .award{font-family:var(--serif);font-style:italic;font-size:clamp(1.15rem,2vw,1.5rem);
-  color:var(--bone);margin-top:12px;padding-left:18px;border-left:1px solid var(--ember)}
+.wp-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(24px,4vw,60px);align-items:start}
+.wp-text p{color:var(--dust);line-height:1.7;margin:0 0 22px;max-width:44ch;font-size:1.02rem}
+.wp-text em{font-style:italic;color:var(--bone)}
+.wp-text .award{font-family:var(--serif);font-style:italic;font-size:clamp(1.15rem,2vw,1.5rem);
+  color:var(--bone);margin:0 0 22px;padding-left:18px;border-left:1px solid var(--ember)}
+.wp-card{display:block;margin-bottom:14px}
+.wp-credit{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dust);margin:0!important}
 @media (max-width:900px){
-  .ny-pair,.wired-grid{grid-template-columns:1fr;gap:26px}
+  .ny-pair,.wired-grid,.wp-grid{grid-template-columns:1fr;gap:26px}
   .ny-fig.sq .aperture{aspect-ratio:1/1;max-width:520px}
 }
 </style>
