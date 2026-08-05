@@ -1,0 +1,134 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+
+import ted1 from '../assets/talks/ted-1.jpg';
+import ted2 from '../assets/talks/ted-2.jpg';
+import ted3 from '../assets/talks/ted-3.jpg';
+import arsTalk from '../assets/talks/ars-talk.jpg';
+import lecture from '../assets/talks/lecture.jpg';
+
+const talks = [
+  { year: '2025', title: 'TED Next', where: 'On the cultural implications of artificial intelligence' },
+  { year: '2025', title: 'Ars Electronica Festival', where: 'Glitches & Glory — book talk, Linz' },
+  { year: '2023 — 2026', title: 'Ars Electronica Festival', where: 'Hypnosis, War Games — projections and talks' },
+];
+
+const teaching = [
+  {
+    year: '2023 — 2025',
+    title: 'AI Storytelling Course',
+    where: 'Moholy-Nagy University of Art and Design, Budapest',
+    note: 'Founded and led the first course of its kind at the university — a framework for AI-driven narrative and visual experimentation.',
+  },
+];
+
+const topics = [
+  'Working with a private archive instead of the open internet',
+  'Authorship when the image is generated',
+  'Editorial illustration in the age of machine images',
+  'Moving image at architectural scale',
+  'From an autonomous series to an opera house stage',
+];
+---
+
+<Base title="Talks & Teaching — David Szauder"
+      description="Talks and teaching by David Szauder on authorship, machine images and moving image at scale.">
+  <article class="wrap talks">
+    <header class="rv">
+      <span class="tag">Speaking</span>
+      <h1>Talks &amp;<br />Teaching</h1>
+    </header>
+
+    <figure class="talks-hero rv">
+      <span class="aperture">
+        <Image src={ted1} alt="David Szauder on the TED stage beside the red TED letters, before an audience"
+               widths={[800, 1200, 1600]} sizes="(max-width: 900px) 92vw, 80vw" />
+      </span>
+      <figcaption>TED Next, 2025</figcaption>
+    </figure>
+
+    <section class="talks-block">
+      <h2 class="sec-title rv">Talks</h2>
+      <ul class="listing rv">
+        {talks.map((t) => (
+          <li class="row">
+            <span class="row-year">{t.year}</span>
+            <span class="row-title">{t.title}</span>
+            <span class="row-where">{t.where}</span>
+          </li>
+        ))}
+      </ul>
+      <div class="pair rv">
+        <span class="aperture"><Image src={ted2} alt="Babel projected on the TED screen behind the speaker" widths={[500, 900]} sizes="(max-width: 900px) 92vw, 45vw" /></span>
+        <span class="aperture"><Image src={ted3} alt="Rows of white figures projected on the TED screen" widths={[500, 900]} sizes="(max-width: 900px) 92vw, 45vw" /></span>
+      </div>
+    </section>
+
+    <section class="talks-block">
+      <h2 class="sec-title rv">Teaching</h2>
+      {teaching.map((t) => (
+        <div class="teach rv">
+          <span class="row-year">{t.year}</span>
+          <div>
+            <h3>{t.title}</h3>
+            <p class="teach-where">{t.where}</p>
+            <p class="teach-note">{t.note}</p>
+          </div>
+        </div>
+      ))}
+      <div class="pair rv">
+        <span class="aperture"><Image src={arsTalk} alt="Speaking about the book in front of a seated audience" widths={[500, 900]} sizes="(max-width: 900px) 92vw, 45vw" /></span>
+        <span class="aperture"><Image src={lecture} alt="Lecturing in front of a projected magazine illustration" widths={[500, 900]} sizes="(max-width: 900px) 92vw, 45vw" /></span>
+      </div>
+    </section>
+
+    <section class="talks-block">
+      <h2 class="sec-title rv">Subjects</h2>
+      <ul class="topics rv">
+        {topics.map((t) => <li>{t}</li>)}
+      </ul>
+      <p class="book-me rv">
+        For talks, panels and teaching:
+        <a href="mailto:davidszauderstudio@gmail.com">davidszauderstudio@gmail.com</a>
+      </p>
+    </section>
+  </article>
+</Base>
+
+<style is:global>
+.talks{padding:clamp(110px,15vh,180px) 0 clamp(60px,9vw,120px)}
+.talks .tag{display:block;margin-bottom:14px}
+.talks h1{font-family:var(--serif);font-size:clamp(2.4rem,6.5vw,5rem);line-height:.98;margin:0 0 clamp(34px,4.5vw,58px);font-weight:400}
+.talks-hero{margin:0 0 clamp(48px,7vw,96px)}
+.talks-hero .aperture img{aspect-ratio:3/2}
+.talks-hero figcaption{font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust);margin-top:12px}
+.talks-block{margin-bottom:clamp(48px,7vw,96px)}
+.talks .sec-title{font-family:var(--serif);font-size:clamp(1.6rem,3.4vw,2.4rem);font-weight:400;margin:0 0 26px;line-height:1}
+.listing{list-style:none;margin:0 0 clamp(24px,3vw,40px);padding:0;border-top:1px solid var(--hair)}
+.row{display:grid;grid-template-columns:clamp(110px,13vw,160px) minmax(0,1fr) clamp(160px,30vw,420px);
+  gap:clamp(12px,2vw,26px);align-items:baseline;padding:17px 0;border-bottom:1px solid var(--hair)}
+.row-year{font-family:var(--mono);font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ember)}
+.row-title{font-family:var(--serif);font-size:clamp(1.05rem,1.7vw,1.3rem);line-height:1.15}
+.row-where{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);line-height:1.6}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.4vw,20px)}
+.pair .aperture img{aspect-ratio:3/2}
+.teach{display:grid;grid-template-columns:clamp(110px,13vw,160px) minmax(0,1fr);gap:clamp(12px,2vw,26px);
+  padding:20px 0 26px;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);margin-bottom:clamp(24px,3vw,40px)}
+.teach h3{font-family:var(--serif);font-weight:400;font-size:clamp(1.2rem,2.2vw,1.6rem);margin:0 0 8px;line-height:1.1}
+.teach-where{font-family:var(--mono);font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;color:var(--dust);margin:0 0 14px}
+.teach-note{color:var(--dust);line-height:1.65;margin:0;max-width:52ch;font-size:.98rem}
+.topics{list-style:none;margin:0;padding:0;border-top:1px solid var(--hair);max-width:62ch}
+.topics li{padding:14px 0;border-bottom:1px solid var(--hair);font-family:var(--serif);font-size:clamp(1rem,1.6vw,1.22rem);line-height:1.35}
+.book-me{margin:clamp(26px,3.4vw,44px) 0 0;font-family:var(--mono);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dust)}
+.book-me a{border-bottom:1px solid var(--ember);padding-bottom:3px;color:var(--bone);margin-left:8px}
+@media (max-width:900px){
+  .row{grid-template-columns:clamp(100px,15vw,140px) minmax(0,1fr);row-gap:6px}
+  .row-where{grid-column:2/3}
+  .pair{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .row,.teach{grid-template-columns:1fr;row-gap:7px}
+  .row-where{grid-column:auto}
+}
+</style>
