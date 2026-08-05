@@ -46,8 +46,8 @@ const items = (await getCollection('now')).sort((a, b) => a.data.order - b.data.
 .now-list .tag{display:block;margin-bottom:clamp(20px,2.6vw,32px)}
 .now-list ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--hair)}
 .now-list li{border-bottom:1px solid var(--hair)}
-.now-row{display:grid;grid-template-columns:minmax(96px,.42fr) 1.5fr auto;gap:clamp(12px,2vw,28px);
-  align-items:baseline;padding:18px 0;transition:padding-left .35s ease}
+.now-row{display:grid;grid-template-columns:clamp(120px,13vw,170px) minmax(0,1fr) clamp(150px,22vw,300px);
+  gap:clamp(12px,2vw,26px);align-items:baseline;padding:18px 0;transition:padding-left .35s ease}
 a.now-row:hover{padding-left:10px}
 .now-when{font-family:var(--mono);font-size:.63rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ember)}
 .now-what strong{display:block;font-family:var(--serif);font-weight:400;font-size:clamp(1.05rem,1.7vw,1.35rem);line-height:1.15}
@@ -62,8 +62,12 @@ a.now-row:hover{padding-left:10px}
   .now-grid{grid-template-columns:1fr;gap:32px}
   .now-media{order:-1}
 }
+@media (max-width:900px){
+  .now-row{grid-template-columns:clamp(110px,15vw,150px) minmax(0,1fr);row-gap:6px}
+  .now-where{grid-column:2/3;text-align:left}
+}
 @media (max-width:640px){
   .now-row{grid-template-columns:1fr;row-gap:7px;padding:16px 0}
-  .now-where{text-align:left}
+  .now-where{grid-column:auto;text-align:left}
 }
 </style>
