@@ -1,0 +1,313 @@
+---
+// Flyer.astro — characters that cross the screen now and then, followed by an
+// inverted moment.
+//
+// Add to src/layouts/Base.astro:
+//     import Flyer from '../components/Flyer.astro';
+//   and just before </body>:
+//     <Flyer />
+//
+// To switch it off, see ROLLBACK.txt. Nothing else in the site touches this file.
+//
+//
+// ADDING A NEW CHARACTER
+// ----------------------
+// 1. Put the frames in  public/figures/<id>/  as 1.webp, 2.webp, 3.webp …
+//    All frames must share ONE canvas: same pixel size, and the body registered
+//    in the same place, so that only the moving parts move. If they don't, the
+//    figure will jitter — send the raw frames and I'll align them.
+// 2. Add an entry to CHARACTERS below. Only `id`, `frames` and `ratio` are
+//    required; everything else falls back to a default.
+//
+// path can be:
+//    'horizontal'  left↔right, at a random height
+//    'diagonal'    corner to corner, either way
+//    'fall'        top → bottom, with a little sideways drift
+//    'rise'        bottom → top
+// path may also be a list — then one of them is drawn for each crossing, and
+// the engine avoids repeating the previous route.
+//
+// A character can also carry its own invert setting, so one may end in a long
+// hold, another in a short flash, another in none at all (hold: 0).
+---
+
+<div class="flyer-stage" id="flyer-stage" aria-hidden="true"></div>
+<div class="flyer-invert" id="flyer-invert" aria-hidden="true"></div>
+
+<script>
+  // ─── characters ────────────────────────────────────────────────────────────
+  const CHARACTERS = [
+    {
+      id: 'bug',
+      frames: ['/figures/fly/fly-1.webp', '/figures/fly/fly-2.webp', '/figures/fly/fly-3.webp'],
+      ratio: 0.627,          // frame width ÷ frame height
+      cycle: [0, 1, 2, 1],   // arms up → wide → one arm → wide
+      fps: 6,
+      path: ['horizontal', 'diagonal', 'fall', 'rise'],  // one is drawn each time
+      heightVh: 41,          // size as % of viewport height
+      heightMin: 190,
+      heightMax: 620,
+      crossMs: [13000, 16000],
+      sway: 36,              // drift across the direction of travel, px
+      lean: 5,               // tilt in degrees (sign follows direction)
+      flip: true,            // mirror the sprite when travelling right→left
+      weight: 1,             // relative chance of being picked
+      // invert: { hold: 2200, fade: 320 },   // per-character override
+    },
+
+    // A second character — uncomment once its frames exist.
+    // {
+    //   id: 'moth',
+    //   frames: ['/figures/moth/1.webp', '/figures/moth/2.webp', '/figures/moth/3.webp'],
+    //   ratio: 0.8,
+    //   cycle: [0, 1, 2, 1],
+    //   fps: 9,
+    //   path: 'diagonal',
+    //   heightVh: 18,
+    //   crossMs: [9000, 13000],
+    //   sway: 14,
+    //   lean: 12,
+    //   weight: 1,
+    //   invert: { hold: 160, fade: 80 },
+    // },
+  ];
+
+  // ─── global settings ───────────────────────────────────────────────────────
+  const CFG = {
+    on: true,            // master switch — false disables everything
+
+    firstDelay: 45000,   // ms before the first crossing
+    gapMin: 40000,       // never more often than this
+    gapMax: 90000,
+
+    // hold may be a single number or a [min, max] range drawn each time.
+    // 160 = flash, 2200 = long, 5000 = very long, 0 = no inversion.
+    invert: { hold: [2200, 5000], delay: 300 },
+
+    noRepeat: true,      // don't pick the same character twice in a row
+  };
+
+  // ─── engine ────────────────────────────────────────────────────────────────
+  (() => {
+    const stage = document.getElementById('flyer-stage');
+    const inv = document.getElementById('flyer-invert');
+    if (!stage || !inv || !CHARACTERS.length) return;
+
+    const params = new URLSearchParams(location.search);
+    if (!CFG.on || params.has('nofly')) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const range = (v, d) => (Array.isArray(v) ? rnd(v[0], v[1]) : (v === undefined ? d : v));
+    const val = (v, d) => (v === undefined ? d : v);
+
+    const sprites = new Map();
+    function sprite(c) {
+      if (sprites.has(c.id)) return sprites.get(c.id);
+      const el = document.createElement('div');
+      el.className = 'flyer';
+      const bob = document.createElement('div');
+      bob.className = 'flyer-bob';
+      c.frames.forEach((src) => {
+        const img = document.createElement('img');
+        img.className = 'flyer-fr';
+        img.src = src;
+        img.alt = '';
+        img.decoding = 'async';
+        bob.appendChild(img);
+      });
+      el.appendChild(bob);
+      stage.appendChild(el);
+      const rec = { el, bob, imgs: Array.from(bob.children) };
+      sprites.set(c.id, rec);
+      return rec;
+    }
+
+    function invert(o) {
+      const s = Object.assign({}, CFG.invert, o || {});
+      const hold = Array.isArray(s.hold) ? rnd(s.hold[0], s.hold[1]) : s.hold;
+      if (!hold) return;
+      const fade = val(s.fade, clamp(hold * 0.14, 200, 460));
+      const t = fade * 2 + hold;
+      inv.animate(
+        [{ opacity: 0 }, { opacity: 1, offset: fade / t },
+         { opacity: 1, offset: (fade + hold) / t }, { opacity: 0 }],
+        { duration: t, easing: 'ease-in-out' }
+      );
+    }
+
+    // start point, end point and direction for one crossing.
+    // Rolled up to 6 times so it doesn't start where the last one did.
+    let lastRoute = '';
+    function route(c, w, h) {
+      let r = null;
+      for (let n = 0; n < 6; n++) {
+        r = roll(c, w, h);
+        if (r.sig !== lastRoute) break;
+      }
+      lastRoute = r.sig;
+      return r;
+    }
+
+    function roll(c, w, h) {
+      const paths = Array.isArray(c.path) ? c.path : [val(c.path, 'horizontal')];
+      const path = paths[Math.floor(Math.random() * paths.length)];
+      const W = innerWidth, H = innerHeight;
+      const hx = Math.random() < 0.5 ? 1 : -1;   // 1 = travelling right
+      const vy = Math.random() < 0.5 ? 1 : -1;   // 1 = travelling down
+      const offX = w + 80, offY = h + 80;
+      const lane = () => rnd(0.04 * W, Math.max(0.04 * W, W - w - 0.04 * W));
+
+      if (path === 'fall' || path === 'rise') {
+        const x = lane();
+        const drift = rnd(-0.16 * W, 0.16 * W);
+        const down = path === 'fall';
+        const third = Math.floor(x / Math.max(1, W / 3));   // left / middle / right lane
+        return {
+          path, vertical: true,
+          from: { x, y: down ? -offY : H + offY },
+          to: { x: x + drift, y: down ? H + offY : -offY },
+          dir: drift >= 0 ? 1 : -1,
+          sig: path + third + (drift >= 0 ? '+' : '-'),
+        };
+      }
+
+      if (path === 'diagonal') {
+        return {
+          path, vertical: false,
+          from: { x: hx === 1 ? -offX : W + offX, y: vy === 1 ? rnd(-offY, 0.10 * H) : rnd(0.60 * H, H + offY) },
+          to: { x: hx === 1 ? W + offX : -offX, y: vy === 1 ? rnd(0.60 * H, H + offY) : rnd(-offY, 0.10 * H) },
+          dir: hx,
+          sig: path + hx + vy,
+        };
+      }
+
+      const y = rnd(0.08 * H, Math.max(0.08 * H, 0.76 * H - h * 0.4));
+      return {
+        path, vertical: false,
+        from: { x: hx === 1 ? -offX : W + offX, y },
+        to: { x: hx === 1 ? W + offX : -offX, y },
+        dir: hx,
+        sig: path + hx + (y < H / 2 ? 'hi' : 'lo'),
+      };
+    }
+
+    let busy = false, timer = 0, last = null;
+
+    function pick() {
+      let pool = CHARACTERS;
+      if (CFG.noRepeat && CHARACTERS.length > 1 && last)
+        pool = CHARACTERS.filter((c) => c.id !== last);
+      const total = pool.reduce((s, c) => s + val(c.weight, 1), 0);
+      let r = Math.random() * total;
+      for (const c of pool) { r -= val(c.weight, 1); if (r <= 0) return c; }
+      return pool[0];
+    }
+
+    function fly(forced) {
+      if (busy || document.hidden) return schedule();
+      const c = Object.assign({}, forced || pick());
+      busy = true; last = c.id;
+
+      const s = sprite(c);
+      const h = clamp(innerHeight * val(c.heightVh, 24) / 100, val(c.heightMin, 150), val(c.heightMax, 320));
+      const w = h * val(c.ratio, 0.7);
+      s.el.style.setProperty('--fly-h', h + 'px');
+      s.el.style.setProperty('--fly-w', w + 'px');
+
+      const r = route(c, w, h);
+      const dur = range(c.crossMs, 14000);
+      const cycle = val(c.cycle, c.frames.map((_, i) => i));
+      const flip = val(c.flip, true) && r.dir === -1 ? -1 : 1;
+      const lean = val(c.lean, 0) * (r.dir === -1 ? -1 : 1);
+      const vertical = r.vertical;
+      const sway = val(c.sway, 20);
+
+      let i = 0;
+      const show = () => s.imgs.forEach((im, n) => im.classList.toggle('is-on', n === cycle[i]));
+      show();
+      const tick = setInterval(() => { i = (i + 1) % cycle.length; show(); }, 1000 / val(c.fps, 6));
+
+      const axis = vertical ? 'translateX' : 'translateY';
+      const swayAnim = s.bob.animate(
+        [`${axis}(0)`, `${axis}(${-sway}px)`, `${axis}(0)`, `${axis}(${sway}px)`, `${axis}(0)`]
+          .map((t) => ({ transform: t })),
+        { duration: 4200, iterations: Infinity, easing: 'ease-in-out' }
+      );
+
+      s.el.classList.add('is-flying');
+      const run = s.el.animate(
+        [{ transform: `translate(${r.from.x}px, ${r.from.y}px) rotate(${lean}deg) scaleX(${flip})` },
+         { transform: `translate(${r.to.x}px, ${r.to.y}px) rotate(${lean}deg) scaleX(${flip})` }],
+        { duration: dur, easing: 'linear' }
+      );
+
+      run.onfinish = () => {
+        clearInterval(tick);
+        swayAnim.cancel();
+        s.el.classList.remove('is-flying');
+        busy = false;
+        const iv = c.invert || {};
+        setTimeout(() => invert(c.invert), val(iv.delay, CFG.invert.delay));
+        schedule();
+      };
+    }
+
+    function schedule(delay) {
+      clearTimeout(timer);
+      timer = window.setTimeout(fly, delay === undefined ? rnd(CFG.gapMin, CFG.gapMax) : delay);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) clearTimeout(timer);
+      else if (!busy) schedule();
+    });
+
+    // testing:  ?fly   ?fly=invert   ?fly=<character id>
+    // console:  flyNow()   flyNow('bug')   flyPath('diagonal')   flyInvert(2200)
+    Object.assign(window, {
+      flyNow: (id) => fly(id ? CHARACTERS.find((c) => c.id === id) : null),
+      flyPath: (p, id) => {
+        const base = id ? CHARACTERS.find((c) => c.id === id) : CHARACTERS[0];
+        fly(Object.assign({}, base, { path: p }));
+      },
+      flyInvert: (hold, fade) => invert({ hold: hold, fade: val(fade, CFG.invert.fade) }),
+    });
+
+    const q = params.get('fly');
+    if (q === 'invert') setTimeout(() => invert(), 800);
+    else if (params.has('fly')) setTimeout(() => window.flyNow(q || null), 600);
+    else schedule(CFG.firstDelay);
+  })();
+</script>
+
+<style is:global>
+  .flyer-stage{ position:fixed; inset:0; z-index:40; pointer-events:none; overflow:hidden }
+  .flyer{ position:absolute; left:0; top:0; visibility:hidden; will-change:transform }
+  .flyer.is-flying{ visibility:visible }
+  .flyer-bob{
+    position:relative;
+    height:var(--fly-h,220px);
+    width:var(--fly-w,140px);
+    will-change:transform;
+  }
+  .flyer-fr{
+    position:absolute; left:0; top:0;
+    height:100%; width:auto; display:block;
+    opacity:0;
+    filter:drop-shadow(0 18px 34px rgba(0,0,0,.45));
+  }
+  .flyer-fr.is-on{ opacity:1 }
+
+  .flyer-invert{
+    position:fixed; inset:0; z-index:9998;
+    pointer-events:none; opacity:0;
+    backdrop-filter:invert(1);
+    -webkit-backdrop-filter:invert(1);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .flyer-stage, .flyer-invert{ display:none }
+  }
+</style>
