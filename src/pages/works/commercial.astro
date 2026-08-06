@@ -2,6 +2,10 @@
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 
+import hendThumb from '../../assets/commercial/hend-thumb.jpg';
+import hendHero from '../../assets/commercial/hend-hero.jpg';
+import auerThumb from '../../assets/commercial/auer-thumb.jpg';
+import auerHero from '../../assets/commercial/auer-hero.jpg';
 import fainPoster from '../../assets/commercial/fain-poster.jpg';
 import phi1 from '../../assets/commercial/phi-1.jpg';
 import phi2 from '../../assets/commercial/phi-2.jpg';
@@ -23,7 +27,10 @@ import phi3 from '../../assets/commercial/phi-3.jpg';
       <!-- HENDRICK'S -->
       <details class="cm-row rv" name="cmrow">
         <summary class="cm-sum">
-          <span class="cm-thumb empty"><em>Hendrick's</em></span>
+          <span class="cm-thumb aperture">
+            <Image src={hendThumb} alt="Two figures with giant eyes for heads, seated at a garden table with Hendrick's bottles"
+                   widths={[300, 600]} sizes="(max-width: 640px) 92vw, 42vw" />
+          </span>
           <span class="cm-meta">
             <span class="cm-kind">Anotherland — 2026</span>
             <h2>Hendrick's Gin</h2>
@@ -34,6 +41,13 @@ import phi3 from '../../assets/commercial/phi-3.jpg';
         </summary>
 
         <div class="cm-panel">
+          <figure class="cm-still">
+            <span class="aperture">
+              <Image src={hendHero} alt="Two figures with giant eyes for heads raising a hat to each other outside a Victorian glasshouse"
+                     widths={[700, 1200]} sizes="(max-width: 900px) 94vw, 84vw" />
+            </span>
+          </figure>
+
           <div class="cm-body">
             <div class="cm-text">
               <p>Hendrick's Gin Palace is a real place: a Victorian distillery in Girvan, on the Scottish
@@ -66,7 +80,10 @@ import phi3 from '../../assets/commercial/phi-3.jpg';
       <!-- MARTIN AUER -->
       <details class="cm-row rv" name="cmrow">
         <summary class="cm-sum">
-          <span class="cm-thumb empty"><em>Martin Auer</em></span>
+          <span class="cm-thumb aperture">
+            <Image src={auerThumb} alt="Two figures whose heads are vintage espresso machines, pouring coffee into their own cups"
+                   widths={[300, 600]} sizes="(max-width: 640px) 92vw, 42vw" />
+          </span>
           <span class="cm-meta">
             <span class="cm-kind">Café Phantastique — 2026</span>
             <h2>Martin Auer</h2>
@@ -77,6 +94,13 @@ import phi3 from '../../assets/commercial/phi-3.jpg';
         </summary>
 
         <div class="cm-panel">
+          <figure class="cm-still">
+            <span class="aperture">
+              <Image src={auerHero} alt="Two figures with espresso-machine heads pouring milk into the cups they hold"
+                     widths={[900, 1400, 2000]} sizes="(max-width: 900px) 94vw, 84vw" />
+            </span>
+          </figure>
+
           <div class="cm-body">
             <div class="cm-text">
               <p>A campaign for an Austrian bakery and roastery, running across Graz and Klagenfurt.
@@ -213,42 +237,51 @@ import phi3 from '../../assets/commercial/phi-3.jpg';
 .commercial h1{font-family:var(--serif);font-size:clamp(2.4rem,6.5vw,5rem);line-height:.98;margin:0;font-weight:400}
 .cm-lead{color:var(--dust);line-height:1.7;max-width:52ch;margin:24px 0 clamp(40px,5vw,64px);font-size:1.02rem}
 
-/* --- the list --- */
-.cm-list{border-top:1px solid var(--hair)}
-.cm-row{border-bottom:1px solid var(--hair)}
-.cm-sum{display:grid;grid-template-columns:clamp(96px,16vw,190px) minmax(0,1fr) auto;
-  gap:clamp(16px,3vw,38px);align-items:center;padding:clamp(16px,2.2vw,26px) 0;cursor:pointer;
-  list-style:none;transition:padding-left .35s ease}
+/* --- the grid --- */
+.cm-list{display:grid;grid-template-columns:1fr 1fr;
+  column-gap:clamp(20px,3vw,44px);row-gap:clamp(26px,3.6vw,52px)}
+.cm-row{border-top:1px solid var(--hair);padding-top:clamp(13px,1.7vw,19px);min-width:0}
+.cm-row[open]{grid-column:1/-1}
+
+.cm-sum{display:grid;grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:"thumb thumb" "meta plus";
+  gap:clamp(12px,1.6vw,18px) 16px;cursor:pointer;list-style:none;align-items:end}
 .cm-sum::-webkit-details-marker{display:none}
-.cm-sum:hover{padding-left:10px}
-.cm-row[open] .cm-sum{padding-bottom:clamp(12px,1.6vw,18px)}
+.cm-thumb{grid-area:thumb}
+.cm-meta{grid-area:meta;min-width:0}
+.cm-plus{grid-area:plus;align-self:end;margin-bottom:4px}
 
 .cm-thumb{display:block;overflow:hidden}
 .cm-thumb img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
-.cm-thumb.empty{display:flex;align-items:center;justify-content:center;aspect-ratio:4/3;
-  border:1px solid var(--hair);background:rgba(255,255,255,.02)}
-.cm-thumb.empty em{font-family:var(--serif);font-style:italic;color:var(--dust);
-  font-size:clamp(.85rem,1.5vw,1.1rem);text-align:center;padding:0 8px;line-height:1.2}
 
-.cm-meta{display:block;min-width:0}
-.cm-meta h2{font-family:var(--serif);font-size:clamp(1.5rem,3.2vw,2.3rem);font-weight:400;
+.cm-meta h2{font-family:var(--serif);font-size:clamp(1.35rem,2.6vw,2rem);font-weight:400;
   margin:6px 0 0;line-height:1.05}
-.cm-kind{display:block;font-family:var(--mono);font-size:.6rem;letter-spacing:.17em;
+.cm-kind{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.17em;
   text-transform:uppercase;color:var(--ember)}
-.cm-teaser{display:block;color:var(--dust);line-height:1.6;margin-top:10px;max-width:48ch;font-size:.95rem}
+.cm-teaser{display:block;color:var(--dust);line-height:1.6;margin-top:10px;max-width:44ch;font-size:.93rem}
 
-.cm-plus{position:relative;width:16px;height:16px;flex:0 0 auto;opacity:.7;transition:transform .35s ease,opacity .3s ease}
-.cm-plus::before,.cm-plus::after{content:'';position:absolute;left:0;top:50%;width:16px;height:1px;
-  background:var(--bone);transform-origin:center}
+.cm-plus{position:relative;width:15px;height:15px;flex:0 0 auto;opacity:.65;transition:opacity .3s ease}
+.cm-plus::before,.cm-plus::after{content:'';position:absolute;left:0;top:50%;width:15px;height:1px;
+  background:var(--bone)}
 .cm-plus::after{transform:rotate(90deg);transition:transform .35s ease}
+.cm-sum:hover .cm-plus{opacity:1}
 .cm-row[open] .cm-plus{opacity:1}
 .cm-row[open] .cm-plus::after{transform:rotate(0deg)}
+
+/* opened: the card spans the full width and lies down */
+.cm-row[open] .cm-sum{grid-template-columns:clamp(150px,20vw,250px) minmax(0,1fr) auto;
+  grid-template-areas:"thumb meta plus";align-items:center;
+  gap:clamp(18px,3vw,40px);padding-bottom:clamp(14px,1.8vw,22px)}
+.cm-row[open] .cm-teaser{display:none}
+.cm-row[open] .cm-meta h2{font-size:clamp(1.6rem,3.2vw,2.4rem)}
 
 /* --- the panel --- */
 .cm-panel{padding:0 0 clamp(26px,3.4vw,44px);animation:cmOpen .4s ease both}
 @keyframes cmOpen{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.cm-panel{animation:none}.cm-sum,.cm-plus{transition:none}}
 
+.cm-still{margin:0 0 clamp(20px,2.6vw,32px)}
+.cm-still .aperture img{display:block;width:100%}
 .cm-film{margin:0 0 clamp(20px,2.6vw,32px)}
 .cm-film .aperture{aspect-ratio:16/10}
 .cm-film video{display:block;width:100%;height:100%;object-fit:cover}
@@ -276,13 +309,16 @@ import phi3 from '../../assets/commercial/phi-3.jpg';
 
 @media (max-width:900px){
   .cm-body{grid-template-columns:1fr;gap:24px}
+  .cm-row[open] .cm-sum{grid-template-columns:clamp(110px,22vw,160px) minmax(0,1fr) auto}
   .cm-grid.three{grid-template-columns:1fr}
   .cm-press a{grid-template-columns:1fr auto;row-gap:5px}
   .cm-press .p-outlet{grid-column:1/-1}
 }
 @media (max-width:640px){
-  .cm-sum{grid-template-columns:clamp(84px,26vw,110px) minmax(0,1fr);gap:16px;align-items:start}
-  .cm-plus{display:none}
-  .cm-teaser{font-size:.88rem;margin-top:8px}
+  .cm-list{grid-template-columns:1fr;row-gap:clamp(22px,5vw,30px)}
+  .cm-row[open] .cm-sum{grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"thumb thumb" "meta plus";align-items:end}
+  .cm-row[open] .cm-meta h2{font-size:clamp(1.35rem,2.6vw,2rem)}
+  .cm-teaser{font-size:.88rem}
 }
 </style>
