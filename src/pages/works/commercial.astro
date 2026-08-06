@@ -10,6 +10,9 @@ import hen4 from '../../assets/commercial/hen-4.jpg';
 import auerHero from '../../assets/commercial/auer-hero.jpg';
 import auer1 from '../../assets/commercial/auer-1.jpg';
 import auer2 from '../../assets/commercial/auer-2.jpg';
+import phi1 from '../../assets/commercial/phi-1.jpg';
+import phi2 from '../../assets/commercial/phi-2.jpg';
+import phi3 from '../../assets/commercial/phi-3.jpg';
 ---
 
 <Base title="Commercial — David Szauder"
@@ -147,6 +150,40 @@ import auer2 from '../../assets/commercial/auer-2.jpg';
       </div>
     </section>
 
+
+    <!-- PHILLIPS -->
+    <section class="cm-item rv">
+      <div class="cm-head">
+        <h2>Phillips</h2>
+        <span class="cm-kind">Out of This World — 2025</span>
+      </div>
+
+      <div class="cm-grid three portrait">
+        <span class="aperture"><Image src={phi1} alt="A golden Triceratops head shaped like a lightning bolt, worn by a figure crossing a city street at night" widths={[380, 700]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
+        <span class="aperture"><Image src={phi2} alt="A figure with a Triceratops skull for a head carrying a long gold nugget" widths={[380, 700]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
+        <span class="aperture"><Image src={phi3} alt="A boy in a bowler hat holding a large gold nugget shaped like a lightning bolt" widths={[380, 700]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
+      </div>
+
+      <div class="cm-body">
+        <div class="cm-text">
+          <p>A short film for the auction house, made around two objects from Earth's distant past:
+            <em>The Thunderbolt</em>, the longest gold nugget in the world at nearly two feet, and
+            <em>Cera</em>, the most complete juvenile Triceratops skeleton ever unearthed.</p>
+          <p>Both went into the Modern &amp; Contemporary Art evening sale rather than a natural
+            history one — objects that fall outside the usual collecting categories. The films treat
+            them the same way: not as specimens under glass, but as things that get carried through
+            a city by somebody in a hat.</p>
+        </div>
+
+        <dl class="cm-specs">
+          <div><dt>Role</dt><dd>Artist — moving image</dd></div>
+          <div><dt>Client</dt><dd>Phillips</dd></div>
+          <div><dt>Sale</dt><dd>Out of This World — Modern &amp; Contemporary Art Evening Sale, New York</dd></div>
+          <div><dt>When</dt><dd>19 &amp; 20 November 2025</dd></div>
+        </dl>
+      </div>
+    </section>
+
     <p class="cm-enquiry rv">
       For campaigns and brand commissions: <a href="mailto:davidszauderstudio@gmail.com">davidszauderstudio@gmail.com</a>
     </p>
@@ -178,6 +215,7 @@ import auer2 from '../../assets/commercial/auer-2.jpg';
 .cm-grid.three{grid-template-columns:1fr 1fr 1fr;align-items:start}
 .cm-grid.two{grid-template-columns:1fr 1fr;max-width:760px}
 .cm-grid .aperture img{aspect-ratio:16/9}
+.cm-grid.portrait .aperture img{aspect-ratio:3/4}
 .cm-grid .aperture.tall img{aspect-ratio:3/4}
 .cm-credit{font-family:var(--mono);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;
   color:var(--dust);margin:12px 0 0}
