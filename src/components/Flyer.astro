@@ -76,13 +76,13 @@
   const CFG = {
     on: true,            // master switch — false disables everything
 
-    firstDelay: 45000,   // ms before the first crossing
+    firstDelay: 15000,   // ms before the first crossing
     gapMin: 40000,       // never more often than this
     gapMax: 90000,
 
-    // hold may be a single number or a [min, max] range drawn each time.
-    // 140-260 = flash, 2200 = long, 5000 = very long, 0 = no inversion.
-    invert: { hold: [140, 260], delay: 300 },
+    // Inversion is off. To bring it back, give hold a number or a [min, max]
+    // range: 140-260 = flash, 2200 = long, 5000 = very long. 0 = off.
+    invert: { hold: 0, delay: 300 },
 
     noRepeat: true,      // don't pick the same character twice in a row
 
