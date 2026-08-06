@@ -3,6 +3,13 @@ import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 
 import fainPoster from '../../assets/commercial/fain-poster.jpg';
+import henHero from '../../assets/commercial/hen-hero.jpg';
+import hen2 from '../../assets/commercial/hen-2.jpg';
+import hen3 from '../../assets/commercial/hen-3.jpg';
+import hen4 from '../../assets/commercial/hen-4.jpg';
+import auerHero from '../../assets/commercial/auer-hero.jpg';
+import auer1 from '../../assets/commercial/auer-1.jpg';
+import auer2 from '../../assets/commercial/auer-2.jpg';
 ---
 
 <Base title="Commercial — David Szauder"
@@ -21,6 +28,13 @@ import fainPoster from '../../assets/commercial/fain-poster.jpg';
         <h2>Hendrick's Gin</h2>
         <span class="cm-kind">Anotherland — 2026</span>
       </div>
+
+      <figure class="cm-film">
+        <span class="aperture">
+          <Image src={henHero} alt="Two figures whose heads are giant eyes, seated at a table with Hendrick's bottles before a Victorian glasshouse"
+                 widths={[800, 1120, 1400]} sizes="(max-width: 900px) 94vw, 84vw" />
+        </span>
+      </figure>
 
       <div class="cm-body">
         <div class="cm-text">
@@ -44,6 +58,12 @@ import fainPoster from '../../assets/commercial/fain-poster.jpg';
         </dl>
       </div>
 
+      <div class="cm-grid three">
+        <span class="aperture"><Image src={hen2} alt="The two eye-headed figures at an organ in a green floral room" widths={[500, 954]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
+        <span class="aperture"><Image src={hen3} alt="An Anotherland postcard held beside two Hendrick's bottles" widths={[500, 954]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
+        <span class="aperture tall"><Image src={hen4} alt="The two figures outside an ivy-covered townhouse with a yellow taxi and a carpet of flowers" widths={[420, 760]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
+      </div>
+
       <ul class="cm-press">
         <li><a href="https://www.thestable.com.au/hendricks-gin-takes-fans-into-its-whimsical-world-anotherland/" target="_blank" rel="noopener"><span class="p-outlet">The Stable</span><span class="p-title">Hendrick's Gin takes fans into its whimsical world, Anotherland</span><span class="p-arrow">&nearr;</span></a></li>
         <li><a href="https://ialternativemedia.com/how-hendricks-blended-ai-and-theater-for-its-biggest-launchin-a-decade/" target="_blank" rel="noopener"><span class="p-outlet">iAlternative</span><span class="p-title">How Hendrick's blended AI and theatre for its biggest launch in a decade</span><span class="p-arrow">&nearr;</span></a></li>
@@ -56,6 +76,13 @@ import fainPoster from '../../assets/commercial/fain-poster.jpg';
         <h2>Martin Auer</h2>
         <span class="cm-kind">Café Phantastique — 2026</span>
       </div>
+
+      <figure class="cm-film">
+        <span class="aperture">
+          <Image src={auerHero} alt="Two figures with vintage espresso machines for heads, each pouring milk into a cup"
+                 widths={[900, 1400, 1500]} sizes="(max-width: 900px) 94vw, 84vw" />
+        </span>
+      </figure>
 
       <div class="cm-body">
         <div class="cm-text">
@@ -74,6 +101,12 @@ import fainPoster from '../../assets/commercial/fain-poster.jpg';
           <div><dt>Year</dt><dd>2026</dd></div>
         </dl>
       </div>
+
+      <div class="cm-grid two">
+        <span class="aperture"><Image src={auer1} alt="Café Phantastique poster: a figure in a suit with an espresso machine head" widths={[420, 760]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
+        <span class="aperture"><Image src={auer2} alt="Café Phantastique poster: a figure in a gold and black sweater with an espresso machine head" widths={[420, 760]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
+      </div>
+      <p class="cm-credit">Campaign images &copy; Martin Auer GmbH</p>
 
       <ul class="cm-press">
         <li><a href="https://www.5min.at/graz/5202601231450/martin-auer-startet-ki-kampagne-in-graz-und-klagenfurt/" target="_blank" rel="noopener"><span class="p-outlet">5 Minuten</span><span class="p-title">Martin Auer startet KI-Kampagne in Graz und Klagenfurt</span><span class="p-arrow">&nearr;</span></a></li>
@@ -140,6 +173,13 @@ import fainPoster from '../../assets/commercial/fain-poster.jpg';
   padding:12px 0;border-bottom:1px solid var(--hair)}
 .cm-specs dt{font-family:var(--mono);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust)}
 .cm-specs dd{margin:0;font-size:.93rem;line-height:1.5}
+.cm-grid{display:grid;gap:clamp(10px,1.4vw,18px);margin-top:clamp(16px,2vw,26px)}
+.cm-grid.three{grid-template-columns:1fr 1fr 1fr;align-items:start}
+.cm-grid.two{grid-template-columns:1fr 1fr;max-width:760px}
+.cm-grid .aperture img{aspect-ratio:16/9}
+.cm-grid .aperture.tall img{aspect-ratio:3/4}
+.cm-credit{font-family:var(--mono);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dust);margin:12px 0 0}
 .cm-press{list-style:none;margin:clamp(22px,2.8vw,34px) 0 0;padding:0;border-top:1px solid var(--hair)}
 .cm-press li{border-bottom:1px solid var(--hair)}
 .cm-press a{display:grid;grid-template-columns:clamp(110px,14vw,160px) minmax(0,1fr) auto;
@@ -150,6 +190,7 @@ import fainPoster from '../../assets/commercial/fain-poster.jpg';
 .cm-enquiry a{color:var(--bone);border-bottom:1px solid var(--ember);padding-bottom:3px;margin-left:8px}
 @media (max-width:900px){
   .cm-body{grid-template-columns:1fr;gap:24px}
+  .cm-grid.three,.cm-grid.two{grid-template-columns:1fr}
   .cm-press a{grid-template-columns:1fr auto;row-gap:5px}
   .cm-press .p-outlet{grid-column:1/-1}
 }
