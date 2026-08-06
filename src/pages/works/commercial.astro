@@ -3,21 +3,13 @@ import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 
 import fainPoster from '../../assets/commercial/fain-poster.jpg';
-import henHero from '../../assets/commercial/hen-hero.jpg';
-import hen2 from '../../assets/commercial/hen-2.jpg';
-import hen3 from '../../assets/commercial/hen-3.jpg';
-import hen4 from '../../assets/commercial/hen-4.jpg';
-import auerHero from '../../assets/commercial/auer-hero.jpg';
-import auer1 from '../../assets/commercial/auer-1.jpg';
-import auer2 from '../../assets/commercial/auer-2.jpg';
 import phi1 from '../../assets/commercial/phi-1.jpg';
 import phi2 from '../../assets/commercial/phi-2.jpg';
 import phi3 from '../../assets/commercial/phi-3.jpg';
 ---
 
 <Base title="Commercial — David Szauder"
-      description="Brand campaigns: Hendrick's Gin Anotherland, Martin Auer Café Phantastique, FAIN."
-      ogImage={henHero}>
+      description="Brand campaigns: Hendrick's Gin Anotherland, Martin Auer Café Phantastique, FAIN, Phillips.">
   <article class="wrap commercial">
     <header class="rv">
       <span class="tag">Brand work</span>
@@ -26,163 +18,177 @@ import phi3 from '../../assets/commercial/phi-3.jpg';
         with the same studio, the same archive and the same hands as everything else here.</p>
     </header>
 
-    <!-- HENDRICK'S -->
-    <section class="cm-item rv">
-      <div class="cm-head">
-        <h2>Hendrick's Gin</h2>
-        <span class="cm-kind">Anotherland — 2026</span>
-      </div>
+    <div class="cm-list">
 
-      <figure class="cm-film">
-        <span class="aperture">
-          <Image src={henHero} alt="Two figures whose heads are giant eyes, seated at a table with Hendrick's bottles before a Victorian glasshouse"
-                 widths={[800, 1120, 1400]} sizes="(max-width: 900px) 94vw, 84vw" />
-        </span>
-      </figure>
+      <!-- HENDRICK'S -->
+      <details class="cm-row rv" name="cmrow">
+        <summary class="cm-sum">
+          <span class="cm-thumb empty"><em>Hendrick's</em></span>
+          <span class="cm-meta">
+            <span class="cm-kind">Anotherland — 2026</span>
+            <h2>Hendrick's Gin</h2>
+            <span class="cm-teaser">Six films and a botanical world modelled on a distillery
+              that is not open to the public.</span>
+          </span>
+          <span class="cm-plus" aria-hidden="true"></span>
+        </summary>
 
-      <div class="cm-body">
-        <div class="cm-text">
-          <p>Hendrick's Gin Palace is a real place: a Victorian distillery in Girvan, on the Scottish
-            coast, with a cabinet of curiosities, a walled garden and a resident tortoise. It is not
-            open to the public. <em>Anotherland</em> is the world built so that people could visit it
-            anyway.</p>
-          <p>Six short films, set in a botanical world modelled on the Gin Palace, following two
-            creatures whose heads are giant eyeballs. The campaign launched the first addition to the
-            Hendrick's range in nearly a decade, and extended into live theatrical events — designed
-            by the creator of <em>Sleep No More</em> — in New York, Los Angeles, Chicago and Miami,
-            then Berlin, Milan and London.</p>
+        <div class="cm-panel">
+          <div class="cm-body">
+            <div class="cm-text">
+              <p>Hendrick's Gin Palace is a real place: a Victorian distillery in Girvan, on the Scottish
+                coast, with a cabinet of curiosities, a walled garden and a resident tortoise. It is not
+                open to the public. <em>Anotherland</em> is the world built so that people could visit it
+                anyway.</p>
+              <p>Six short films, set in a botanical world modelled on the Gin Palace, following two
+                creatures whose heads are giant eyeballs. The campaign launched the first addition to the
+                Hendrick's range in nearly a decade, and extended into live theatrical events — designed
+                by the creator of <em>Sleep No More</em> — in New York, Los Angeles, Chicago and Miami,
+                then Berlin, Milan and London.</p>
+            </div>
+
+            <dl class="cm-specs">
+              <div><dt>Role</dt><dd>Creative director and creator — creative visualisation &amp; production, David Szauder Studio</dd></div>
+              <div><dt>Agency</dt><dd>Ace of Hearts, London</dd></div>
+              <div><dt>Scope</dt><dd>Six films, seven cities</dd></div>
+              <div><dt>Studio</dt><dd>Creative producer: Anna Réka Baktay</dd></div>
+              <div><dt>Year</dt><dd>2026</dd></div>
+            </dl>
+          </div>
+
+          <ul class="cm-press">
+            <li><a href="https://www.thestable.com.au/hendricks-gin-takes-fans-into-its-whimsical-world-anotherland/" target="_blank" rel="noopener"><span class="p-outlet">The Stable</span><span class="p-title">Hendrick's Gin takes fans into its whimsical world, Anotherland</span><span class="p-arrow">&nearr;</span></a></li>
+            <li><a href="https://ialternativemedia.com/how-hendricks-blended-ai-and-theater-for-its-biggest-launchin-a-decade/" target="_blank" rel="noopener"><span class="p-outlet">iAlternative</span><span class="p-title">How Hendrick's blended AI and theatre for its biggest launch in a decade</span><span class="p-arrow">&nearr;</span></a></li>
+          </ul>
         </div>
+      </details>
 
-        <dl class="cm-specs">
-          <div><dt>Role</dt><dd>Creative director and creator — creative visualisation &amp; production, David Szauder Studio</dd></div>
-          <div><dt>Agency</dt><dd>Ace of Hearts, London</dd></div>
-          <div><dt>Scope</dt><dd>Six films, seven cities</dd></div>
-          <div><dt>Studio</dt><dd>Creative producer: Anna Réka Baktay</dd></div>
-          <div><dt>Year</dt><dd>2026</dd></div>
-        </dl>
-      </div>
+      <!-- MARTIN AUER -->
+      <details class="cm-row rv" name="cmrow">
+        <summary class="cm-sum">
+          <span class="cm-thumb empty"><em>Martin Auer</em></span>
+          <span class="cm-meta">
+            <span class="cm-kind">Café Phantastique — 2026</span>
+            <h2>Martin Auer</h2>
+            <span class="cm-teaser">A surreal world for an Austrian roastery, started by closing
+              my eyes and thinking about coffee.</span>
+          </span>
+          <span class="cm-plus" aria-hidden="true"></span>
+        </summary>
 
-      <div class="cm-grid three">
-        <span class="aperture"><Image src={hen2} alt="The two eye-headed figures at an organ in a green floral room" widths={[500, 954]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
-        <span class="aperture"><Image src={hen3} alt="An Anotherland postcard held beside two Hendrick's bottles" widths={[500, 954]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
-        <span class="aperture tall"><Image src={hen4} alt="The two figures outside an ivy-covered townhouse with a yellow taxi and a carpet of flowers" widths={[420, 760]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
-      </div>
+        <div class="cm-panel">
+          <div class="cm-body">
+            <div class="cm-text">
+              <p>A campaign for an Austrian bakery and roastery, running across Graz and Klagenfurt.
+                The work did not start at a computer. I like coffee a great deal, so the starting point
+                was simple: I began thinking about what good coffee does to me, closed my eyes, and
+                started to fantasise.</p>
+              <p>What came out is a surreal world populated by figures who love coffee so much that
+                they almost completely transform under its influence.</p>
+            </div>
 
-      <ul class="cm-press">
-        <li><a href="https://www.thestable.com.au/hendricks-gin-takes-fans-into-its-whimsical-world-anotherland/" target="_blank" rel="noopener"><span class="p-outlet">The Stable</span><span class="p-title">Hendrick's Gin takes fans into its whimsical world, Anotherland</span><span class="p-arrow">&nearr;</span></a></li>
-        <li><a href="https://ialternativemedia.com/how-hendricks-blended-ai-and-theater-for-its-biggest-launchin-a-decade/" target="_blank" rel="noopener"><span class="p-outlet">iAlternative</span><span class="p-title">How Hendrick's blended AI and theatre for its biggest launch in a decade</span><span class="p-arrow">&nearr;</span></a></li>
-      </ul>
-    </section>
+            <dl class="cm-specs">
+              <div><dt>Role</dt><dd>Artist — campaign imagery</dd></div>
+              <div><dt>Client</dt><dd>Martin Auer, Graz</dd></div>
+              <div><dt>Where</dt><dd>Graz and Klagenfurt, across channels</dd></div>
+              <div><dt>Year</dt><dd>2026</dd></div>
+            </dl>
+          </div>
 
-    <!-- MARTIN AUER -->
-    <section class="cm-item rv">
-      <div class="cm-head">
-        <h2>Martin Auer</h2>
-        <span class="cm-kind">Café Phantastique — 2026</span>
-      </div>
-
-      <figure class="cm-film">
-        <span class="aperture">
-          <Image src={auerHero} alt="Two figures with vintage espresso machines for heads, each pouring milk into a cup"
-                 widths={[900, 1400, 1500]} sizes="(max-width: 900px) 94vw, 84vw" />
-        </span>
-      </figure>
-
-      <div class="cm-body">
-        <div class="cm-text">
-          <p>A campaign for an Austrian bakery and roastery, running across Graz and Klagenfurt.
-            The work did not start at a computer. I like coffee a great deal, so the starting point
-            was simple: I began thinking about what good coffee does to me, closed my eyes, and
-            started to fantasise.</p>
-          <p>What came out is a surreal world populated by figures who love coffee so much that
-            they almost completely transform under its influence.</p>
+          <ul class="cm-press">
+            <li><a href="https://www.5min.at/graz/5202601231450/martin-auer-startet-ki-kampagne-in-graz-und-klagenfurt/" target="_blank" rel="noopener"><span class="p-outlet">5 Minuten</span><span class="p-title">Martin Auer startet KI-Kampagne in Graz und Klagenfurt</span><span class="p-arrow">&nearr;</span></a></li>
+            <li><a href="https://www.kleinezeitung.at/artikel/20493903/martin-auer-serviert-bio-kaffee-mit-einer-ungewoehnlichen-werbekampagne" target="_blank" rel="noopener"><span class="p-outlet">Kleine Zeitung</span><span class="p-title">Martin Auer serviert Bio-Kaffee mit einer ungewöhnlichen Werbekampagne</span><span class="p-arrow">&nearr;</span></a></li>
+            <li><a href="https://www.falstaff.com/at/news/grazer-baecker-martin-auer-setzt-auf-ki-kampagne-fuer-kaffee" target="_blank" rel="noopener"><span class="p-outlet">Falstaff</span><span class="p-title">Grazer Bäcker Martin Auer setzt auf KI-Kampagne für Kaffee</span><span class="p-arrow">&nearr;</span></a></li>
+          </ul>
         </div>
+      </details>
 
-        <dl class="cm-specs">
-          <div><dt>Role</dt><dd>Artist — campaign imagery</dd></div>
-          <div><dt>Client</dt><dd>Martin Auer, Graz</dd></div>
-          <div><dt>Where</dt><dd>Graz and Klagenfurt, across channels</dd></div>
-          <div><dt>Year</dt><dd>2026</dd></div>
-        </dl>
-      </div>
+      <!-- FAIN -->
+      <details class="cm-row rv" name="cmrow">
+        <summary class="cm-sum">
+          <span class="cm-thumb aperture">
+            <Image src={fainPoster} alt="A figure in a tailcoat with a clock for a head, inside an ornate lift"
+                   widths={[220, 440]} sizes="(max-width: 700px) 30vw, 220px" />
+          </span>
+          <span class="cm-meta">
+            <span class="cm-kind">Film — 2026</span>
+            <h2>FAIN</h2>
+            <span class="cm-teaser">A clock-headed figure, a yellow bird and an ornate lift.</span>
+          </span>
+          <span class="cm-plus" aria-hidden="true"></span>
+        </summary>
 
-      <div class="cm-grid two">
-        <span class="aperture"><Image src={auer1} alt="Café Phantastique poster: a figure in a suit with an espresso machine head" widths={[420, 760]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
-        <span class="aperture"><Image src={auer2} alt="Café Phantastique poster: a figure in a gold and black sweater with an espresso machine head" widths={[420, 760]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
-      </div>
-      <p class="cm-credit">Campaign images &copy; Martin Auer GmbH</p>
+        <div class="cm-panel">
+          <figure class="cm-film">
+            <span class="aperture">
+              <video src="/video/fain.mp4" poster={fainPoster.src}
+                     muted loop playsinline preload="none"
+                     aria-label="Film for FAIN: a figure in a tailcoat with a clock for a head, inside an ornate lift"></video>
+            </span>
+          </figure>
 
-      <ul class="cm-press">
-        <li><a href="https://www.5min.at/graz/5202601231450/martin-auer-startet-ki-kampagne-in-graz-und-klagenfurt/" target="_blank" rel="noopener"><span class="p-outlet">5 Minuten</span><span class="p-title">Martin Auer startet KI-Kampagne in Graz und Klagenfurt</span><span class="p-arrow">&nearr;</span></a></li>
-        <li><a href="https://www.kleinezeitung.at/artikel/20493903/martin-auer-serviert-bio-kaffee-mit-einer-ungewoehnlichen-werbekampagne" target="_blank" rel="noopener"><span class="p-outlet">Kleine Zeitung</span><span class="p-title">Martin Auer serviert Bio-Kaffee mit einer ungewöhnlichen Werbekampagne</span><span class="p-arrow">&nearr;</span></a></li>
-        <li><a href="https://www.falstaff.com/at/news/grazer-baecker-martin-auer-setzt-auf-ki-kampagne-fuer-kaffee" target="_blank" rel="noopener"><span class="p-outlet">Falstaff</span><span class="p-title">Grazer Bäcker Martin Auer setzt auf KI-Kampagne für Kaffee</span><span class="p-arrow">&nearr;</span></a></li>
-      </ul>
-    </section>
+          <div class="cm-body">
+            <div class="cm-text">
+              <p>A film for a lift company. A figure in a tailcoat, a clock where the face should be,
+                a yellow bird — waiting, riding, and eventually playing the violin inside an ornate
+                cabin. A lift is one of the few rooms where strangers agree to stand still together
+                and watch the numbers.</p>
+            </div>
 
-    <!-- FAIN -->
-    <section class="cm-item rv">
-      <div class="cm-head">
-        <h2>FAIN</h2>
-        <span class="cm-kind">Film — 2026</span>
-      </div>
-
-      <figure class="cm-film">
-        <span class="aperture">
-          <video src="/video/fain.mp4" poster={fainPoster.src}
-                 autoplay muted loop playsinline preload="metadata"
-                 aria-label="Film for FAIN: a figure in a tailcoat with a clock for a head, inside an ornate lift"></video>
-        </span>
-      </figure>
-
-      <div class="cm-body">
-        <div class="cm-text">
-          <p>A film for a lift company. A figure in a tailcoat, a clock where the face should be,
-            a yellow bird — waiting, riding, and eventually playing the violin inside an ornate
-            cabin. A lift is one of the few rooms where strangers agree to stand still together
-            and watch the numbers.</p>
+            <dl class="cm-specs">
+              <div><dt>Role</dt><dd>Direction, image</dd></div>
+              <div><dt>Client</dt><dd>FAIN</dd></div>
+              <div><dt>Year</dt><dd>2026</dd></div>
+            </dl>
+          </div>
         </div>
+      </details>
 
-        <dl class="cm-specs">
-          <div><dt>Role</dt><dd>Direction, image</dd></div>
-          <div><dt>Client</dt><dd>FAIN</dd></div>
-          <div><dt>Year</dt><dd>2026</dd></div>
-        </dl>
-      </div>
-    </section>
+      <!-- PHILLIPS -->
+      <details class="cm-row rv" name="cmrow">
+        <summary class="cm-sum">
+          <span class="cm-thumb aperture">
+            <Image src={phi1} alt="A golden Triceratops head shaped like a lightning bolt, worn by a figure crossing a city street at night"
+                   widths={[220, 440]} sizes="(max-width: 700px) 30vw, 220px" />
+          </span>
+          <span class="cm-meta">
+            <span class="cm-kind">Out of This World — 2025</span>
+            <h2>Phillips</h2>
+            <span class="cm-teaser">The longest gold nugget in the world and a juvenile Triceratops,
+              carried through a city.</span>
+          </span>
+          <span class="cm-plus" aria-hidden="true"></span>
+        </summary>
 
+        <div class="cm-panel">
+          <div class="cm-grid three portrait">
+            <span class="aperture"><Image src={phi1} alt="A golden Triceratops head shaped like a lightning bolt, worn by a figure crossing a city street at night" widths={[380, 700]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
+            <span class="aperture"><Image src={phi2} alt="A figure with a Triceratops skull for a head carrying a long gold nugget" widths={[380, 700]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
+            <span class="aperture"><Image src={phi3} alt="A boy in a bowler hat holding a large gold nugget shaped like a lightning bolt" widths={[380, 700]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
+          </div>
 
-    <!-- PHILLIPS -->
-    <section class="cm-item rv">
-      <div class="cm-head">
-        <h2>Phillips</h2>
-        <span class="cm-kind">Out of This World — 2025</span>
-      </div>
+          <div class="cm-body">
+            <div class="cm-text">
+              <p>A short film for the auction house, made around two objects from Earth's distant past:
+                <em>The Thunderbolt</em>, the longest gold nugget in the world at nearly two feet, and
+                <em>Cera</em>, the most complete juvenile Triceratops skeleton ever unearthed.</p>
+              <p>Both went into the Modern &amp; Contemporary Art evening sale rather than a natural
+                history one — objects that fall outside the usual collecting categories. The films treat
+                them the same way: not as specimens under glass, but as things that get carried through
+                a city by somebody in a hat.</p>
+            </div>
 
-      <div class="cm-grid three portrait">
-        <span class="aperture"><Image src={phi1} alt="A golden Triceratops head shaped like a lightning bolt, worn by a figure crossing a city street at night" widths={[380, 700]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
-        <span class="aperture"><Image src={phi2} alt="A figure with a Triceratops skull for a head carrying a long gold nugget" widths={[380, 700]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
-        <span class="aperture"><Image src={phi3} alt="A boy in a bowler hat holding a large gold nugget shaped like a lightning bolt" widths={[380, 700]} sizes="(max-width: 900px) 94vw, 30vw" /></span>
-      </div>
-
-      <div class="cm-body">
-        <div class="cm-text">
-          <p>A short film for the auction house, made around two objects from Earth's distant past:
-            <em>The Thunderbolt</em>, the longest gold nugget in the world at nearly two feet, and
-            <em>Cera</em>, the most complete juvenile Triceratops skeleton ever unearthed.</p>
-          <p>Both went into the Modern &amp; Contemporary Art evening sale rather than a natural
-            history one — objects that fall outside the usual collecting categories. The films treat
-            them the same way: not as specimens under glass, but as things that get carried through
-            a city by somebody in a hat.</p>
+            <dl class="cm-specs">
+              <div><dt>Role</dt><dd>Artist — moving image</dd></div>
+              <div><dt>Client</dt><dd>Phillips</dd></div>
+              <div><dt>Sale</dt><dd>Out of This World — Modern &amp; Contemporary Art Evening Sale, New York</dd></div>
+              <div><dt>When</dt><dd>19 &amp; 20 November 2025</dd></div>
+            </dl>
+          </div>
         </div>
+      </details>
 
-        <dl class="cm-specs">
-          <div><dt>Role</dt><dd>Artist — moving image</dd></div>
-          <div><dt>Client</dt><dd>Phillips</dd></div>
-          <div><dt>Sale</dt><dd>Out of This World — Modern &amp; Contemporary Art Evening Sale, New York</dd></div>
-          <div><dt>When</dt><dd>19 &amp; 20 November 2025</dd></div>
-        </dl>
-      </div>
-    </section>
+    </div>
 
     <p class="cm-enquiry rv">
       For campaigns and brand commissions: <a href="mailto:davidszauderstudio@gmail.com">davidszauderstudio@gmail.com</a>
@@ -190,19 +196,66 @@ import phi3 from '../../assets/commercial/phi-3.jpg';
   </article>
 </Base>
 
+<script>
+  // Play the film only while its row is open.
+  document.querySelectorAll('.cm-row').forEach((row) => {
+    row.addEventListener('toggle', () => {
+      const v = row.querySelector('video');
+      if (!v) return;
+      if (row.open) { v.play().catch(() => {}); } else { v.pause(); }
+    });
+  });
+</script>
+
 <style is:global>
 .commercial{padding:clamp(110px,15vh,180px) 0 clamp(60px,9vw,120px)}
 .commercial .tag{display:block;margin-bottom:14px}
 .commercial h1{font-family:var(--serif);font-size:clamp(2.4rem,6.5vw,5rem);line-height:.98;margin:0;font-weight:400}
-.cm-lead{color:var(--dust);line-height:1.7;max-width:52ch;margin:24px 0 clamp(46px,6vw,84px);font-size:1.02rem}
-.cm-item{margin-bottom:clamp(56px,8vw,110px)}
-.cm-head{display:flex;justify-content:space-between;align-items:baseline;gap:18px;flex-wrap:wrap;
-  padding-bottom:16px;margin-bottom:clamp(20px,2.6vw,32px);border-bottom:1px solid var(--hair)}
-.cm-head h2{font-family:var(--serif);font-size:clamp(1.7rem,3.6vw,2.6rem);font-weight:400;margin:0;line-height:1}
-.cm-kind{font-family:var(--mono);font-size:.62rem;letter-spacing:.17em;text-transform:uppercase;color:var(--ember)}
+.cm-lead{color:var(--dust);line-height:1.7;max-width:52ch;margin:24px 0 clamp(40px,5vw,64px);font-size:1.02rem}
+
+/* --- the list --- */
+.cm-list{border-top:1px solid var(--hair)}
+.cm-row{border-bottom:1px solid var(--hair)}
+.cm-sum{display:grid;grid-template-columns:clamp(96px,16vw,190px) minmax(0,1fr) auto;
+  gap:clamp(16px,3vw,38px);align-items:center;padding:clamp(16px,2.2vw,26px) 0;cursor:pointer;
+  list-style:none;transition:padding-left .35s ease}
+.cm-sum::-webkit-details-marker{display:none}
+.cm-sum:hover{padding-left:10px}
+.cm-row[open] .cm-sum{padding-bottom:clamp(12px,1.6vw,18px)}
+
+.cm-thumb{display:block;overflow:hidden}
+.cm-thumb img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.cm-thumb.empty{display:flex;align-items:center;justify-content:center;aspect-ratio:4/3;
+  border:1px solid var(--hair);background:rgba(255,255,255,.02)}
+.cm-thumb.empty em{font-family:var(--serif);font-style:italic;color:var(--dust);
+  font-size:clamp(.85rem,1.5vw,1.1rem);text-align:center;padding:0 8px;line-height:1.2}
+
+.cm-meta{display:block;min-width:0}
+.cm-meta h2{font-family:var(--serif);font-size:clamp(1.5rem,3.2vw,2.3rem);font-weight:400;
+  margin:6px 0 0;line-height:1.05}
+.cm-kind{display:block;font-family:var(--mono);font-size:.6rem;letter-spacing:.17em;
+  text-transform:uppercase;color:var(--ember)}
+.cm-teaser{display:block;color:var(--dust);line-height:1.6;margin-top:10px;max-width:48ch;font-size:.95rem}
+
+.cm-plus{position:relative;width:16px;height:16px;flex:0 0 auto;opacity:.7;transition:transform .35s ease,opacity .3s ease}
+.cm-plus::before,.cm-plus::after{content:'';position:absolute;left:0;top:50%;width:16px;height:1px;
+  background:var(--bone);transform-origin:center}
+.cm-plus::after{transform:rotate(90deg);transition:transform .35s ease}
+.cm-row[open] .cm-plus{opacity:1}
+.cm-row[open] .cm-plus::after{transform:rotate(0deg)}
+
+/* --- the panel --- */
+.cm-panel{padding:0 0 clamp(26px,3.4vw,44px);animation:cmOpen .4s ease both}
+@keyframes cmOpen{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.cm-panel{animation:none}.cm-sum,.cm-plus{transition:none}}
+
 .cm-film{margin:0 0 clamp(20px,2.6vw,32px)}
 .cm-film .aperture{aspect-ratio:16/10}
 .cm-film video{display:block;width:100%;height:100%;object-fit:cover}
+.cm-grid{display:grid;gap:clamp(10px,1.4vw,18px);margin-bottom:clamp(20px,2.6vw,32px)}
+.cm-grid.three{grid-template-columns:repeat(3,1fr)}
+.cm-grid .aperture img{width:100%;aspect-ratio:16/9}
+.cm-grid.portrait .aperture img{aspect-ratio:3/4}
 .cm-body{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(24px,4vw,60px);align-items:start}
 .cm-text p{color:var(--dust);line-height:1.7;margin:0 0 20px;max-width:52ch;font-size:1.02rem}
 .cm-text em{font-style:italic;color:var(--bone)}
@@ -211,26 +264,25 @@ import phi3 from '../../assets/commercial/phi-3.jpg';
   padding:12px 0;border-bottom:1px solid var(--hair)}
 .cm-specs dt{font-family:var(--mono);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust)}
 .cm-specs dd{margin:0;font-size:.93rem;line-height:1.5}
-.cm-grid{display:grid;gap:clamp(10px,1.4vw,18px);margin-top:clamp(16px,2vw,26px)}
-.cm-grid.three{grid-template-columns:1fr 1fr 1fr;align-items:start}
-.cm-grid.two{grid-template-columns:1fr 1fr;max-width:760px}
-.cm-grid .aperture img{aspect-ratio:16/9}
-.cm-grid.portrait .aperture img{aspect-ratio:3/4}
-.cm-grid .aperture.tall img{aspect-ratio:3/4}
-.cm-credit{font-family:var(--mono);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--dust);margin:12px 0 0}
 .cm-press{list-style:none;margin:clamp(22px,2.8vw,34px) 0 0;padding:0;border-top:1px solid var(--hair)}
 .cm-press li{border-bottom:1px solid var(--hair)}
+.cm-press li:last-child{border-bottom:0}
 .cm-press a{display:grid;grid-template-columns:clamp(110px,14vw,160px) minmax(0,1fr) auto;
   gap:clamp(12px,2vw,26px);align-items:baseline;padding:14px 0;transition:padding-left .3s ease}
 .cm-press a:hover{padding-left:10px}
 .cm-enquiry{font-family:var(--mono);font-size:.64rem;letter-spacing:.15em;text-transform:uppercase;
-  color:var(--dust);margin:0;padding-top:26px;border-top:1px solid var(--hair)}
+  color:var(--dust);margin:clamp(38px,5vw,64px) 0 0;padding-top:26px;border-top:1px solid var(--hair)}
 .cm-enquiry a{color:var(--bone);border-bottom:1px solid var(--ember);padding-bottom:3px;margin-left:8px}
+
 @media (max-width:900px){
   .cm-body{grid-template-columns:1fr;gap:24px}
-  .cm-grid.three,.cm-grid.two{grid-template-columns:1fr}
+  .cm-grid.three{grid-template-columns:1fr}
   .cm-press a{grid-template-columns:1fr auto;row-gap:5px}
   .cm-press .p-outlet{grid-column:1/-1}
+}
+@media (max-width:640px){
+  .cm-sum{grid-template-columns:clamp(84px,26vw,110px) minmax(0,1fr);gap:16px;align-items:start}
+  .cm-plus{display:none}
+  .cm-teaser{font-size:.88rem;margin-top:8px}
 }
 </style>
