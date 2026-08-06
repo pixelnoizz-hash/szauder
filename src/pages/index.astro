@@ -13,7 +13,7 @@ const works = (await getCollection('works')).sort((a, b) => a.data.order - b.dat
 
 const institutions = [
   'Centre Pompidou', 'Staatsoper Hamburg', 'MUDEC Milano', 'Ars Electronica',
-  'Elza Kayal Gallery New York', 'Műcsarnok Budapest', 'Kiscelli Museum', 'Ludwig Museum',
+  'Elza Kayal Gallery New York', 'Kunsthalle (Műcsarnok)', 'Kiscelli Museum', 'Ludwig Museum',
   'Festival dei Due Mondi', 'The New Yorker', 'The Washington Post', 'WIRED',
   'TED Next', 'Whitehot Magazine', 'LUMAS', 'Gestalten', 'Oxford University Press',
 ];
@@ -70,7 +70,6 @@ const routes = [
   </section>
 
   <section class="wrap inst">
-    <span class="tag rv">Where the work has been</span>
     <p class="inst-list rv">
       {institutions.map((n, i) => (
         <>
@@ -83,7 +82,6 @@ const routes = [
 
   <section class="wrap contact" id="contact">
     <span class="tag rv">Contact</span>
-    <h2 class="rv">Bring me<br />a world.</h2>
     <dl class="routes rv">
       {routes.map((r) => (
         <div class="route">
@@ -151,7 +149,7 @@ const routes = [
 .btn:hover{background:var(--bone);color:var(--void)}
 .book-media{display:grid;grid-template-columns:.86fr 1fr;gap:clamp(12px,1.6vw,22px);align-items:center}
 
-.inst{padding:clamp(50px,7vw,96px) 0}
+.inst{padding:clamp(44px,6vw,84px) 0}
 .inst .tag{display:block;margin-bottom:clamp(24px,3.4vw,40px)}
 .inst-list{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px clamp(15px,1.9vw,28px);margin:0}
 .inst-list span{font-family:var(--serif);font-size:clamp(1.15rem,2.4vw,1.95rem);line-height:1.34}
@@ -159,7 +157,7 @@ const routes = [
 
 .contact{padding:clamp(64px,9vw,118px) 0 0;border-top:1px solid var(--hair)}
 .contact h2{font-family:var(--serif);font-size:clamp(2.6rem,8vw,6rem);line-height:.94;margin:.16em 0 0;font-weight:400}
-.routes{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(20px,2.6vw,40px);margin:clamp(42px,6vw,72px) 0 0;border-top:1px solid var(--hair);padding-top:28px}
+.routes{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(20px,2.6vw,40px);margin:clamp(24px,3vw,38px) 0 0;border-top:1px solid var(--hair);padding-top:28px}
 .route dt{font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dust);margin-bottom:12px}
 .route dd{margin:0}
 .route a{font-family:var(--serif);font-size:1.12rem;border-bottom:1px solid var(--hair);padding-bottom:3px;transition:border-color .3s}
