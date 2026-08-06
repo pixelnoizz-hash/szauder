@@ -11,13 +11,17 @@ import leon2 from '../../assets/interior/leon-2.jpg';
 import leon3 from '../../assets/interior/leon-3.jpg';
 import leon4 from '../../assets/interior/leon-4.jpg';
 import leon5 from '../../assets/interior/leon-5.jpg';
+import dctHero from '../../assets/interior/dct-hero.jpg';
+import dctWall from '../../assets/interior/dct-wall.jpg';
+import dct1 from '../../assets/interior/dct-1.jpg';
+import dct2 from '../../assets/interior/dct-2.jpg';
 
 const spheres = ['Hydrosphere', 'Atmosphere', 'Biosphere', 'Lithosphere', 'Thermosphere'];
 ---
 
 <Base title="Interior — David Szauder"
-      description="Spheres wallpaper with Freeform and Tecnografica, and artworks for the Leon Hotel Budapest."
-      ogImage={sphHydro}>
+      description="Artworks for the Leon Hotel Budapest, the Spheres wallpaper with Freeform and Tecnografica, and the Dream Come True installation at S/ALON Budapest."
+      ogImage={leonHero}>
   <article class="wrap interior">
     <header class="rv">
       <span class="tag">Applied</span>
@@ -25,6 +29,50 @@ const spheres = ['Hydrosphere', 'Atmosphere', 'Biosphere', 'Lithosphere', 'Therm
       <p class="in-lead">Work that stops being an image and becomes a surface — a wall, a room,
         a building people move through without deciding to look.</p>
     </header>
+
+    <!-- LEON HOTEL -->
+    <section class="in-item rv">
+      <div class="in-head">
+        <h2>Leon Hotel</h2>
+        <span class="in-kind">Artworks — Budapest</span>
+      </div>
+
+      <figure class="in-hero">
+        <span class="aperture">
+          <Image src={leonHero} alt="Hotel lounge with framed portraits of figures in ornate headdresses on the walls"
+                 widths={[900, 1400, 1600]} sizes="(max-width: 900px) 94vw, 84vw" />
+        </span>
+      </figure>
+
+      <div class="in-body">
+        <div class="in-text">
+          <p>A body of framed works running through the public spaces of a Budapest hotel —
+            reception, lounge, bar and the rooms. Figures in impossible headdresses, crowns built
+            like architecture, faces that look like carved stone.</p>
+          <p>A hotel is a place people pass through half-attentively, at odd hours, often alone.
+            The works are hung to be met that way: noticed on the second glance rather than the first.</p>
+        </div>
+
+        <dl class="in-specs">
+          <div><dt>Role</dt><dd>Artist — works throughout the hotel</dd></div>
+          <div><dt>Where</dt><dd>Leon Hotel, Budapest</dd></div>
+          <div><dt>Scope</dt><dd>Reception, lounge, bar, guest rooms</dd></div>
+        </dl>
+      </div>
+
+      <div class="in-grid two">
+        <span class="aperture"><Image src={leon2} alt="Hotel reception with a framed portrait and a sculptural crown work" widths={[500, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
+        <span class="aperture"><Image src={leon3} alt="Lounge with two large framed portraits under ring lights" widths={[500, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
+      </div>
+      <div class="in-grid two">
+        <span class="aperture"><Image src={leon4} alt="Hotel bar with a round work showing a crowned figure in profile" widths={[500, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
+        <span class="aperture"><Image src={leon5} alt="Guest room with a large framed work above the bed" widths={[500, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
+      </div>
+
+      <ul class="in-press">
+        <li><a href="https://leonhotelbudapest.hu/en/" target="_blank" rel="noopener"><span class="p-outlet">Leon Hotel</span><span class="p-title">Leon Hotel Budapest</span><span class="p-arrow">&nearr;</span></a></li>
+      </ul>
+    </section>
 
     <!-- SPHERES -->
     <section class="in-item rv">
@@ -79,48 +127,57 @@ const spheres = ['Hydrosphere', 'Atmosphere', 'Biosphere', 'Lithosphere', 'Therm
       </ul>
     </section>
 
-    <!-- LEON HOTEL -->
-    <section class="in-item rv">
+    <!-- DREAM COME TRUE -->
+    <section class="in-item rv" id="dream-come-true">
       <div class="in-head">
-        <h2>Leon Hotel</h2>
-        <span class="in-kind">Artworks — Budapest</span>
+        <h2>Dream Come True</h2>
+        <span class="in-kind">Installation — S/ALON Budapest, 2023</span>
       </div>
 
       <figure class="in-hero">
         <span class="aperture">
-          <Image src={leonHero} alt="Hotel lounge with framed portraits of figures in ornate headdresses on the walls"
+          <Image src={dctHero} alt="A fair stand: a baroque dining table under a moss tablecloth, standing inside a printed garden of ruins and pale mushrooms"
                  widths={[900, 1400, 1600]} sizes="(max-width: 900px) 94vw, 84vw" />
         </span>
       </figure>
 
       <div class="in-body">
         <div class="in-text">
-          <p>A body of framed works running through the public spaces of a Budapest hotel —
-            reception, lounge, bar and the rooms. Figures in impossible headdresses, crowns built
-            like architecture, faces that look like carved stone.</p>
-          <p>A hotel is a place people pass through half-attentively, at odd hours, often alone.
-            The works are hung to be met that way: noticed on the second glance rather than the first.</p>
+          <p>An installation for <strong>S/ALON Budapest</strong>, the country's design fair, built
+            with the interior design studio <strong>Freeform</strong>. I made the wallpaper: a
+            classical garden left to ruin, moss and coral climbing the columns, porcelain creatures
+            standing about in it — drawn out of my own porcelain work and the childhood memory of
+            figurines nobody was allowed to touch.</p>
+          <p>Freeform built the room in front of it. A baroque dining table under a tablecloth of
+            live moss, transparent contemporary chairs, antique porcelain set out on the greenery.
+            The aim was continuity rather than contrast — the printed garden and the objects standing
+            in it are meant to read as one place, and it is not obvious where the image ends.</p>
+          <p class="in-award">The most visited installation of the fair — and the beginning of the
+            collaboration that became Spheres.</p>
         </div>
 
         <dl class="in-specs">
-          <div><dt>Role</dt><dd>Artist — works throughout the hotel</dd></div>
-          <div><dt>Where</dt><dd>Leon Hotel, Budapest</dd></div>
-          <div><dt>Scope</dt><dd>Reception, lounge, bar, guest rooms</dd></div>
+          <div><dt>Role</dt><dd>Artist — wallpaper and image world</dd></div>
+          <div><dt>With</dt><dd>Freeform, interior design studio</dd></div>
+          <div><dt>Where</dt><dd>S/ALON Budapest</dd></div>
+          <div><dt>After</dt><dd>Shown in Milan, Berlin and Paris</dd></div>
         </dl>
       </div>
 
+      <figure class="in-hero wide">
+        <span class="aperture">
+          <Image src={dctWall} alt="The wallpaper itself: broken marble columns and a balustrade in a garden of moss, pink mushrooms and pale porcelain figures"
+                 widths={[1000, 1600, 2000]} sizes="(max-width: 900px) 94vw, 84vw" />
+        </span>
+        <figcaption>The wallpaper, printed at wall scale</figcaption>
+      </figure>
+
       <div class="in-grid two">
-        <span class="aperture"><Image src={leon2} alt="Hotel reception with a framed portrait and a sculptural crown work" widths={[500, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
-        <span class="aperture"><Image src={leon3} alt="Lounge with two large framed portraits under ring lights" widths={[500, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
-      </div>
-      <div class="in-grid two">
-        <span class="aperture"><Image src={leon4} alt="Hotel bar with a round work showing a crowned figure in profile" widths={[500, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
-        <span class="aperture"><Image src={leon5} alt="Guest room with a large framed work above the bed" widths={[500, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
+        <span class="aperture"><Image src={dct1} alt="Two antique porcelain figurines standing on the moss tablecloth beside a gilded cup and glass" widths={[500, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
+        <span class="aperture"><Image src={dct2} alt="A brass candelabra with white candles on the moss table, a portrait on a screen behind it" widths={[500, 1000]} sizes="(max-width: 900px) 94vw, 42vw" /></span>
       </div>
 
-      <ul class="in-press">
-        <li><a href="https://leonhotelbudapest.hu/en/" target="_blank" rel="noopener"><span class="p-outlet">Leon Hotel</span><span class="p-title">Leon Hotel Budapest</span><span class="p-arrow">&nearr;</span></a></li>
-      </ul>
+      <p class="in-credit">Interior and production: Freeform · Photos: Freeform</p>
     </section>
 
     <p class="in-enquiry rv">
@@ -141,6 +198,7 @@ const spheres = ['Hydrosphere', 'Atmosphere', 'Biosphere', 'Lithosphere', 'Therm
 .in-head h2{font-family:var(--serif);font-size:clamp(1.7rem,3.6vw,2.6rem);font-weight:400;margin:0;line-height:1}
 .in-kind{font-family:var(--mono);font-size:.62rem;letter-spacing:.17em;text-transform:uppercase;color:var(--ember)}
 .in-hero{margin:0 0 clamp(20px,2.6vw,32px)}
+.in-hero.wide{margin-top:clamp(20px,2.6vw,32px)}
 .in-hero .aperture img{width:100%}
 .interior figcaption{font-family:var(--mono);font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;
   color:var(--dust);margin-top:10px}
@@ -159,6 +217,8 @@ const spheres = ['Hydrosphere', 'Atmosphere', 'Biosphere', 'Lithosphere', 'Therm
 .in-grid.two{grid-template-columns:1fr 1fr}
 .in-grid figure{margin:0}
 .in-grid .aperture img{width:100%}
+.in-credit{font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dust);margin:clamp(14px,1.8vw,22px) 0 0}
 .in-award-row{display:flex;align-items:center;gap:20px;margin:clamp(20px,2.6vw,32px) 0 0;flex-wrap:wrap}
 .in-award-row .aperture.small{flex:0 0 auto;width:clamp(140px,18vw,210px)}
 .in-award-row .aperture.small img{width:100%;aspect-ratio:1/1;object-fit:cover}
