@@ -81,10 +81,17 @@
     gapMax: 90000,
 
     // hold may be a single number or a [min, max] range drawn each time.
-    // 160 = flash, 2200 = long, 5000 = very long, 0 = no inversion.
-    invert: { hold: [2200, 5000], delay: 300 },
+    // 140-260 = flash, 2200 = long, 5000 = very long, 0 = no inversion.
+    invert: { hold: [140, 260], delay: 300 },
 
     noRepeat: true,      // don't pick the same character twice in a row
+
+    // Where it is allowed to appear. Prefix match on the URL path.
+    //   onlyOn: null            → every page (current setting)
+    //   onlyOn: ['/']           → the home page only
+    //   notOn:  ['/works/']     → everywhere except the project pages
+    onlyOn: null,
+    notOn: [],
   };
 
   // ─── engine ────────────────────────────────────────────────────────────────
@@ -96,6 +103,14 @@
     const params = new URLSearchParams(location.search);
     if (!CFG.on || params.has('nofly')) return;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const here = location.pathname.replace(/\/+$/, '') || '/';
+    const hit = (list) => list.some((p) => {
+      const q = p.replace(/\/+$/, '') || '/';
+      return q === '/' ? here === '/' : (here === q || here.startsWith(q + '/'));
+    });
+    if (CFG.onlyOn && !hit(CFG.onlyOn)) return;
+    if (CFG.notOn && CFG.notOn.length && hit(CFG.notOn)) return;
 
     const rnd = (a, b) => a + Math.random() * (b - a);
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -128,7 +143,7 @@
       const s = Object.assign({}, CFG.invert, o || {});
       const hold = Array.isArray(s.hold) ? rnd(s.hold[0], s.hold[1]) : s.hold;
       if (!hold) return;
-      const fade = val(s.fade, clamp(hold * 0.14, 200, 460));
+      const fade = val(s.fade, clamp(hold * 0.14, 45, 460));
       const t = fade * 2 + hold;
       inv.animate(
         [{ opacity: 0 }, { opacity: 1, offset: fade / t },
