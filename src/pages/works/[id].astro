@@ -17,7 +17,7 @@ const next = all[(idx + 1) % all.length];
 const images = [d.cover, ...d.gallery];
 ---
 
-<Base title={`${d.title} — David Szauder`} description={d.note}>
+<Base title={`${d.title} — David Szauder`} description={d.note} ogImage={d.cover}>
   <article class="wrap project">
     <header class="proj-head rv">
       <span class="tag">{d.tag}</span>
