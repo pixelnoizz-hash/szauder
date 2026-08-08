@@ -1,0 +1,157 @@
+{
+  "thumbs": [
+    {
+      "title": "Work 01",
+      "image": "/works/thumbs/01.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 02",
+      "image": "/works/thumbs/02.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 03",
+      "image": "/works/thumbs/03.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 04",
+      "image": "/works/thumbs/04.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 05",
+      "image": "/works/thumbs/05.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 06",
+      "image": "/works/thumbs/06.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 07",
+      "image": "/works/thumbs/07.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 08",
+      "image": "/works/thumbs/08.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 09",
+      "image": "/works/thumbs/09.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 10",
+      "image": "/works/thumbs/10.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 11",
+      "image": "/works/thumbs/11.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 12",
+      "image": "/works/thumbs/12.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 13",
+      "image": "/works/thumbs/13.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 14",
+      "image": "/works/thumbs/14.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 15",
+      "image": "/works/thumbs/15.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 16",
+      "image": "/works/thumbs/16.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 17",
+      "image": "/works/thumbs/17.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 18",
+      "image": "/works/thumbs/18.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 19",
+      "image": "/works/thumbs/19.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 20",
+      "image": "/works/thumbs/20.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 21",
+      "image": "/works/thumbs/21.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 22",
+      "image": "/works/thumbs/22.jpg",
+      "href": ""
+    },
+    {
+      "title": "Work 23",
+      "image": "/works/thumbs/23.jpg",
+      "href": ""
+    }
+  ],
+  "categories": [
+    {
+      "title": "Concert visuals",
+      "href": "/works/concert-visuals",
+      "image": "/works/cats/concert-visuals.jpg",
+      "blurb": "Stage and screen work for live music — including Jean-Michel Jarre."
+    },
+    {
+      "title": "Interior",
+      "href": "/works/interior",
+      "image": "/works/cats/interior.jpg",
+      "blurb": "Wallcoverings, artworks and installations that become part of a room."
+    },
+    {
+      "title": "Commercial",
+      "href": "/works/commercial",
+      "image": "/works/cats/commercial.jpg",
+      "blurb": "Campaigns where a brand asks for a world rather than a picture."
+    },
+    {
+      "title": "Editorial",
+      "href": "/works/editorial",
+      "image": "/works/cats/editorial.jpg",
+      "blurb": "Covers and illustration for magazines and newspapers."
+    },
+    {
+      "title": "Ars Electronica",
+      "href": "/works/ars-electronica",
+      "image": "/works/cats/ars-electronica.jpg",
+      "blurb": "Work shown at the festival in Linz."
+    },
+    {
+      "title": "Archive",
+      "href": "/archive",
+      "image": "/works/cats/archive.jpg",
+      "blurb": "Everything else, by year."
+    }
+  ]
+}

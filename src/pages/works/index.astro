@@ -1,0 +1,107 @@
+---
+import Base from '../../layouts/Base.astro';
+import data from '../../data/works.json';
+
+const { thumbs, categories } = data;
+---
+
+<Base title="Works — David Szauder"
+      description="Selected works and categories: concert visuals, editorial, commercial, interior, Ars Electronica and the archive.">
+  <article class="wrap works">
+    <header class="rv">
+      <span class="tag">Works</span>
+      <h1>Works</h1>
+      <p class="wk-lead">Costume, concert visuals, projection, wallcovering, editorial and campaign work —
+        built from one archive and one set of tools.</p>
+    </header>
+
+    <!-- 23 thumbnails, one wall -->
+    <section class="wk-wall rv" aria-label="Selected works">
+      {thumbs.map((t) => (
+        <a class="wk-thumb" href={t.href ?? '#'} aria-label={t.title}>
+          <span class="aperture">
+            <img src={t.image} alt={t.title} loading="lazy" decoding="async" width="600" height="600" />
+          </span>
+          <span class="wk-cap">{t.title}</span>
+        </a>
+      ))}
+    </section>
+
+    <!-- categories -->
+    <section class="wk-cats rv" aria-label="Categories">
+      <h2 class="wk-h2">By category</h2>
+      <div class="wk-grid">
+        {categories.map((c) => (
+          <a class="wk-cat" href={c.href}>
+            <span class="aperture">
+              <img src={c.image} alt={c.title} loading="lazy" decoding="async" width="900" height="640" />
+            </span>
+            <span class="wk-cat-body">
+              <span class="wk-cat-title">{c.title}</span>
+              {c.blurb && <span class="wk-cat-blurb">{c.blurb}</span>}
+              <span class="wk-cat-arrow" aria-hidden="true">&nearr;</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <p class="wk-enquiry rv">
+      Commissions and collaborations:
+      <a href="mailto:davidszauderstudio@gmail.com">davidszauderstudio@gmail.com</a>
+    </p>
+  </article>
+</Base>
+
+<style is:global>
+.works{padding:clamp(110px,15vh,180px) 0 clamp(60px,9vw,120px)}
+.works .tag{display:block;margin-bottom:14px}
+.works h1{font-family:var(--serif);font-size:clamp(2.4rem,6.5vw,5rem);line-height:.98;margin:0;font-weight:400}
+.wk-lead{color:var(--dust);line-height:1.7;max-width:50ch;margin:24px 0 clamp(40px,5.5vw,72px);font-size:1.02rem}
+
+/* --- the wall of 23 --- */
+.wk-wall{display:grid;grid-template-columns:repeat(6,1fr);gap:clamp(6px,.9vw,12px);
+  margin-bottom:clamp(56px,8vw,110px)}
+.wk-thumb{display:block;position:relative;min-width:0}
+.wk-thumb .aperture{display:block;overflow:hidden}
+.wk-thumb img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;
+  transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.wk-thumb:hover img{transform:scale(1.06)}
+.wk-cap{position:absolute;left:0;right:0;bottom:0;padding:8px 9px;
+  font-family:var(--mono);font-size:.5rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--bone);background:linear-gradient(to top,rgba(14,12,14,.86),rgba(14,12,14,0));
+  opacity:0;transition:opacity .3s ease;pointer-events:none;line-height:1.3}
+.wk-thumb:hover .wk-cap,.wk-thumb:focus-visible .wk-cap{opacity:1}
+
+/* --- categories --- */
+.wk-h2{font-family:var(--mono);font-size:.68rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--ember);font-weight:400;margin:0 0 clamp(20px,2.6vw,30px);
+  padding-bottom:14px;border-bottom:1px solid var(--hair)}
+.wk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,2.2vw,30px)}
+.wk-cat{display:block;min-width:0}
+.wk-cat .aperture{display:block;overflow:hidden}
+.wk-cat img{display:block;width:100%;aspect-ratio:7/5;object-fit:cover;
+  transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.wk-cat:hover img{transform:scale(1.04)}
+.wk-cat-body{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:baseline;
+  padding:14px 0 0;border-top:1px solid var(--hair);margin-top:14px}
+.wk-cat-title{font-family:var(--serif);font-size:clamp(1.15rem,2.1vw,1.6rem);line-height:1.1;
+  grid-column:1;color:var(--bone)}
+.wk-cat-blurb{grid-column:1;color:var(--dust);font-size:.9rem;line-height:1.55;margin-top:7px;max-width:34ch}
+.wk-cat-arrow{grid-column:2;grid-row:1;color:var(--dust);font-size:.85rem;transition:color .3s ease}
+.wk-cat:hover .wk-cat-arrow{color:var(--ember)}
+
+.wk-enquiry{font-family:var(--mono);font-size:.64rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--dust);margin:clamp(48px,6vw,84px) 0 0;padding-top:26px;border-top:1px solid var(--hair)}
+.wk-enquiry a{color:var(--bone);border-bottom:1px solid var(--ember);padding-bottom:3px;margin-left:8px}
+
+@media (max-width:1000px){
+  .wk-wall{grid-template-columns:repeat(5,1fr)}
+  .wk-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:700px){
+  .wk-wall{grid-template-columns:repeat(3,1fr)}
+  .wk-grid{grid-template-columns:1fr}
+  .wk-cap{opacity:1;font-size:.46rem}
+}
+</style>
