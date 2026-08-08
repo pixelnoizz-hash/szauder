@@ -38,6 +38,7 @@ const personSchema = {
 // Only pages that actually exist. Add back as they are built.
 const nav = [
   { label: 'Book', href: '/book' },
+  { label: 'Press', href: '/press' },
   { label: 'Talks & Teaching', href: '/talks' },
   { label: 'Bio', href: '/bio' },
   { label: 'Contact', href: '/#contact' },
@@ -95,7 +96,7 @@ const worksMenu = [
     <nav aria-label="Main">
       <ul class="menu">
         <li>
-          <button aria-haspopup="true" aria-expanded="false">Works <i class="caret"></i></button>
+          <a href="/works" aria-haspopup="true">Works <i class="caret"></i></a>
           <ul class="drop">
             {worksMenu.map((i) => <li><a href={i.href}>{i.label}</a></li>)}
           </ul>
@@ -115,7 +116,10 @@ const worksMenu = [
     <li>
       <button class="acc-btn" aria-expanded="false" aria-controls="acc-works">Works <i class="acc-sign"></i></button>
       <div class="acc-body" id="acc-works">
-        <ul>{worksMenu.map((i) => <li><a href={i.href}>{i.label}</a></li>)}</ul>
+        <ul>
+          <li><a href="/works">All works</a></li>
+          {worksMenu.map((i) => <li><a href={i.href}>{i.label}</a></li>)}
+        </ul>
       </div>
     </li>
     {nav.map((i) => <li><a href={i.href}>{i.label}</a></li>)}
