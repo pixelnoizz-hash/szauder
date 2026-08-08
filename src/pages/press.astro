@@ -1,0 +1,196 @@
+---
+import Base from '../layouts/Base.astro';
+import data from '../data/press.json';
+
+// Entries without a source link are kept out of the public list — an unlinked
+// claim is worth less than no claim. They stay in press.json.
+const items = data.items.filter((i) => i.url && i.url.length > 0);
+
+const LABEL = {
+  'hendricks': "Hendrick's Gin",
+  'wunderland': 'Wunderland — Hamburg Ballett',
+  'spoleto': 'Festival dei Due Mondi, Spoleto',
+  'new-yorker': 'The New Yorker',
+  'book': 'Glitches & Glory',
+  'spheres': 'Spheres',
+  'martin-auer': 'Martin Auer',
+  'dream-come-true': 'Dream Come True',
+  'washington-post': 'The Washington Post',
+  'geszti': 'Geszti Sixty',
+  'lam': 'Light Art Museum',
+  'tango': 'Tango in Wonderland',
+  'portrait': 'On the work',
+  'early': 'Early work',
+};
+
+const KIND = {
+  interview: 'Interview', review: 'Review', feature: 'Feature', profile: 'Profile',
+  campaign: 'Campaign', award: 'Award', news: 'News', essay: 'Essay',
+  exhibition: 'Exhibition', event: 'Event', book: 'Book', gallery: 'Gallery',
+  commission: 'Commission', analysis: 'Analysis', festival: 'Festival',
+  project: 'Project', list: 'List', mention: 'Mention',
+};
+
+const MONTH = ['', 'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'];
+
+function when(d) {
+  const [y, m, day] = d.split('-').map(Number);
+  if (!m) return String(y);
+  if (!day) return `${MONTH[m]} ${y}`;
+  return `${MONTH[m]} ${day}, ${y}`;
+}
+
+function host(u) {
+  try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; }
+}
+
+// newest first, grouped by year
+const sorted = [...items].sort((a, b) => b.date.localeCompare(a.date));
+const years = [...new Set(sorted.map((i) => i.date.slice(0, 4)))];
+const byYear = years.map((y) => ({ year: y, list: sorted.filter((i) => i.date.startsWith(y)) }));
+
+// filter chips: projects with at least two entries, in order of most recent
+const counts = {};
+for (const i of sorted) counts[i.project] = (counts[i.project] || 0) + 1;
+const seen = [];
+for (const i of sorted) if (!seen.includes(i.project) && counts[i.project] >= 2) seen.push(i.project);
+
+const span = `${sorted[sorted.length - 1].date.slice(0, 4)} — ${sorted[0].date.slice(0, 4)}`;
+const langs = [...new Set(sorted.map((i) => i.lang))];
+---
+
+<Base title="Press — David Szauder"
+      description="Selected press: interviews, reviews and features on the work of David Szauder, 2013 to today.">
+  <article class="wrap press">
+    <header class="rv">
+      <span class="tag">Press</span>
+      <h1>Press</h1>
+      <p class="pr-lead">Interviews, reviews and features. Newest first.</p>
+      <p class="pr-meta">{sorted.length} entries · {span} · {langs.length} languages</p>
+    </header>
+
+    <nav class="pr-filter rv" aria-label="Filter by project">
+      <button class="pr-chip is-on" data-f="all">All</button>
+      {seen.map((p) => <button class="pr-chip" data-f={p}>{LABEL[p] ?? p}</button>)}
+    </nav>
+
+    {byYear.map(({ year, list }) => (
+      <section class="pr-year rv" data-year={year}>
+        <h2>{year}</h2>
+        <ul class="pr-list">
+          {list.map((i) => (
+            <li class="pr-item" data-p={i.project}>
+              <a href={i.url} target="_blank" rel="noopener">
+                <span class="pr-outlet">{i.outlet}</span>
+                <span class="pr-main">
+                  <span class="pr-title">{i.title}</span>
+                  <span class="pr-sub">
+                    <span class="pr-kind">{KIND[i.type] ?? i.type}</span>
+                    <span class="pr-dot">·</span>
+                    <span>{when(i.date)}</span>
+                    {i.author && <><span class="pr-dot">·</span><span>{i.author}</span></>}
+                    <span class="pr-dot">·</span>
+                    <span class="pr-host">{host(i.url)}</span>
+                  </span>
+                </span>
+                <span class="pr-arrow" aria-hidden="true">&nearr;</span>
+              </a>
+              {i.quote && (
+                <blockquote class="pr-quote">
+                  <p>{i.quote}</p>
+                  <cite>{i.outlet}{i.quote_note ? ` — ${i.quote_note}` : ''}</cite>
+                </blockquote>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+
+    <p class="pr-enquiry rv">
+      Press enquiries and image requests:
+      <a href="mailto:davidszauderstudio@gmail.com">davidszauderstudio@gmail.com</a>
+    </p>
+  </article>
+</Base>
+
+<script>
+  const chips = document.querySelectorAll('.pr-chip');
+  const items = document.querySelectorAll('.pr-item');
+  const years = document.querySelectorAll('.pr-year');
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const f = chip.getAttribute('data-f');
+      chips.forEach((c) => c.classList.toggle('is-on', c === chip));
+      items.forEach((li) => {
+        li.hidden = !(f === 'all' || li.getAttribute('data-p') === f);
+      });
+      // hide a year heading when nothing is left under it
+      years.forEach((y) => {
+        const any = [...y.querySelectorAll('.pr-item')].some((li) => !li.hidden);
+        y.hidden = !any;
+      });
+    });
+  });
+</script>
+
+<style is:global>
+.press{padding:clamp(110px,15vh,180px) 0 clamp(60px,9vw,120px)}
+.press .tag{display:block;margin-bottom:14px}
+.press h1{font-family:var(--serif);font-size:clamp(2.4rem,6.5vw,5rem);line-height:.98;margin:0;font-weight:400}
+.pr-lead{color:var(--dust);line-height:1.7;max-width:48ch;margin:24px 0 10px;font-size:1.02rem}
+.pr-meta{font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dust);margin:0 0 clamp(34px,4.5vw,56px)}
+
+/* --- filter --- */
+.pr-filter{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:clamp(34px,4.5vw,54px)}
+.pr-chip{font-family:var(--mono);font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--dust);background:transparent;border:1px solid var(--hair);padding:9px 14px;
+  cursor:pointer;transition:color .25s ease,border-color .25s ease}
+.pr-chip:hover{color:var(--bone);border-color:var(--dust)}
+.pr-chip.is-on{color:var(--bone);border-color:var(--ember)}
+
+/* --- years --- */
+.pr-year{margin-bottom:clamp(40px,5vw,66px)}
+.pr-year[hidden]{display:none}
+.pr-year h2{font-family:var(--mono);font-size:.68rem;letter-spacing:.24em;color:var(--ember);
+  font-weight:400;margin:0 0 6px;padding-bottom:14px;border-bottom:1px solid var(--hair)}
+
+.pr-list{list-style:none;margin:0;padding:0}
+.pr-item{border-bottom:1px solid var(--hair)}
+.pr-item[hidden]{display:none}
+.pr-item a{display:grid;grid-template-columns:clamp(120px,17vw,210px) minmax(0,1fr) auto;
+  gap:clamp(14px,2.4vw,30px);align-items:baseline;padding:17px 0;transition:padding-left .3s ease}
+.pr-item a:hover{padding-left:10px}
+.pr-outlet{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--bone)}
+.pr-main{display:block;min-width:0}
+.pr-title{display:block;color:var(--dust);line-height:1.5;font-size:1rem}
+.pr-item a:hover .pr-title{color:var(--bone)}
+.pr-sub{display:block;margin-top:7px;font-family:var(--mono);font-size:.56rem;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--dust);opacity:.75}
+.pr-dot{margin:0 7px;opacity:.5}
+.pr-host{opacity:.7}
+.pr-arrow{color:var(--dust);font-size:.85rem}
+.pr-item a:hover .pr-arrow{color:var(--ember)}
+
+/* --- pull quotes --- */
+.pr-quote{margin:0 0 20px;padding:0 0 0 clamp(120px,17vw,210px)}
+.pr-quote p{font-family:var(--serif);font-style:italic;color:var(--bone);
+  font-size:clamp(1.1rem,2.1vw,1.5rem);line-height:1.35;margin:0 0 8px;max-width:34ch;
+  padding-left:clamp(14px,2.4vw,30px);border-left:1px solid var(--ember)}
+.pr-quote cite{font-family:var(--mono);font-size:.54rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--dust);font-style:normal;padding-left:clamp(15px,2.5vw,31px);display:block}
+
+.pr-enquiry{font-family:var(--mono);font-size:.64rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--dust);margin:0;padding-top:26px;border-top:1px solid var(--hair)}
+.pr-enquiry a{color:var(--bone);border-bottom:1px solid var(--ember);padding-bottom:3px;margin-left:8px}
+
+@media (max-width:760px){
+  .pr-item a{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}
+  .pr-outlet{grid-column:1/-1}
+  .pr-quote{padding-left:0}
+}
+</style>
