@@ -17,14 +17,17 @@ const { thumbs, categories } = data;
 
     <!-- 23 thumbnails, one wall -->
     <section class="wk-wall rv" aria-label="Selected works">
-      {thumbs.map((t) => (
-        <a class="wk-thumb" href={t.href ?? '#'} aria-label={t.title}>
-          <span class="aperture">
-            <img src={t.image} alt={t.title} loading="lazy" decoding="async" width="600" height="600" />
-          </span>
-          <span class="wk-cap">{t.title}</span>
-        </a>
-      ))}
+      {thumbs.map((t) => {
+        const Tag = t.href ? 'a' : 'span';
+        return (
+          <Tag class="wk-thumb" href={t.href || undefined} aria-label={t.title}>
+            <span class="aperture">
+              <img src={t.image} alt={t.title} loading="lazy" decoding="async" width="1000" height="1000" />
+            </span>
+            <span class="wk-cap">{t.title}</span>
+          </Tag>
+        );
+      })}
     </section>
 
     <!-- categories -->
@@ -34,7 +37,7 @@ const { thumbs, categories } = data;
         {categories.map((c) => (
           <a class="wk-cat" href={c.href}>
             <span class="aperture">
-              <img src={c.image} alt={c.title} loading="lazy" decoding="async" width="900" height="640" />
+              <img src={c.image} alt={c.title} loading="lazy" decoding="async" width="1400" height="1000" />
             </span>
             <span class="wk-cat-body">
               <span class="wk-cat-title">{c.title}</span>

@@ -1,127 +1,127 @@
 {
   "thumbs": [
     {
-      "title": "Work 01",
+      "title": "Wunderland",
       "image": "/works/thumbs/01.jpg",
-      "href": ""
+      "href": "/works/wunderland"
     },
     {
-      "title": "Work 02",
+      "title": "Festival dei Due Mondi",
       "image": "/works/thumbs/02.jpg",
-      "href": ""
+      "href": "/works/festival-dei-due-mondi"
     },
     {
-      "title": "Work 03",
+      "title": "Jean-Michel Jarre",
       "image": "/works/thumbs/03.jpg",
-      "href": ""
+      "href": "/works/jean-michel-jarre"
     },
     {
-      "title": "Work 04",
+      "title": "Babel",
       "image": "/works/thumbs/04.jpg",
-      "href": ""
+      "href": "/works/babel"
     },
     {
-      "title": "Work 05",
+      "title": "Spheres",
       "image": "/works/thumbs/05.jpg",
-      "href": ""
+      "href": "/works/interior"
     },
     {
-      "title": "Work 06",
+      "title": "The New Yorker",
       "image": "/works/thumbs/06.jpg",
-      "href": ""
+      "href": "/works/editorial"
     },
     {
-      "title": "Work 07",
+      "title": "Hendrick's Gin",
       "image": "/works/thumbs/07.jpg",
-      "href": ""
+      "href": "/works/commercial"
     },
     {
-      "title": "Work 08",
+      "title": "The Washington Post Magazine",
       "image": "/works/thumbs/08.jpg",
-      "href": ""
+      "href": "/works/editorial"
     },
     {
-      "title": "Work 09",
+      "title": "Geszti Sixty",
       "image": "/works/thumbs/09.jpg",
-      "href": ""
+      "href": "/works/concert"
     },
     {
-      "title": "Work 10",
+      "title": "Leon Hotel",
       "image": "/works/thumbs/10.jpg",
-      "href": ""
+      "href": "/works/interior"
     },
     {
-      "title": "Work 11",
+      "title": "Dream Come True",
       "image": "/works/thumbs/11.jpg",
-      "href": ""
+      "href": "/works/interior"
     },
     {
-      "title": "Work 12",
+      "title": "Phillips",
       "image": "/works/thumbs/12.jpg",
-      "href": ""
+      "href": "/works/commercial"
     },
     {
-      "title": "Work 13",
+      "title": "Duran Duran",
       "image": "/works/thumbs/13.jpg",
-      "href": ""
+      "href": "/works/concert"
     },
     {
-      "title": "Work 14",
+      "title": "WIRED Italia",
       "image": "/works/thumbs/14.jpg",
-      "href": ""
+      "href": "/works/editorial"
     },
     {
-      "title": "Work 15",
+      "title": "Martin Auer",
       "image": "/works/thumbs/15.jpg",
-      "href": ""
+      "href": "/works/commercial"
     },
     {
-      "title": "Work 16",
+      "title": "Ars Electronica",
       "image": "/works/thumbs/16.jpg",
-      "href": ""
+      "href": "/works/ars-electronica"
     },
     {
-      "title": "Work 17",
+      "title": "FAIN",
       "image": "/works/thumbs/17.jpg",
-      "href": ""
+      "href": "/works/commercial"
     },
     {
-      "title": "Work 18",
+      "title": "Glitches & Glory",
       "image": "/works/thumbs/18.jpg",
-      "href": ""
+      "href": "/book"
     },
     {
-      "title": "Work 19",
+      "title": "Kafka-Fragmente",
       "image": "/works/thumbs/19.jpg",
       "href": ""
     },
     {
-      "title": "Work 20",
+      "title": "Festival dei Due Mondi",
       "image": "/works/thumbs/20.jpg",
-      "href": ""
+      "href": "/works/festival-dei-due-mondi"
     },
     {
-      "title": "Work 21",
+      "title": "Wunderland",
       "image": "/works/thumbs/21.jpg",
-      "href": ""
+      "href": "/works/wunderland"
     },
     {
-      "title": "Work 22",
+      "title": "Spheres",
       "image": "/works/thumbs/22.jpg",
-      "href": ""
+      "href": "/works/interior"
     },
     {
-      "title": "Work 23",
+      "title": "Ars Electronica",
       "image": "/works/thumbs/23.jpg",
-      "href": ""
+      "href": "/works/ars-electronica"
     }
   ],
   "categories": [
     {
       "title": "Concert visuals",
-      "href": "/works/concert-visuals",
-      "image": "/works/cats/concert-visuals.jpg",
-      "blurb": "Stage and screen work for live music — including Jean-Michel Jarre."
+      "href": "/works/concert",
+      "image": "/works/cats/concert.jpg",
+      "blurb": "Stage and screen work for live music — Jarre, Duran Duran, Geszti Sixty."
     },
     {
       "title": "Interior",
@@ -151,7 +151,7 @@
       "title": "Archive",
       "href": "/archive",
       "image": "/works/cats/archive.jpg",
-      "blurb": "Everything else, by year."
+      "blurb": "Earlier projects, 2011 to 2024."
     }
   ]
 }
