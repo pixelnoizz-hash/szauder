@@ -1,0 +1,1603 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0D0F12">
+<title>Ray Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --ground:#0D0F12; --panel:#15181D; --raise:#1D2128; --line:#2A2F38; --line-2:#394050;
+  --text:#ECEEF2; --muted:#98A0AD; --faint:#646C79; --hot:#7FB2FF; --hot-ink:#07121F; --ok:#5FD08E; --warn:#F0B040; --bad:#FF6B6B;
+  --display:"Syne","Avenir Next","Helvetica Neue",Arial,sans-serif;
+  --ui:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ground);color:var(--text);font:15px/1.45 var(--ui);-webkit-font-smoothing:antialiased;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:0;z-index:10;background:rgba(13,15,18,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+header .wrap{display:flex;align-items:center;gap:8px;height:56px}
+.brand{font-family:var(--display);font-weight:800;font-size:20px;margin-right:auto}
+.brand em{font-style:normal;color:var(--hot)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:15px;border:1px solid var(--line-2);background:var(--raise);font-size:12.5px;white-space:nowrap}
+.chip.money{font-family:var(--mono)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.dot.ok{background:var(--ok)} .dot.bad{background:var(--bad)}
+main{padding:18px 0 28px}
+h1{font-family:var(--display);font-size:24px;margin:4px 0 4px}
+.sub{margin:0 0 18px;color:var(--muted);font-size:14px;max-width:62ch}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px;margin-bottom:14px}
+.card h2{margin:0;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:baseline;gap:8px}
+.card h2 .n{font-family:var(--mono);color:var(--hot);letter-spacing:0}
+.card h2 .r{margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;color:var(--faint);font-size:12px;font-family:var(--mono)}
+label.f{display:grid;gap:6px;font-size:13px;color:var(--muted)}
+input[type=text],input[type=password],input[type=number],input[type=url],input[type=search],select,textarea{width:100%;background:var(--ground);border:1px solid var(--line-2);border-radius:10px;padding:11px 12px;font-size:16px;color:var(--text)}
+textarea{min-height:100px;resize:vertical;line-height:1.4}
+textarea.code{font-family:var(--mono);font-size:13px;min-height:70px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.lab{font-size:13px;color:var(--muted);margin-bottom:6px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{min-height:38px;padding:0 12px;border-radius:9px;border:1px solid var(--line-2);background:var(--raise);font-size:13.5px}
+.seg button small{display:block;font-size:10.5px;opacity:.7}
+.seg button[aria-pressed=true]{background:var(--text);color:var(--ground);border-color:var(--text);font-weight:600}
+.seg button:disabled{opacity:.35;cursor:not-allowed}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:11px;border:1px solid var(--line-2);background:var(--raise);font-size:15px;font-weight:500}
+.btn.primary{background:var(--hot);border-color:var(--hot);color:var(--hot-ink);font-weight:700}
+.btn.primary:disabled{opacity:.4;cursor:not-allowed}
+.btn.small{min-height:34px;padding:0 11px;font-size:13px;border-radius:9px}
+.btn.block{width:100%}
+.btn.danger{color:var(--bad)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tgl{display:flex;align-items:center;gap:10px;font-size:14px}
+.tgl small{color:var(--faint);font-size:12px}
+.tg{width:46px;height:28px;border-radius:14px;border:1px solid var(--line-2);background:var(--ground);position:relative;padding:0;flex:none}
+.tg::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:var(--muted);transition:left .15s}
+.tg[aria-checked=true]{background:var(--hot);border-color:var(--hot)}
+.tg[aria-checked=true]::after{left:21px;background:#fff}
+.tg:disabled{opacity:.35;cursor:not-allowed}
+.range{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;font-size:13px;color:var(--muted)}
+.range output{font-family:var(--mono);color:var(--text);font-size:13px}
+.range input{grid-column:1/-1}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--hot) var(--pct,50%),var(--line-2) var(--pct,50%))}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:var(--line-2)}
+input[type=range]::-moz-range-progress{height:4px;background:var(--hot)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--text);border:4px solid var(--panel);margin-top:-9px;box-shadow:0 0 0 1px var(--line-2)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--text);border:3px solid var(--panel)}
+.note{margin:0;font-size:12.5px;color:var(--faint);line-height:1.5}
+.note b{color:var(--muted);font-weight:500}
+details.adv summary{cursor:pointer;color:var(--muted);font-size:13px;list-style:none}
+details.adv summary::before{content:"+ ";font-family:var(--mono)}
+details.adv[open] summary::before{content:"– "}
+details.adv > div{display:grid;gap:12px;margin-top:12px}
+
+.frames{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.slot{border:1px solid var(--line-2);border-radius:12px;padding:10px;display:grid;gap:8px;background:var(--raise)}
+.slot .top{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600}
+.slot .top .i{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--muted);font-weight:400}
+.slot .pv{aspect-ratio:16/10;border-radius:8px;background:var(--ground) center/cover no-repeat;border:1px dashed var(--line-2);display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:12.5px;text-align:center;padding:6px;overflow:hidden}
+.slot .pv.has{border-style:solid}
+.slot .pv video{width:100%;height:100%;object-fit:cover}
+.slot .acts{display:flex;gap:6px;flex-wrap:wrap}
+.slot.drag{border-color:var(--hot);box-shadow:inset 0 0 0 2px var(--hot);background:rgba(127,178,255,.08)}
+.slot.drag .pv{border-color:var(--hot);color:var(--hot)}
+.dropzone{border:1.5px dashed var(--line-2);border-radius:12px;padding:14px;text-align:center;color:var(--faint);font-size:13px}
+.dropzone.drag{border-color:var(--hot);color:var(--hot);background:rgba(127,178,255,.08)}
+.slot .acts .btn{flex:1;min-height:32px;font-size:12.5px;padding:0 8px}
+.kf-index{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center;font-size:12px;color:var(--muted)}
+.kf-index input{grid-column:1/-1}
+
+.cost{display:grid;gap:4px;background:var(--ground);border:1px solid var(--line-2);border-radius:12px;padding:12px 14px}
+.cost .big{font-family:var(--mono);font-size:26px;font-weight:500;color:var(--text)}
+.cost .big small{font-size:13px;color:var(--muted);font-family:var(--ui);font-weight:400;margin-left:8px}
+.cost .det{font-size:12.5px;color:var(--muted);font-family:var(--mono)}
+.problems{display:grid;gap:6px}
+.problems p{margin:0;font-size:13px;color:var(--warn);display:flex;gap:8px}
+.problems p::before{content:"!";font-family:var(--mono);font-weight:700}
+
+.job{border:1px solid var(--line-2);border-radius:12px;padding:12px;display:grid;gap:10px;background:var(--raise)}
+.job-top{display:flex;align-items:center;gap:8px;font-size:14px;flex-wrap:wrap}
+.job-top b{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:10px;border:1px solid var(--line-2);color:var(--muted);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.pill.run{color:var(--warn);border-color:rgba(240,176,64,.5)}
+.pill.ok{color:var(--ok);border-color:rgba(95,208,142,.5)}
+.pill.bad{color:var(--bad);border-color:rgba(255,107,107,.5)}
+.job .meta{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.job video{width:100%;border-radius:8px;background:#000;display:block;max-height:420px}
+.job .err{font-size:13px;color:var(--bad)}
+.bar{height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:35%;background:var(--hot);animation:ind 1.3s ease-in-out infinite}
+@keyframes ind{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+@media (prefers-reduced-motion:reduce){.bar i{animation:none;width:100%;opacity:.5}}
+table.prices{width:100%;border-collapse:collapse;font-size:12.5px;font-family:var(--mono)}
+table.prices th,table.prices td{padding:5px 6px;border-bottom:1px solid var(--line);text-align:right}
+table.prices th:first-child,table.prices td:first-child{text-align:left}
+table.prices th{color:var(--muted);font-weight:500}
+.tbl{overflow-x:auto}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(21,24,29,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs .wrap{display:grid;grid-template-columns:repeat(5,1fr);height:64px}
+nav.tabs button{border:none;background:none;display:grid;justify-items:center;align-content:center;gap:3px;color:var(--faint);font-size:11px;font-weight:600}
+nav.tabs svg{width:22px;height:22px}
+nav.tabs button[aria-current=page]{color:var(--text)}
+nav.tabs button[aria-current=page] svg{color:var(--hot)}
+.badge{font-family:var(--mono);font-size:10px;background:var(--hot);color:var(--hot-ink);border-radius:8px;padding:0 5px;margin-left:3px}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--text);color:var(--ground);padding:10px 16px;border-radius:10px;font-size:14px;font-weight:500;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+.sheet{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center}
+.sheet .in{width:min(560px,100%);background:var(--panel);border:1px solid var(--line-2);border-radius:16px 16px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:grid;gap:12px;max-height:80vh;overflow:auto}
+.sheet h3{margin:0;font-family:var(--display);font-size:18px}
+.pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.pick button{padding:0;border:1px solid var(--line-2);border-radius:10px;background:var(--raise);overflow:hidden;text-align:left;display:grid}
+.pick video{width:100%;aspect-ratio:16/10;object-fit:cover;background:#000;display:block}
+.pick span{font-size:11.5px;color:var(--muted);padding:6px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* gallery */
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tile{position:relative;padding:0;border:1px solid var(--line-2);border-radius:12px;background:#000;overflow:hidden;aspect-ratio:1;display:block;width:100%;text-align:left}
+.tile img,.tile video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;background:#000}
+.tile .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;color:var(--faint);font-size:12px;text-align:center;background:var(--raise);line-height:1.35}
+.tile .cap{position:absolute;left:0;right:0;bottom:0;padding:20px 8px 7px;background:linear-gradient(transparent,rgba(0,0,0,.88));font-size:11.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .tags{position:absolute;top:6px;left:6px;right:6px;display:flex;gap:4px;flex-wrap:wrap}
+.tile .tags span{font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:8px;background:rgba(0,0,0,.7);color:#fff}
+.tile .tags .bad{color:var(--bad)} .tile .tags .cl{color:var(--hot)}
+.tile:hover{border-color:var(--muted)}
+.gday{grid-column:1/-1;font-size:12px;font-family:var(--mono);color:var(--muted);margin:8px 0 -2px}
+.gday:first-child{margin-top:0}
+.sheet .in.wide{width:min(760px,100%)}
+.strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.strip figure{margin:0;flex:none;width:96px;display:grid;gap:4px}
+.strip .im{width:96px;height:64px;border-radius:6px;background:var(--ground) center/cover no-repeat;border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--faint);text-align:center;padding:2px}
+.strip figcaption{font-size:10.5px;color:var(--muted);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dv video{width:100%;max-height:58vh;background:#000;border-radius:10px;display:block}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar input{flex:1;min-width:160px}
+.stat{font-size:12.5px;color:var(--muted);font-family:var(--mono)}
+ol.steps{margin:0;padding-left:20px;display:grid;gap:6px;font-size:13px;color:var(--muted)}
+ol.steps b{color:var(--text);font-weight:500}
+ol.steps code{font-family:var(--mono);font-size:12px;color:var(--text);background:var(--ground);padding:1px 5px;border-radius:5px}
+@media (max-width:560px){.frames{grid-template-columns:1fr}.chip.key .t{display:none}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="brand">Ray <em>Studio</em></div>
+  <span class="chip money" id="spendChip" title="Estimated spend on this device">$0.00</span>
+  <button class="chip key" id="keyChip"><span class="dot" id="keyDot"></span><span id="keyText">Add key</span></button>
+</div></header>
+
+<main class="wrap">
+
+<!-- ============ GENERATE ============ -->
+<section id="tab-generate" data-tab>
+  <h1>Generate</h1>
+  <p class="sub">Luma Ray 3.2 through your own Luma or fal.ai key. Set the first and last frame, or pin up to 64 keyframes, pick the resolution, and see the exact price before you press Generate.</p>
+
+  <div class="card">
+    <h2><span class="n">01</span> Frames</h2>
+    <div class="seg" id="frameMode"></div>
+    <div class="frames" id="frameSlots"></div>
+    <div id="kfWrap" hidden style="display:grid;gap:10px">
+      <div class="frames" id="kfSlots"></div>
+      <div class="dropzone" id="kfDrop">Drop several images here to add them as keyframes, spread evenly</div>
+      <div class="row"><button class="btn small" id="kfAdd">Add keyframe</button><button class="btn small" id="kfSpread">Spread evenly</button><button class="btn small" id="kfLoop">Last = first (loop)</button><button class="btn small" id="kfRev">⇄ Reverse order</button></div>
+      <p class="note">Each keyframe is pinned to an output frame: 0–120 for 5 s, 0–240 for 10 s (24 fps). Up to 64 frames.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">02</span> Prompt <span class="r" id="promptCount">0 / 6000</span></h2>
+    <textarea id="gPrompt" maxlength="6000" placeholder="Describe the motion and the scene. For a first/last-frame shot, describe what happens between them."></textarea>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">03</span> Output</h2>
+    <div><div class="lab">Resolution</div><div class="seg" id="gRes"></div></div>
+    <div class="grid2">
+      <div><div class="lab">Duration</div><div class="seg" id="gDur"></div></div>
+      <div><div class="lab">Variations</div><div class="seg" id="gCount"></div></div>
+    </div>
+    <div><div class="lab">Aspect ratio</div><div class="seg" id="gAspect"></div></div>
+    <div class="grid2">
+      <div class="tgl"><button class="tg" id="gLoop" role="switch" aria-checked="false" aria-label="Loop"></button><span>Loop<br><small>seamless, 5 s only</small></span></div>
+      <div class="tgl"><button class="tg" id="gHdr" role="switch" aria-checked="false" aria-label="HDR"></button><span>HDR<br><small>720p/1080p, 5 s</small></span></div>
+      <div class="tgl"><button class="tg" id="gExr" role="switch" aria-checked="false" aria-label="EXR export"></button><span>EXR export<br><small>needs HDR</small></span></div>
+    </div>
+    <details class="adv"><summary>Extra fields (JSON)</summary><div>
+      <textarea class="code" id="gExtra" placeholder='{"callback_url": "https://…"}'></textarea>
+      <p class="note">Merged into the request as-is, for parameters Luma adds later. Leave empty normally.</p>
+    </div></details>
+  </div>
+
+  <div class="card">
+    <div class="problems" id="gProblems"></div>
+    <div class="cost"><div class="big" id="gCostBig">$0.00</div><div class="det" id="gCostDet"></div></div>
+    <button class="btn primary block" id="gGo">Generate</button>
+    <div id="gJobs" style="display:grid;gap:10px"></div>
+  </div>
+</section>
+
+<!-- ============ EDIT ============ -->
+<section id="tab-edit" data-tab hidden>
+  <h1>Edit a video</h1>
+  <p class="sub">Restyle an existing clip (up to 18 s, 200 MB) while keeping its motion. Source: a clip from your device, a link, or one of your generations.</p>
+  <div class="card">
+    <h2><span class="n">01</span> Source</h2>
+    <div id="eSource"></div>
+  </div>
+  <div class="card">
+    <h2><span class="n">02</span> Prompt <span class="r" id="ePromptCount">0 / 6000</span></h2>
+    <textarea id="ePrompt" maxlength="6000" placeholder="What should the clip become?"></textarea>
+  </div>
+  <div class="card">
+    <h2><span class="n">03</span> Control</h2>
+    <div class="seg" id="eMode"></div>
+    <div id="eManual" style="display:grid;gap:12px">
+      <div><div class="lab">Strength</div><div class="seg" id="eStrength"></div></div>
+      <div id="eControls" style="display:grid;gap:10px"></div>
+    </div>
+    <div><div class="lab">Guide frames</div><div class="seg" id="eGuide"></div></div>
+    <div class="frames" id="eGuideSlots"></div>
+  </div>
+  <div class="card">
+    <h2><span class="n">04</span> Output</h2>
+    <div><div class="lab">Resolution</div><div class="seg" id="eRes"></div></div>
+    <div id="eDurWrap"><div class="lab">Duration (fal.ai)</div><div class="seg" id="eDur"></div></div>
+    <div class="grid2">
+      <div class="tgl"><button class="tg" id="eHdr" role="switch" aria-checked="false" aria-label="HDR"></button><span>HDR</span></div>
+      <div class="tgl"><button class="tg" id="eExr" role="switch" aria-checked="false" aria-label="EXR export"></button><span>EXR export</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="problems" id="eProblems"></div>
+    <div class="cost"><div class="big" id="eCostBig">$0.00</div><div class="det" id="eCostDet"></div></div>
+    <button class="btn primary block" id="eGo">Edit video</button>
+    <div id="eJobs" style="display:grid;gap:10px"></div>
+  </div>
+</section>
+
+<!-- ============ REFRAME ============ -->
+<section id="tab-reframe" data-tab hidden>
+  <h1>Reframe</h1>
+  <p class="sub">Extend a clip (up to 10 s) to a new aspect ratio, for example a 16:9 shot into 9:16 for a reel. Ray paints the missing edges.</p>
+  <div class="card">
+    <h2><span class="n">01</span> Source</h2>
+    <div id="rSource"></div>
+  </div>
+  <div class="card">
+    <h2><span class="n">02</span> Target</h2>
+    <div><div class="lab">New aspect ratio</div><div class="seg" id="rAspect"></div></div>
+    <div class="grid2">
+      <div><div class="lab">Resolution</div><div class="seg" id="rRes"></div></div>
+      <div><div class="lab">Duration</div><div class="seg" id="rDur"></div></div>
+    </div>
+    <label class="f">Prompt (optional)<textarea id="rPrompt" maxlength="6000" style="min-height:70px" placeholder="What should appear in the new edges?"></textarea></label>
+    <details class="adv" id="rPosWrap"><summary>Place the source inside the new frame</summary><div>
+      <div class="tgl"><button class="tg" id="rPosOn" role="switch" aria-checked="false" aria-label="Use source position"></button><span>Set position manually</span></div>
+      <div class="grid2" id="rPos"></div>
+      <p class="note">Normalized rectangle of the original clip inside the new frame (−2 to 2). 0, 0, 1, 1 fills the frame.</p>
+    </div></details>
+  </div>
+  <div class="card">
+    <div class="problems" id="rProblems"></div>
+    <div class="cost"><div class="big" id="rCostBig">$0.00</div><div class="det" id="rCostDet"></div></div>
+    <button class="btn primary block" id="rGo">Reframe</button>
+    <div id="rJobs" style="display:grid;gap:10px"></div>
+  </div>
+</section>
+
+<!-- ============ GALLERY ============ -->
+<section id="tab-history" data-tab hidden>
+  <h1>Gallery</h1>
+  <p class="sub">Every video you made, with the exact setup behind it. Tap one to watch or download it, or press Open setup to change a frame or the prompt and generate again.</p>
+  <div class="card" style="gap:10px">
+    <div class="stat" id="storeStat">–</div>
+    <p class="note" id="driveStat"></p>
+    <div class="row"><button class="btn small primary" id="driveBtn">Connect Google Drive</button><button class="btn small" id="driveSync" hidden>Sync from Drive</button><button class="btn small" id="drivePush" hidden>Save all to Drive</button><button class="btn small" id="hRefreshAll">Refresh links</button></div>
+  </div>
+  <div id="hRunning" style="display:grid;gap:10px;margin-bottom:12px"></div>
+  <div class="toolbar"><div class="seg" id="galFilter"></div><input type="search" id="galSearch" placeholder="Search prompts" autocapitalize="off"></div>
+  <div class="gal" id="hList"></div>
+</section>
+
+<!-- ============ SETTINGS ============ -->
+<section id="tab-settings" data-tab hidden>
+  <h1>Settings</h1>
+  <p class="sub">Keys are stored only in this browser and sent only to their own service.</p>
+  <div class="card">
+    <h2>Generate through</h2>
+    <div class="seg" id="provSeg"></div>
+    <p class="note" id="provNote"></p>
+  </div>
+  <div class="card">
+    <h2>Luma API key</h2>
+    <label class="f">Key<input type="password" id="keyIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="luma-…"></label>
+    <div class="row"><button class="btn" id="keyShow">Show</button><button class="btn primary" id="keySave">Save key</button><button class="btn" id="keyTest">Test</button><button class="btn danger" id="keyDel">Remove</button></div>
+    <p class="note" id="keyNote">Create the key in the Luma API dashboard. API billing is separate from the Luma app subscription.</p>
+  </div>
+  <div class="card">
+    <h2>fal.ai key</h2>
+    <label class="f">Key<input type="password" id="falIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="xxxxxxxx-…:xxxxxxxx"></label>
+    <div class="row"><button class="btn" id="falShow">Show</button><button class="btn primary" id="falSave">Save key</button><button class="btn" id="falTest">Test</button><button class="btn danger" id="falDel">Remove</button></div>
+    <p class="note">fal.ai runs the same Ray 3.2 model and bills your fal balance. It needs no proxy: it accepts browser calls.</p>
+  </div>
+  <div class="card">
+    <h2>Google Drive</h2>
+    <p class="note" style="font-size:13px;color:var(--muted)">Saves every finished video into <b>Ray Studio / date / time · prompt</b> folders in your Drive: the video, a poster, the input frames and a setup.json. Another phone or computer signed in to the same Drive gets the same gallery with Sync. Ray Studio can only see files it created itself.</p>
+    <label class="f">OAuth Client ID<input type="text" id="gcidIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="123456789-abc….apps.googleusercontent.com"></label>
+    <div class="row"><button class="btn primary" id="gcidSave">Save &amp; connect</button><button class="btn danger" id="driveOff">Disconnect</button></div>
+    <div class="tgl"><button class="tg" id="driveAuto" role="switch" aria-checked="true" aria-label="Save finished videos to Drive automatically"></button><span>Save finished videos to Drive automatically</span></div>
+    <p class="note" id="driveNote"></p>
+    <details class="adv"><summary>How to get a Client ID (once, about 10 minutes)</summary><div>
+      <ol class="steps">
+        <li>Open <b>console.cloud.google.com</b>, create a project, e.g. <code>Ray Studio</code>.</li>
+        <li><b>APIs &amp; Services → Library</b>: enable <b>Google Drive API</b>.</li>
+        <li><b>Google Auth Platform</b> (OAuth consent screen): app name, your e-mail, audience <b>External</b>. Leave it in <b>Testing</b> and add your own Google address under <b>Test users</b>. Nobody else can then sign in.</li>
+        <li><b>Clients → Create client → Web application</b>. Under <b>Authorized JavaScript origins</b> add the address Ray Studio runs on, e.g. <code>https://davidarielszauder.com</code> (for a local test: <code>http://localhost:8080</code>). No redirect URI is needed.</li>
+        <li>Copy the <b>Client ID</b> (ends in <code>.apps.googleusercontent.com</code>) here and press Save &amp; connect.</li>
+      </ol>
+      <p class="note">Google sign-in does not work on a page opened as a file (file://). Put the page on your site, or in its folder run <code>python3 -m http.server 8080</code> and open <code>http://localhost:8080/ray-studio.html</code>. Keys and the local gallery belong to the address, so you enter the keys once more there.</p>
+    </div></details>
+  </div>
+  <div class="card">
+    <h2>This browser</h2>
+    <div class="tgl"><button class="tg" id="keepLocal" role="switch" aria-checked="true" aria-label="Keep a copy of every video in this browser"></button><span>Keep a copy of every video in this browser<br><small>works without any setup, plays offline</small></span></div>
+    <p class="note" id="localNote"></p>
+  </div>
+  <div class="card">
+    <h2>Luma API address</h2>
+    <label class="f">Base URL<input type="url" id="baseIn" autocapitalize="off" spellcheck="false"></label>
+    <div class="row"><button class="btn" id="baseSave">Save</button><button class="btn" id="baseReset">Default</button></div>
+    <p class="note">Default: <b>https://agents.lumalabs.ai/v1</b>. If Test says the browser was blocked (CORS), put the address of your small proxy here, e.g. the Cloudflare Worker that comes with this page.</p>
+  </div>
+  <div class="card">
+    <h2>Prices used for the estimate</h2>
+    <div class="tbl" id="priceTable"></div>
+    <p class="note">From Luma's Ray 3.2 price list (docs.agents.lumalabs.ai/guides/pricing), September 2026. Estimates on this page use these numbers; your Luma invoice is the final word.</p>
+  </div>
+</section>
+</main>
+
+<nav class="tabs"><div class="wrap">
+  <button data-go="generate" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor"/></svg>Generate</button>
+  <button data-go="edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20l4-1 10.5-10.5-3-3L5 16z" stroke-linejoin="round"/><path d="M13.5 7.5l3 3"/></svg>Edit</button>
+  <button data-go="reframe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="7" y="3" width="10" height="18" rx="1.5"/><path d="M3 8v8M21 8v8" stroke-linecap="round"/></svg>Reframe</button>
+  <button data-go="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Gallery<span class="badge" id="runBadge" hidden></span></span></button>
+  <button data-go="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.6M12 18.6v2.6M21.2 12h-2.6M5.4 12H2.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8M18.5 18.5l-1.8-1.8M7.3 7.3L5.5 5.5" stroke-linecap="round"/></svg>Settings</button>
+</div></nav>
+
+<div class="sheet" id="sheet" hidden><div class="in"><h3 id="sheetTitle"></h3><div id="sheetBody"></div><button class="btn" id="sheetClose">Cancel</button></div></div>
+<input type="file" id="imgPick" accept="image/*" class="sr">
+<input type="file" id="vidPick" accept="video/*" class="sr">
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+"use strict";
+/* ================= basics ================= */
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("raystudio." + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem("raystudio." + k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+};
+let toastT; function toast(m, ms = 3000) { const t = $("toast"); t.textContent = m; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), ms); }
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const money = v => "$" + (Math.round(v * 100) / 100).toFixed(2);
+function setPct(el) { el.style.setProperty("--pct", (el.value - el.min) / (el.max - el.min) * 100 + "%"); }
+function seg(host, items, cur, pick, disabled = () => false) {
+  host.innerHTML = "";
+  for (const it of items) { const [v, l, s] = it; const b = document.createElement("button"); b.type = "button"; b.innerHTML = esc(l) + (s ? `<small>${esc(s)}</small>` : ""); b.setAttribute("aria-pressed", String(v === cur)); const dis = disabled(v); b.disabled = !!dis; if (dis) b.title = dis; b.onclick = () => pick(v); host.appendChild(b); }
+}
+function tog(el, on, dis) { el.setAttribute("aria-checked", String(!!on)); el.disabled = !!dis; }
+
+/* ================= local library: IndexedDB (videos, posters, input frames, history) ================= */
+const DB = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    let r; try { r = indexedDB.open("raystudio", 1); } catch (e) { rej(e); return; }
+    r.onupgradeneeded = () => r.result.createObjectStore("kv");
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error || new Error("IndexedDB unavailable"));
+  }));
+  const run = async (mode, fn) => { const db = await open(); return new Promise((res, rej) => { const t = db.transaction("kv", mode), q = fn(t.objectStore("kv")); t.oncomplete = () => res(q && q.result); t.onerror = t.onabort = () => rej(t.error || new Error("IndexedDB write failed (storage full?)")); }); };
+  return {
+    get: k => run("readonly", s => s.get(k)),
+    has: k => run("readonly", s => s.count(k)).then(n => n > 0),
+    put: (k, v) => run("readwrite", s => s.put(v, k)),
+    del: k => run("readwrite", s => s.delete(k)),
+    keys: () => run("readonly", s => s.getAllKeys()),
+  };
+})();
+/* short content hash (cyrb53) for de-duplicating frames */
+function hash(str) { let h1 = 0xdeadbeef, h2 = 0x41c6ce57; for (let i = 0, ch; i < str.length; i++) { ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); } h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909); h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909); return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36); }
+const blobToDataURL = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(b); });
+let persistAsked = false;
+function requestPersist() { if (persistAsked) return; persistAsked = true; try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {} }
+
+/* ================= prices (Luma Ray 3.2, USD) ================= */
+const P = {
+  gen: { "360p": [0.06, 0.18], "540p": [0.15, 0.45], "720p": [0.30, 0.90], "1080p": [1.20, 3.60] },
+  genHdr: { "720p": 0.60, "1080p": 2.40 },
+  genHdrExr: { "720p": 0.90, "1080p": 3.60 },
+  extend: { "360p": 0.06, "540p": 0.15, "720p": 0.30, "1080p": 1.20 },
+  edit: { "360p": [0.54, 1.08], "540p": [0.72, 1.44], "720p": [1.08, 2.16], "1080p": [2.16, 4.32] },
+  editHdr: { "360p": [1.08, 2.16], "540p": [1.44, 2.88], "720p": [2.16, 4.32], "1080p": [4.32, 8.64] },
+  editExr: { "360p": [1.62, 3.24], "540p": [2.16, 4.32], "720p": [3.24, 6.48], "1080p": [6.48, 12.96] },
+  reframe: { "360p": 0.03, "540p": 0.06, "720p": 0.12, "1080p": 0.36 },
+};
+/* fal.ai lists the same model at partly different prices (Sep 2026 model pages) */
+const PF = {
+  i2v: { "540p": [0.15, 0.30], "720p": [0.30, 0.60], "1080p": [1.20, 2.40] },   /* 10 s = fal's per-second rate × 10, estimate */
+  t2v: { "540p": [0.50, 1.00], "720p": [1.00, 2.00], "1080p": [2.00, 4.00] },
+  hdr: { "720p": 0.60, "1080p": 2.40 }, hdrExr: { "720p": 0.90, "1080p": 3.60 },
+  edit: { "540p": [0.72, 1.44], "720p": [1.08, 2.16], "1080p": [2.16, 4.32] },
+  editHdr: { "720p": [2.16, 4.32], "1080p": [4.32, 8.64] }, editExr: { "720p": [3.24, 6.48], "1080p": [6.48, 12.96] },
+  reframe: { "540p": 0.06, "720p": 0.12, "1080p": 0.36 },
+};
+function renderPriceTable() {
+  const R = ["360p", "540p", "720p", "1080p"], c = v => v == null ? "–" : money(v);
+  $("priceTable").innerHTML = `<table class="prices"><tr><th>Ray 3.2</th>${R.map(r => `<th>${r}</th>`).join("")}</tr>
+  <tr><td>Video 5 s</td>${R.map(r => `<td>${c(P.gen[r][0])}</td>`).join("")}</tr>
+  <tr><td>Video 10 s</td>${R.map(r => `<td>${c(P.gen[r][1])}</td>`).join("")}</tr>
+  <tr><td>HDR 5 s</td>${R.map(r => `<td>${c(P.genHdr[r])}</td>`).join("")}</tr>
+  <tr><td>HDR+EXR 5 s</td>${R.map(r => `<td>${c(P.genHdrExr[r])}</td>`).join("")}</tr>
+  <tr><td>First/last frame</td>${R.map(r => `<td>${c(P.extend[r])}</td>`).join("")}</tr>
+  <tr><td>Edit 5 s / 10 s</td>${R.map(r => `<td>${c(P.edit[r][0])} / ${c(P.edit[r][1])}</td>`).join("")}</tr>
+  <tr><td>Edit HDR 5/10 s</td>${R.map(r => `<td>${c(P.editHdr[r][0])} / ${c(P.editHdr[r][1])}</td>`).join("")}</tr>
+  <tr><td>Edit HDR+EXR</td>${R.map(r => `<td>${c(P.editExr[r][0])} / ${c(P.editExr[r][1])}</td>`).join("")}</tr>
+  <tr><td>Reframe / s</td>${R.map(r => `<td>${c(P.reframe[r])}</td>`).join("")}</tr></table>
+  <table class="prices" style="margin-top:14px"><tr><th>fal.ai</th>${R.map(r => `<th>${r}</th>`).join("")}</tr>
+  <tr><td>Image→video 5 s</td>${R.map(r => `<td>${PF.i2v[r] ? c(PF.i2v[r][0]) : "–"}</td>`).join("")}</tr>
+  <tr><td>Image→video 10 s*</td>${R.map(r => `<td>${PF.i2v[r] ? c(PF.i2v[r][1]) : "–"}</td>`).join("")}</tr>
+  <tr><td>Text→video 5 s</td>${R.map(r => `<td>${PF.t2v[r] ? c(PF.t2v[r][0]) : "–"}</td>`).join("")}</tr>
+  <tr><td>Text→video 10 s</td>${R.map(r => `<td>${PF.t2v[r] ? c(PF.t2v[r][1]) : "–"}</td>`).join("")}</tr>
+  <tr><td>HDR / +EXR 5 s</td>${R.map(r => `<td>${PF.hdr[r] ? c(PF.hdr[r]) + " / " + c(PF.hdrExr[r]) : "–"}</td>`).join("")}</tr>
+  <tr><td>Edit 5 s / 10 s</td>${R.map(r => `<td>${PF.edit[r] ? c(PF.edit[r][0]) + " / " + c(PF.edit[r][1]) : "–"}</td>`).join("")}</tr>
+  <tr><td>Reframe / s</td>${R.map(r => `<td>${PF.reframe[r] ? c(PF.reframe[r]) : "–"}</td>`).join("")}</tr></table>
+  <p class="note" style="margin-top:8px">* fal lists no 10 s image→video price; this is its per-second rate × 10. fal has no 360p.</p>`;
+}
+
+/* ================= API ================= */
+const DEFAULT_BASE = "https://agents.lumalabs.ai/v1";
+const PROV = () => store.get("provider", "luma");
+const PNAME = { luma: "Luma", fal: "fal.ai" };
+const falKey = () => store.get("falKey", "");
+const FAL_EP = { t2v: "luma/agent/ray/v3.2/text-to-video", i2v: "luma/agent/ray/v3.2/image-to-video", v2v: "luma/agent/ray/v3.2/video-to-video", reframe: "luma/agent/ray/v3.2/reframe" };
+async function falApi(url, { method = "GET", json } = {}) {
+  if (!falKey()) throw new Error("Add your fal.ai key in Settings first.");
+  let r;
+  try { r = await fetch(url, { method, headers: Object.assign({ Authorization: "Key " + falKey() }, json ? { "Content-Type": "application/json" } : {}), body: json ? JSON.stringify(json) : undefined }); }
+  catch (e) { throw new Error("The browser could not reach fal.ai. Check the connection."); }
+  const txt = await r.text(); let body; try { body = txt ? JSON.parse(txt) : {}; } catch (e) { body = { message: txt.slice(0, 300) }; }
+  if (!r.ok) { if (r.status === 401 || r.status === 403) throw new Error("fal.ai rejected the key. Check it in Settings."); throw apiError(r.status, body); }
+  return body;
+}
+async function falUpload(blob, name, onState) {
+  onState && onState("Uploading to fal.ai…");
+  const init = await falApi("https://rest.fal.ai/storage/upload/initiate?storage_type=fal-cdn-v3", { method: "POST", json: { content_type: blob.type || "application/octet-stream", file_name: name } });
+  const r = await fetch(init.upload_url, { method: "PUT", headers: { "Content-Type": blob.type || "application/octet-stream" }, body: blob });
+  if (!r.ok) throw new Error("Upload to fal.ai failed (" + r.status + ")");
+  return init.file_url;
+}
+function b64ToBlob(b64, type) { const bin = atob(b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new Blob([u], { type }); }
+/* an image input as the current provider wants it */
+async function imageFor(it) {
+  if (PROV() === "luma") return it.ref;
+  if (it.kind === "gen") throw new Error("fal.ai needs an actual image here, not a generation reference. Pick the frame as an image.");
+  if (it.kind === "url") return it.ref.url;
+  if (!it.falUrl) it.falUrl = await falUpload(b64ToBlob(it.ref.data, it.ref.media_type), "frame.jpg");
+  return it.falUrl;
+}
+/* a video source as the current provider wants it */
+async function videoFor(src, onState) {
+  if (src.kind === "gen") {
+    const h = history.find(x => x.id === src.genId);
+    if (PROV() === "luma" && h && h.provider !== "fal") return { generation_id: h.id };
+    if (!h) throw new Error("That generation is no longer in the history.");
+    if (h.provider !== "fal" && (!h.url || Date.now() - (h.urlAt || 0) > 50 * 60 * 1000)) await refreshOne(h);
+    return PROV() === "luma" ? { url: h.url, media_type: "video/mp4" } : h.url;
+  }
+  if (src.kind === "url") return PROV() === "luma" ? src.ref : src.ref.url;
+  if (PROV() === "luma") { if (!src.lumaId) src.lumaId = await uploadVideo(src.file, onState); return { file_id: src.lumaId }; }
+  if (!src.falUrl) src.falUrl = await falUpload(src.file, src.file.name, onState);
+  return src.falUrl;
+}
+const base = () => (store.get("base", DEFAULT_BASE) || DEFAULT_BASE).replace(/\/+$/, "");
+const key = () => store.get("key", "");
+function apiError(status, body) {
+  if (status === 401 || status === 403) return new Error("Luma rejected the key (" + status + "). Check it in Settings.");
+  if (status === 402) return new Error("Luma says the API balance is empty (402).");
+  if (status === 429) return new Error("Too many requests right now (429). Wait a moment and try again.");
+  const d = body && (body.detail || body.message || body.error || body.failure_reason);
+  if (Array.isArray(d)) return new Error(d.map(x => (x.loc ? x.loc.slice(-1)[0] + ": " : "") + (x.msg || JSON.stringify(x))).join(" · "));
+  if (d) return new Error(typeof d === "string" ? d : JSON.stringify(d));
+  return new Error("Luma API error " + status);
+}
+async function api(path, { method = "GET", json, form } = {}) {
+  if (!key()) throw new Error("Add your Luma API key in Settings first.");
+  let r;
+  try {
+    r = await fetch(base() + path, { method, headers: Object.assign({ Authorization: "Bearer " + key() }, json ? { "Content-Type": "application/json" } : {}), body: json ? JSON.stringify(json) : form });
+  } catch (e) { throw new Error("The browser could not reach the Luma API. If this repeats, the API is blocking browser calls (CORS): set a proxy address in Settings."); }
+  const txt = await r.text(); let body; try { body = txt ? JSON.parse(txt) : {}; } catch (e) { body = { message: txt.slice(0, 300) }; }
+  if (!r.ok) throw apiError(r.status, body);
+  return body;
+}
+
+/* ================= image & video inputs ================= */
+/* An ImageRef is kept as {kind, ref, preview, label}. Images from the device travel inline as base64. */
+async function fileToImageRef(file) {
+  let src; try { src = await createImageBitmap(file, { imageOrientation: "from-image" }); } catch (e) { const u = URL.createObjectURL(file), im = new Image(); im.src = u; await new Promise((a, b) => { im.onload = a; im.onerror = b; }); src = im; }
+  const w = src.width || src.naturalWidth, h = src.height || src.naturalHeight, k = Math.min(1, 2048 / Math.max(w, h));
+  const c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k); c.getContext("2d").drawImage(src, 0, 0, c.width, c.height);
+  const url = c.toDataURL("image/jpeg", .92);
+  return { kind: "data", ref: { data: url.split(",")[1], media_type: "image/jpeg" }, preview: url, label: `${file.name.slice(0, 28)} · ${c.width}×${c.height}`, w: c.width, h: c.height };
+}
+function pickFile(input) { return new Promise(res => { const el = $(input); el.value = ""; el.onchange = () => res(el.files && el.files[0] || null); el.click(); }); }
+function sheet(title, html, bind, wide) { $("sheetClose").onclick = () => { $("sheet").hidden = true; }; $("sheet").querySelector(".in").classList.toggle("wide", !!wide); $("sheetTitle").textContent = title; $("sheetBody").innerHTML = html; $("sheet").hidden = false; bind && bind($("sheetBody")); }
+$("sheetClose").onclick = () => { $("sheet").hidden = true; };
+/* drag & drop: files from the desktop, or an image/video dragged from another browser tab */
+function dropTarget(el, onFiles, onUrl) {
+  el.addEventListener("dragenter", e => { e.preventDefault(); el.classList.add("drag"); });
+  el.addEventListener("dragover", e => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; el.classList.add("drag"); });
+  el.addEventListener("dragleave", e => { if (!el.contains(e.relatedTarget)) el.classList.remove("drag"); });
+  el.addEventListener("drop", e => {
+    e.preventDefault(); e.stopPropagation(); el.classList.remove("drag");
+    const fs = [...(e.dataTransfer.files || [])];
+    if (fs.length) { onFiles(fs); return; }
+    const u = (e.dataTransfer.getData("text/uri-list") || e.dataTransfer.getData("text/plain") || "").split("\n").map(x => x.trim()).find(x => /^https?:\/\//.test(x));
+    if (u && onUrl) onUrl(u); else toast("Drop an image file, or a picture dragged from a web page");
+  });
+}
+window.addEventListener("dragover", e => e.preventDefault());
+window.addEventListener("drop", e => e.preventDefault());
+const isImg = f => /^image\//.test(f.type) || /\.(jpe?g|png|webp|gif|heic|heif|avif|bmp|tiff?)$/i.test(f.name);
+const isVid = f => /^video\//.test(f.type) || /\.(mp4|mov|webm|m4v)$/i.test(f.name);
+function pickGeneration(filter) {
+  return new Promise(res => {
+    const done = history.filter(h => h.state === "completed" && (!filter || filter(h)));
+    if (!done.length) { toast("No finished generations yet"); res(null); return; }
+    sheet("Pick a generation", `<div class="pick">${done.map(h => `<button data-g="${h.id}">${h.url ? `<video src="${esc(h.url)}" muted playsinline preload="metadata"></video>` : `<video></video>`}<span>${esc(h.prompt || h.type)}</span></button>`).join("")}</div>`, body => {
+      body.querySelectorAll("[data-g]").forEach(b => b.onclick = () => { $("sheet").hidden = true; res(history.find(h => h.id === b.dataset.g)); });
+    });
+    $("sheetClose").onclick = () => { $("sheet").hidden = true; res(null); };
+  });
+}
+function askUrl(kind) {
+  return new Promise(res => {
+    sheet(kind === "video" ? "Video link" : "Image link", `<label class="f">Public https link<input type="url" id="askU" placeholder="https://…" autocapitalize="off" spellcheck="false"></label><div class="row" style="margin-top:10px"><button class="btn primary" id="askOk">Use link</button></div>`, body => {
+      const i = body.querySelector("#askU"); i.focus();
+      body.querySelector("#askOk").onclick = () => { const v = i.value.trim(); if (!/^https?:\/\//.test(v)) { toast("Paste a full https link"); return; } $("sheet").hidden = true; res(v); };
+    });
+    $("sheetClose").onclick = () => { $("sheet").hidden = true; res(null); };
+  });
+}
+/* grab the last (or first) frame of a finished video as an inline image */
+async function grabFrame(url, which) {
+  const v = document.createElement("video"); v.crossOrigin = "anonymous"; v.muted = true; v.playsInline = true; v.preload = "auto"; v.src = url;
+  await new Promise((a, b) => { v.onloadedmetadata = a; v.onerror = () => b(new Error("load")); });
+  await new Promise(a => { v.onseeked = a; v.currentTime = which === "last" ? Math.max(0, v.duration - 0.04) : 0; });
+  const c = document.createElement("canvas"); c.width = v.videoWidth; c.height = v.videoHeight; c.getContext("2d").drawImage(v, 0, 0);
+  const d = c.toDataURL("image/jpeg", .93); // throws if the video host forbids it
+  return { kind: "data", ref: { data: d.split(",")[1], media_type: "image/jpeg" }, preview: d, label: `${which} frame of a generation`, w: c.width, h: c.height };
+}
+async function uploadVideo(file, onState) {
+  if (file.size > 200 * 1024 * 1024) throw new Error("Luma accepts source videos up to 200 MB.");
+  let f;
+  if (file.size < 50 * 1024 * 1024) {
+    const fd = new FormData(); fd.append("file", file, file.name); fd.append("purpose", "input");
+    onState("Uploading…"); f = await api("/files", { method: "POST", form: fd });
+  } else {
+    onState("Preparing upload…");
+    f = await api("/files", { method: "POST", json: { filename: file.name, mime_type: file.type || "video/mp4", size_bytes: file.size, purpose: "input" } });
+    const up = f.upload || {}; onState("Uploading " + Math.round(file.size / 1048576) + " MB…");
+    const r = await fetch(up.url, { method: up.method || "PUT", headers: up.headers || { "Content-Type": file.type || "video/mp4" }, body: file });
+    if (!r.ok) throw new Error("Upload failed (" + r.status + ")");
+    await api(`/files/${f.id}/complete`, { method: "POST" });
+  }
+  onState("Processing on Luma…");
+  for (let i = 0; i < 120; i++) { const s = await api(`/files/${f.id}`); if (s.state === "ready") return f.id; if (s.state === "failed") throw new Error("Luma could not process the file."); await new Promise(r => setTimeout(r, 2000)); }
+  throw new Error("The upload is taking unusually long. Try again.");
+}
+function videoDuration(src) { return new Promise(res => { const v = document.createElement("video"); v.preload = "metadata"; v.muted = true; v.src = src; v.onloadedmetadata = () => res(isFinite(v.duration) ? v.duration : null); v.onerror = () => res(null); setTimeout(() => res(null), 8000); }); }
+
+/* ================= setups: what went into a generation, kept so it can be reopened ================= */
+/* Images are stored once in IndexedDB (img_<hash>); the setup only keeps the reference. */
+async function stashImage(it) {
+  if (!it) return null;
+  if (it.kind === "data") {
+    const id = "img_" + hash(it.ref.data);
+    try { if (!(await DB.has(id))) await DB.put(id, b64ToBlob(it.ref.data, it.ref.media_type || "image/jpeg")); }
+    catch (e) { return { kind: "lost", label: it.label }; }
+    return { kind: "asset", id, label: it.label, w: it.w, h: it.h };
+  }
+  if (it.kind === "url") return { kind: "url", url: it.ref.url, label: it.label };
+  if (it.kind === "gen") return { kind: "gen", genId: it.genId, label: it.label };
+  return null;
+}
+async function assetBlob(ref, h) {
+  let b = null; try { b = await DB.get(ref.id); } catch (e) {}
+  if (!b && h && h.drive && ref.file && h.drive.files && h.drive.files[ref.file]) { b = await driveBlob(h.drive.files[ref.file]); try { await DB.put(ref.id, b); } catch (e) {} }
+  return b;
+}
+async function unstashImage(s, h) {
+  if (!s) return null;
+  if (s.kind === "asset") {
+    const b = await assetBlob(s, h); if (!b) return null;
+    const url = await blobToDataURL(b.type ? b : new Blob([b], { type: "image/jpeg" }));
+    return { kind: "data", ref: { data: url.split(",")[1], media_type: b.type || "image/jpeg" }, preview: url, label: s.label, w: s.w, h: s.h };
+  }
+  if (s.kind === "url") return { kind: "url", ref: { url: s.url }, preview: s.url, label: s.label };
+  if (s.kind === "gen") return { kind: "gen", genId: s.genId, ref: { generation_id: s.genId }, preview: "", label: s.label };
+  return null;
+}
+async function stashSource(s) {
+  if (!s) return null;
+  if (s.kind === "file") {
+    const id = "src_" + hash(`${s.file.name}|${s.file.size}|${s.file.lastModified}`);
+    try { if (!(await DB.has(id))) await DB.put(id, s.file); } catch (e) { return { kind: "lost", label: s.label }; }
+    return { kind: "asset", id, label: s.label.replace(/ · uploads when you start$/, ""), dur: s.dur, name: s.file.name, type: s.file.type || "video/mp4" };
+  }
+  if (s.kind === "url") return { kind: "url", ref: s.ref, label: s.label, dur: s.dur };
+  if (s.kind === "gen") return { kind: "gen", genId: s.genId, label: s.label, dur: s.dur };
+  return null;
+}
+async function unstashSource(s, h) {
+  if (!s) return null;
+  if (s.kind === "asset") { const b = await assetBlob(s, h); if (!b) return null; const f = b instanceof File ? b : new File([b], s.name || "source.mp4", { type: s.type || "video/mp4" }); return { kind: "file", file: f, ref: null, preview: URL.createObjectURL(f), label: s.label + " · uploads when you start", dur: s.dur }; }
+  if (s.kind === "url") return { kind: "url", ref: s.ref, preview: s.ref.url, label: s.label, dur: s.dur };
+  if (s.kind === "gen") { const g = history.find(x => x.id === s.genId); return { kind: "gen", genId: s.genId, ref: { generation_id: s.genId }, preview: g && g.url, label: s.label, dur: s.dur }; }
+  return null;
+}
+async function snapGen() {
+  const m = G.mode, s = { tab: "g", provider: PROV(), G: { mode: m, res: G.res, dur: G.dur, aspect: G.aspect, loop: G.loop, hdr: G.hdr, exr: G.exr }, prompt: $("gPrompt").value.trim(), extra: $("gExtra").value.trim() };
+  if (m === "first" || m === "both") s.first = await stashImage(frames.first);
+  if (m === "last" || m === "both") s.last = await stashImage(frames.last);
+  if (m === "keys") { s.kfs = []; for (const k of kfs) s.kfs.push({ img: await stashImage(k.img), idx: k.idx }); }
+  return s;
+}
+async function snapEdit() {
+  const s = { tab: "e", provider: PROV(), E: JSON.parse(JSON.stringify(E)), prompt: $("ePrompt").value.trim(), source: await stashSource(eState.src) };
+  if (E.guide === "start") s.start = await stashImage(eFrames.start);
+  if (E.guide === "keys") { s.kfs = []; for (const k of eKfs) s.kfs.push({ img: await stashImage(k.img), idx: k.idx }); }
+  return s;
+}
+async function snapRef() { return { tab: "r", provider: PROV(), RF: JSON.parse(JSON.stringify(RF)), prompt: $("rPrompt").value.trim(), source: await stashSource(rState.src) }; }
+/* every stored file a setup points to, with the name it gets in Drive */
+function setupAssets(s) {
+  const out = [], add = (r, n) => { if (r && r.kind === "asset") out.push([r, n]); };
+  const ext = r => ((r.name || "").match(/\.(\w{2,4})$/) || [0, "mp4"])[1].toLowerCase();
+  if (!s) return out;
+  add(s.first, "first.jpg"); add(s.last, "last.jpg"); add(s.start, "start.jpg");
+  (s.kfs || []).forEach((k, i) => add(k.img, `${s.tab === "e" ? "guide" : "kf"}${String(i + 1).padStart(2, "0")}_f${k.idx}.jpg`));
+  if (s.source && s.source.kind === "asset") add(s.source, "source." + ext(s.source));
+  return out;
+}
+/* bring a finished (or failed) job's setup back into its tab */
+async function openSetup(h) {
+  const s = h.setup;
+  if (!s) {
+    const tab = h.tab || "g";
+    if (tab === "g") { $("gPrompt").value = h.prompt || ""; store.set("gPrompt", $("gPrompt").value); go("generate"); renderGen(); }
+    else if (tab === "e") { $("ePrompt").value = h.prompt || ""; store.set("ePrompt", $("ePrompt").value); go("edit"); renderEdit(); }
+    else { $("rPrompt").value = h.prompt && !/^reframe to/.test(h.prompt) ? h.prompt : ""; go("reframe"); renderReframe(); }
+    toast("This one was made before setups were recorded: only the prompt came back.", 5000); return;
+  }
+  toast("Loading the setup…");
+  let missing = 0; const img = async r => { if (!r) return null; try { const v = await unstashImage(r, h); if (!v) missing++; return v; } catch (e) { missing++; return null; } };
+  const src = async r => { if (!r) return null; try { const v = await unstashSource(r, h); if (!v) missing++; return v; } catch (e) { missing++; return null; } };
+  if (s.tab === "g") {
+    Object.assign(G, s.G); saveG();
+    $("gPrompt").value = s.prompt || ""; store.set("gPrompt", $("gPrompt").value); $("gExtra").value = s.extra || "";
+    frames.first = await img(s.first); frames.last = await img(s.last);
+    kfs.length = 0; for (const k of s.kfs || []) kfs.push({ img: await img(k.img), idx: k.idx });
+    go("generate"); renderGen();
+  } else if (s.tab === "e") {
+    Object.assign(E, JSON.parse(JSON.stringify(s.E))); saveE();
+    $("ePrompt").value = s.prompt || ""; store.set("ePrompt", $("ePrompt").value);
+    eState.src = await src(s.source); eFrames.start = await img(s.start);
+    eKfs.length = 0; for (const k of s.kfs || []) eKfs.push({ img: await img(k.img), idx: k.idx });
+    go("edit"); renderEdit();
+  } else {
+    Object.assign(RF, JSON.parse(JSON.stringify(s.RF))); saveR();
+    $("rPrompt").value = s.prompt || ""; rState.src = await src(s.source);
+    go("reframe"); renderReframe();
+  }
+  const other = s.provider && s.provider !== PROV() ? ` It was made through ${PNAME[s.provider]}; you are on ${PNAME[PROV()]} now (Settings).` : "";
+  toast(missing ? `Setup loaded, but ${missing} input${missing > 1 ? "s were" : " was"} not found in this browser${DRIVE.on() ? " or Drive" : ""}.${other}` : `Setup loaded. Change anything and generate again.${other}`, missing || other ? 6000 : 3000);
+}
+
+/* ================= Generate ================= */
+const G = Object.assign({ mode: "first", res: "720p", dur: "5s", aspect: "auto", loop: false, hdr: false, exr: false, count: 1 }, store.get("gen", {}));
+const frames = { first: null, last: null }, kfs = [];
+const MODES = [["text", "Text only"], ["first", "First frame"], ["last", "Last frame"], ["both", "First + last"], ["keys", "Keyframes"]];
+const saveG = () => store.set("gen", G);
+function slotHTML(id, title, it, extra = "") {
+  const pv = it ? `<div class="pv has" style="background-image:url('${it.preview || ""}')">${it.preview ? "" : esc(it.label)}</div>` : `<div class="pv">Drop an image here<br>or tap Photo</div>`;
+  return `<div class="slot" data-drop="${id}"><div class="top">${title}<span class="i">${it ? esc(it.label) : ""}</span></div>${pv}<div class="acts"><button class="btn" data-img="${id}">Photo</button><button class="btn" data-url="${id}">Link</button><button class="btn" data-gen="${id}">Generation</button>${it ? `<button class="btn" data-clr="${id}" aria-label="Remove">×</button>` : ""}</div>${extra}</div>`;
+}
+async function fillSlot(id, how, given) {
+  let it = null;
+  try {
+    if (how === "img") { const f = given || await pickFile("imgPick"); if (!f) return; it = await fileToImageRef(f); }
+    else if (how === "url") { const u = given || await askUrl("image"); if (!u) return; it = { kind: "url", ref: { url: u }, preview: u, label: u.split("/").pop().slice(0, 30) }; }
+    else if (how === "gen") {
+      const h = await pickGeneration(); if (!h) return;
+      const which = id === "last" ? "first" : "last";
+      try { it = await grabFrame(h.url, which); it.label = `${which} frame · ${(h.prompt || "").slice(0, 18)}`; }
+      catch (e) { it = { kind: "gen", genId: h.id, ref: { generation_id: h.id }, preview: "", label: `generation ${h.id.slice(0, 8)} (${id === "last" ? "extends backward" : "extends forward"})` }; toast(PROV() === "luma" ? "Using the generation itself; Luma continues from it." : "The browser could not read a frame from that video."); }
+    }
+  } catch (e) { toast("That image could not be read."); return; }
+  if (id.startsWith("kf")) { if (kfs[+id.slice(2)]) kfs[+id.slice(2)].img = it; } else frames[id] = it;
+  renderGen();
+}
+/* several images dropped at once: fill this slot, then the next ones in order */
+async function dropImages(id, files) {
+  files = files.filter(isImg);
+  if (!files.length) { toast("Those are not images"); return; }
+  if (id.startsWith("kf")) {
+    let i = +id.slice(2);
+    for (const f of files) { if (i >= 64) break; if (!kfs[i]) kfs.push({ img: null, idx: 0 }); try { kfs[i].img = await fileToImageRef(f); } catch (e) {} i++; }
+    if (files.length > 1) spreadKf();
+    renderGen(); if (files.length > 1) toast(`${Math.min(files.length, 64)} keyframes set and spread evenly`); return;
+  }
+  await fillSlot(id, "img", files[0]);
+  if (files.length > 1 && id === "first") { if (G.mode !== "both") { G.mode = "both"; saveG(); } await fillSlot("last", "img", files[1]); toast("First and last frame set"); }
+}
+function bindSlots(host) {
+  host.querySelectorAll("[data-drop]").forEach(el => dropTarget(el, fs => dropImages(el.dataset.drop, fs), u => fillSlot(el.dataset.drop, "url", u)));
+  host.querySelectorAll("[data-img]").forEach(b => b.onclick = () => fillSlot(b.dataset.img, "img"));
+  host.querySelectorAll("[data-url]").forEach(b => b.onclick = () => fillSlot(b.dataset.url, "url"));
+  host.querySelectorAll("[data-gen]").forEach(b => b.onclick = () => fillSlot(b.dataset.gen, "gen"));
+  host.querySelectorAll("[data-clr]").forEach(b => b.onclick = () => { const id = b.dataset.clr; if (id.startsWith("kf")) kfs.splice(+id.slice(2), 1); else frames[id] = null; renderGen(); });
+}
+const maxIdx = () => G.dur === "10s" ? 240 : 120;
+function renderGen() {
+  seg($("frameMode"), MODES, G.mode, v => { G.mode = v; if (v === "keys" && !kfs.length) { kfs.push({ img: frames.first, idx: 0 }, { img: frames.last, idx: maxIdx() }); } saveG(); renderGen(); });
+  const fs = $("frameSlots"); fs.hidden = G.mode === "text" || G.mode === "keys";
+  let html = "";
+  if (G.mode === "first" || G.mode === "both") html += slotHTML("first", "First frame", frames.first);
+  if (G.mode === "last" || G.mode === "both") html += slotHTML("last", "Last frame", frames.last, G.mode === "both" && frames.first ? `<button class="btn small" id="sameAsFirst">Same as first (loop)</button>` : "");
+  const swapLbl = G.mode === "both" ? "⇄ Swap first and last" : G.mode === "first" ? "⇄ Use it as the last frame" : "⇄ Use it as the first frame";
+  if (G.mode === "both" ? (frames.first || frames.last) : G.mode === "first" ? frames.first : G.mode === "last" ? frames.last : false) html += `<div class="row" style="grid-column:1/-1"><button class="btn small" id="swapFL">${swapLbl}</button></div>`;
+  fs.innerHTML = html; bindSlots(fs);
+  const saf = $("sameAsFirst"); if (saf) saf.onclick = () => { frames.last = Object.assign({}, frames.first, { label: "same as first" }); renderGen(); };
+  const sw = $("swapFL"); if (sw) sw.onclick = swapFrames;
+  $("kfWrap").hidden = G.mode !== "keys";
+  if (G.mode === "keys") {
+    const kh = $("kfSlots"), mx = maxIdx();
+    kh.innerHTML = kfs.map((k, i) => slotHTML("kf" + i, `Keyframe ${i + 1}`, k.img, `<div class="kf-index"><span>at frame</span><output>${k.idx} · ${(k.idx / 24).toFixed(2)} s</output><input type="range" min="0" max="${mx}" step="1" value="${Math.min(k.idx, mx)}" data-kfi="${i}"></div>`)).join("");
+    bindSlots(kh);
+    kh.querySelectorAll("[data-kfi]").forEach(r => { setPct(r); r.oninput = () => { const i = +r.dataset.kfi; kfs[i].idx = +r.value; r.previousElementSibling.textContent = `${r.value} · ${(r.value / 24).toFixed(2)} s`; setPct(r); updateGenCost(); }; });
+  }
+  if (PROV() === "fal" && G.res === "360p") G.res = "540p";
+  seg($("gRes"), [["360p", "360p", "draft"], ["540p", "540p"], ["720p", "720p"], ["1080p", "1080p"]], G.res, v => { G.res = v; saveG(); renderGen(); }, v => v === "360p" && PROV() === "fal" ? "fal.ai has no 360p" : false);
+  seg($("gDur"), [["5s", "5 s"], ["10s", "10 s"]], G.dur, v => { if (v !== G.dur) { const k = v === "10s" ? 2 : .5; kfs.forEach(f => f.idx = Math.min(v === "10s" ? 240 : 120, Math.round(f.idx * k))); } G.dur = v; saveG(); renderGen(); });
+  seg($("gCount"), [[1, "1"], [2, "2"], [3, "3"], [4, "4"]], G.count, v => { G.count = v; saveG(); renderGen(); });
+  seg($("gAspect"), [["auto", "Auto"], ["9:16", "9:16"], ["3:4", "3:4"], ["1:1", "1:1"], ["4:3", "4:3"], ["16:9", "16:9"], ["21:9", "21:9"]], G.aspect, v => { G.aspect = v; saveG(); renderGen(); });
+  tog($("gLoop"), G.loop); tog($("gHdr"), G.hdr); tog($("gExr"), G.exr);
+  updateGenCost();
+}
+$("gLoop").onclick = () => { G.loop = !G.loop; saveG(); renderGen(); };
+$("gHdr").onclick = () => { G.hdr = !G.hdr; if (!G.hdr) G.exr = false; saveG(); renderGen(); };
+$("gExr").onclick = () => { G.exr = !G.exr; if (G.exr) G.hdr = true; saveG(); renderGen(); };
+$("gPrompt").value = store.get("gPrompt", "");
+$("gPrompt").oninput = () => { store.set("gPrompt", $("gPrompt").value); updateGenCost(); };
+$("kfAdd").onclick = () => { if (kfs.length >= 64) { toast("64 keyframes is the maximum"); return; } kfs.push({ img: null, idx: maxIdx() }); spreadKf(); renderGen(); };
+dropTarget($("kfDrop"), async fs => { const start = kfs.findIndex(k => !k.img); await dropImages("kf" + (start < 0 ? kfs.length : start), fs); }, u => { kfs.push({ img: { kind: "url", ref: { url: u }, preview: u, label: u.split("/").pop().slice(0, 30) }, idx: maxIdx() }); spreadKf(); renderGen(); });
+/* dropping images anywhere on the Frames card when no slot is showing */
+dropTarget($("frameSlots").closest(".card"), async fs => {
+  const imgs = fs.filter(isImg); if (!imgs.length) return;
+  if (G.mode === "text") { G.mode = imgs.length > 2 ? "keys" : imgs.length === 2 ? "both" : "first"; saveG(); renderGen(); }
+  if (G.mode === "keys") { const start = kfs.findIndex(k => !k.img); await dropImages("kf" + (start < 0 ? kfs.length : start), imgs); }
+  else await dropImages(G.mode === "last" ? "last" : "first", imgs);
+});
+/* first ⇄ last; in single-frame modes the picture moves to the other end */
+function swapFrames() {
+  const a = frames.first; frames.first = frames.last; frames.last = a;
+  if (G.mode === "first") G.mode = "last"; else if (G.mode === "last") G.mode = "first";
+  saveG(); renderGen(); toast(G.mode === "both" ? "First and last frame swapped" : `Now the ${G.mode} frame`);
+}
+function spreadKf() { const mx = maxIdx(), n = kfs.length; kfs.forEach((k, i) => k.idx = n === 1 ? 0 : Math.round(i * mx / (n - 1))); }
+$("kfSpread").onclick = () => { spreadKf(); renderGen(); };
+$("kfRev").onclick = () => { if (kfs.length < 2) return; const s = kfs.slice().sort((a, b) => a.idx - b.idx), imgs = s.map(k => k.img).reverse(); s.forEach((k, i) => k.img = imgs[i]); renderGen(); toast("Keyframe order reversed"); };
+$("kfLoop").onclick = () => { if (!kfs.length || !kfs[0].img) { toast("Set keyframe 1 first"); return; } if (kfs.length < 2) kfs.push({ img: null, idx: maxIdx() }); kfs[kfs.length - 1].img = Object.assign({}, kfs[0].img, { label: "same as keyframe 1" }); kfs[kfs.length - 1].idx = maxIdx(); renderGen(); };
+function genProblems() {
+  const p = [], prompt = $("gPrompt").value.trim(), m = G.mode;
+  if (!prompt) p.push("Write a prompt (Luma requires one).");
+  if (G.loop && G.dur === "10s") p.push("Loop works only with 5 s.");
+  if (G.loop && G.hdr) p.push("Loop cannot be combined with HDR.");
+  if (G.loop && (m === "last" || m === "both")) p.push("Loop cannot be combined with a last frame. For a loop with a picture, use First + last with the same image.");
+  if (G.loop && m === "keys") p.push("Loop cannot be combined with keyframes.");
+  if (G.hdr && (G.res === "360p" || G.res === "540p")) p.push("HDR needs 720p or 1080p.");
+  if (G.hdr && G.dur === "10s") p.push("HDR works only with 5 s.");
+  if (G.exr && !G.hdr) p.push("EXR export needs HDR.");
+  if ((m === "first" || m === "last" || m === "both") && G.dur === "10s") p.push("First/last frames work only with 5 s. For 10 s, use Keyframes.");
+  if ((m === "first" || m === "both") && !frames.first) p.push("Add the first frame.");
+  if ((m === "last" || m === "both") && !frames.last) p.push("Add the last frame.");
+  if (m === "keys") {
+    if (!kfs.length) p.push("Add at least one keyframe.");
+    if (kfs.some(k => !k.img)) p.push("Every keyframe needs an image.");
+    const ix = kfs.map(k => k.idx); if (new Set(ix).size !== ix.length) p.push("Two keyframes sit on the same frame; move one.");
+    if (ix.some(i => i < 0 || i > maxIdx())) p.push(`Keyframe positions must be 0–${maxIdx()}.`);
+  }
+  const ex = $("gExtra").value.trim(); if (ex) { try { const o = JSON.parse(ex); if (typeof o !== "object" || Array.isArray(o)) throw 0; } catch (e) { p.push("Extra fields must be a JSON object."); } }
+  if (PROV() === "fal") {
+    const refs = m === "keys" ? kfs.map(k => k.img) : [m === "first" || m === "both" ? frames.first : null, m === "last" || m === "both" ? frames.last : null];
+    if (refs.some(r => r && r.kind === "gen")) p.push("fal.ai needs real images: re-pick the frame from the generation, or switch to Luma in Settings.");
+  }
+  if (PROV() === "luma" ? !key() : !falKey()) p.push(`Add your ${PNAME[PROV()]} key in Settings.`);
+  return p;
+}
+function genUnitCost() {
+  const r = G.res, d = G.dur === "10s" ? 1 : 0;
+  if (PROV() === "fal") {
+    const img = G.mode !== "text";
+    if (G.hdr) return G.exr ? { v: PF.hdrExr[r], l: `fal HDR + EXR ${r} 5 s` } : { v: PF.hdr[r], l: `fal HDR ${r} 5 s${img ? "" : " (text→video HDR not listed; estimate)"}` };
+    if (!PF.i2v[r]) return { v: null, l: "" };
+    return img ? { v: PF.i2v[r][d], l: `fal image→video ${r} ${G.dur}${d ? " (estimate)" : ""}` } : { v: PF.t2v[r][d], l: `fal text→video ${r} ${G.dur}` };
+  }
+  if (G.hdr && G.exr) return { v: P.genHdrExr[r], l: `HDR + EXR ${r} 5 s` };
+  if (G.hdr) return { v: P.genHdr[r], l: `HDR ${r} 5 s` };
+  if (G.mode === "first" || G.mode === "last" || G.mode === "both") return { v: P.extend[r], l: `frame-anchored ${r} 5 s` };
+  return { v: P.gen[r][d], l: `${G.mode === "keys" ? "keyframes " : ""}${r} ${G.dur}` };
+}
+function updateGenCost() {
+  $("promptCount").textContent = `${$("gPrompt").value.length} / 6000`;
+  const probs = genProblems(), u = genUnitCost(), total = (u.v || 0) * G.count;
+  $("gProblems").innerHTML = probs.map(x => `<p>${esc(x)}</p>`).join("");
+  $("gCostBig").innerHTML = u.v == null ? "n/a" : `${money(total)}<small>${G.count > 1 ? G.count + " variations" : "this generation"}</small>`;
+  $("gCostDet").textContent = u.v == null ? "This combination has no listed price." : `${G.count} × ${money(u.v)} · ${u.l} · via ${PNAME[PROV()]}`;
+  $("gGo").disabled = !!probs.length || u.v == null;
+  $("gGo").textContent = probs.length ? "Fix the items above" : `Generate · ${money(total)}`;
+}
+$("gExtra").oninput = updateGenCost;
+function buildGenBody() {
+  const video = { resolution: G.res, duration: G.dur };
+  if (G.loop) video.loop = true;
+  if (G.hdr) video.hdr = true;
+  if (G.exr) video.exr_export = true;
+  if (G.mode === "first" || G.mode === "both") video.start_frame = frames.first.ref;
+  if (G.mode === "last" || G.mode === "both") video.end_frame = frames.last.ref;
+  if (G.mode === "keys") { const s = kfs.slice().sort((a, b) => a.idx - b.idx); video.keyframes = s.map(k => k.img.ref); video.keyframe_indexes = s.map(k => k.idx); }
+  const body = { model: "ray-3.2", type: "video", prompt: $("gPrompt").value.trim(), video };
+  if (G.aspect !== "auto") body.aspect_ratio = G.aspect;
+  const ex = $("gExtra").value.trim(); if (ex) Object.assign(body, JSON.parse(ex));
+  return body;
+}
+async function buildFalGen() {
+  const m = G.mode, input = { prompt: $("gPrompt").value.trim(), resolution: G.res, duration: G.dur };
+  if (G.aspect !== "auto") input.aspect_ratio = G.aspect;
+  if (G.loop) input.loop = true; if (G.hdr) input.hdr = true; if (G.exr) input.exr_export = true;
+  let ep = FAL_EP.t2v;
+  if (m === "first" || m === "both") { ep = FAL_EP.i2v; input.image_url = await imageFor(frames.first); if (m === "both") input.end_image_url = await imageFor(frames.last); }
+  else if (m === "last") { ep = FAL_EP.i2v; input.keyframes = [await imageFor(frames.last)]; input.keyframe_indexes = [maxIdx()]; }
+  else if (m === "keys") { ep = FAL_EP.i2v; const s = kfs.slice().sort((a, b) => a.idx - b.idx); input.keyframes = []; for (const k of s) input.keyframes.push(await imageFor(k.img)); input.keyframe_indexes = s.map(k => k.idx); }
+  const ex = $("gExtra").value.trim(); if (ex) Object.assign(input, JSON.parse(ex));
+  return { ep, input };
+}
+async function submitFal(ep, input) { const r = await falApi("https://queue.fal.run/" + ep, { method: "POST", json: input }); return { id: r.request_id, state: "queued", status_url: r.status_url, response_url: r.response_url, provider: "fal" }; }
+$("gGo").onclick = async () => {
+  const u = genUnitCost(), n = G.count; $("gGo").disabled = true; $("gGo").textContent = "Starting…";
+  try {
+    let send;
+    if (PROV() === "fal") { const { ep, input } = await buildFalGen(); send = () => submitFal(ep, input); }
+    else { const body = buildGenBody(); send = () => api("/generations", { method: "POST", json: body }); }
+    const body = { prompt: $("gPrompt").value.trim() }, setup = await snapGen();
+    for (let i = 0; i < n; i++) { const r = await send(); addJob(r, { setup, type: "video", prompt: body.prompt, cost: u.v, params: `${G.res} · ${G.dur}${G.loop ? " · loop" : ""}${G.hdr ? " · HDR" : ""}${G.exr ? "+EXR" : ""} · ${MODES.find(m => m[0] === G.mode)[1]}${G.aspect !== "auto" ? " · " + G.aspect : ""}`, tab: "g", dur: parseInt(G.dur) }); } toast(n > 1 ? `${n} generations started` : "Generation started"); }
+  catch (e) { toast(e.message, 5000); }
+  updateGenCost();
+};
+
+/* paste an image (Cmd/Ctrl+V) into the first empty frame */
+document.addEventListener("paste", async e => {
+  if (e.target && e.target.matches && e.target.matches("input, textarea")) return;
+  const f = [...(e.clipboardData && e.clipboardData.files || [])].find(isImg); if (!f) return;
+  e.preventDefault();
+  const tab = store.get("tab", "generate");
+  if (tab === "edit") { if (E.guide === "none") { E.guide = "start"; saveE(); } if (E.guide === "start") await eFill("estart", "img", f); else { const i = eKfs.findIndex(k => !k.img); await eFill("ek" + (i < 0 ? eKfs.push({ img: null, idx: 0 }) - 1 : i), "img", f); } return; }
+  go("generate");
+  if (G.mode === "text") { G.mode = "first"; saveG(); }
+  if (G.mode === "keys") { const i = kfs.findIndex(k => !k.img); await dropImages("kf" + (i < 0 ? kfs.length : i), [f]); }
+  else await fillSlot(G.mode === "last" || (G.mode === "both" && frames.first) ? "last" : "first", "img", f);
+  toast("Pasted");
+});
+
+/* ================= source picker (Edit, Reframe) ================= */
+function sourceWidget(host, state, onChange, maxSec) {
+  const s = state.src;
+  host.innerHTML = `<div class="slot" data-vdrop><div class="top">Source video<span class="i">${s ? esc(s.label) : `up to ${maxSec} s, 200 MB`}</span></div><div class="pv ${s ? "has" : ""}">${s && s.preview ? `<video src="${esc(s.preview)}" muted playsinline loop autoplay></video>` : (s ? esc(s.label) : "Drop a video here<br>or tap From device")}</div><div class="acts"><button class="btn" data-a="file">From device</button><button class="btn" data-a="url">Link</button><button class="btn" data-a="gen">Generation</button>${s ? `<button class="btn" data-a="clr" aria-label="Remove">×</button>` : ""}</div></div>`;
+  const setFile = async f => {
+    const local = URL.createObjectURL(f), dur = await videoDuration(local);
+    if (dur && dur > maxSec + .05) { toast(`That clip is ${dur.toFixed(1)} s; the limit here is ${maxSec} s.`); return; }
+    state.src = { kind: "file", file: f, ref: null, preview: local, label: `${f.name.slice(0, 24)}${dur ? " · " + dur.toFixed(1) + " s" : ""} · uploads when you start`, dur }; onChange();
+  };
+  const setUrl = async u => { const dur = await videoDuration(u); state.src = { kind: "url", ref: { url: u, media_type: /\.mov(\?|$)/i.test(u) ? "video/quicktime" : /\.webm(\?|$)/i.test(u) ? "video/webm" : "video/mp4" }, preview: u, label: `${u.split("/").pop().slice(0, 24)}${dur ? " · " + dur.toFixed(1) + " s" : ""}`, dur }; onChange(); };
+  dropTarget(host.querySelector("[data-vdrop]"), fs => { const f = fs.find(isVid); if (f) setFile(f); else toast("Drop a video file (MP4, MOV, WebM)"); }, setUrl);
+  host.querySelectorAll("[data-a]").forEach(b => b.onclick = async () => {
+    const a = b.dataset.a;
+    try {
+      if (a === "clr") state.src = null;
+      else if (a === "file") {
+        const f = await pickFile("vidPick"); if (!f) return;
+        const local = URL.createObjectURL(f), dur = await videoDuration(local);
+        if (dur && dur > maxSec + .05) { toast(`That clip is ${dur.toFixed(1)} s; the limit here is ${maxSec} s.`); return; }
+        state.src = { kind: "file", file: f, ref: null, preview: local, label: `${f.name.slice(0, 24)}${dur ? " · " + dur.toFixed(1) + " s" : ""} · uploads when you start`, dur };
+      } else if (a === "url") {
+        const u = await askUrl("video"); if (!u) return;
+        const dur = await videoDuration(u);
+        state.src = { kind: "url", ref: { url: u, media_type: /\.mov(\?|$)/i.test(u) ? "video/quicktime" : /\.webm(\?|$)/i.test(u) ? "video/webm" : "video/mp4" }, preview: u, label: `${u.split("/").pop().slice(0, 24)}${dur ? " · " + dur.toFixed(1) + " s" : ""}`, dur };
+      } else if (a === "gen") {
+        const h = await pickGeneration(); if (!h) return;
+        state.src = { kind: "gen", genId: h.id, ref: { generation_id: h.id }, preview: h.url, label: `generation · ${(h.prompt || "").slice(0, 20)}`, dur: h.dur || 5 };
+      }
+    } catch (e) { toast(e.message, 5000); state.src = null; }
+    onChange();
+  });
+}
+
+/* ================= Edit ================= */
+const E = Object.assign({ auto: true, strength: "flex_2", res: "720p", dur: "5s", hdr: false, exr: false, guide: "none", controls: { pose: { enabled: true, strength: "precise" }, depth: { enabled: true, blur: .3 }, normals: { enabled: false, augmentation: .3 }, trajectory: { enabled: false, sparsity: .5 }, face: { enabled: true } } }, store.get("edit", {}));
+const eState = { src: null }, eFrames = { start: null }, eKfs = [];
+const saveE = () => store.set("edit", E);
+function renderEdit() {
+  sourceWidget($("eSource"), eState, renderEdit, 18);
+  seg($("eMode"), [[true, "Auto controls", "recommended"], [false, "Manual"]], E.auto, v => { E.auto = v; saveE(); renderEdit(); });
+  $("eManual").hidden = E.auto;
+  const S = ["adhere_1", "adhere_2", "adhere_3", "flex_1", "flex_2", "flex_3", "reimagine_1", "reimagine_2", "reimagine_3"];
+  seg($("eStrength"), S.map(s => [s, s.replace("_", " ")]), E.strength, v => { E.strength = v; saveE(); renderEdit(); });
+  const C = E.controls, ch = $("eControls");
+  ch.innerHTML = `
+    <div class="tgl"><button class="tg" data-c="pose" role="switch" aria-checked="${C.pose.enabled}" aria-label="Pose"></button><span>Pose</span><div class="seg" style="margin-left:auto" id="posePrec"></div></div>
+    <div class="tgl"><button class="tg" data-c="depth" role="switch" aria-checked="${C.depth.enabled}" aria-label="Depth"></button><span style="width:84px">Depth</span><div class="range" style="flex:1"><span>blur</span><output>${C.depth.blur.toFixed(2)}</output><input type="range" min="0" max="1" step=".05" value="${C.depth.blur}" data-v="depth.blur"></div></div>
+    <div class="tgl"><button class="tg" data-c="normals" role="switch" aria-checked="${C.normals.enabled}" aria-label="Normals"></button><span style="width:84px">Normals</span><div class="range" style="flex:1"><span>augmentation</span><output>${C.normals.augmentation.toFixed(2)}</output><input type="range" min="0" max="1" step=".05" value="${C.normals.augmentation}" data-v="normals.augmentation"></div></div>
+    <div class="tgl"><button class="tg" data-c="trajectory" role="switch" aria-checked="${C.trajectory.enabled}" aria-label="Trajectory"></button><span style="width:84px">Trajectory</span><div class="range" style="flex:1"><span>sparsity</span><output>${C.trajectory.sparsity.toFixed(2)}</output><input type="range" min="0" max="1" step=".05" value="${C.trajectory.sparsity}" data-v="trajectory.sparsity"></div></div>
+    <div class="tgl"><button class="tg" data-c="face" role="switch" aria-checked="${C.face.enabled}" aria-label="Face"></button><span>Face</span></div>`;
+  seg($("posePrec"), [["precise", "precise"], ["coarse", "coarse"]], C.pose.strength, v => { C.pose.strength = v; saveE(); renderEdit(); });
+  ch.querySelectorAll("[data-c]").forEach(b => b.onclick = () => { C[b.dataset.c].enabled = !C[b.dataset.c].enabled; saveE(); renderEdit(); });
+  ch.querySelectorAll("[data-v]").forEach(r => { setPct(r); r.oninput = () => { const [a, k] = r.dataset.v.split("."); C[a][k] = +r.value; r.previousElementSibling.textContent = (+r.value).toFixed(2); setPct(r); saveE(); }; });
+  seg($("eGuide"), [["none", "None"], ["start", "Start frame"], ["keys", "Keyframes"]], E.guide, v => { E.guide = v; if (v === "keys" && !eKfs.length) eKfs.push({ img: null, idx: 0 }); saveE(); renderEdit(); });
+  const gs = $("eGuideSlots");
+  gs.innerHTML = E.guide === "start" ? eSlot("estart", "Start frame", eFrames.start) : E.guide === "keys" ? eKfs.map((k, i) => eSlot("ek" + i, `Guide ${i + 1}`, k.img, `<label class="f" style="margin-top:4px">source frame<input type="number" min="0" value="${k.idx}" data-ekfi="${i}" inputmode="numeric"></label>`)).join("") + `<div class="row"><button class="btn small" id="ekAdd">Add guide frame</button></div>` : "";
+  gs.querySelectorAll("[data-drop]").forEach(el => dropTarget(el, async fs => { const im = fs.filter(isImg); if (!im.length) return; if (el.dataset.drop === "estart") { await eFill("estart", "img", im[0]); return; } let i = +el.dataset.drop.slice(2); for (const f of im) { if (!eKfs[i]) eKfs.push({ img: null, idx: (eKfs.length ? eKfs[eKfs.length - 1].idx + 24 : 0) }); await eFill("ek" + i, "img", f); i++; } }, u => eFill(el.dataset.drop, "url", u)));
+  gs.querySelectorAll("[data-img]").forEach(b => b.onclick = () => eFill(b.dataset.img, "img"));
+  gs.querySelectorAll("[data-url]").forEach(b => b.onclick = () => eFill(b.dataset.url, "url"));
+  gs.querySelectorAll("[data-gen]").forEach(b => b.onclick = () => eFill(b.dataset.gen, "gen"));
+  gs.querySelectorAll("[data-clr]").forEach(b => b.onclick = () => { const id = b.dataset.clr; if (id === "estart") eFrames.start = null; else eKfs.splice(+id.slice(2), 1); renderEdit(); });
+  gs.querySelectorAll("[data-ekfi]").forEach(i => i.oninput = () => { eKfs[+i.dataset.ekfi].idx = Math.max(0, parseInt(i.value) || 0); updateEditCost(); });
+  const ea = $("ekAdd"); if (ea) ea.onclick = () => { if (eKfs.length >= 64) return; eKfs.push({ img: null, idx: (eKfs.length ? eKfs[eKfs.length - 1].idx + 24 : 0) }); renderEdit(); };
+  if (PROV() === "fal" && E.res === "360p") E.res = "540p";
+  seg($("eRes"), [["360p", "360p", "draft"], ["540p", "540p"], ["720p", "720p"], ["1080p", "1080p"]], E.res, v => { E.res = v; saveE(); renderEdit(); }, v => v === "360p" && PROV() === "fal" ? "fal.ai has no 360p" : false);
+  $("eDurWrap").hidden = PROV() !== "fal";
+  seg($("eDur"), [["5s", "5 s"], ["10s", "10 s"]], E.dur, v => { E.dur = v; saveE(); renderEdit(); });
+  tog($("eHdr"), E.hdr); tog($("eExr"), E.exr);
+  updateEditCost();
+}
+function eSlot(id, t, it, extra) { return slotHTML(id, t, it, extra || ""); }
+async function eFill(id, how, given) {
+  let it = null;
+  try {
+    if (how === "img") { const f = given || await pickFile("imgPick"); if (!f) return; it = await fileToImageRef(f); }
+    else if (how === "url") { const u = given || await askUrl("image"); if (!u) return; it = { kind: "url", ref: { url: u }, preview: u, label: u.split("/").pop().slice(0, 30) }; }
+    else { const h = await pickGeneration(); if (!h) return; try { it = await grabFrame(h.url, "first"); } catch (e) { toast("Could not read a frame from that video in the browser."); return; } }
+  } catch (e) { toast("That image could not be read."); return; }
+  if (id === "estart") eFrames.start = it; else eKfs[+id.slice(2)].img = it;
+  renderEdit();
+}
+$("eHdr").onclick = () => { E.hdr = !E.hdr; if (!E.hdr) E.exr = false; saveE(); renderEdit(); };
+$("eExr").onclick = () => { E.exr = !E.exr; if (E.exr) E.hdr = true; saveE(); renderEdit(); };
+$("ePrompt").value = store.get("ePrompt", ""); $("ePrompt").oninput = () => { store.set("ePrompt", $("ePrompt").value); updateEditCost(); };
+function editProblems() {
+  const p = [];
+  if (!eState.src) p.push("Choose a source video.");
+  if (!$("ePrompt").value.trim()) p.push("Write a prompt.");
+  if (E.hdr && (E.res === "360p" || E.res === "540p")) p.push("HDR needs 720p or 1080p.");
+  if (E.guide === "start" && !eFrames.start) p.push("Add the start frame.");
+  if (E.guide === "keys" && (!eKfs.length || eKfs.some(k => !k.img))) p.push("Every guide frame needs an image.");
+  if (E.guide === "keys") { const ix = eKfs.map(k => k.idx); if (new Set(ix).size !== ix.length) p.push("Two guide frames share a position."); }
+  if (eState.src && eState.src.dur && eState.src.dur > 18.05) p.push("Edit sources can be at most 18 s.");
+  if (PROV() === "fal" && E.hdr && !PF.editHdr[E.res]) p.push("fal.ai lists edit HDR only at 720p/1080p.");
+  if (PROV() === "fal" && [eFrames.start, ...eKfs.map(k => k.img)].some(r => r && r.kind === "gen")) p.push("fal.ai needs real images as guide frames.");
+  if (PROV() === "luma" ? !key() : !falKey()) p.push(`Add your ${PNAME[PROV()]} key in Settings.`);
+  return p;
+}
+function editCost() {
+  if (PROV() === "fal") { const T = E.hdr && E.exr ? PF.editExr : E.hdr ? PF.editHdr : PF.edit, row = T[E.res] || [0, 0], d = E.dur === "10s" ? 1 : 0; return { v: row[d], l: `fal edit ${E.res} ${E.dur}${E.hdr ? " HDR" : ""}${E.exr ? "+EXR" : ""}` }; }
+  const T = E.hdr && E.exr ? P.editExr : E.hdr ? P.editHdr : P.edit, row = T[E.res], d = eState.src && eState.src.dur;
+  if (!d) return { v: row[0], l: `edit ${E.res}, assuming a 5 s source (length unknown)` };
+  if (d <= 5.05) return { v: row[0], l: `edit ${E.res} · ${d.toFixed(1)} s source → 5 s block` };
+  if (d <= 10.05) return { v: row[1], l: `edit ${E.res} · ${d.toFixed(1)} s source → 10 s block` };
+  return { v: row[1] * d / 10, l: `edit ${E.res} · ${d.toFixed(1)} s source, estimated pro rata` };
+}
+function updateEditCost() {
+  $("ePromptCount").textContent = `${$("ePrompt").value.length} / 6000`;
+  const p = editProblems(), c = editCost();
+  $("eProblems").innerHTML = p.map(x => `<p>${esc(x)}</p>`).join("");
+  $("eCostBig").innerHTML = `${money(c.v)}<small>this edit</small>`; $("eCostDet").textContent = `${c.l} · via ${PNAME[PROV()]}`;
+  $("eGo").disabled = !!p.length; $("eGo").textContent = p.length ? "Fix the items above" : `Edit video · ${money(c.v)}`;
+}
+$("eGo").onclick = async () => {
+  $("eGo").disabled = true; $("eGo").textContent = "Starting…";
+  const c = editCost(), setup = await snapEdit(), meta = () => ({ setup, type: "edit", prompt: $("ePrompt").value.trim(), cost: c.v, params: `edit · ${E.res}${E.hdr ? " · HDR" : ""}${E.exr ? "+EXR" : ""} · ${E.auto ? "auto" : E.strength}`, tab: "e", dur: eState.src.dur || 5 });
+  if (PROV() === "fal") {
+    try {
+      const input = { prompt: $("ePrompt").value.trim(), video_url: await videoFor(eState.src, st => { $("eGo").textContent = st; }), resolution: E.res, duration: E.dur };
+      if (E.hdr) input.hdr = true; if (E.exr) input.exr_export = true;
+      if (E.auto) input.auto_controls = true; else { input.edit_strength = E.strength; input.controls = JSON.parse(JSON.stringify(E.controls)); }
+      if (E.guide === "start") input.start_image_url = await imageFor(eFrames.start);
+      if (E.guide === "keys") { const s = eKfs.slice().sort((a, b) => a.idx - b.idx); input.keyframes = []; for (const k of s) input.keyframes.push(await imageFor(k.img)); input.keyframe_indexes = s.map(k => k.idx); }
+      addJob(await submitFal(FAL_EP.v2v, input), meta()); toast("Edit started on fal.ai");
+    } catch (e) { toast(e.message, 5000); }
+    updateEditCost(); return;
+  }
+  let srcRef; try { srcRef = await videoFor(eState.src, st => { $("eGo").textContent = st; }); } catch (e) { toast(e.message, 5000); updateEditCost(); return; }
+  const video = { resolution: E.res, edit: {} };
+  if (E.hdr) video.hdr = true; if (E.exr) video.exr_export = true;
+  if (E.auto) video.edit.auto_controls = true;
+  else { video.edit.strength = E.strength; video.edit.controls = JSON.parse(JSON.stringify(E.controls)); }
+  if (E.guide === "start") video.start_frame = eFrames.start.ref;
+  if (E.guide === "keys") { const s = eKfs.slice().sort((a, b) => a.idx - b.idx); video.keyframes = s.map(k => k.img.ref); video.keyframe_indexes = s.map(k => k.idx); }
+  const body = { model: "ray-3.2", type: "video_edit", prompt: $("ePrompt").value.trim(), source: srcRef, video };
+  try { const r = await api("/generations", { method: "POST", json: body }); addJob(r, meta()); toast("Edit started"); }
+  catch (e) { toast(e.message, 5000); }
+  updateEditCost();
+};
+
+/* ================= Reframe ================= */
+const RF = Object.assign({ aspect: "9:16", res: "720p", dur: "5s", posOn: false, pos: { x_norm: 0, y_norm: 0, w_norm: 1, h_norm: 1 } }, store.get("reframe", {}));
+const rState = { src: null }; const saveR = () => store.set("reframe", RF);
+const VERTICAL = ["9:16", "3:4"];
+function renderReframe() {
+  sourceWidget($("rSource"), rState, renderReframe, 10);
+  seg($("rAspect"), [["9:16", "9:16"], ["3:4", "3:4"], ["1:1", "1:1"], ["4:3", "4:3"], ["16:9", "16:9"], ["21:9", "21:9"]], RF.aspect, v => { RF.aspect = v; if (VERTICAL.includes(v) && RF.res === "1080p") RF.res = "720p"; saveR(); renderReframe(); });
+  if (PROV() === "fal" && RF.res === "360p") RF.res = "540p";
+  seg($("rRes"), [["360p", "360p"], ["540p", "540p"], ["720p", "720p"], ["1080p", "1080p"]], RF.res, v => { RF.res = v; saveR(); renderReframe(); }, v => v === "1080p" && VERTICAL.includes(RF.aspect) ? "1080p is not available for vertical formats" : v === "360p" && PROV() === "fal" ? "fal.ai has no 360p" : false);
+  seg($("rDur"), [["5s", "5 s"], ["10s", "10 s"]], RF.dur, v => { RF.dur = v; saveR(); renderReframe(); });
+  tog($("rPosOn"), RF.posOn);
+  const ph = $("rPos"); ph.innerHTML = ["x_norm", "y_norm", "w_norm", "h_norm"].map(k => `<div class="range"><span>${k.replace("_norm", "")}</span><output>${RF.pos[k].toFixed(2)}</output><input type="range" min="-2" max="2" step=".01" value="${RF.pos[k]}" data-p="${k}" ${RF.posOn ? "" : "disabled"}></div>`).join("");
+  ph.querySelectorAll("[data-p]").forEach(r => { setPct(r); r.oninput = () => { RF.pos[r.dataset.p] = +r.value; r.previousElementSibling.textContent = (+r.value).toFixed(2); setPct(r); saveR(); }; });
+  updateRefCost();
+}
+$("rPosOn").onclick = () => { RF.posOn = !RF.posOn; saveR(); renderReframe(); };
+function refProblems() {
+  const p = [];
+  if (!rState.src) p.push("Choose a source video.");
+  if (PROV() === "fal" && !$("rPrompt").value.trim()) p.push("fal.ai requires a prompt for reframing: describe what fills the new edges.");
+  if (PROV() === "luma" ? !key() : !falKey()) p.push(`Add your ${PNAME[PROV()]} key in Settings.`);
+  if (rState.src && rState.src.dur && rState.src.dur > 10.05) p.push("Reframe sources can be at most 10 s.");
+  if (RF.res === "1080p" && VERTICAL.includes(RF.aspect)) p.push("1080p is not available for vertical formats.");
+  return p;
+}
+function refCost() { const s = parseInt(RF.dur), T = PROV() === "fal" ? PF.reframe : P.reframe; return { v: (T[RF.res] || 0) * s, l: `${s} s × ${money(T[RF.res] || 0)}/s at ${RF.res} · via ${PNAME[PROV()]}` }; }
+function updateRefCost() {
+  const p = refProblems(), c = refCost();
+  $("rProblems").innerHTML = p.map(x => `<p>${esc(x)}</p>`).join("");
+  $("rCostBig").innerHTML = `${money(c.v)}<small>this reframe</small>`; $("rCostDet").textContent = c.l;
+  $("rGo").disabled = !!p.length; $("rGo").textContent = p.length ? "Fix the items above" : `Reframe · ${money(c.v)}`;
+}
+$("rPrompt").oninput = updateRefCost;
+$("rGo").onclick = async () => {
+  $("rGo").disabled = true; $("rGo").textContent = "Starting…";
+  const pr = $("rPrompt").value.trim(), c = refCost(), setup = await snapRef();
+  let srcRef; try { srcRef = await videoFor(rState.src, st => { $("rGo").textContent = st; }); } catch (e) { toast(e.message, 5000); updateRefCost(); return; }
+  let send;
+  if (PROV() === "fal") { const input = { prompt: pr, video_url: srcRef, aspect_ratio: RF.aspect, resolution: RF.res, duration: RF.dur }; if (RF.posOn) input.source_position = Object.assign({}, RF.pos); send = () => submitFal(FAL_EP.reframe, input); }
+  else { const video = { resolution: RF.res, duration: RF.dur }; if (RF.posOn) video.source_position = Object.assign({}, RF.pos); const body = { model: "ray-3.2", type: "video_reframe", aspect_ratio: RF.aspect, source: srcRef, video }; if (pr) body.prompt = pr; send = () => api("/generations", { method: "POST", json: body }); }
+  try { const r = await send(); addJob(r, { setup, type: "reframe", prompt: pr || `reframe to ${RF.aspect}`, cost: c.v, params: `reframe · ${RF.aspect} · ${RF.res} · ${RF.dur}`, tab: "r", dur: parseInt(RF.dur) }); toast("Reframe started"); }
+  catch (e) { toast(e.message, 5000); }
+  updateRefCost();
+};
+
+/* ================= jobs & history ================= */
+/* History lives in IndexedDB (no size worries); localStorage is only the fallback. */
+let history = store.get("history", []);
+function saveH() {
+  DB.put("history", history).then(() => { try { localStorage.removeItem("raystudio.history"); } catch (e) {} })
+    .catch(() => { if (!store.set("history", history.slice(0, 300))) store.set("history", history.slice(0, 80)); });
+}
+function spend() { return history.reduce((s, h) => s + (h.state === "failed" ? 0 : (h.cost || 0)), 0); }
+function addJob(r, meta) { history.unshift(Object.assign({ id: r.id, state: r.state || "queued", created: Date.now(), url: null, provider: r.provider || "luma", status_url: r.status_url, response_url: r.response_url }, meta)); saveH(); renderJobs(); schedulePoll(1000); }
+const isRun = h => h.state === "queued" || h.state === "processing";
+const urlFresh = h => !!h.url && (h.forever || Date.now() - (h.urlAt || 0) < 50 * 60 * 1000);
+let pollT = null;
+function schedulePoll(ms) { clearTimeout(pollT); if (history.some(isRun)) pollT = setTimeout(pollAll, ms); }
+async function refreshOne(h) {
+  if (h.provider === "fal") {
+    if (!h.status_url) throw new Error("No fal.ai status link for this one.");
+    const st = await falApi(h.status_url);
+    if (st.status === "IN_QUEUE") h.state = "queued";
+    else if (st.status === "IN_PROGRESS") h.state = "processing";
+    else if (st.status === "COMPLETED") {
+      try { const out = await falApi(h.response_url); h.state = "completed"; h.url = out.video && out.video.url; h.urlAt = Date.now(); h.forever = true; if (out.exr_file && out.exr_file.url) h.exr = out.exr_file.url; }
+      catch (e) { h.state = "failed"; h.failure = e.message; }
+    }
+    return;
+  }
+  const g = await api(`/generations/${h.id}`);
+  h.state = g.state; h.failure = g.failure_reason || g.failure_code || null;
+  const out = (g.output || []).find(o => o.type === "video") || (g.output || [])[0];
+  if (out && out.url) { h.url = out.url; h.urlAt = Date.now(); }
+  const exr = (g.output || []).find(o => o.type !== "video" && o.url); if (exr) h.exr = exr.url;
+}
+async function pollAll() {
+  for (const h of history.filter(isRun)) {
+    if (Date.now() - h.created < (h.provider === "fal" ? 4000 : 12000)) continue;
+    try {
+      await refreshOne(h);
+      if (h.state === "completed") { toast("A video is ready"); archive(h); }
+      if (h.state === "failed") toast("A generation failed: " + (h.failure || "no reason given"), 5000);
+    } catch (e) { h.warn = e.message; }
+  }
+  saveH(); renderJobs(); schedulePoll(5000);
+}
+
+/* ================= keeping the videos ================= */
+const busy = new Set();          // ids being saved right now
+const objURL = new Map();        // poster object URLs
+async function fetchVideoBlob(h) {
+  if (h.local) { const b = await DB.get("vid_" + h.id).catch(() => null); if (b) return b; }
+  if (h.drive && h.drive.files && h.drive.files["video.mp4"] && DRIVE.valid()) return driveBlob(h.drive.files["video.mp4"]);
+  if (!urlFresh(h)) await refreshOne(h);
+  if (!h.url) throw new Error("There is no video link for this one.");
+  try { const r = await fetch(h.url); if (!r.ok) throw new Error("HTTP " + r.status); return await r.blob(); }
+  catch (e) {
+    if (base() !== DEFAULT_BASE) { try { const r = await fetch(base().replace(/\/v1$/, "") + "/media?u=" + encodeURIComponent(h.url)); if (r.ok) return await r.blob(); } catch (e2) {} }
+    throw new Error("The video host does not let the browser save this file" + (h.provider !== "fal" && base() === DEFAULT_BASE ? "; the proxy in Settings fixes that" : ""));
+  }
+}
+async function makePoster(blob) {
+  const u = URL.createObjectURL(blob), v = document.createElement("video");
+  v.muted = true; v.playsInline = true; v.preload = "auto"; v.src = u;
+  try {
+    await new Promise((a, b) => { v.onloadeddata = a; v.onerror = () => b(new Error("decode")); setTimeout(() => b(new Error("timeout")), 20000); });
+    await new Promise(a => { v.onseeked = a; setTimeout(a, 3000); v.currentTime = Math.min(0.6, (v.duration || 1) / 3); });
+    const k = Math.min(1, 640 / Math.max(v.videoWidth, v.videoHeight)), c = document.createElement("canvas");
+    c.width = Math.round(v.videoWidth * k); c.height = Math.round(v.videoHeight * k); c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+    const b = await new Promise(a => c.toBlob(a, "image/jpeg", .82)); if (!b) throw new Error("poster");
+    return { blob: b, w: v.videoWidth, h: v.videoHeight };
+  } finally { v.removeAttribute("src"); try { v.load(); } catch (e) {} URL.revokeObjectURL(u); }
+}
+/* a finished video: copy into this browser (and a poster), then into Drive when that is on */
+async function archive(h, force) {
+  if (h.state !== "completed" || busy.has(h.id)) return;
+  const keep = store.get("keepLocal", true), toDrive = DRIVE.wants() && !h.drive;
+  if (!keep && !toDrive && h.poster) return;
+  busy.add(h.id); renderJobs();
+  try {
+    if (!h.local && (keep || toDrive || !h.poster) && ((h.archTries || 0) < 3 || force)) {
+      h.archTries = (h.archTries || 0) + 1;
+      try {
+        const blob = await fetchVideoBlob(h);
+        if (!h.poster) { try { const p = await makePoster(blob); await DB.put("pos_" + h.id, p.blob); h.poster = true; h.vw = p.w; h.vh = p.h; } catch (e) {} }
+        if (keep || toDrive) { await DB.put("vid_" + h.id, blob); h.local = true; h.bytes = blob.size; requestPersist(); }
+        h.archErr = null;
+      } catch (e) { h.archErr = e.message; }
+    }
+    if (h.local && toDrive) {
+      if (DRIVE.valid()) { busy.delete(h.id); try { await driveSave(h); } catch (e) { h.drivePending = true; if (e.message !== "DRIVE_AUTH") h.driveErr = e.message; } }
+      else h.drivePending = true;
+    }
+  } finally { busy.delete(h.id); saveH(); renderJobs(); }
+}
+/* go back through older generations once, so the gallery fills up retroactively */
+async function backfill() {
+  for (const h of history.filter(h => h.state === "completed" && !h.drive && !h.local && (h.archTries || 0) < 3)) {
+    if (!store.get("keepLocal", true) && h.poster) continue;
+    await archive(h);
+  }
+}
+async function posterURL(id) {
+  if (objURL.has(id)) return objURL.get(id);
+  const b = await DB.get("pos_" + id).catch(() => null); if (!b) return null;
+  const u = URL.createObjectURL(b); objURL.set(id, u); return u;
+}
+async function playable(h) {
+  if (h.local) { const b = await DB.get("vid_" + h.id).catch(() => null); if (b) return URL.createObjectURL(b); }
+  if (urlFresh(h)) return h.url;
+  if (h.provider !== "fal" && key() && !(h.drive && !h.status_url && !h.url && false)) { try { await refreshOne(h); saveH(); if (h.url) return h.url; } catch (e) {} }
+  return null;
+}
+
+/* ================= gallery ================= */
+const GF = { f: store.get("galF", "all"), q: "" };
+let galSig = "";
+function tileHTML(h) {
+  const tags = [`<span>${h.tab === "e" ? "edit" : h.tab === "r" ? "reframe" : "video"}</span>`];
+  const res = (h.params || "").match(/\d{3,4}p/); if (res) tags.push(`<span>${res[0]}</span>`);
+  if (h.state === "failed") tags.push('<span class="bad">failed</span>');
+  if (h.drive) tags.push('<span class="cl">Drive</span>'); else if (busy.has(h.id)) tags.push("<span>saving…</span>"); else if (h.drivePending && DRIVE.on()) tags.push("<span>waits for Drive</span>");
+  const live = !h.poster && h.state === "completed" && urlFresh(h) ? `<video src="${esc(h.url)}#t=0.5" muted playsinline preload="metadata"></video>` : "";
+  return `<button class="tile" data-open="${esc(h.id)}" title="${esc(h.prompt || "")}"><div class="ph">${esc((h.prompt || h.type || "").slice(0, 110))}</div>${live}${h.poster ? `<img data-poster="${esc(h.id)}" alt="" hidden>` : ""}<div class="tags">${tags.join("")}</div><div class="cap">${esc(h.prompt || h.type)}</div></button>`;
+}
+function renderGallery() {
+  $("hRunning").innerHTML = history.filter(isRun).map(h => jobCard(h)).join("");
+  const q = GF.q.toLowerCase(), items = history.filter(h => !isRun(h) && (GF.f === "all" || (h.tab || "g") === GF.f) && (!q || (h.prompt || "").toLowerCase().includes(q)));
+  const sig = GF.f + "|" + q + "|" + DRIVE.on() + "|" + items.map(h => [h.id, h.state, +!!h.local, +!!h.poster, +!!h.drive, +busy.has(h.id), +!!h.drivePending, +urlFresh(h)].join("")).join(",");
+  if (sig !== galSig) {
+    galSig = sig; let day = "", html = "";
+    for (const h of items) { const d = new Date(h.created).toLocaleDateString([], { weekday: "short", year: "numeric", month: "short", day: "numeric" }); if (d !== day) { day = d; html += `<div class="gday">${esc(d)}</div>`; } html += tileHTML(h); }
+    $("hList").innerHTML = html || `<p class="note" style="grid-column:1/-1">${history.length ? "Nothing matches." : "Nothing yet. Finished videos land here, together with the setup that made them."}</p>`;
+    $("hList").querySelectorAll("[data-open]").forEach(b => b.onclick = () => openDetail(b.dataset.open));
+    $("hList").querySelectorAll("img[data-poster]").forEach(async im => { const u = await posterURL(im.dataset.poster); if (u) { im.src = u; im.hidden = false; } });
+  }
+  seg($("galFilter"), [["all", "All"], ["g", "Generate"], ["e", "Edit"], ["r", "Reframe"]], GF.f, v => { GF.f = v; store.set("galF", v); renderGallery(); });
+  renderStore();
+}
+$("galSearch").oninput = () => { GF.q = $("galSearch").value.trim(); renderGallery(); };
+let storeT = 0;
+async function renderStore() {
+  const done = history.filter(h => h.state === "completed"), loc = done.filter(h => h.local).length, dr = done.filter(h => h.drive).length;
+  let mb = "";
+  if (Date.now() - storeT > 4000 || !renderStore.mb) { storeT = Date.now(); try { const e = await navigator.storage.estimate(); renderStore.mb = e.usage > 1048576 ? ` · ${Math.round(e.usage / 1048576)} MB used` : ""; } catch (e) { renderStore.mb = ""; } }
+  mb = renderStore.mb || "";
+  $("storeStat").textContent = `${done.length} video${done.length === 1 ? "" : "s"} · ${loc} kept in this browser${mb}${DRIVE.on() ? ` · ${dr} in Drive` : ""}`;
+  renderDrive();
+}
+let detailURL = null;
+async function openDetail(id) {
+  const h = history.find(x => x.id === id); if (!h) return;
+  if (detailURL) { URL.revokeObjectURL(detailURL); detailURL = null; }
+  const s = h.setup, ok = h.state === "completed";
+  const when = new Date(h.created).toLocaleString([], { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  const figs = [];
+  if (s) {
+    const f = (r, cap) => { if (r) figs.push({ r, cap }); };
+    f(s.source, "source"); f(s.first, "first"); f(s.last, "last"); f(s.start, "start");
+    (s.kfs || []).forEach((k, i) => f(k.img, `${s.tab === "e" ? "guide" : "kf"} ${i + 1} · f${k.idx}`));
+  }
+  const strip = figs.length ? `<div class="strip">${figs.map((x, i) => `<figure><div class="im" data-fig="${i}">${x.r.kind === "gen" ? "a generation" : x.r.kind === "lost" ? "not stored" : ""}</div><figcaption title="${esc(x.r.label || "")}">${esc(x.cap)}</figcaption></figure>`).join("")}</div>` : (s ? "" : `<p class="note">Made before setups were recorded: Open setup brings back the prompt only.</p>`);
+  const btns = [
+    `<button class="btn small primary" data-d="setup">Open setup</button>`,
+    ok ? `<button class="btn small" data-d="dl">Download</button>` : "",
+    ok && h.type === "video" ? `<button class="btn small" data-d="next">Last frame → next first</button>` : "",
+    ok && h.type === "video" && h.provider !== "fal" ? `<button class="btn small" data-d="ext">Extend</button>` : "",
+    ok ? `<button class="btn small" data-d="src">Use as source</button>` : "",
+    ok && h.exr ? `<a class="btn small" href="${esc(h.exr)}" target="_blank" rel="noopener">EXR</a>` : "",
+    ok && h.drive ? `<a class="btn small" href="https://drive.google.com/drive/folders/${esc(h.drive.folder)}" target="_blank" rel="noopener">Open in Drive</a>` : ok && DRIVE.on() ? `<button class="btn small" data-d="drive">Save to Drive</button>` : "",
+    `<button class="btn small danger" data-d="del">Delete</button>`];
+  const warn = [h.archErr && !h.local ? `Not kept in this browser: ${h.archErr}` : "", h.driveErr && !h.drive ? `Drive: ${h.driveErr}` : ""].filter(Boolean).map(esc).join("<br>");
+  sheet(`${h.tab === "e" ? "Edit" : h.tab === "r" ? "Reframe" : "Video"} · ${when}`, `<div style="display:grid;gap:12px">
+    <div class="dv">${ok ? `<video id="dvV" controls playsinline loop></video>` : `<p class="err" style="color:var(--bad);margin:0">${esc(h.failure || "This one failed.")}</p>`}<p class="note" id="dvNote" style="margin-top:6px"></p></div>
+    <p style="margin:0;font-size:14px;line-height:1.45;white-space:pre-wrap">${esc(h.prompt || "")}</p>
+    <div class="stat">${PNAME[h.provider || "luma"]} · ${esc(h.params || "")} · ${money(h.cost || 0)}${h.bytes ? " · " + (h.bytes / 1048576).toFixed(1) + " MB" : ""}${h.vw ? ` · ${h.vw}×${h.vh}` : ""}</div>
+    ${strip}${warn ? `<p class="note" style="color:var(--warn)">${warn}</p>` : ""}<div class="row">${btns.join("")}</div></div>`, async body => {
+    body.querySelectorAll("[data-fig]").forEach(async el => {
+      const r = figs[+el.dataset.fig].r;
+      try {
+        if (r.kind === "url") el.style.backgroundImage = `url("${r.url.replace(/"/g, "%22")}")`;
+        else if (r.kind === "asset" && !/^src_/.test(r.id)) { const b = await DB.get(r.id).catch(() => null) || (h.drive && r.file && DRIVE.valid() ? await assetBlob(r, h) : null); if (b) el.style.backgroundImage = `url("${URL.createObjectURL(b)}")`; else el.textContent = "not in this browser"; }
+        else if (r.kind === "asset") el.textContent = "video";
+      } catch (e) {}
+    });
+    body.querySelectorAll("[data-d]").forEach(b => b.onclick = async () => {
+      const a = b.dataset.d;
+      if (a === "setup") { $("sheet").hidden = true; openSetup(h); }
+      else if (a === "dl") download(h);
+      else if (a === "next") actNext(h);
+      else if (a === "ext") actExtend(h);
+      else if (a === "src") actSource(h);
+      else if (a === "del") confirmDelete(h);
+      else if (a === "drive") { b.disabled = true; b.textContent = "Saving to Drive…"; try { await withDrive(() => driveSave(h)); toast("Saved to Drive"); openDetail(h.id); } catch (e) { toast(e.message === "DRIVE_AUTH" ? "Connect Google Drive first" : e.message, 5000); b.disabled = false; b.textContent = "Save to Drive"; } }
+    });
+    const v = body.querySelector("#dvV"); if (!v) return;
+    const u = await playable(h);
+    if (u) { if (u.startsWith("blob:")) detailURL = u; v.src = u; return; }
+    const note = body.querySelector("#dvNote");
+    if (h.drive) {
+      note.innerHTML = `This video is in your Drive. <button class="btn small" id="dvLoad">Load from Drive</button>`;
+      body.querySelector("#dvLoad").onclick = async () => {
+        note.textContent = "Loading from Drive…";
+        try { const blob = await withDrive(() => driveBlob(h.drive.files["video.mp4"])); if (store.get("keepLocal", true)) { await DB.put("vid_" + h.id, blob).then(() => { h.local = true; h.bytes = blob.size; saveH(); }).catch(() => {}); } detailURL = URL.createObjectURL(blob); v.src = detailURL; note.textContent = ""; }
+        catch (e) { note.textContent = e.message === "DRIVE_AUTH" ? "Connect Google Drive first." : e.message; }
+      };
+    } else note.textContent = h.provider === "fal" ? "The video link is gone." : "The video link expired and could not be renewed (is the Luma key set?).";
+  }, true);
+}
+function confirmDelete(h) {
+  sheet("Delete this video?", `<div style="display:grid;gap:12px"><p class="note" style="font-size:13.5px;color:var(--muted)">It disappears from the gallery and from this browser.${h.drive ? " The copy in Google Drive stays; delete its folder in Drive if you want that gone too." : ""}</p><div class="row"><button class="btn danger" id="delOk">Delete</button></div></div>`, b => {
+    b.querySelector("#delOk").onclick = async () => { $("sheet").hidden = true; await deleteItem(h); toast("Deleted"); };
+  });
+}
+async function deleteItem(h) {
+  history = history.filter(x => x.id !== h.id);
+  const gone = store.get("deleted", []); gone.push(h.id); store.set("deleted", gone.slice(-3000));
+  saveH();
+  for (const k of ["vid_", "pos_"]) await DB.del(k + h.id).catch(() => {});
+  if (objURL.has(h.id)) { URL.revokeObjectURL(objURL.get(h.id)); objURL.delete(h.id); }
+  gcAssets(); renderJobs();
+}
+/* drop stored frames and source clips that no setup refers to any more */
+async function gcAssets() {
+  try {
+    const used = new Set(); for (const h of history) for (const [r] of setupAssets(h.setup)) used.add(r.id);
+    for (const k of await DB.keys()) if (/^(img|src)_/.test(k) && !used.has(k)) await DB.del(k);
+  } catch (e) {}
+}
+
+/* ================= actions on a finished video ================= */
+async function actNext(h) {
+  $("sheet").hidden = true;
+  try {
+    const b = h.local ? await DB.get("vid_" + h.id).catch(() => null) : null;
+    const src = b ? URL.createObjectURL(b) : await playable(h); if (!src) throw new Error("no video");
+    frames.first = await grabFrame(src, "last"); frames.first.label = `last frame · ${(h.prompt || "").slice(0, 18)}`;
+    toast("Last frame set as the next first frame");
+  } catch (e) {
+    if (h.provider === "fal") { toast("The browser could not read that video's last frame."); return; }
+    frames.first = { kind: "gen", genId: h.id, ref: { generation_id: h.id }, preview: "", label: `continues ${h.id.slice(0, 8)}` };
+    toast("Using the generation itself as the start; Luma continues from its end.");
+  }
+  if (G.mode !== "both") G.mode = "first"; saveG(); go("generate"); renderGen();
+}
+function actExtend(h) { $("sheet").hidden = true; frames.first = { kind: "gen", genId: h.id, ref: { generation_id: h.id }, preview: "", label: `extend ${h.id.slice(0, 8)} forward` }; G.mode = "first"; G.dur = "5s"; saveG(); go("generate"); renderGen(); toast("Extend: write what happens next"); }
+function actSource(h) {
+  const src = { kind: "gen", genId: h.id, ref: { generation_id: h.id }, preview: h.url, label: `generation · ${(h.prompt || "").slice(0, 20)}`, dur: h.dur || 5 };
+  sheet("Use this video in", `<div class="row"><button class="btn primary" id="toEdit">Edit</button><button class="btn primary" id="toRef">Reframe</button></div>`, body => {
+    body.querySelector("#toEdit").onclick = () => { eState.src = src; $("sheet").hidden = true; go("edit"); renderEdit(); };
+    body.querySelector("#toRef").onclick = () => { rState.src = src; $("sheet").hidden = true; go("reframe"); renderReframe(); };
+  });
+}
+function jobCard(h) {
+  const pill = h.state === "completed" ? '<span class="pill ok">ready</span>' : h.state === "failed" ? '<span class="pill bad">failed</span>' : `<span class="pill run">${h.state}</span>`;
+  const body = h.state === "completed" ? (urlFresh(h) ? `<video src="${esc(h.url)}" controls playsinline loop preload="metadata"></video>` : `<p class="note">Open it in the Gallery.</p>`) : h.state === "failed" ? `<p class="err">${esc(h.failure || "No reason was given.")}</p>` : `<div class="bar"><i></i></div>${h.warn ? `<p class="note">${esc(h.warn)}, retrying</p>` : ""}`;
+  const acts = h.state === "completed" ? `<div class="row">
+      <button class="btn small" data-dl="${h.id}">Download</button>
+      <button class="btn small" data-remix="${h.id}">Open setup</button>
+      ${h.type === "video" ? `<button class="btn small" data-next="${h.id}">Last frame → next first</button>${h.provider !== "fal" ? `<button class="btn small" data-ext="${h.id}">Extend</button>` : ""}` : ""}
+      <button class="btn small" data-src="${h.id}">Use as source</button>
+      ${h.exr ? `<a class="btn small" href="${esc(h.exr)}" target="_blank" rel="noopener">EXR</a>` : ""}
+    </div>` : h.state === "failed" ? `<div class="row"><button class="btn small" data-remix="${h.id}">Open setup</button><button class="btn small" data-rm="${h.id}">Dismiss</button></div>` : "";
+  const saved = h.state === "completed" ? (h.drive ? " · in Drive" : h.local ? " · kept" : busy.has(h.id) ? " · saving…" : "") : "";
+  return `<div class="job"><div class="job-top">${pill}<b title="${esc(h.prompt)}">${esc(h.prompt || h.type)}</b><span class="note">${money(h.cost || 0)}</span></div><div class="meta">${PNAME[h.provider || "luma"]} · ${esc(h.params || "")} · ${new Date(h.created).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}${saved}</div>${body}${acts}</div>`;
+}
+function renderJobs() {
+  for (const [tab, host] of [["g", "gJobs"], ["e", "eJobs"], ["r", "rJobs"]]) $(host).innerHTML = history.filter(h => h.tab === tab && (h.state !== "completed" || Date.now() - h.created < 30 * 60 * 1000)).slice(0, 6).map(h => jobCard(h)).join("");
+  const run = history.filter(isRun).length; $("runBadge").hidden = !run; $("runBadge").textContent = run;
+  $("spendChip").textContent = money(spend());
+  renderGallery();
+  const find = id => history.find(h => h.id === id);
+  document.querySelectorAll("[data-dl]").forEach(b => b.onclick = () => download(find(b.dataset.dl)));
+  document.querySelectorAll("[data-remix]").forEach(b => b.onclick = () => openSetup(find(b.dataset.remix)));
+  document.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { deleteItem(find(b.dataset.rm)); });
+  document.querySelectorAll("[data-next]").forEach(b => b.onclick = () => actNext(find(b.dataset.next)));
+  document.querySelectorAll("[data-ext]").forEach(b => b.onclick = () => actExtend(find(b.dataset.ext)));
+  document.querySelectorAll("[data-src]").forEach(b => b.onclick = () => actSource(find(b.dataset.src)));
+}
+async function download(h) {
+  try {
+    const blob = await fetchVideoBlob(h), d = new Date(h.created), p2 = n => String(n).padStart(2, "0");
+    const slug = (h.prompt || h.type || "video").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 32) || "video";
+    const name = `ray32_${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}_${slug}_${h.id.slice(0, 8)}.mp4`;
+    const file = new File([blob], name, { type: "video/mp4" });
+    if (/iPhone|iPad/.test(navigator.userAgent) && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 5000);
+  } catch (e) { if (e && e.name === "AbortError") return; if (urlFresh(h)) { window.open(h.url, "_blank", "noopener"); toast("Opened the video; save it from there"); } else toast(e.message, 5000); }
+}
+$("hRefreshAll").onclick = async () => { let n = 0; for (const h of history.filter(h => h.state === "completed" && !h.forever && !h.local)) { try { await refreshOne(h); n++; } catch (e) {} } saveH(); renderJobs(); backfill(); toast(`${n} links refreshed`); };
+
+/* ================= Google Drive ================= */
+/* Ray Studio / 2026-09-27 / 14.32 · prompt · id / video.mp4, poster.jpg, first.jpg …, setup.json
+   Scope drive.file: the page sees only what it created itself. */
+const FOLDER = "application/vnd.google-apps.folder", GIS = "https://accounts.google.com/gsi/client";
+const DRIVE = {
+  token: null, exp: 0,
+  cid: () => store.get("gcid", ""),
+  on: () => !!store.get("driveOn", false) && !!store.get("gcid", ""),
+  wants: () => DRIVE.on() && store.get("driveAuto", true),
+  valid: () => !!DRIVE.token && Date.now() < DRIVE.exp - 60000,
+};
+const gisReady = () => !!(window.google && google.accounts && google.accounts.oauth2);
+function loadGis() { return gisReady() ? Promise.resolve() : new Promise((res, rej) => { const s = document.createElement("script"); s.src = GIS; s.async = true; s.onload = () => res(); s.onerror = () => rej(new Error("Could not load Google sign-in. Check the connection.")); document.head.appendChild(s); }); }
+async function driveConnect() {
+  if (!DRIVE.cid()) { go("settings"); throw new Error("Add your Google OAuth Client ID first (Settings → Google Drive)."); }
+  if (location.protocol === "file:") throw new Error("Google sign-in does not work on a page opened as a file. Open Ray Studio from its web address or from http://localhost (Settings → Google Drive).");
+  if (!gisReady()) await loadGis();
+  return new Promise((res, rej) => {
+    const tc = google.accounts.oauth2.initTokenClient({
+      client_id: DRIVE.cid(), scope: "https://www.googleapis.com/auth/drive.file",
+      callback: t => {
+        if (!t || t.error) { rej(new Error("Google: " + ((t && (t.error_description || t.error)) || "no access"))); return; }
+        DRIVE.token = t.access_token; DRIVE.exp = Date.now() + (+t.expires_in || 3600) * 1000; store.set("driveOn", true); renderDrive(); res(t.access_token);
+      },
+      error_callback: e => rej(new Error(e && e.type === "popup_closed" ? "The Google window was closed." : e && e.type === "popup_failed_to_open" ? "The browser blocked the Google window. Allow pop-ups for this page and try again." : "Google sign-in failed.")),
+    });
+    tc.requestAccessToken({ prompt: store.get("driveOn", false) ? "" : "consent" });
+  });
+}
+async function withDrive(fn) { if (!DRIVE.valid()) await driveConnect(); return fn(); }
+async function gapi(path, { method = "GET", json, body, raw } = {}) {
+  if (!DRIVE.valid()) throw new Error("DRIVE_AUTH");
+  let r;
+  try { r = await fetch(/^https:/.test(path) ? path : "https://www.googleapis.com/drive/v3" + path, { method, headers: Object.assign({ Authorization: "Bearer " + DRIVE.token }, json ? { "Content-Type": "application/json; charset=UTF-8" } : {}), body: json ? JSON.stringify(json) : body }); }
+  catch (e) { throw new Error("Could not reach Google Drive."); }
+  if (r.status === 401) { DRIVE.token = null; renderDrive(); throw new Error("DRIVE_AUTH"); }
+  if (!r.ok) { let m = ""; try { const j = await r.json(); m = j.error && j.error.message; } catch (e) {} throw new Error("Google Drive: " + (m || "error " + r.status)); }
+  return raw ? r : r.status === 204 ? null : r.json();
+}
+const qv = v => String(v).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+async function driveList(q, fields = "files(id,name,appProperties)") {
+  let out = [], t = "";
+  do { const r = await gapi(`/files?pageSize=1000&fields=nextPageToken,${fields}&q=${encodeURIComponent(q)}${t ? "&pageToken=" + encodeURIComponent(t) : ""}`); out = out.concat(r.files || []); t = r.nextPageToken; } while (t);
+  return out;
+}
+async function driveMkdir(name, parent, props) { return (await gapi("/files?fields=id", { method: "POST", json: Object.assign({ name, mimeType: FOLDER, parents: [parent] }, props ? { appProperties: props } : {}) })).id; }
+async function driveRoot() {
+  const id = store.get("driveRoot", "");
+  if (id) { try { const f = await gapi(`/files/${id}?fields=id,trashed`); if (!f.trashed) return id; } catch (e) { if (e.message === "DRIVE_AUTH") throw e; } }
+  const found = await driveList(`name='Ray Studio' and mimeType='${FOLDER}' and 'root' in parents and trashed=false`);
+  const nid = found.length ? found[0].id : await driveMkdir("Ray Studio", "root", { rs_root: "1" });
+  store.set("driveRoot", nid); return nid;
+}
+const dayCache = {};
+async function driveDay(root, day) {
+  const k = root + "/" + day; if (dayCache[k]) return dayCache[k];
+  const f = await driveList(`name='${qv(day)}' and mimeType='${FOLDER}' and '${root}' in parents and trashed=false`);
+  return dayCache[k] = f.length ? f[0].id : await driveMkdir(day, root, { rs_day: day });
+}
+async function driveUpload(blob, name, parent, mime) {
+  const meta = { name, parents: [parent], mimeType: mime };
+  if (blob.size > 5 * 1024 * 1024) {
+    try {
+      const r = await gapi("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id", { method: "POST", json: meta, raw: true });
+      const loc = r.headers.get("Location");
+      if (loc) { const p = await fetch(loc, { method: "PUT", headers: { "Content-Type": mime }, body: blob }); if (!p.ok) throw new Error("Google Drive upload failed (" + p.status + ")"); return p.json(); }
+    } catch (e) { if (e.message === "DRIVE_AUTH") throw e; }
+  }
+  const fd = new FormData(); fd.append("metadata", new Blob([JSON.stringify(meta)], { type: "application/json" })); fd.append("file", blob, name);
+  return gapi("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id", { method: "POST", body: fd });
+}
+async function driveBlob(id) { return (await gapi(`/files/${id}?alt=media`, { raw: true })).blob(); }
+let driveQ = Promise.resolve();
+function driveSave(h) { const p = driveQ.then(() => driveSaveNow(h)); driveQ = p.catch(() => {}); return p; }
+async function driveSaveNow(h) {
+  if (h.drive) return;
+  busy.add(h.id); renderJobs();
+  try {
+    const root = await driveRoot(), d = new Date(h.created), p2 = n => String(n).padStart(2, "0");
+    const dayId = await driveDay(root, `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`);
+    const slug = (h.prompt || h.type || "video").replace(/[\\/:*?"<>|\n\r\t]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 48);
+    const prev = (await driveList(`'${dayId}' in parents and mimeType='${FOLDER}' and appProperties has { key='rs_id' and value='${qv(h.id)}' } and trashed=false`))[0];
+    const fid = prev ? prev.id : await driveMkdir(`${p2(d.getHours())}.${p2(d.getMinutes())} · ${slug} · ${h.id.slice(0, 8)}`, dayId, { rs_id: h.id });
+    const files = {}; if (prev) (await driveList(`'${fid}' in parents and trashed=false`, "files(id,name)")).forEach(f => files[f.name] = f.id);
+    const up = async (name, blob, mime) => { if (!files[name]) files[name] = (await driveUpload(blob, name, fid, mime)).id; };
+    if (!files["video.mp4"]) await up("video.mp4", await fetchVideoBlob(h), "video/mp4");
+    const pos = await DB.get("pos_" + h.id).catch(() => null); if (pos) await up("poster.jpg", pos, "image/jpeg");
+    const setup = h.setup ? JSON.parse(JSON.stringify(h.setup)) : null;
+    for (const [ref, name] of setupAssets(setup)) { ref.file = name; if (files[name]) continue; const b = await DB.get(ref.id).catch(() => null); if (b) await up(name, b, b.type || (name.endsWith(".jpg") ? "image/jpeg" : "video/mp4")); }
+    const item = {}; for (const k of ["id", "provider", "type", "prompt", "params", "cost", "created", "dur", "tab", "vw", "vh", "exr"]) if (h[k] != null) item[k] = h[k];
+    if (h.forever && h.url) item.url = h.url;
+    await up("setup.json", new Blob([JSON.stringify({ app: "Ray Studio", version: 1, saved: new Date().toISOString(), item, setup }, null, 2)], { type: "application/json" }), "application/json");
+    h.setup = setup; h.drive = { folder: fid, files }; h.drivePending = false; h.driveErr = null;
+    if (!store.get("keepLocal", true) && h.local) { await DB.del("vid_" + h.id).catch(() => {}); h.local = false; }
+  } finally { busy.delete(h.id); saveH(); renderJobs(); }
+}
+/* read what other devices saved: every generation folder with a setup.json becomes a gallery item */
+async function driveSync() {
+  const root = await driveRoot(), gone = new Set(store.get("deleted", [])), byId = new Map(history.map(h => [h.id, h]));
+  let added = 0, linked = 0;
+  for (const day of await driveList(`'${root}' in parents and mimeType='${FOLDER}' and trashed=false`)) {
+    for (const g of await driveList(`'${day.id}' in parents and mimeType='${FOLDER}' and trashed=false`)) {
+      const id = g.appProperties && g.appProperties.rs_id; if (!id || gone.has(id)) continue;
+      const known = byId.get(id); if (known && known.drive) continue;
+      const files = {}; (await driveList(`'${g.id}' in parents and trashed=false`, "files(id,name)")).forEach(f => files[f.name] = f.id);
+      if (!files["video.mp4"]) continue;
+      if (known) { known.drive = { folder: g.id, files }; known.drivePending = false; linked++; continue; }
+      if (!files["setup.json"]) continue;
+      let meta; try { meta = await (await gapi(`/files/${files["setup.json"]}?alt=media`, { raw: true })).json(); } catch (e) { if (e.message === "DRIVE_AUTH") throw e; continue; }
+      const it = meta.item || {}; if (it.id !== id) continue;
+      const h = Object.assign({ tab: "g", type: "video", provider: "luma" }, it, { state: "completed", url: it.url || null, urlAt: it.url ? Date.now() : 0, forever: !!it.url, local: false, drive: { folder: g.id, files }, setup: meta.setup || null });
+      if (files["poster.jpg"]) { try { await DB.put("pos_" + id, await driveBlob(files["poster.jpg"])); h.poster = true; } catch (e) { if (e.message === "DRIVE_AUTH") throw e; } }
+      history.push(h); byId.set(id, h); added++;
+    }
+  }
+  history.sort((a, b) => b.created - a.created); saveH(); renderJobs();
+  return { added, linked };
+}
+async function drivePushAll(quiet) {
+  const todo = history.filter(h => h.state === "completed" && !h.drive);
+  if (!todo.length) { if (!quiet) toast("Everything is already in Drive"); return; }
+  let n = 0, bad = 0;
+  for (const h of todo) {
+    toast(`Saving to Drive ${n + bad + 1} / ${todo.length}…`, 120000);
+    try { await driveSave(h); n++; }
+    catch (e) { if (e.message === "DRIVE_AUTH") { toast("The Drive sign-in expired. Tap Connect to continue.", 6000); return; } h.driveErr = e.message; h.drivePending = true; bad++; }
+  }
+  saveH(); renderJobs();
+  toast(bad ? `${n} saved to Drive; ${bad} could not be saved (details in the gallery)` : `${n} saved to Drive`, 6000);
+}
+function renderDrive() {
+  const cid = DRIVE.cid(), on = DRIVE.on(), valid = DRIVE.valid(), file = location.protocol === "file:";
+  const waiting = on ? history.filter(h => h.state === "completed" && !h.drive).length : 0;
+  if (document.activeElement !== $("gcidIn")) $("gcidIn").value = cid;
+  tog($("driveAuto"), store.get("driveAuto", true)); tog($("keepLocal"), store.get("keepLocal", true));
+  $("driveOff").hidden = !on;
+  $("driveNote").innerHTML = file && cid ? "<b>This page is open as a file.</b> Google sign-in needs a web address: see the steps below." : !cid ? "Not set up yet. Follow the steps below." : !on ? "Client ID saved. Press Save &amp; connect and allow access in the Google window." : valid ? "Connected. Google keeps a sign-in for an hour; after that, Ray Studio asks you to tap Connect again before it saves." : "Connected before. Tap Connect in the Gallery to continue saving.";
+  $("localNote").textContent = store.get("keepLocal", true) ? "Videos stay in this browser until you delete them. Safari can clear a site's data if you do not open it for weeks: Drive is the safe home." : "Off: only posters stay here. Videos are streamed from Luma/fal or loaded from Drive.";
+  const btn = $("driveBtn");
+  btn.textContent = !cid ? "Set up Google Drive" : valid ? "Open Drive folder" : on ? "Connect Drive" : "Connect Google Drive";
+  btn.classList.toggle("primary", !valid);
+  $("driveSync").hidden = $("drivePush").hidden = !on;
+  $("driveStat").textContent = file && cid ? "Google sign-in needs the page on a web address (Settings → Google Drive)." : !on ? "Kept in this browser only. Connect Google Drive to keep every video safe, sorted into day folders, and see the same gallery on every device." : !valid ? `Drive sign-in expired.${waiting ? ` ${waiting} video${waiting > 1 ? "s wait" : " waits"} to be saved.` : ""} Tap Connect Drive to continue.` : waiting ? `Drive connected. ${waiting} video${waiting > 1 ? "s are" : " is"} not in Drive yet.` : "Drive connected. Everything is saved in Drive.";
+}
+$("driveBtn").onclick = async () => {
+  if (!DRIVE.cid()) { go("settings"); $("gcidIn").focus(); return; }
+  if (DRIVE.valid()) { const r = store.get("driveRoot", ""); window.open(r ? "https://drive.google.com/drive/folders/" + r : "https://drive.google.com/", "_blank", "noopener"); return; }
+  try { await driveConnect(); toast("Google Drive connected"); await driveSync(); if (DRIVE.wants()) await drivePushAll(true); }
+  catch (e) { toast(e.message === "DRIVE_AUTH" ? "Google sign-in expired; try again." : e.message, 6000); }
+  renderJobs();
+};
+$("driveSync").onclick = async () => {
+  try { const r = await withDrive(driveSync); toast(r.added ? `${r.added} video${r.added > 1 ? "s" : ""} added from Drive` : "The gallery already has everything from Drive"); }
+  catch (e) { toast(e.message === "DRIVE_AUTH" ? "Google sign-in expired; try again." : e.message, 6000); }
+};
+$("drivePush").onclick = async () => { try { await withDrive(() => drivePushAll()); } catch (e) { toast(e.message === "DRIVE_AUTH" ? "Google sign-in expired; try again." : e.message, 6000); } };
+$("gcidSave").onclick = async () => {
+  const v = $("gcidIn").value.trim();
+  if (!/\.apps\.googleusercontent\.com$/.test(v)) { toast("A Client ID ends in .apps.googleusercontent.com"); return; }
+  if (v !== DRIVE.cid()) { store.set("gcid", v); store.set("driveOn", false); store.set("driveRoot", ""); DRIVE.token = null; }
+  renderDrive();
+  try { await driveConnect(); toast("Google Drive connected"); const r = await driveSync(); if (DRIVE.wants()) await drivePushAll(true); else if (r.added) toast(`${r.added} videos added from Drive`); }
+  catch (e) { toast(e.message, 6000); }
+  renderJobs();
+};
+$("driveOff").onclick = () => {
+  try { if (DRIVE.token && gisReady()) google.accounts.oauth2.revoke(DRIVE.token, () => {}); } catch (e) {}
+  DRIVE.token = null; store.set("driveOn", false); renderJobs(); toast("Drive disconnected. What is already in Drive stays there.");
+};
+$("driveAuto").onclick = () => { store.set("driveAuto", !store.get("driveAuto", true)); renderDrive(); };
+$("keepLocal").onclick = () => { const v = !store.get("keepLocal", true); store.set("keepLocal", v); renderDrive(); if (v) backfill(); };
+
+/* ================= settings ================= */
+function renderKey() {
+  const pv = PROV(), k = pv === "luma" ? key() : falKey(), ok = store.get(pv === "luma" ? "keyOk" : "falOk", null);
+  $("keyDot").className = "dot" + (k ? (ok === false ? " bad" : " ok") : " bad"); $("keyText").textContent = k ? PNAME[pv] : `${PNAME[pv]}: add key`;
+  if (document.activeElement !== $("keyIn")) $("keyIn").value = key(); if (document.activeElement !== $("falIn")) $("falIn").value = falKey(); $("baseIn").value = base();
+  seg($("provSeg"), [["luma", "Luma API", key() ? "key set" : "no key"], ["fal", "fal.ai", falKey() ? "key set" : "no key"]], pv, v => { store.set("provider", v); renderAll(); toast(`Generating through ${PNAME[v]}`); });
+  $("provNote").innerHTML = pv === "luma" ? "Luma direct: cheapest for text→video, has 360p drafts, Extend, and 10 s with first/last frames through keyframes. May need the proxy (see below)." : "fal.ai: same price for image→video, higher for text→video, no 360p. Works in the browser without a proxy; videos stay online.";
+}
+function renderAll() { renderKey(); renderGen(); renderEdit(); renderReframe(); renderJobs(); renderDrive(); }
+$("falShow").onclick = () => { const i = $("falIn"); i.type = i.type === "password" ? "text" : "password"; $("falShow").textContent = i.type === "password" ? "Show" : "Hide"; };
+$("falSave").onclick = () => { const v = $("falIn").value.trim(); if (!v) { toast("Paste the key first"); return; } store.set("falKey", v); store.set("falOk", null); renderAll(); toast("fal.ai key saved on this device"); };
+$("falDel").onclick = () => { store.set("falKey", ""); renderAll(); toast("fal.ai key removed"); };
+$("falTest").onclick = async () => {
+  if (!falKey()) { toast("Save the fal.ai key first"); return; }
+  try { await falApi("https://queue.fal.run/luma/agent/ray/v3.2/image-to-video/requests/00000000-0000-0000-0000-000000000000/status"); store.set("falOk", true); toast("fal.ai key works"); }
+  catch (e) { const bad = /rejected the key/.test(e.message); store.set("falOk", !bad); toast(bad ? e.message : "fal.ai key works", 5000); }
+  renderKey();
+};
+$("keyChip").onclick = () => go("settings");
+$("keyShow").onclick = () => { const i = $("keyIn"); i.type = i.type === "password" ? "text" : "password"; $("keyShow").textContent = i.type === "password" ? "Show" : "Hide"; };
+$("keySave").onclick = () => { const v = $("keyIn").value.trim(); if (!v) { toast("Paste the key first"); return; } store.set("key", v); store.set("keyOk", null); renderAll(); toast("Luma key saved on this device"); };
+$("keyDel").onclick = () => { store.set("key", ""); renderAll(); toast("Luma key removed"); };
+$("keyTest").onclick = async () => {
+  if (!key()) { toast("Save a key first"); return; }
+  try { await api("/files"); store.set("keyOk", true); toast("Connected. The key works."); }
+  catch (e) { const bad = /rejected the key/.test(e.message); store.set("keyOk", bad ? false : null); toast(e.message, 6000); }
+  renderKey();
+};
+$("baseSave").onclick = () => { const v = $("baseIn").value.trim(); if (!/^https:\/\//.test(v)) { toast("The address must start with https://"); return; } store.set("base", v); renderKey(); toast("Saved"); };
+$("baseReset").onclick = () => { store.set("base", DEFAULT_BASE); renderKey(); toast("Back to the Luma default"); };
+
+/* ================= tabs & boot ================= */
+function go(tab) { document.querySelectorAll("[data-tab]").forEach(s => s.hidden = s.id !== "tab-" + tab); document.querySelectorAll("nav.tabs button").forEach(b => b.dataset.go === tab ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current")); store.set("tab", tab); window.scrollTo(0, 0); }
+document.querySelectorAll("nav.tabs button").forEach(b => b.onclick = () => go(b.dataset.go));
+(async () => {
+  try { const hs = await DB.get("history"); if (Array.isArray(hs)) history = hs; else if (history.length) saveH(); } catch (e) {}
+  renderPriceTable(); renderAll(); schedulePoll(500);
+  go((PROV() === "luma" ? key() : falKey()) ? store.get("tab", "generate") : "settings");
+  if (DRIVE.cid() && location.protocol !== "file:") loadGis().catch(() => {});
+  setTimeout(backfill, 1500);
+})();
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { clearTimeout(pollT); pollAll(); } });
+</script>
+</body>
+</html>
