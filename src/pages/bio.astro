@@ -1,21 +1,34 @@
 ---
 import Base from '../layouts/Base.astro';
 
-const facts = [
-  ['Solo exhibition', 'Glitches & Glory — Elza Kayal Gallery, Tribeca, New York, 29 Oct — 21 Nov 2025'],
+const facts: [string, string | string[]][] = [
+  ['Selected exhibitions & projects — 2026', [
+    'Triptych: Memory, Doubt and Fates — St. Benoît Church, 212 Photography Istanbul, with Anna Réka Baktay',
+    'Festival dei Due Mondi — Spoleto, large-scale architectural projections',
+    'Wunderland — Hamburg Ballet, costume design; choreography by Alexei Ratmansky',
+    'György Kurtág: Kafka-Fragmente — Sejong Soloists / Karole Armitage, Seoul',
+  ]],
+  ['Selected exhibitions & projects — 2025', 'Glitches & Glory — Elza Kayal Gallery, Tribeca, New York'],
   ['Monograph', 'Glitches & Glory — Gestalten, 2025'],
-  ['Speaking', 'TED Next, 2025'],
-  ['Representation', 'LUMAS galleries, 21 countries — Folkloric Robots'],
-  ['Teaching', 'Founded and led the first AI Storytelling Course, Moholy-Nagy University of Art and Design, 2023—2025'],
-  ['Awards', 'British Creative Cover of the Year — The Washington Post Magazine, 2022 · EDIDA Award — Spheres wallpaper, 2025'],
-  ['Festival', 'Ars Electronica, 2023—2026'],
-  ['Published by', 'Gestalten · Oxford University Press'],
-  ['Reviewed in', 'Whitehot Magazine · WIRED Italia · Kurier'],
+  ['Selected editorial commissions', [
+    'WIRED Italia — cover',
+    'The New Yorker — illustrations',
+    'The Washington Post Magazine — cover illustration, 2022',
+  ]],
+  ['Selected press', 'WIRED Italia · Whitehot Magazine · Kurier'],
+  ['Selected collaborations', 'Hamburg Ballet · Festival dei Due Mondi, Spoleto · Sejong Soloists · Karole Armitage · Jean-Michel Jarre · Duran Duran · Ars Electronica'],
+  ['Speaking', ['TED Next, 2025', 'Liszt Institute Seoul, 2026']],
+  ['Teaching', 'Founder and course leader, AI Storytelling — Moholy-Nagy University of Art and Design, 2023—2025'],
+  ['Awards', [
+    'British Creative Cover of the Year — The Washington Post Magazine, 2022',
+    'EDIDA Award — Spheres, 2025',
+  ]],
+  ['Published by', 'Oxford University Press'],
   ['Education', 'MA Intermedia, Hungarian University of Fine Arts'],
 ];
 ---
 
-<Base title="Bio — David Szauder" description="David Szauder is a visual artist based in Berlin, working between conceptual art, machine learning and visual culture.">
+<Base title="Bio — David Szauder" description="David Szauder is a visual artist based in Vienna and Budapest, working across visual art, moving image, stage and costume design.">
   <article class="wrap bio">
     <header class="rv">
       <span class="tag">Bio</span>
@@ -24,33 +37,47 @@ const facts = [
 
     <div class="bio-grid">
       <div class="bio-text rv">
-        <p class="lead">Born in Budapest in 1976, based in Berlin. He works between conceptual art,
-          machine learning and visual culture, on authorship, perception and machine subjectivity.</p>
+        <p class="lead">Born in Budapest in 1976, based in Vienna and Budapest. David Szauder works
+          across visual art, moving image, stage and costume design, combining computational and
+          traditional image-making to explore authorship, memory, perception and the unstable
+          relationship between human- and machine-made images.</p>
 
-        <p>He builds his own software and feeds it a private archive rather than the open internet:
-          Hungarian newspaper clippings from the 1980s, Burda pattern sheets, old manuals, a poem by
-          Dezső Kosztolányi typed by his grandfather on yellowing paper. The images are generated,
-          but the material is his own.</p>
+        <p>He develops his visual language through self-built systems and personal archives rather
+          than generic image databases. His source material has included Hungarian newspaper
+          clippings from the 1980s, Burda pattern sheets, technical manuals and family documents.
+          Generated imagery becomes one part of a broader process of deconstruction, recomposition
+          and visual storytelling.</p>
 
-        <p>His solo exhibition <em>Glitches &amp; Glory</em> opened at Elza Kayal Gallery, New York,
-          in 2025, alongside the monograph of the same name published by Gestalten. The same year he
+        <p>In 2025 his solo exhibition <em>Glitches &amp; Glory</em> opened at Elza Kayal Gallery in
+          New York, alongside the monograph of the same name published by Gestalten. The same year he
           spoke at TED Next on the cultural implications of artificial intelligence.</p>
 
-        <p>The <em>Folkloric Robots</em> series is shown through LUMAS galleries in 21 countries.
-          Between 2023 and 2025 he founded and led the first AI Storytelling Course at Moholy-Nagy
-          University of Art and Design in Budapest.</p>
+        <p>In 2026 his practice expanded into performance, stage and large-scale spatial work. He
+          designed around sixty costumes for Alexei Ratmansky's <em>Wunderland</em> at Hamburg Ballet
+          and created a series of large-scale architectural projections for the Festival dei Due Mondi
+          in Spoleto. In Seoul he collaborated with Sejong Soloists and choreographer Karole Armitage on
+          György Kurtág's <em>Kafka-Fragmente</em>.</p>
 
-        <p>In 2025 he made animations for Jean-Michel Jarre's concert tour. His 2022 cover for
-          The Washington Post Magazine received the British Creative Cover of the Year award, and the
-          <em>Spheres</em> wallpaper collection received an EDIDA Award in 2025. He has worked with the
-          Ars Electronica Festival since 2023, and his work has been published by Oxford University Press.</p>
+        <p>Also in 2026, together with Anna Réka Baktay, he presented <em>Triptych: Memory, Doubt and
+          Fates</em> at St. Benoît Church as part of 212 Photography Istanbul. The exhibition brought
+          together early works based on error and forgetting, the <em>Doppelgänger</em> series
+          and the <em>Folkloric Robots</em> project.</p>
+
+        <p>His editorial work includes a cover for WIRED Italia, illustrations for The New Yorker and
+          the 2022 cover of The Washington Post Magazine, which received the British Creative Cover of
+          the Year award. His <em>Spheres</em> wallpaper collection received an EDIDA Award in 2025.</p>
+
+        <p>He has created visual work for Jean-Michel Jarre and Duran Duran, has collaborated with Ars
+          Electronica since 2023, and his work has been published by Oxford University Press. In 2023
+          he founded the first AI Storytelling Course at Moholy-Nagy University of Art and Design in
+          Budapest, which he led until 2025.</p>
 
         <p>He holds an MA in Intermedia from the Hungarian University of Fine Arts.</p>
       </div>
 
       <dl class="bio-facts rv">
         {facts.map(([k, v]) => (
-          <div class="fact"><dt>{k}</dt><dd>{v}</dd></div>
+          <div class="fact"><dt>{k}</dt><dd>{Array.isArray(v) ? v.map((x) => <span class="fi">{x}</span>) : v}</dd></div>
         ))}
       </dl>
     </div>
@@ -71,5 +98,7 @@ const facts = [
 .fact{padding:15px 0;border-bottom:1px solid var(--hair)}
 .fact dt{font-family:var(--mono);font-size:.58rem;letter-spacing:.17em;text-transform:uppercase;color:var(--dust);margin-bottom:7px}
 .fact dd{margin:0;font-size:.95rem;line-height:1.5}
+.fact .fi{display:block}
+.fact .fi + .fi{margin-top:6px}
 @media (max-width:900px){ .bio-grid{grid-template-columns:1fr;gap:36px} }
 </style>
