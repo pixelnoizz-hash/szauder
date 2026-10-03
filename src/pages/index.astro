@@ -371,7 +371,9 @@ const routes = [
 @media (prefers-reduced-motion:reduce){.home a.aperture:hover img{transform:none}}
 
 /* Wunderland — wide */
-.home .h-img--wide{aspect-ratio:3/2}
+.home .h-img--wide{aspect-ratio:16/9;max-height:84vh;width:100%}
+.home .h-img--wide img{object-position:50% 8%}
+@media (max-width:760px){.home .h-img--wide{aspect-ratio:3/2;max-height:none;width:auto}}
 .home .h-wide-row{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:var(--h-col);align-items:start;margin-top:clamp(40px,5vw,72px)}
 .home .h-pair{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.2vw,18px)}
 .home .h-pair .h-img{aspect-ratio:3/2}
