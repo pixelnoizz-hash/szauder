@@ -9,16 +9,15 @@ import glitchesSpread from '../assets/works/glitches-spread.jpg';
 
 // ---------------------------------------------------------------------------
 // ISTANBUL HERO IMAGE
-// Put the strongest Saint Benoît installation photograph (art + space + scale)
-// into src/assets/works/ and replace the `undefined` below with an import, e.g.
-//   import istanbulHero from '../assets/works/<your-file>.jpg';
+// TEMPORARY: a phone photo until the professional photographs arrive.
+// To swap: put the new file in src/assets/works/ and change the import path below.
 // Optional second image (detail) goes in `istanbulDetail` the same way.
-// Until a file is set, the hero image is simply left out on the live site.
 // ---------------------------------------------------------------------------
-const istanbulHero: ImageMetadata | undefined = undefined;
+import istanbulHeroImg from '../assets/works/istanbul-saint-benoit-temp.jpg';
+const istanbulHero: ImageMetadata | undefined = istanbulHeroImg;
 const istanbulDetail: ImageMetadata | undefined = undefined;
 const istanbulAlt =
-  'Triptych: Memory, Doubt and Fates installed in the nave of Saint Benoît Church, Istanbul';
+  'Six screens of figures in folk costume with robotic heads, on black draped stands in the nave of Saint Benoît Church, Istanbul, reflected in the marble floor';
 
 // ---------------------------------------------------------------------------
 // CURRENT EXHIBITION
