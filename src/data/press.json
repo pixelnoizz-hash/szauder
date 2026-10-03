@@ -1,6 +1,6 @@
 {
-  "updated": "2026-08-06",
-  "count": 69,
+  "updated": "2026-10-03",
+  "count": 85,
   "items": [
     {
       "date": "2013-05-21",
@@ -11,7 +11,8 @@
       "title": "Interview: David Szauder",
       "url": "https://www.totallydublin.ie/arts-culture/arts-culture-features/interview-david-szauder/",
       "project": "early",
-      "confirmed": true
+      "confirmed": true,
+      "id": "totally-dublin"
     },
     {
       "date": "2021-09-25",
@@ -22,7 +23,8 @@
       "title": "Az üzemanyag a kreativitás legyen",
       "url": "https://www.prae.hu/article/12314-az-uzemanyag-a-kreativitas-legyen/",
       "project": "portrait",
-      "confirmed": true
+      "confirmed": true,
+      "id": "prae"
     },
     {
       "date": "2022-10-10",
@@ -30,8 +32,23 @@
       "lang": "en",
       "country": "US",
       "type": "commission",
-      "title": "Cover and illustrations, Trump special issue",
+      "title": "If He Runs — And Wins",
       "url": "https://www.washingtonpost.com/magazine/2022/10/10/country-after-second-trump-term/",
+      "project": "washington-post",
+      "confirmed": true,
+      "id": "wapo-cover",
+      "detail": "Cover and illustrations"
+    },
+    {
+      "id": "wapo-media",
+      "date": "2022-10-12",
+      "outlet": "The Washington Post Magazine",
+      "lang": "en",
+      "country": "US",
+      "type": "commission",
+      "title": "How the media should cover Trump’s next campaign",
+      "detail": "Illustration",
+      "url": "https://www.washingtonpost.com/magazine/2022/10/12/margaret-sullivan-how-media-should-cover-trump-next-campaign/",
       "project": "washington-post",
       "confirmed": true
     },
@@ -44,7 +61,8 @@
       "title": "Trumpról készített a Washington Postnak címlapot a magyar művész",
       "url": "https://forbes.hu/a-jo-elet/trump-magyar-szauder-david-muveszet-nft-mesterseges-intelligencia/",
       "project": "washington-post",
-      "confirmed": true
+      "confirmed": true,
+      "id": "forbes-2022"
     },
     {
       "date": "2022-12-00",
@@ -56,7 +74,8 @@
       "url": "",
       "project": "washington-post",
       "confirmed": false,
-      "note": "eredeti forrás nem található"
+      "note": "eredeti forrás nem található",
+      "id": "creative-review"
     },
     {
       "date": "2023-00-00",
@@ -68,19 +87,8 @@
       "url": "https://www.octogon.hu/design/igy-tervezunk-mi/",
       "project": "dream-come-true",
       "confirmed": false,
-      "note": "dátum ellenőrizendő"
-    },
-    {
-      "date": "2023-00-00",
-      "outlet": "Országút",
-      "lang": "hu",
-      "country": "HU",
-      "type": "interview",
-      "title": "MI és kortárs képzőművészet",
-      "url": "https://orszagut.com/kepzomuveszet/mi-es-kortars-kepzomuveszet-szauder-david-sirbik-attila-interjuja-5704",
-      "project": "portrait",
-      "confirmed": false,
-      "note": "dátum ellenőrizendő"
+      "note": "dátum ellenőrizendő",
+      "id": "octogon-2023"
     },
     {
       "date": "2023-02-24",
@@ -91,7 +99,8 @@
       "title": "Bridging Art and Technology in a Fusion of Digital Collages",
       "url": "https://aatonau.com/david-szauder-bridging-art-and-technology-in-a-fusion-of-digital-collages/",
       "project": "portrait",
-      "confirmed": true
+      "confirmed": true,
+      "id": "aatonau"
     },
     {
       "date": "2023-05-26",
@@ -102,7 +111,8 @@
       "title": "Varázslatos eszköz az AI",
       "url": "https://kreativ.hu/cikk/szauder-david-mi-ai-interju",
       "project": "portrait",
-      "confirmed": true
+      "confirmed": true,
+      "id": "kreativ-2023-05-26"
     },
     {
       "date": "2023-09-01",
@@ -113,7 +123,8 @@
       "title": "Mintha verset írnék, csak szöveg helyett képben",
       "url": "https://welovebudapest.com/cikk/2023/09/01/latnivalok-es-kultura-szauder-david-interju-ai-mesterseges-intelligencia-kepzomuveszet/",
       "project": "portrait",
-      "confirmed": true
+      "confirmed": true,
+      "id": "we-love-budapest-2023-09-01"
     },
     {
       "date": "2023-09-09",
@@ -124,7 +135,8 @@
       "title": "Az AI egy eszköz, amitől rengeteget tanulhatunk",
       "url": "https://hypeandhyper.com/szauder-david/",
       "project": "portrait",
-      "confirmed": true
+      "confirmed": true,
+      "id": "hype-hyper"
     },
     {
       "date": "2023-09-14",
@@ -135,7 +147,8 @@
       "title": "Superluminal, Light Art Museum",
       "url": "https://welovebudapest.com/cikk/2023/09/14/latnivalok-es-kultura-light-art-museum-uj-kiallitas-superluminal-hold-utca/",
       "project": "lam",
-      "confirmed": true
+      "confirmed": true,
+      "id": "we-love-budapest-2023-09-14"
     },
     {
       "date": "2023-09-20",
@@ -146,7 +159,8 @@
       "title": "Hogyan formálja a mesterséges intelligencia a teret?",
       "url": "https://salonbudapest.hu/blog/hogyan-formalja-a-mesterseges-intelligencia-az-enteriordesignt/",
       "project": "dream-come-true",
-      "confirmed": true
+      "confirmed": true,
+      "id": "s-alon-budapest-2023-09-20"
     },
     {
       "date": "2023-10-10",
@@ -157,7 +171,8 @@
       "title": "Benne van a varázs… Ecset lett a mesterséges intelligencia egy magyar művész kezében",
       "url": "https://www.forbes.hu/uzlet/szauder-david-mi-ai-muvesz-art/",
       "project": "portrait",
-      "confirmed": true
+      "confirmed": true,
+      "id": "forbes-2023"
     },
     {
       "date": "2024-00-00",
@@ -169,7 +184,20 @@
       "url": "https://www.octogon.hu/design/ai-tapeta-bemutato-a-kollabban/",
       "project": "spheres",
       "confirmed": false,
-      "note": "dátum ellenőrizendő"
+      "note": "dátum ellenőrizendő",
+      "id": "octogon-2024"
+    },
+    {
+      "date": "2024-02-29",
+      "outlet": "Országút",
+      "lang": "hu",
+      "country": "HU",
+      "type": "interview",
+      "title": "MI és kortárs képzőművészet",
+      "url": "https://orszagut.com/kepzomuveszet/mi-es-kortars-kepzomuveszet-szauder-david-sirbik-attila-interjuja-5704",
+      "project": "portrait",
+      "confirmed": false,
+      "id": "orszagut-2023"
     },
     {
       "date": "2024-03-21",
@@ -180,7 +208,8 @@
       "title": "Interview with Artist David Szauder (video)",
       "url": "https://www.youtube.com/watch?v=ph8zjicyp88",
       "project": "portrait",
-      "confirmed": true
+      "confirmed": true,
+      "id": "the-aaron-jack-show-2024-03-21"
     },
     {
       "date": "2024-04-13",
@@ -191,7 +220,8 @@
       "title": "Magyar designerek Berlinben",
       "url": "https://www.octogon.hu/design/magyar-designerek-berlinben/",
       "project": "spheres",
-      "confirmed": true
+      "confirmed": true,
+      "id": "octogon-2024-04-13"
     },
     {
       "date": "2024-05-00",
@@ -202,7 +232,8 @@
       "title": "Tango in Wonderland, Non-Fungible Conference Lisbon",
       "url": "https://www.katevassgalerie.com/tango-in-wonderland-by-david-szauder",
       "project": "tango",
-      "confirmed": true
+      "confirmed": true,
+      "id": "kate-vass-galerie-2024-05"
     },
     {
       "date": "2024-09-06",
@@ -210,10 +241,11 @@
       "lang": "hu",
       "country": "HU",
       "type": "exhibition",
-      "title": "Light Art Museum, immerzív kiállítás",
+      "title": "Light Art Museum, immersive exhibition",
       "url": "https://index.hu/kultur/2024/09/06/lam-light-art-museum-hold-utca-immerziv-kiallitas-ai-mesterseges-intelligencia-muzeum/",
       "project": "lam",
-      "confirmed": true
+      "confirmed": true,
+      "id": "index-hu-2024-09-06"
     },
     {
       "date": "2024-11-11",
@@ -224,7 +256,8 @@
       "title": "Geszti Péterről mesés AI-fotókat készített Szauder Dávid",
       "url": "https://kreativ.hu/cikk/geszti-peter-szauder-david-ai",
       "project": "geszti",
-      "confirmed": true
+      "confirmed": true,
+      "id": "kreativ-2024-11-11"
     },
     {
       "date": "2025-01-29",
@@ -235,7 +268,8 @@
       "title": "Mesterséges intelligencia a művészetben: trénelés, promptolás és versenyfutás",
       "url": "https://hvg.hu/360/20250129_A-mu-mesterseges-intelligencia-muveszet-treneles-promptolas-interju-Szauder-David",
       "project": "portrait",
-      "confirmed": true
+      "confirmed": true,
+      "id": "hvg360"
     },
     {
       "date": "2025-02-16",
@@ -246,7 +280,8 @@
       "title": "Mestersége: az intelligencia",
       "url": "https://web4.nepszava.hu/3268926_mestersege-az-intelligencia",
       "project": "geszti",
-      "confirmed": true
+      "confirmed": true,
+      "id": "nepszava"
     },
     {
       "date": "2025-07-03",
@@ -257,7 +292,8 @@
       "title": "AI + Art = Analog?",
       "url": "https://aiplusart.substack.com/p/ai-art-analog",
       "project": "spheres",
-      "confirmed": true
+      "confirmed": true,
+      "id": "ai-art-julia-morton-2025-07-03"
     },
     {
       "date": "2025-08-18",
@@ -268,7 +304,8 @@
       "title": "The sheer genius of the Hungarian AI artist David Szauder",
       "url": "https://queerguru.com/queerguru-checks-out-the-sheer-genious-of-the-hungarian-ai-artist-david-szauder/",
       "project": "portrait",
-      "confirmed": true
+      "confirmed": true,
+      "id": "queerguru-2025-08-18"
     },
     {
       "date": "2025-08-19",
@@ -279,7 +316,8 @@
       "title": "Glitches & Glory: The Digitally Rewired Art of David Szauder",
       "url": "https://gestalten.com/products/glitches-and-glory",
       "project": "book",
-      "confirmed": true
+      "confirmed": true,
+      "id": "gestalten-2025-08-19"
     },
     {
       "date": "2025-08-21",
@@ -292,7 +330,22 @@
       "project": "portrait",
       "confirmed": true,
       "quote": "Postcards sent from a past that never existed.",
-      "quote_note": "fordítás spanyolból"
+      "quote_note": "English translation from Spanish",
+      "id": "graffica"
+    },
+    {
+      "date": "2025-09-00",
+      "outlet": "ACM Interactions",
+      "lang": "en",
+      "country": "US",
+      "type": "feature",
+      "title": "Algorithmic Authenticity: David Szauder's Visionary Practice",
+      "url": "https://interactions.acm.org/archive/view/september-october-2025/algorithmic-authenticity-david-szauders-visionary-practice",
+      "project": "portrait",
+      "confirmed": true,
+      "note": "szeptember-októberi lapszám",
+      "id": "acm",
+      "when": "September–October 2025"
     },
     {
       "date": "2025-09-03",
@@ -303,19 +356,8 @@
       "title": "Megjelent Szauder Dávid mesterséges intelligenciát vizsgáló könyve",
       "url": "https://www.octogon.hu/design/megjelent-szauder-david-mesterseges-intelligenciat-vizsgalo-konyve/",
       "project": "book",
-      "confirmed": true
-    },
-    {
-      "date": "2025-09-15",
-      "outlet": "ACM Interactions",
-      "lang": "en",
-      "country": "US",
-      "type": "feature",
-      "title": "Algorithmic Authenticity: David Szauder's Visionary Practice",
-      "url": "https://interactions.acm.org/archive/view/september-october-2025/algorithmic-authenticity-david-szauders-visionary-practice",
-      "project": "portrait",
       "confirmed": true,
-      "note": "szeptember-októberi lapszám"
+      "id": "octogon-2025-09-03"
     },
     {
       "date": "2025-10-06",
@@ -323,10 +365,11 @@
       "lang": "hu",
       "country": "HU",
       "type": "event",
-      "title": "Glitches & Glory könyvbemutató",
+      "title": "Glitches & Glory book launch",
       "url": "https://budapestdesignweek.hu/en/program/david-szauder-glitches-glory-book-launch/",
       "project": "book",
-      "confirmed": true
+      "confirmed": true,
+      "id": "budapest-design-week-lumas-2025-10-06"
     },
     {
       "date": "2025-10-08",
@@ -334,8 +377,21 @@
       "lang": "hu",
       "country": "HU",
       "type": "award",
-      "title": "EDIDA Hungary 2025 — Spheres, az év terméke",
+      "title": "EDIDA Hungary 2025",
       "url": "https://elle.hu/kultura/edida-hungary-2025-nyertesek",
+      "project": "spheres",
+      "confirmed": true,
+      "id": "elle-deco-edida"
+    },
+    {
+      "id": "onbrands-edida",
+      "date": "2025-10-09",
+      "outlet": "Onbrands",
+      "lang": "hu",
+      "country": "HU",
+      "type": "award",
+      "title": "Átadták az EDIDA Hungary 2025 díjait",
+      "url": "https://onbrands.hu/marka-es-trend/2025/10/kiemelt1/atadtak-az-edida-hungary-2025-dijait-elle-decoration",
       "project": "spheres",
       "confirmed": true
     },
@@ -348,7 +404,8 @@
       "title": "Átadták az EDIDA Hungary 2025 díjait",
       "url": "https://kreativ.hu/cikk/atadtak-az-edida-hungary-2025-dijait",
       "project": "spheres",
-      "confirmed": true
+      "confirmed": true,
+      "id": "kreativ-edida"
     },
     {
       "date": "2025-10-29",
@@ -359,7 +416,8 @@
       "title": "Glitches & Glory, solo exhibition, Tribeca NY",
       "url": "https://elzakayal.com/szauder",
       "project": "book",
-      "confirmed": true
+      "confirmed": true,
+      "id": "elza-kayal"
     },
     {
       "date": "2025-11-05",
@@ -371,7 +429,8 @@
       "url": "https://artishell.com/david-szauder/",
       "project": "portrait",
       "confirmed": true,
-      "quote": "Playful, yet also somewhat sinister."
+      "quote": "Playful, yet also somewhat sinister.",
+      "id": "artishell"
     },
     {
       "date": "2025-11-11",
@@ -382,7 +441,8 @@
       "title": "Kódolt hagyomány – az AI és a digitális esztétika a kortárs művészetben",
       "url": "https://punkt.hu/2025/11/11/kodolt-hagyomany-az-ai-es-a-digitalis-esztetika-a-kortars-muveszetben-szauder-david-glitches-glory-2025/",
       "project": "book",
-      "confirmed": true
+      "confirmed": true,
+      "id": "punkt"
     },
     {
       "date": "2025-11-25",
@@ -394,8 +454,7 @@
       "url": "https://whitehotmagazine.com/articles/29-november-21-2025-/7389",
       "project": "book",
       "confirmed": true,
-      "quote": "An optimistic idea of AI done right.",
-      "quote_note": "a kritikus egy látogatót idéz, nem a saját mondata"
+      "id": "whitehot"
     },
     {
       "date": "2026-00-00",
@@ -407,19 +466,62 @@
       "url": "https://www.diepresse.com/20021103/unheimliche-wesen-und-fake-mode-der-kuenstler-david-szauder-zeigt-taeuschungen-in-der-digitalen-welt",
       "project": "portrait",
       "confirmed": false,
-      "note": "fizetőfal — dátum, szerző, idézet hiányzik"
+      "note": "fizetőfal — dátum, szerző, idézet hiányzik",
+      "id": "die-presse"
     },
     {
-      "date": "2026-01-00",
-      "outlet": "Falstaff",
-      "lang": "de",
-      "country": "AT",
-      "type": "campaign",
-      "title": "Grazer Bäcker Martin Auer setzt auf KI-Kampagne für Kaffee",
-      "url": "https://www.falstaff.com/at/news/grazer-baecker-martin-auer-setzt-auf-ki-kampagne-fuer-kaffee",
-      "project": "martin-auer",
-      "confirmed": false,
-      "note": "dátum ellenőrizendő"
+      "id": "wired-italia-117",
+      "date": "2026-00-00",
+      "when": "Summer 2026",
+      "outlet": "WIRED Italia",
+      "lang": "it",
+      "country": "IT",
+      "type": "interview",
+      "title": "Autoritratto con IA",
+      "author": "Laura Pezzino",
+      "issue": "Issue 117",
+      "url": "/works/editorial/",
+      "project": "wired",
+      "confirmed": true,
+      "note": "direkt interjú-link még nincs, addig a belső Editorial oldalra mutat"
+    },
+    {
+      "id": "bone-2026",
+      "date": "2026-00-00",
+      "outlet": "BONE Magazine",
+      "lang": "en",
+      "country": "",
+      "type": "interview",
+      "title": "David Szauder — Interview",
+      "url": "",
+      "public": true,
+      "project": "istanbul",
+      "confirmed": true,
+      "note": "publikált URL és végleges szöveg még nincs a projektben"
+    },
+    {
+      "id": "rai-radici",
+      "date": "2026-00-00",
+      "outlet": "RAI Cultura / Rai 5",
+      "lang": "it",
+      "country": "IT",
+      "type": "documentary",
+      "title": "Festival dei due Mondi 2026 — Radici",
+      "url": "https://www.raicultura.it/amp/teatro-e-danza/articoli/2026/09/Festival-dei-due-Mondi-2026---Radici-796b7cd3-d71e-4ae4-bf06-77abb57fb5bf.html",
+      "project": "spoleto",
+      "confirmed": true
+    },
+    {
+      "id": "rai-cultura-szauder",
+      "date": "2026-00-00",
+      "outlet": "Rai Cultura",
+      "lang": "it",
+      "country": "IT",
+      "type": "artist-feature",
+      "title": "David Szauder — Le eredità immateriali del Festival",
+      "url": "https://www.raicultura.it/raicultura/articoli/2026/05/David-Szauder-0733272f-dab3-43e9-b60e-3dd382ed6f1a.html",
+      "project": "spoleto",
+      "confirmed": true
     },
     {
       "date": "2026-01-00",
@@ -431,7 +533,20 @@
       "url": "https://www.kleinezeitung.at/artikel/20493903/martin-auer-serviert-bio-kaffee-mit-einer-ungewoehnlichen-werbekampagne",
       "project": "martin-auer",
       "confirmed": false,
-      "note": "dátum ellenőrizendő"
+      "note": "dátum ellenőrizendő",
+      "id": "kleine-zeitung"
+    },
+    {
+      "date": "2026-01-23",
+      "outlet": "Falstaff",
+      "lang": "de",
+      "country": "AT",
+      "type": "campaign",
+      "title": "Grazer Bäcker Martin Auer setzt auf KI-Kampagne für Kaffee",
+      "url": "https://www.falstaff.com/at/news/grazer-baecker-martin-auer-setzt-auf-ki-kampagne-fuer-kaffee",
+      "project": "martin-auer",
+      "confirmed": false,
+      "id": "falstaff"
     },
     {
       "date": "2026-01-23",
@@ -442,7 +557,8 @@
       "title": "Martin Auer startet KI-Kampagne in Graz und Klagenfurt",
       "url": "https://www.5min.at/graz/5202601231450/martin-auer-startet-ki-kampagne-in-graz-und-klagenfurt/",
       "project": "martin-auer",
-      "confirmed": true
+      "confirmed": true,
+      "id": "5-minuten"
     },
     {
       "date": "2026-01-26",
@@ -453,10 +569,11 @@
       "title": "David Szauder: Hungary's Media Art Visionary in the Digital Age",
       "url": "https://www.thestylemate.com/david-szauder-ungarns-pionier-der-medienkunst-im-digitalen-zeitalter/?lang=en",
       "project": "portrait",
-      "confirmed": true
+      "confirmed": true,
+      "id": "the-stylemate-2026-01-26"
     },
     {
-      "date": "2026-04-00",
+      "date": "2026-03-25",
       "outlet": "MediaPost",
       "lang": "en",
       "country": "US",
@@ -465,7 +582,7 @@
       "url": "https://www.mediapost.com/publications/article/413845/hendricks-unveils-another-hendricks-gin-with-imm.html",
       "project": "hendricks",
       "confirmed": false,
-      "note": "dátum ellenőrizendő"
+      "id": "mediapost"
     },
     {
       "date": "2026-04-00",
@@ -473,11 +590,13 @@
       "lang": "en",
       "country": "US",
       "type": "commission",
-      "title": "Illusztráció a Sam Altman-portréhoz — „Visual by David Szauder; Generated using A.I.\"",
-      "url": "",
+      "title": "Sam Altman May Control Our Future—Can He Be Trusted?",
+      "url": "https://www.newyorker.com/magazine/2026/04/13/sam-altman-may-control-our-future-can-he-be-trusted",
       "project": "new-yorker",
       "confirmed": false,
-      "note": "pontos dátum és cikklink hiányzik"
+      "note": "pontos dátum és cikklink hiányzik",
+      "id": "new-yorker-altman",
+      "detail": "Visual by David Szauder"
     },
     {
       "date": "2026-04-11",
@@ -491,7 +610,8 @@
       "confirmed": false,
       "note": "pontos dátum ellenőrizendő; vitacikk, nem méltatás",
       "quote": "An image must first be formed in the human mind.",
-      "quote_note": "a művész saját mondata, nem a lap értékelése"
+      "quote_note": "David Szauder, quoted in The Verge",
+      "id": "verge"
     },
     {
       "date": "2026-04-23",
@@ -502,7 +622,8 @@
       "title": "We Went Down the Rabbit Hole at Hendrick's Anotherland",
       "url": "https://hypebeast.com/2026/4/hendricks-anotherland-gin-ilana-gilovich-new-york-immersive-theater",
       "project": "hendricks",
-      "confirmed": true
+      "confirmed": true,
+      "id": "hypebeast"
     },
     {
       "date": "2026-04-27",
@@ -513,7 +634,8 @@
       "title": "How Hendrick's Blended AI and Theater For Its Biggest Launch in a Decade",
       "url": "https://www.adweek.com/creativity/how-hendricks-blended-ai-and-theater-for-its-biggest-launch-in-a-decade/",
       "project": "hendricks",
-      "confirmed": true
+      "confirmed": true,
+      "id": "adweek"
     },
     {
       "date": "2026-05-01",
@@ -524,7 +646,8 @@
       "title": "Hendrick's Anotherland by Ace of Hearts",
       "url": "https://www.campaignlive.co.uk/article/hendricks-%E2%80%9Canotherland%E2%80%9D-ace-hearts/1956749",
       "project": "hendricks",
-      "confirmed": true
+      "confirmed": true,
+      "id": "campaign"
     },
     {
       "date": "2026-05-05",
@@ -535,7 +658,8 @@
       "title": "Hendrick's Gin takes fans into its whimsical world, Anotherland",
       "url": "https://www.thestable.com.au/hendricks-gin-takes-fans-into-its-whimsical-world-anotherland/",
       "project": "hendricks",
-      "confirmed": true
+      "confirmed": true,
+      "id": "the-stable"
     },
     {
       "date": "2026-05-06",
@@ -546,7 +670,8 @@
       "title": "News briefs: Hendrick's Anotherland",
       "url": "https://www.shankennewsdaily.com/2026/05/06/39782/news-briefs-for-may-6-2026/",
       "project": "hendricks",
-      "confirmed": true
+      "confirmed": true,
+      "id": "shanken-news-daily-2026-05-06"
     },
     {
       "date": "2026-05-07",
@@ -557,7 +682,8 @@
       "title": "Hendrick's opens immersive Selfridges experience",
       "url": "https://www.thedrinksbusiness.com/2026/05/hendricks-opens-immersive-selfridges-experience/",
       "project": "hendricks",
-      "confirmed": true
+      "confirmed": true,
+      "id": "drinks-business"
     },
     {
       "date": "2026-05-29",
@@ -570,7 +696,8 @@
       "url": "https://www.printmag.com/daily-heller/the-daily-heller-david-szauders-digital-nostalgia-for-the-never-was/",
       "project": "portrait",
       "confirmed": true,
-      "quote": "Enigmatic animated fantasies that tickle the eye and capture the imagination."
+      "quote": "Enigmatic animated fantasies that tickle the eye and capture the imagination.",
+      "id": "print-heller"
     },
     {
       "date": "2026-06-00",
@@ -582,20 +709,22 @@
       "url": "",
       "project": "wunderland",
       "confirmed": false,
-      "note": "a Staatsoper idézi, eredeti link hiányzik"
+      "note": "a Staatsoper idézi, eredeti link hiányzik",
+      "id": "welt"
     },
     {
       "date": "2026-06-20",
-      "outlet": "tanznetz.de",
+      "outlet": "tanznetz",
       "lang": "de",
       "country": "DE",
       "type": "review",
       "author": "Annette Bopp",
       "title": "„Wunderland\" von Alexei Ratmansky im Rahmen der 51. Hamburger Ballett-Tage",
-      "url": "https://www.tanznetz.de/de/article/2026/wunderland-von-alexei-ratmansky-im-rahmen-51-hamburger-ballett-tage-und-der",
+      "url": "https://www.tanznetz.de/de/article/2026/wunderland-von-alexei-ratmansky-im-rahmen-der-51-hamburger-ballett-tage-und-der",
       "project": "wunderland",
       "confirmed": true,
-      "quote": "Fantastic in the truest sense of the word."
+      "quote": "Fantastic in the truest sense of the word.",
+      "id": "tanznetz"
     },
     {
       "date": "2026-06-21",
@@ -609,7 +738,8 @@
       "project": "wunderland",
       "confirmed": false,
       "note": "pontos dátum ellenőrizendő",
-      "quote": "Above all, the sensational production design convinces."
+      "quote": "Above all, the sensational production design convinces.",
+      "id": "abendblatt"
     },
     {
       "date": "2026-06-21",
@@ -622,7 +752,8 @@
       "project": "wunderland",
       "confirmed": false,
       "note": "pontos dátum ellenőrizendő",
-      "quote": "Stage design and costumes are the stars of the evening."
+      "quote": "Stage design and costumes are the stars of the evening.",
+      "id": "ndr"
     },
     {
       "date": "2026-06-21",
@@ -636,20 +767,22 @@
       "project": "wunderland",
       "confirmed": false,
       "note": "pontos dátum ellenőrizendő; RND-anyag, több regionális lapban is megjelent",
-      "quote": "Breathtaking costume creations."
+      "quote": "Breathtaking costume creations.",
+      "id": "rnd-kn"
     },
     {
       "date": "2026-06-21",
-      "outlet": "klassik-begeistert.de",
+      "outlet": "klassik-begeistert",
       "lang": "de",
       "country": "DE",
       "type": "review",
       "author": "Dr. Ralf Wegner",
-      "title": "Wunderland, Uraufführung, 20. Juni 2026",
+      "title": "Wunderland, Uraufführung",
       "url": "https://klassik-begeistert.de/wunderland-ballett-von-alexei-ratmansky-urauffuehrung-hamburgische-staatsoper-20-juni-2026/",
       "project": "wunderland",
       "confirmed": true,
-      "quote": "Impressively varied costumes."
+      "quote": "Impressively varied costumes.",
+      "id": "klassik-begeistert-premiere"
     },
     {
       "date": "2026-06-22",
@@ -660,7 +793,8 @@
       "title": "Tanztriennale Hamburg zieht nach einer Woche eine begeisternde Bilanz",
       "url": "https://www.danceforyou-magazine.com/tanztriennale-hamburg-zieht-nach-einer-woche-eine-begeisternde-bilanz/",
       "project": "wunderland",
-      "confirmed": true
+      "confirmed": true,
+      "id": "dance-for-you-magazine-2026-06-22"
     },
     {
       "date": "2026-06-22",
@@ -672,20 +806,8 @@
       "title": "Alexei Ratmansky nach Lewis Carroll: Wunderland",
       "url": "https://www.die-deutsche-buehne.de/kritiken/staatsoper-hamburg-ratmansky-wunderland/",
       "project": "wunderland",
-      "confirmed": true
-    },
-    {
-      "date": "2026-06-22",
-      "outlet": "SeeingDance",
-      "lang": "en",
-      "country": "UK",
-      "type": "review",
-      "author": "David Mead",
-      "title": "Hamburg Ballet — Wunderland",
-      "url": "https://www.seeingdance.com/hamburg-ballet-wunderland-260622/",
-      "project": "wunderland",
       "confirmed": true,
-      "quote": "Colourful doesn't even start to describe it."
+      "id": "deutsche-buehne"
     },
     {
       "date": "2026-06-22",
@@ -699,7 +821,21 @@
       "project": "wunderland",
       "confirmed": false,
       "note": "pontos dátum ellenőrizendő",
-      "quote": "Imaginative costumes and opulent stage decoration."
+      "quote": "Imaginative costumes and opulent stage decoration.",
+      "id": "sz"
+    },
+    {
+      "id": "landgraf-on-dance",
+      "date": "2026-06-24",
+      "outlet": "Landgraf on Dance",
+      "lang": "en",
+      "country": "",
+      "type": "review",
+      "title": "Ambitious but Not Gripping",
+      "author": "Ilona Landgraf",
+      "url": "https://ilona-landgraf.com/2026/06/ambitious-but-not-gripping/",
+      "project": "wunderland",
+      "confirmed": true
     },
     {
       "date": "2026-06-24",
@@ -712,11 +848,26 @@
       "url": "https://www.jungewelt.de/artikel/524845.ballett-es-wird-immer-bunter.html",
       "project": "wunderland",
       "confirmed": true,
-      "quote": "The technical effort is enormous."
+      "quote": "The technical effort is enormous.",
+      "id": "junge-welt"
+    },
+    {
+      "date": "2026-06-25",
+      "outlet": "SeeingDance",
+      "lang": "en",
+      "country": "UK",
+      "type": "review",
+      "author": "David Mead",
+      "title": "Hamburg Ballet — Wunderland",
+      "url": "https://www.seeingdance.com/hamburg-ballet-wunderland-260622/",
+      "project": "wunderland",
+      "confirmed": true,
+      "quote": "Colourful doesn't even start to describe it.",
+      "id": "seeingdance"
     },
     {
       "date": "2026-06-28",
-      "outlet": "klassik-begeistert.de",
+      "outlet": "klassik-begeistert",
       "lang": "de",
       "country": "DE",
       "type": "review",
@@ -724,7 +875,8 @@
       "title": "Wunderland, 26. Juni 2026",
       "url": "https://klassik-begeistert.de/wunderland-ballett-von-alexei-ratmansky-nach-lewis-carroll-hamburgische-staatsper-26-juni-2026/",
       "project": "wunderland",
-      "confirmed": true
+      "confirmed": true,
+      "id": "klassik-begeistert-0626"
     },
     {
       "date": "2026-07-00",
@@ -735,7 +887,8 @@
       "title": "Glitches & Glory — presentazione, Giardini di Palazzo Campello",
       "url": "https://www.festivaldispoleto.com/eventi/glitches-glory---the-digitally-rewired-art-of-david-szauder",
       "project": "spoleto",
-      "confirmed": true
+      "confirmed": true,
+      "id": "festival-dei-due-mondi-2026-07"
     },
     {
       "date": "2026-07-00",
@@ -747,10 +900,23 @@
       "url": "https://shots.net/news/view/richard-brim-speaks-from-the-heart",
       "project": "hendricks",
       "confirmed": false,
-      "note": "dátum ellenőrizendő"
+      "note": "dátum ellenőrizendő",
+      "id": "shots-2026-07"
     },
     {
-      "date": "2026-07-01",
+      "id": "tgr-umbria",
+      "date": "2026-07-02",
+      "outlet": "TGR Umbria / RaiNews",
+      "lang": "it",
+      "country": "IT",
+      "type": "tv",
+      "title": "La notte di Spoleto",
+      "url": "https://www.rainews.it/amp/tgr/umbria/video/2026/07/tgr-umbria-web-tasciotti-2a-la-notte-di-spoleto-lowqual-2m-11s-1200-logomp4-f60380e2-4c21-4388-b563-017669f65ce8.html",
+      "project": "spoleto",
+      "confirmed": true
+    },
+    {
+      "date": "2026-07-08",
       "outlet": "Spoletonline",
       "lang": "it",
       "country": "IT",
@@ -759,11 +925,11 @@
       "url": "https://www.spoletonline.com/177435/David-Szauder-incontra-il-pubblico-del-Festival-dei-Due-Mondi.html",
       "project": "spoleto",
       "confirmed": false,
-      "note": "pontos dátum ellenőrizendő"
+      "id": "spoletonline"
     },
     {
-      "date": "2026-07-02",
-      "outlet": "Tuttoggi.info",
+      "date": "2026-07-08",
+      "outlet": "Tuttoggi",
       "lang": "it",
       "country": "IT",
       "type": "feature",
@@ -771,10 +937,10 @@
       "url": "https://tuttoggi.info/david-szauder-il-visionario-media-artist-incontra-il-pubblico-del-festival-dei-due-mondi/999341/",
       "project": "spoleto",
       "confirmed": false,
-      "note": "pontos dátum ellenőrizendő"
+      "id": "tuttoggi"
     },
     {
-      "date": "2026-07-03",
+      "date": "2026-07-08",
       "outlet": "SpoletoOggi",
       "lang": "it",
       "country": "IT",
@@ -783,7 +949,20 @@
       "url": "https://www.spoletooggi.it/arte-cultura/festival-dei-2mondi/david-szauder-racconta-la-sua-arte-digitale-al-festival-spoleto-24208/",
       "project": "spoleto",
       "confirmed": false,
-      "note": "pontos dátum ellenőrizendő"
+      "id": "spoletooggi"
+    },
+    {
+      "id": "rai-radio1-zapping",
+      "date": "2026-07-09",
+      "outlet": "Rai Radio 1 / RaiPlay Sound",
+      "lang": "it",
+      "country": "IT",
+      "type": "radio",
+      "title": "Zapping",
+      "detail": "David Szauder as guest",
+      "url": "https://www.raiplaysound.it/audio/2026/06/ZAPPING-a6df8e5c-147d-46b5-a391-e541063593c0.html",
+      "project": "spoleto",
+      "confirmed": true
     },
     {
       "date": "2026-07-12",
@@ -794,7 +973,8 @@
       "title": "Con il festival dei Due mondi, Spoleto cuore pulsante della scena artistica",
       "url": "https://www.ansa.it/sito/notizie/cultura/musica/2026/07/12/con-il-festival-dei-due-mondi-spoleto-cuore-pulsante-della-scena_3a7083dc-dde5-410f-9cc5-ff8a5eeed611.html",
       "project": "spoleto",
-      "confirmed": true
+      "confirmed": true,
+      "id": "ansa"
     },
     {
       "date": "2026-07-12",
@@ -805,7 +985,98 @@
       "title": "Festival dei Due Mondi di Spoleto, edizione 2026 da record",
       "url": "https://www.adnkronos.com/spettacoli/festival-dei-due-mondi-di-spoleto-edizione-2026-da-record_1vr3qR7H1qGV8ebNfR9TfP",
       "project": "spoleto",
+      "confirmed": true,
+      "id": "adnkronos"
+    },
+    {
+      "id": "milliyet-sanat",
+      "date": "2026-08-25",
+      "outlet": "Milliyet Sanat",
+      "lang": "tr",
+      "country": "TR",
+      "type": "news",
+      "title": "Fotoğrafın 200. yılında İstanbul’un kadrajı genişliyor",
+      "url": "https://www.milliyetsanat.com/haberler/diger/fotografin-200-yilinda-istanbul-un-kadraji-genisliyor/33740",
+      "project": "istanbul",
       "confirmed": true
+    },
+    {
+      "id": "marie-claire-tr",
+      "date": "2026-09-00",
+      "outlet": "Marie Claire Türkiye",
+      "lang": "tr",
+      "country": "TR",
+      "type": "news",
+      "title": "Şehri Fotoğrafla Buluşturan 212 Photography Istanbul 26 Eylül’de Başlıyor",
+      "url": "https://www.marieclaire.com.tr/sehri-fotografla-bulusturan-212-photography-istanbul-26-eylulde-basliyor/",
+      "project": "istanbul",
+      "confirmed": true
+    },
+    {
+      "id": "daily-sabah",
+      "date": "2026-09-07",
+      "outlet": "Daily Sabah",
+      "lang": "en",
+      "country": "TR",
+      "type": "news",
+      "title": "Capture the city: Istanbul celebrates 200 years of photography",
+      "url": "https://www.dailysabah.com/arts/capture-the-city-istanbul-celebrates-200-years-of-photography/news",
+      "project": "istanbul",
+      "confirmed": true
+    },
+    {
+      "id": "oggusto",
+      "date": "2026-09-18",
+      "outlet": "OGGUSTO",
+      "lang": "tr",
+      "country": "TR",
+      "type": "interview",
+      "title": "Dijital Sanatçı David Szauder ile 212 Photography Istanbul Öncesi: Hafıza, Yapay Zekâ ve Fotoğrafın Geleceği",
+      "url": "https://www.oggusto.com/sanat/sanatci/david-szauder-212-photography-istanbul",
+      "project": "istanbul",
+      "confirmed": true
+    },
+    {
+      "id": "rast-magazine",
+      "date": "2026-09-22",
+      "outlet": "Rast Magazine",
+      "lang": "tr",
+      "country": "TR",
+      "type": "festival-interview",
+      "title": "212 Photography Festival Direktörü Banu Tunçağ Anlattı: Farklı Bakışların Yan Yana Gelebildiği Bir Alan",
+      "url": "https://www.rastmagazine.com/yazilar/212-photography-festival-direktoru-banu-tuncag-anlatti-farkli-bakislarin-yan-yana-gelebildigi-bir-alan",
+      "project": "istanbul",
+      "confirmed": true,
+      "author": "Heja Bozyel"
+    },
+    {
+      "id": "programata",
+      "date": "2026-09-30",
+      "outlet": "Programata",
+      "lang": "bg",
+      "country": "BG",
+      "type": "feature",
+      "title": "Дейвид Саудер в Галерия АВТОМАТИК",
+      "title_en": "David Szauder at AUTOMATIC Gallery",
+      "place": "Sofia",
+      "url": "https://programata.bg/izlozhbi/izlozhba/dejvid-sauder-v-galeriya-avtomatik/",
+      "project": "sofia",
+      "confirmed": true
+    },
+    {
+      "id": "reading-the-pictures",
+      "date": "2026-10-00",
+      "outlet": "Reading the Pictures",
+      "lang": "en",
+      "country": "US",
+      "type": "analysis",
+      "title": "The Cracks in the Cult of the AI Supermen",
+      "author": "Michael Shaw",
+      "url": "",
+      "public": true,
+      "project": "new-yorker",
+      "confirmed": true,
+      "note": "direkt cikk-URL még nincs a projektben"
     }
   ]
 }

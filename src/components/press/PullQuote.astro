@@ -1,0 +1,38 @@
+---
+// A pull quote on the Press page. Attribution is always explicit:
+// `person` is who wrote or said it, `outlet` is where it was published.
+// `source` (optional) links the attribution to the article itself.
+export interface Quote {
+  text: string;
+  outlet: string;
+  person?: string;
+  note?: string;
+  source?: { title: string; lang?: string; meta?: string; href: string };
+}
+
+interface Props {
+  q: Quote;
+  size?: 'lead' | 'normal';
+  align?: 'start' | 'offset';
+}
+
+const { q, size = 'normal', align = 'start' } = Astro.props;
+---
+
+<figure class={`pq pq--${size} pq--${align}`}>
+  <blockquote>
+    <p>“{q.text}”</p>
+  </blockquote>
+  <figcaption>
+    <span class="pq-by">— {q.person && <>{q.person}, </>}<cite>{q.outlet}</cite></span>
+    {q.source && (
+      <a class="pq-src" href={q.source.href} target="_blank" rel="noopener noreferrer">
+        <span lang={q.source.lang && q.source.lang !== 'en' ? q.source.lang : undefined}>{q.source.title}</span>
+        {q.source.meta && <span class="pq-src-meta"> · {q.source.meta}</span>}
+        <span class="pe-arrow" aria-hidden="true">↗</span>
+        <span class="pp-sr">(opens in a new tab)</span>
+      </a>
+    )}
+    {q.note && <span class="pq-note">{q.note}</span>}
+  </figcaption>
+</figure>

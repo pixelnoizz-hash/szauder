@@ -1,196 +1,576 @@
 ---
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+import PressEntry, { type Entry } from '../components/press/PressEntry.astro';
+import PullQuote, { type Quote } from '../components/press/PullQuote.astro';
 import data from '../data/press.json';
+import wunderlandImg from '../assets/works/wunderland-1.jpg';
+import spoletoImg from '../assets/works/spoleto-1.jpg';
 
-// Entries without a source link are kept out of the public list — an unlinked
-// claim is worth less than no claim. They stay in press.json.
-const items = data.items.filter((i) => i.url && i.url.length > 0);
+// ---------------------------------------------------------------------------
+// press.json is the full database. This page CURATES it: the thematic
+// sections below pick entries by id, the archive at the bottom lists every
+// public entry. Fields like `note` / `quote_note` in press.json are internal
+// and are never rendered here.
+// An entry is public when it has a URL, or is marked `"public": true`
+// (real coverage whose link is not in the project yet — shown unlinked).
+// ---------------------------------------------------------------------------
 
-const LABEL = {
-  'hendricks': "Hendrick's Gin",
-  'wunderland': 'Wunderland — Hamburg Ballett',
-  'spoleto': 'Festival dei Due Mondi, Spoleto',
-  'new-yorker': 'The New Yorker',
-  'book': 'Glitches & Glory',
-  'spheres': 'Spheres',
-  'martin-auer': 'Martin Auer',
-  'dream-come-true': 'Dream Come True',
-  'washington-post': 'The Washington Post',
-  'geszti': 'Geszti Sixty',
-  'lam': 'Light Art Museum',
-  'tango': 'Tango in Wonderland',
-  'portrait': 'On the work',
-  'early': 'Early work',
+type Item = (typeof data.items)[number] & Record<string, any>;
+const items = data.items as Item[];
+const byId = new Map(items.map((i) => [i.id, i]));
+const get = (id: string): Item => {
+  const i = byId.get(id);
+  if (!i) throw new Error(`press.astro: no press item with id "${id}"`);
+  return i;
 };
+const isPublic = (i: Item) => Boolean(i.url) || i.public === true;
 
-const KIND = {
+const TYPE: Record<string, string> = {
   interview: 'Interview', review: 'Review', feature: 'Feature', profile: 'Profile',
   campaign: 'Campaign', award: 'Award', news: 'News', essay: 'Essay',
   exhibition: 'Exhibition', event: 'Event', book: 'Book', gallery: 'Gallery',
   commission: 'Commission', analysis: 'Analysis', festival: 'Festival',
   project: 'Project', list: 'List', mention: 'Mention',
+  documentary: 'TV documentary', 'artist-feature': 'Artist feature',
+  tv: 'TV report', radio: 'Radio', 'festival-interview': 'Festival interview',
 };
 
 const MONTH = ['', 'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
 
-function when(d) {
-  const [y, m, day] = d.split('-').map(Number);
+// "2026-06-21" → "June 21, 2026"; "2026-06-00" → "June 2026"; "2026-00-00" → "2026"
+function when(i: Item): string {
+  if (i.when) return i.when;
+  const [y, m, d] = i.date.split('-').map(Number);
   if (!m) return String(y);
-  if (!day) return `${MONTH[m]} ${y}`;
-  return `${MONTH[m]} ${day}, ${y}`;
+  if (!d) return `${MONTH[m]} ${y}`;
+  return `${MONTH[m]} ${d}, ${y}`;
 }
 
-function host(u) {
-  try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; }
+const isExternal = (u: string) => /^https?:\/\//.test(u);
+
+type Opts = {
+  title?: string;
+  type?: string | false;   // override the type label, or false to hide it
+  author?: boolean;        // show author (default true)
+  date?: boolean;          // show date (default true)
+  extra?: string[];        // appended meta, e.g. place or issue
+  meta?: string[];         // replace the meta line entirely
+};
+
+function entry(id: string, o: Opts = {}): Entry {
+  const i = get(id);
+  const meta = o.meta ?? [
+    ...(o.type === false ? [] : [o.type ?? TYPE[i.type] ?? i.type]),
+    ...(o.author !== false && i.author ? [i.author] : []),
+    ...(i.detail ? [i.detail] : []),
+    ...(o.date !== false ? [when(i)] : []),
+    ...(o.extra ?? []),
+  ];
+  return {
+    outlet: i.outlet,
+    title: o.title ?? i.title,
+    lang: o.title ? 'en' : i.lang,
+    meta,
+    href: i.url || undefined,
+    external: i.url ? isExternal(i.url) : false,
+  };
 }
 
-// newest first, grouped by year
-const sorted = [...items].sort((a, b) => b.date.localeCompare(a.date));
-const years = [...new Set(sorted.map((i) => i.date.slice(0, 4)))];
-const byYear = years.map((y) => ({ year: y, list: sorted.filter((i) => i.date.startsWith(y)) }));
+function source(id: string) {
+  const i = get(id);
+  return {
+    title: i.title,
+    lang: i.lang,
+    meta: [i.author, when(i)].filter(Boolean).join(' · '),
+    href: i.url,
+  };
+}
 
-// filter chips: projects with at least two entries, in order of most recent
-const counts = {};
-for (const i of sorted) counts[i.project] = (counts[i.project] || 0) + 1;
-const seen = [];
-for (const i of sorted) if (!seen.includes(i.project) && counts[i.project] >= 2) seen.push(i.project);
+// ---------------------------------------------------------------------------
+// 2 · Featured
+// ---------------------------------------------------------------------------
+const featured: Entry[] = [
+  entry('print-heller', { type: 'Interview / profile' }),
+  entry('wired-italia-117', { extra: ['WIRED Italia Issue 117'] }),
+  entry('verge'),
+  entry('whitehot'),
+  entry('acm'),
+  entry('bone-2026'),
+  entry('reading-the-pictures', { type: 'Critical analysis' }),
+  entry('programata', { title: get('programata').title_en, extra: ['Sofia'] }),
+  entry('die-presse'),
+];
 
-const span = `${sorted[sorted.length - 1].date.slice(0, 4)} — ${sorted[0].date.slice(0, 4)}`;
-const langs = [...new Set(sorted.map((i) => i.lang))];
+// ---------------------------------------------------------------------------
+// Pull quotes — seven on the whole page. The Whitehot line is a visitor
+// quoted by the critic, so it is deliberately not used.
+// ---------------------------------------------------------------------------
+const leadQuote: Quote = {
+  text: 'Enigmatic animated fantasies that tickle the eye and capture the imagination.',
+  person: 'Steven Heller',
+  outlet: 'PRINT Magazine',
+};
+
+const workQuotes: Quote[] = [
+  {
+    text: 'Artificial intelligence is not simply a tool for producing spectacular images.',
+    outlet: 'Programata',
+    note: 'English translation from Bulgarian',
+  },
+  {
+    text: 'Postcards sent from a past that never existed.',
+    outlet: 'Gráffica',
+    note: 'English translation from Spanish',
+  },
+  {
+    text: 'Playful, yet also somewhat sinister.',
+    outlet: 'Artishell',
+  },
+];
+
+// ---------------------------------------------------------------------------
+// 4 · On the work — the featured pieces are not repeated here
+// ---------------------------------------------------------------------------
+const onTheWork: Entry[] = [
+  'artishell', 'punkt', 'graffica', 'nepszava', 'hvg360', 'forbes-2023',
+  'hype-hyper', 'aatonau', 'prae', 'totally-dublin',
+].map((id) => entry(id, { author: false, date: false, extra: [get(id).date.slice(0, 4)] }));
+
+// ---------------------------------------------------------------------------
+// 5 · Stage & performance — Wunderland
+// ---------------------------------------------------------------------------
+const wunderlandQuotes: Quote[] = [
+  { text: 'Stage design and costumes are the stars of the evening.', outlet: 'NDR Kultur',
+    source: source('ndr'), note: 'English translation from German' },
+  { text: 'Fantastic in the truest sense of the word.', outlet: 'tanznetz',
+    source: source('tanznetz'), note: 'English translation from German' },
+  { text: 'Imaginative costumes and opulent stage decoration.', outlet: 'Süddeutsche Zeitung',
+    source: source('sz'), note: 'English translation from German' },
+];
+
+const moreReviews: Entry[] = [
+  'rnd-kn', 'abendblatt', 'seeingdance', 'deutsche-buehne', 'junge-welt',
+  'klassik-begeistert-premiere', 'landgraf-on-dance',
+].map((id) => entry(id, { type: false }));
+
+// ---------------------------------------------------------------------------
+// 6 · Public space — Spoleto
+// ---------------------------------------------------------------------------
+const spoletoNational: Entry[] = [
+  entry('rai-radici'),
+  entry('rai-cultura-szauder'),
+  entry('tgr-umbria'),
+  entry('rai-radio1-zapping'),
+  entry('ansa', { type: false }),
+  entry('adnkronos', { type: false }),
+];
+const spoletoLocal: Entry[] = ['spoletooggi', 'tuttoggi', 'spoletonline']
+  .map((id) => entry(id, { type: false, date: false }));
+
+// ---------------------------------------------------------------------------
+// 7 · Exhibitions & festivals
+// ---------------------------------------------------------------------------
+const istanbul: Entry[] = [
+  entry('bone-2026'),
+  entry('oggusto', { type: false }),
+  entry('daily-sabah', { type: false }),
+  entry('milliyet-sanat', { type: false }),
+  entry('marie-claire-tr', { type: false }),
+  entry('rast-magazine'),
+];
+const sofia: Entry[] = [entry('programata', { type: false })];
+const newYork: Entry[] = [entry('whitehot', { type: false })];
+const elza = get('elza-kayal');
+
+// ---------------------------------------------------------------------------
+// 8 · Editorial & media
+// ---------------------------------------------------------------------------
+const editorial: Entry[] = [
+  entry('new-yorker-altman', { type: false }),
+  entry('reading-the-pictures', { type: 'Critical analysis' }),
+  entry('verge', { type: 'Analysis' }),
+  { ...entry('wired-italia-117'), title: 'Issue 117', lang: 'en',
+    meta: ['Cover + visual work + interview', '2026'] },
+  entry('wapo-cover', { type: false }),
+  entry('wapo-media', { type: false }),
+];
+
+// ---------------------------------------------------------------------------
+// 9 · Design & campaigns
+// ---------------------------------------------------------------------------
+const campaignGroups = [
+  { label: 'Hendrick’s Anotherland',
+    list: ['adweek', 'campaign', 'hypebeast', 'mediapost', 'the-stable', 'drinks-business'] },
+  { label: 'Spheres — EDIDA Hungary 2025',
+    list: ['elle-deco-edida', 'kreativ-edida', 'onbrands-edida'] },
+  { label: 'Martin Auer',
+    list: ['falstaff', 'kleine-zeitung', '5-minuten'] },
+].map((g) => ({ ...g, list: g.list.map((id) => entry(id, { meta: [] })) }));
+
+// ---------------------------------------------------------------------------
+// 10 · Archive — every public entry, newest first, grouped by year
+// ---------------------------------------------------------------------------
+const archive = items.filter(isPublic).sort((a, b) => b.date.localeCompare(a.date));
+const years = [...new Set(archive.map((i) => i.date.slice(0, 4)))];
+const archiveByYear = years.map((y) => ({
+  year: y,
+  list: archive.filter((i) => i.date.startsWith(y)).map((i) => entry(i.id, { author: false })),
+}));
+const firstYear = years[years.length - 1];
+
+const sections = [
+  { id: 'featured', label: 'Featured' },
+  { id: 'on-the-work', label: 'On the work' },
+  { id: 'stage', label: 'Stage & performance' },
+  { id: 'public-space', label: 'Public space' },
+  { id: 'exhibitions', label: 'Exhibitions' },
+  { id: 'editorial', label: 'Editorial' },
+  { id: 'design', label: 'Design & campaigns' },
+  { id: 'archive', label: 'Archive' },
+];
 ---
 
 <Base title="Press — David Szauder"
-      description="Selected press: interviews, reviews and features on the work of David Szauder, 2013 to today.">
-  <article class="wrap press">
-    <header class="rv">
-      <span class="tag">Press</span>
+      description="Selected interviews, reviews, critical writing and media coverage on the work of David Szauder.">
+  <article class="wrap press-page">
+
+    <!-- 1 · Intro -->
+    <header class="pp-head rv">
       <h1>Press</h1>
-      <p class="pr-lead">Interviews, reviews and features. Newest first.</p>
-      <p class="pr-meta">{sorted.length} entries · {span} · {langs.length} languages</p>
+      <p class="pp-intro">Selected interviews, reviews, critical writing and media coverage.</p>
+      <p class="pp-span">{firstYear} — present</p>
     </header>
 
-    <nav class="pr-filter rv" aria-label="Filter by project">
-      <button class="pr-chip is-on" data-f="all">All</button>
-      {seen.map((p) => <button class="pr-chip" data-f={p}>{LABEL[p] ?? p}</button>)}
+    <nav class="pp-nav" aria-label="Press sections">
+      <ul>
+        {sections.map((s) => <li><a href={`#${s.id}`}>{s.label}</a></li>)}
+      </ul>
     </nav>
 
-    {byYear.map(({ year, list }) => (
-      <section class="pr-year rv" data-year={year}>
-        <h2>{year}</h2>
-        <ul class="pr-list">
-          {list.map((i) => (
-            <li class="pr-item" data-p={i.project}>
-              <a href={i.url} target="_blank" rel="noopener">
-                <span class="pr-outlet">{i.outlet}</span>
-                <span class="pr-main">
-                  <span class="pr-title">{i.title}</span>
-                  <span class="pr-sub">
-                    <span class="pr-kind">{KIND[i.type] ?? i.type}</span>
-                    <span class="pr-dot">·</span>
-                    <span>{when(i.date)}</span>
-                    {i.author && <><span class="pr-dot">·</span><span>{i.author}</span></>}
-                    <span class="pr-dot">·</span>
-                    <span class="pr-host">{host(i.url)}</span>
-                  </span>
-                </span>
-                <span class="pr-arrow" aria-hidden="true">&nearr;</span>
-              </a>
-              {i.quote && (
-                <blockquote class="pr-quote">
-                  <p>{i.quote}</p>
-                  <cite>{i.outlet}{i.quote_note ? ` — ${i.quote_note}` : ''}</cite>
-                </blockquote>
-              )}
-            </li>
-          ))}
-        </ul>
-      </section>
-    ))}
+    <!-- 2 · Featured -->
+    <section id="featured" class="pp-sec" aria-labelledby="featured-h">
+      <h2 id="featured-h" class="rv">Featured press</h2>
+      <ul class="pp-feature">
+        {featured.map((e) => <PressEntry e={e} variant="feature" />)}
+      </ul>
+    </section>
 
-    <p class="pr-enquiry rv">
+    <!-- 3 · Lead quote -->
+    <div class="pp-lead rv">
+      <PullQuote q={leadQuote} size="lead" />
+    </div>
+
+    <!-- 4 · On the work -->
+    <section id="on-the-work" class="pp-sec" aria-labelledby="work-h">
+      <header class="pp-sec-head rv">
+        <h2 id="work-h">On the work</h2>
+        <p class="pp-desc">Critical writing, profiles and conversations around the work, authorship, memory and artificial intelligence.</p>
+      </header>
+      <ul class="pp-list rv">
+        {onTheWork.map((e) => <PressEntry e={e} />)}
+      </ul>
+      <div class="pp-quotes">
+        {workQuotes.map((q, n) => (
+          <div class="rv"><PullQuote q={q} align={n % 2 ? 'offset' : 'start'} /></div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 5 · Stage & performance -->
+    <section id="stage" class="pp-sec pp-sec--project" aria-labelledby="stage-h">
+      <header class="pp-sec-head rv">
+        <h2 id="stage-h">Stage &amp; performance</h2>
+        <h3 class="pp-sub">Wunderland — Hamburg Ballett</h3>
+        <p class="pp-desc">Costume design for Alexei Ratmansky’s world premiere at Staatsoper Hamburg, 2026.</p>
+      </header>
+      <figure class="pp-fig rv">
+        <span class="aperture">
+          <Image src={wunderlandImg}
+                 alt="Wunderland at the Staatsoper Hamburg: the Queen of Hearts in red and gold, surrounded by dancers costumed as playing cards"
+                 widths={[700, 1100, 1600]} sizes="(max-width: 900px) 92vw, 1100px" />
+        </span>
+        <figcaption>Photo: Kiran West</figcaption>
+      </figure>
+      <div class="pp-quotes">
+        {wunderlandQuotes.map((q, n) => (
+          <div class="rv"><PullQuote q={q} align={n % 2 ? 'offset' : 'start'} /></div>
+        ))}
+      </div>
+      <h4 class="pp-group rv">More reviews</h4>
+      <ul class="pp-list rv">
+        {moreReviews.map((e) => <PressEntry e={e} />)}
+      </ul>
+    </section>
+
+    <!-- 6 · Public space -->
+    <section id="public-space" class="pp-sec pp-sec--project" aria-labelledby="public-h">
+      <header class="pp-sec-head rv">
+        <h2 id="public-h">Public space</h2>
+        <h3 class="pp-sub">Festival dei Due Mondi — Spoleto</h3>
+        <p class="pp-desc">Evocation of Spirits and seven digital works across historic façades during the 69th Festival dei Due Mondi.</p>
+      </header>
+      <figure class="pp-fig pp-fig--wide rv">
+        <span class="aperture">
+          <Image src={spoletoImg}
+                 alt="Evocation of Spirits in Spoleto at night: a pale branching figure projected onto the face of a medieval stone tower"
+                 widths={[700, 1100, 1600]} sizes="(max-width: 900px) 92vw, 1300px" />
+        </span>
+      </figure>
+      <h4 class="pp-group rv">Broadcast &amp; national press</h4>
+      <ul class="pp-feature pp-feature--names rv">
+        {spoletoNational.map((e) => <PressEntry e={e} variant="feature" />)}
+      </ul>
+      <h4 class="pp-group rv">Local press</h4>
+      <ul class="pp-list rv">
+        {spoletoLocal.map((e) => <PressEntry e={e} />)}
+      </ul>
+    </section>
+
+    <!-- 7 · Exhibitions & festivals -->
+    <section id="exhibitions" class="pp-sec" aria-labelledby="exh-h">
+      <h2 id="exh-h" class="rv">Exhibitions &amp; festivals</h2>
+
+      <div class="pp-sub-block rv">
+        <h3 class="pp-sub">Istanbul — 212 Photography Istanbul</h3>
+        <ul class="pp-list">
+          {istanbul.map((e) => <PressEntry e={e} />)}
+        </ul>
+      </div>
+
+      <div class="pp-sub-block rv">
+        <h3 class="pp-sub">Sofia — AUTOMATIC Gallery</h3>
+        <ul class="pp-list">
+          {sofia.map((e) => <PressEntry e={e} />)}
+        </ul>
+        <p class="pp-works">Folkloric Robots · Game · Protections</p>
+      </div>
+
+      <div class="pp-sub-block rv">
+        <h3 class="pp-sub">New York — Glitches &amp; Glory</h3>
+        <ul class="pp-list">
+          {newYork.map((e) => <PressEntry e={e} />)}
+        </ul>
+        <p class="pp-ref">
+          <span class="pp-ref-label">Exhibition</span>
+          <a href={elza.url} target="_blank" rel="noopener noreferrer">
+            Elza Kayal Gallery — {elza.title}<span class="pe-arrow" aria-hidden="true">↗</span><span class="pp-sr">(opens in a new tab)</span>
+          </a>
+        </p>
+      </div>
+    </section>
+
+    <!-- 8 · Editorial & media -->
+    <section id="editorial" class="pp-sec" aria-labelledby="ed-h">
+      <header class="pp-sec-head rv">
+        <h2 id="ed-h">Editorial &amp; media</h2>
+        <p class="pp-desc">Selected editorial commissions and the critical discussion around them.</p>
+      </header>
+      <ul class="pp-list rv">
+        {editorial.map((e) => <PressEntry e={e} />)}
+      </ul>
+      <p class="pp-more rv"><a href="/works/editorial/">See editorial work <span aria-hidden="true">→</span></a></p>
+    </section>
+
+    <!-- 9 · Design & campaigns -->
+    <section id="design" class="pp-sec" aria-labelledby="design-h">
+      <h2 id="design-h" class="rv">Design &amp; campaigns</h2>
+      <div class="pp-cols rv">
+        {campaignGroups.map((g) => (
+          <div class="pp-col">
+            <h3 class="pp-group">{g.label}</h3>
+            <ul class="pp-list">
+              {g.list.map((e) => <PressEntry e={e} variant="compact" />)}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 10 · Archive -->
+    <section id="archive" class="pp-sec pp-archive" aria-labelledby="arch-h">
+      <header class="pp-sec-head rv">
+        <h2 id="arch-h">Archive</h2>
+        <p class="pp-span">{firstYear} — present</p>
+      </header>
+      <details class="pp-details">
+        <summary><span class="pp-sum-open">Show full press archive</span><span class="pp-sum-close">Hide press archive</span><i aria-hidden="true"></i></summary>
+        {archiveByYear.map(({ year, list }) => (
+          <div class="pp-year">
+            <h3>{year}</h3>
+            <ul class="pp-list">
+              {list.map((e) => <PressEntry e={e} variant="archive" />)}
+            </ul>
+          </div>
+        ))}
+      </details>
+    </section>
+
+    <p class="pp-enquiry">
       Press enquiries and image requests:
       <a href="mailto:davidszauderstudio@gmail.com">davidszauderstudio@gmail.com</a>
     </p>
   </article>
 </Base>
 
-<script>
-  const chips = document.querySelectorAll('.pr-chip');
-  const items = document.querySelectorAll('.pr-item');
-  const years = document.querySelectorAll('.pr-year');
-
-  chips.forEach((chip) => {
-    chip.addEventListener('click', () => {
-      const f = chip.getAttribute('data-f');
-      chips.forEach((c) => c.classList.toggle('is-on', c === chip));
-      items.forEach((li) => {
-        li.hidden = !(f === 'all' || li.getAttribute('data-p') === f);
-      });
-      // hide a year heading when nothing is left under it
-      years.forEach((y) => {
-        const any = [...y.querySelectorAll('.pr-item')].some((li) => !li.hidden);
-        y.hidden = !any;
-      });
-    });
-  });
-</script>
-
+<!-- Every selector below is scoped to .press-page, so nothing outside this page changes. -->
 <style is:global>
-.press{padding:clamp(110px,15vh,180px) 0 clamp(60px,9vw,120px)}
-.press .tag{display:block;margin-bottom:14px}
-.press h1{font-family:var(--serif);font-size:clamp(2.4rem,6.5vw,5rem);line-height:.98;margin:0;font-weight:400}
-.pr-lead{color:var(--dust);line-height:1.7;max-width:48ch;margin:24px 0 10px;font-size:1.02rem}
-.pr-meta{font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--dust);margin:0 0 clamp(34px,4.5vw,56px)}
+.press-page{
+  --pp-col:clamp(150px,17vw,230px);
+  --pp-gap:clamp(16px,2.4vw,34px);
+  --pp-sec:clamp(96px,12vw,184px);
+  padding-top:clamp(110px,15vh,180px);
+  padding-bottom:clamp(70px,9vw,130px);
+}
+.press-page .pp-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
-/* --- filter --- */
-.pr-filter{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:clamp(34px,4.5vw,54px)}
-.pr-chip{font-family:var(--mono);font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;
-  color:var(--dust);background:transparent;border:1px solid var(--hair);padding:9px 14px;
-  cursor:pointer;transition:color .25s ease,border-color .25s ease}
-.pr-chip:hover{color:var(--bone);border-color:var(--dust)}
-.pr-chip.is-on{color:var(--bone);border-color:var(--ember)}
+/* --- 1 · intro --- */
+.press-page h1{font-family:var(--serif);font-size:clamp(2.4rem,6.5vw,5rem);line-height:.98;margin:0;font-weight:400}
+.press-page .pp-intro{font-size:clamp(1.125rem,1rem + .55vw,1.375rem);line-height:1.45;color:var(--bone);
+  max-width:34ch;margin:clamp(22px,3vw,34px) 0 12px}
+.press-page .pp-span{font-family:var(--mono);font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust);margin:0}
 
-/* --- years --- */
-.pr-year{margin-bottom:clamp(40px,5vw,66px)}
-.pr-year[hidden]{display:none}
-.pr-year h2{font-family:var(--mono);font-size:.68rem;letter-spacing:.24em;color:var(--ember);
-  font-weight:400;margin:0 0 6px;padding-bottom:14px;border-bottom:1px solid var(--hair)}
+/* --- section navigation --- */
+.press-page .pp-nav{margin:clamp(40px,5vw,64px) 0 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);
+  overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.press-page .pp-nav::-webkit-scrollbar{display:none}
+.press-page .pp-nav ul{display:flex;gap:clamp(20px,2.6vw,38px);list-style:none;margin:0;padding:0;white-space:nowrap}
+.press-page .pp-nav a{display:block;padding:15px 0;font-family:var(--mono);font-size:.78rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dust);transition:color .25s ease}
+.press-page .pp-nav a:hover{color:var(--bone)}
 
-.pr-list{list-style:none;margin:0;padding:0}
-.pr-item{border-bottom:1px solid var(--hair)}
-.pr-item[hidden]{display:none}
-.pr-item a{display:grid;grid-template-columns:clamp(120px,17vw,210px) minmax(0,1fr) auto;
-  gap:clamp(14px,2.4vw,30px);align-items:baseline;padding:17px 0;transition:padding-left .3s ease}
-.pr-item a:hover{padding-left:10px}
-.pr-outlet{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--bone)}
-.pr-main{display:block;min-width:0}
-.pr-title{display:block;color:var(--dust);line-height:1.5;font-size:1rem}
-.pr-item a:hover .pr-title{color:var(--bone)}
-.pr-sub{display:block;margin-top:7px;font-family:var(--mono);font-size:.56rem;letter-spacing:.13em;
-  text-transform:uppercase;color:var(--dust);opacity:.75}
-.pr-dot{margin:0 7px;opacity:.5}
-.pr-host{opacity:.7}
-.pr-arrow{color:var(--dust);font-size:.85rem}
-.pr-item a:hover .pr-arrow{color:var(--ember)}
+/* --- sections --- */
+.press-page .pp-sec{margin-top:var(--pp-sec);scroll-margin-top:96px}
+.press-page .pp-nav + .pp-sec{margin-top:clamp(56px,7vw,104px)}
+.press-page h2{font-family:var(--serif);font-weight:400;font-size:clamp(1.5rem,1.05rem + 1.6vw,2.125rem);line-height:1.1;
+  margin:0;padding-top:clamp(20px,2.2vw,28px);border-top:1px solid var(--hair)}
+.press-page .pp-sec > h2{margin-bottom:clamp(28px,3.6vw,52px)}
+.press-page .pp-sec-head{margin-bottom:clamp(28px,3.6vw,52px)}
+.press-page .pp-sub{font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(1.25rem,1rem + .9vw,1.625rem);
+  line-height:1.2;margin:clamp(14px,1.6vw,20px) 0 0;color:var(--bone)}
+.press-page .pp-desc{font-size:clamp(1rem,.95rem + .25vw,1.125rem);line-height:1.5;color:var(--dust);max-width:56ch;margin:14px 0 0}
+.press-page .pp-group{font-family:var(--mono);font-weight:400;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dust);margin:clamp(48px,6vw,80px) 0 6px}
+
+/* --- press entries (shared) --- */
+.press-page .pp-list,.press-page .pp-feature{list-style:none;margin:0;padding:0}
+.press-page .pe{border-bottom:1px solid var(--hair)}
+.press-page .pe-in{display:grid;grid-template-columns:var(--pp-col) minmax(0,1fr) auto;gap:var(--pp-gap);align-items:baseline;
+  padding:clamp(20px,2.2vw,28px) 0}
+.press-page .pe-outlet{font-family:var(--mono);font-weight:700;font-size:clamp(.8125rem,.78rem + .15vw,.875rem);
+  letter-spacing:.08em;text-transform:uppercase;color:var(--bone);line-height:1.35}
+.press-page .pe-main{display:block;min-width:0}
+.press-page .pe-title{display:block;font-size:clamp(1.0625rem,1rem + .3vw,1.25rem);line-height:1.35;color:var(--bone);
+  overflow-wrap:break-word;hyphens:auto}
+.press-page .pe-meta{display:block;margin-top:8px;font-size:clamp(.8125rem,.79rem + .1vw,.875rem);line-height:1.45;color:var(--dust)}
+.press-page .pe-arrow{color:var(--dust);font-size:.95rem;transition:color .25s ease,transform .25s ease}
+.press-page a.pe-in:hover .pe-title{color:var(--bone);text-decoration:underline;text-decoration-color:var(--ember);
+  text-underline-offset:5px;text-decoration-thickness:1px}
+.press-page a.pe-in:hover .pe-arrow{color:var(--ember);transform:translate(2px,-2px)}
+
+/* featured — two columns, more air, serif titles */
+.press-page .pp-feature{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(36px,6vw,96px)}
+.press-page .pe--feature{border-bottom:0;border-top:1px solid var(--hair)}
+.press-page .pe--feature .pe-in{grid-template-columns:minmax(0,1fr) auto;row-gap:14px;padding:clamp(24px,2.8vw,36px) 0 clamp(36px,4vw,56px)}
+.press-page .pe--feature .pe-outlet{grid-column:1;grid-row:1}
+.press-page .pe--feature .pe-arrow{grid-column:2;grid-row:1}
+.press-page .pe--feature .pe-main{grid-column:1/-1}
+.press-page .pe--feature .pe-title{font-family:var(--serif);font-size:clamp(1.375rem,1.1rem + .9vw,1.75rem);line-height:1.22;max-width:30ch}
+.press-page .pe--feature .pe-meta{margin-top:12px}
+.press-page .pp-feature--names .pe--feature .pe-title{max-width:40ch;font-family:var(--sans);font-size:clamp(1.0625rem,1rem + .3vw,1.25rem);line-height:1.35}
+
+/* compact — design & campaigns columns */
+.press-page .pe--compact .pe-in{grid-template-columns:minmax(0,1fr) auto;row-gap:6px;padding:18px 0}
+.press-page .pe--compact .pe-outlet{grid-column:1;grid-row:1}
+.press-page .pe--compact .pe-arrow{grid-column:2;grid-row:1}
+.press-page .pe--compact .pe-main{grid-column:1/-1}
+.press-page .pe--compact .pe-title{font-size:1.0625rem;color:var(--dust)}
+.press-page a.pe-in:hover .pe-title{color:var(--bone)}
+.press-page .pp-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(28px,4vw,64px)}
+.press-page .pp-col .pp-group{margin-top:0;padding-bottom:14px;border-bottom:1px solid var(--hair)}
+
+/* exhibitions */
+.press-page .pp-sub-block + .pp-sub-block{margin-top:clamp(56px,7vw,96px)}
+.press-page .pp-sub-block .pp-sub{margin:0 0 6px}
+.press-page .pp-works{font-size:1rem;line-height:1.45;color:var(--dust);margin:16px 0 0;padding-left:calc(var(--pp-col) + var(--pp-gap))}
+.press-page .pp-ref{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;margin:20px 0 0;
+  padding-left:calc(var(--pp-col) + var(--pp-gap));font-size:.9375rem;line-height:1.45;color:var(--dust)}
+.press-page .pp-ref-label{font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;
+  border:1px solid var(--hair);padding:3px 8px}
+.press-page .pp-ref a{color:var(--dust);transition:color .25s ease}
+.press-page .pp-ref a:hover{color:var(--bone)}
+.press-page .pp-ref .pe-arrow{margin-left:8px}
+
+/* editorial */
+.press-page .pp-more{margin:clamp(28px,3vw,40px) 0 0}
+.press-page .pp-more a{font-family:var(--mono);font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--bone);
+  border-bottom:1px solid var(--ember);padding-bottom:4px}
+
+/* --- images --- */
+.press-page .pp-fig{margin:0 0 clamp(56px,7vw,104px);max-width:1100px}
+.press-page .pp-fig--wide{max-width:none}
+.press-page .pp-fig .aperture{aspect-ratio:3/2}
+.press-page .pp-fig figcaption{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);margin-top:12px}
 
 /* --- pull quotes --- */
-.pr-quote{margin:0 0 20px;padding:0 0 0 clamp(120px,17vw,210px)}
-.pr-quote p{font-family:var(--serif);font-style:italic;color:var(--bone);
-  font-size:clamp(1.1rem,2.1vw,1.5rem);line-height:1.35;margin:0 0 8px;max-width:34ch;
-  padding-left:clamp(14px,2.4vw,30px);border-left:1px solid var(--ember)}
-.pr-quote cite{font-family:var(--mono);font-size:.54rem;letter-spacing:.15em;text-transform:uppercase;
-  color:var(--dust);font-style:normal;padding-left:clamp(15px,2.5vw,31px);display:block}
+.press-page .pp-lead{margin-top:var(--pp-sec);padding:clamp(8px,2vw,24px) 0}
+.press-page .pq{margin:0;max-width:min(820px,100%)}
+.press-page .pq blockquote{margin:0}
+.press-page .pq p{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--bone);margin:0;
+  font-size:clamp(1.375rem,1rem + 1.7vw,2rem);line-height:1.28;text-indent:-.42em}
+.press-page .pq--lead{max-width:min(880px,100%);margin-left:clamp(0px,8vw,140px)}
+.press-page .pq--lead p{font-size:clamp(1.5rem,1rem + 2.2vw,2.25rem);line-height:1.24}
+.press-page .pq--offset{margin-left:clamp(0px,14vw,240px)}
+.press-page .pq figcaption{display:flex;flex-direction:column;gap:6px;margin-top:clamp(16px,1.8vw,22px)}
+.press-page .pq-by{font-family:var(--mono);font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--bone)}
+.press-page .pq-by cite{font-style:normal}
+.press-page .pq-src{font-size:.9375rem;line-height:1.45;color:var(--dust);transition:color .25s ease;max-width:60ch}
+.press-page .pq-src:hover{color:var(--bone)}
+.press-page .pq-src .pe-arrow{margin-left:8px}
+.press-page .pq-note{font-size:.8125rem;line-height:1.4;color:var(--dust);font-style:italic}
+.press-page .pp-quotes{display:flex;flex-direction:column;gap:clamp(56px,7vw,100px);margin:clamp(64px,8vw,120px) 0 0}
+.press-page .pp-quotes > div{display:flex}
+.press-page #stage .pp-quotes{margin-top:0}
 
-.pr-enquiry{font-family:var(--mono);font-size:.64rem;letter-spacing:.15em;text-transform:uppercase;
-  color:var(--dust);margin:0;padding-top:26px;border-top:1px solid var(--hair)}
-.pr-enquiry a{color:var(--bone);border-bottom:1px solid var(--ember);padding-bottom:3px;margin-left:8px}
+/* --- archive --- */
+.press-page .pp-details summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:14px;
+  font-family:var(--mono);font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--bone);
+  padding:12px 0;border-bottom:1px solid var(--ember)}
+.press-page .pp-details summary::-webkit-details-marker{display:none}
+.press-page .pp-details summary i{position:relative;width:11px;height:11px}
+.press-page .pp-details summary i::before,.press-page .pp-details summary i::after{content:"";position:absolute;left:0;right:0;top:5px;
+  height:1px;background:currentColor;transition:transform .3s ease}
+.press-page .pp-details summary i::after{transform:rotate(90deg)}
+.press-page .pp-details[open] summary i::after{transform:rotate(0)}
+.press-page .pp-sum-close{display:none}
+.press-page .pp-details[open] .pp-sum-open{display:none}
+.press-page .pp-details[open] .pp-sum-close{display:inline}
+.press-page .pp-year{margin-top:clamp(48px,6vw,80px)}
+.press-page .pp-year h3{font-family:var(--mono);font-weight:400;font-size:.85rem;letter-spacing:.2em;color:var(--ember);
+  margin:0;padding-bottom:14px;border-bottom:1px solid var(--hair)}
+.press-page .pe--archive .pe-in{padding:18px 0}
+.press-page .pe--archive .pe-title{font-size:clamp(1rem,.97rem + .15vw,1.0625rem);line-height:1.45}
 
+.press-page .pp-enquiry{font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;line-height:1.8;
+  color:var(--dust);margin:var(--pp-sec) 0 0;padding-top:26px;border-top:1px solid var(--hair)}
+.press-page .pp-enquiry a{color:var(--bone);border-bottom:1px solid var(--ember);padding-bottom:3px;margin-left:8px;
+  text-transform:none;letter-spacing:.04em;display:inline-block;margin-top:4px}
+
+/* --- tablet / mobile --- */
+@media (max-width:1000px){
+  .press-page .pp-cols{grid-template-columns:minmax(0,1fr)}
+  .press-page .pp-col + .pp-col{margin-top:12px}
+}
 @media (max-width:760px){
-  .pr-item a{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}
-  .pr-outlet{grid-column:1/-1}
-  .pr-quote{padding-left:0}
+  .press-page .pp-feature{grid-template-columns:minmax(0,1fr)}
+  .press-page .pe-in{grid-template-columns:minmax(0,1fr) auto;row-gap:8px}
+  .press-page .pe-outlet{grid-column:1;grid-row:1}
+  .press-page .pe-arrow{grid-column:2;grid-row:1}
+  .press-page .pe-main{grid-column:1/-1}
+  .press-page .pp-works,.press-page .pp-ref{padding-left:0}
+  .press-page .pq--lead{margin-left:0}
+  .press-page .pq--offset{margin-left:0}
+  .press-page .pp-nav{margin-left:calc(var(--gut) * -1);margin-right:calc(var(--gut) * -1);padding:0 var(--gut)}
 }
 </style>

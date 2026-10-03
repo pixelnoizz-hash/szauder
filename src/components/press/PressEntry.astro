@@ -1,0 +1,41 @@
+---
+// One press item on the Press page. Used by every thematic list and the archive.
+// It renders no element ids, so the same article can appear in a thematic
+// section and in the archive without duplicate ids in the DOM.
+// An item without a href is rendered as plain text: no link, no arrow.
+export interface Entry {
+  outlet: string;
+  title: string;
+  lang?: string;
+  meta: string[];
+  href?: string;
+  external?: boolean;
+}
+
+interface Props {
+  e: Entry;
+  variant?: 'feature' | 'row' | 'compact' | 'archive';
+}
+
+const { e, variant = 'row' } = Astro.props;
+const Tag = e.href ? 'a' : 'div';
+const linkAttrs = e.href
+  ? e.external
+    ? { href: e.href, target: '_blank', rel: 'noopener noreferrer' }
+    : { href: e.href }
+  : {};
+---
+
+<li class={`pe pe--${variant}`}>
+  <Tag class="pe-in" {...linkAttrs}>
+    <span class="pe-outlet">{e.outlet}</span>
+    <span class="pe-main">
+      <span class="pe-title" lang={e.lang && e.lang !== 'en' ? e.lang : undefined}>{e.title}</span>
+      {e.meta.length > 0 && <span class="pe-meta">{e.meta.join(' · ')}</span>}
+    </span>
+    {e.href && (
+      <span class="pe-arrow" aria-hidden="true">{e.external ? '↗' : '→'}</span>
+    )}
+    {e.href && e.external && <span class="pp-sr">(opens in a new tab)</span>}
+  </Tag>
+</li>
