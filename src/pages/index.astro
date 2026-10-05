@@ -9,13 +9,14 @@ import glitchesSpread from '../assets/works/glitches-spread.jpg';
 
 // ---------------------------------------------------------------------------
 // ISTANBUL HERO IMAGE
-// TEMPORARY: a phone photo until the professional photographs arrive.
-// To swap: put the new file in src/assets/works/ and change the import path below.
-// Optional second image (detail) goes in `istanbulDetail` the same way.
+// Photo: Batuhan Saraçoğlu (@b16__studio). The project page is /works/triptych.
+// Optional second image (detail) goes in `istanbulDetail`.
 // ---------------------------------------------------------------------------
-import istanbulHeroImg from '../assets/works/istanbul-saint-benoit-temp.jpg';
+import istanbulHeroImg from '../assets/works/triptych-1.jpg';
 const istanbulHero: ImageMetadata | undefined = istanbulHeroImg;
 const istanbulDetail: ImageMetadata | undefined = undefined;
+const istanbulHref = '/works/triptych';
+const istanbulCredit = 'Photo Batuhan Saraçoğlu (@b16__studio)';
 const istanbulAlt =
   'Six screens of figures in folk costume with robotic heads, on black draped stands in the nave of Saint Benoît Church, Istanbul, reflected in the marble floor';
 
@@ -137,8 +138,11 @@ const routes = [
     <section class="wrap h-now" aria-label="Current exhibition">
       {istanbulHero ? (
         <figure class="h-hero">
-          <Image src={istanbulHero} alt={istanbulAlt} widths={[900, 1400, 2000]}
-                 sizes="(max-width: 760px) 100vw, 92vw" />
+          <a class="h-hero-link" href={istanbulHref} tabindex="-1" aria-hidden="true">
+            <Image src={istanbulHero} alt={istanbulAlt} widths={[900, 1400, 2000]}
+                   sizes="(max-width: 760px) 100vw, 92vw" />
+          </a>
+          <figcaption class="h-credit">{istanbulCredit}</figcaption>
         </figure>
       ) : import.meta.env.DEV && (
         <div class="h-hero h-hero--empty" aria-hidden="true">
@@ -154,7 +158,7 @@ const routes = [
           )}
           <div class="h-cx-text">
             <span class="h-cx-label js-current">Current exhibition</span>
-            <p class="h-cx-title">{current.title}</p>
+            <p class="h-cx-title"><a href={istanbulHref}>{current.title}</a></p>
             <p class="h-cx-venue">{current.venue}<br />{current.with}</p>
             <p class="h-cx-date js-current">{current.through}</p>
           </div>
@@ -340,6 +344,7 @@ const routes = [
 .home .h-now{margin-top:clamp(76px,10vw,150px)}
 .home .h-hero{margin:0}
 .home .h-hero img{width:100%;height:auto}
+.home .h-hero-link{display:block}
 .home .h-hero--empty{aspect-ratio:16/9;display:grid;place-items:center;border:1px dashed var(--dust);
   font-family:var(--mono);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dust);text-align:center;padding:20px}
 .home .h-cx{display:flex;gap:var(--h-col);align-items:flex-start;margin-top:clamp(26px,3vw,40px)}
