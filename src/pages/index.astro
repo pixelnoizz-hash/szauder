@@ -6,6 +6,7 @@ import Base from '../layouts/Base.astro';
 import heroPoster from '../assets/works/hero-poster.jpg';
 import glitchesCover from '../assets/works/glitches-cover.jpg';
 import glitchesSpread from '../assets/works/glitches-spread.jpg';
+import { ORDER, ORDER_MAIN } from '../data/order';
 
 // ---------------------------------------------------------------------------
 // ISTANBUL HERO IMAGE
@@ -166,6 +167,19 @@ const routes = [
       )}
     </section>
 
+    <!-- Book strip: a quiet, visible prompt to the order page -->
+    <aside class="wrap h-bstrip" aria-label="The monograph">
+      <a class="h-bstrip-in" href={ORDER_MAIN} target="_blank" rel="noopener">
+        <span class="h-bstrip-cover"><Image src={glitchesCover} alt="" widths={[160, 320]} sizes="88px" /></span>
+        <span class="h-bstrip-text">
+          <span class="h-bstrip-tag">The monograph</span>
+          <span class="h-bstrip-title">Glitches &amp; Glory</span>
+          <span class="h-bstrip-meta">gestalten · 256 pages</span>
+        </span>
+        <span class="h-bstrip-cta">Order the book <span aria-hidden="true">→</span></span>
+      </a>
+    </aside>
+
     <!-- Works -->
     <div class="wrap h-works" id="works">
 
@@ -256,6 +270,12 @@ const routes = [
             <blockquote><p>“For almost 42 years, I haven’t been able to decide whether I’m an artist or a programmer.”</p></blockquote>
             <figcaption>From the afterword</figcaption>
           </figure>
+          <div class="h-order">
+            <span class="h-order-label">Order</span>
+            <div class="h-order-btns">
+              {ORDER.map((o) => <a class="h-order-btn" href={o.href} target="_blank" rel="noopener">{o.label}</a>)}
+            </div>
+          </div>
           <a class="h-enter" href="/book">See the book <span aria-hidden="true">→</span></a>
         </div>
         <div class="h-book-media rv">
@@ -413,6 +433,34 @@ const routes = [
 .home .h-ctx-list li{font-family:var(--serif);font-size:clamp(1.25rem,1rem + 1.1vw,1.9rem);line-height:1.35}
 .home .h-ctx-list li:not(:last-child)::after{content:"◆";color:var(--ember);font-size:.55em;display:inline-block;
   transform:translateY(-.3em);margin:0 clamp(12px,1.5vw,22px)}
+
+
+/* --- book strip (quiet order prompt) --- */
+.home .h-bstrip{padding-top:clamp(28px,4vw,56px)}
+.home .h-bstrip-in{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:clamp(16px,2.4vw,36px);
+  padding:clamp(14px,1.6vw,20px) 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.home .h-bstrip-cover{display:block;width:clamp(64px,6vw,88px);line-height:0}
+.home .h-bstrip-cover img{width:100%;height:auto;display:block;box-shadow:0 6px 24px rgba(0,0,0,.45)}
+.home .h-bstrip-text{display:flex;flex-direction:column;gap:6px;min-width:0}
+.home .h-bstrip-tag{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dust)}
+.home .h-bstrip-title{font-family:var(--serif);font-size:clamp(1.5rem,1.2rem + 1.2vw,2.3rem);line-height:1.05;color:var(--bone)}
+.home .h-bstrip-meta{font-size:.95rem;color:var(--dust)}
+.home .h-bstrip-cta{font-family:var(--mono);font-size:clamp(.8rem,.78rem + .1vw,.9rem);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--bone);padding-bottom:6px;border-bottom:1px solid var(--ember);display:inline-flex;gap:10px;transition:gap .3s ease;white-space:nowrap}
+.home .h-bstrip-in:hover .h-bstrip-cta{gap:18px}
+.home .h-bstrip-in:hover .h-bstrip-title{color:var(--dust)}
+.home .h-bstrip-title{transition:color .3s ease}
+@media (max-width:640px){
+  .home .h-bstrip-in{grid-template-columns:auto minmax(0,1fr);row-gap:14px}
+  .home .h-bstrip-cta{grid-column:2;justify-self:start}
+}
+/* --- order buttons in the book band --- */
+.home .h-order{margin-top:clamp(26px,3vw,38px)}
+.home .h-order-label{display:block;font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dust);margin-bottom:12px}
+.home .h-order-btns{display:flex;gap:10px;flex-wrap:wrap}
+.home .h-order-btn{font-family:var(--mono);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;padding:12px 22px;
+  border:1px solid var(--hair);color:var(--bone);transition:border-color .3s ease,background .3s ease}
+.home .h-order-btn:hover{border-color:var(--ember);background:rgba(179,58,43,.12)}
 
 /* --- contact --- */
 .home .h-contact{padding-top:clamp(64px,9vw,118px);border-top:1px solid var(--hair)}
