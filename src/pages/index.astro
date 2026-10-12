@@ -135,6 +135,19 @@ const routes = [
       </div>
     </section>
 
+    <!-- Book strip: a quiet, visible prompt to the order page -->
+    <aside class="wrap h-bstrip" aria-label="The monograph">
+      <a class="h-bstrip-in" href={ORDER_MAIN} target="_blank" rel="noopener">
+        <span class="h-bstrip-cover"><Image src={glitchesCover} alt="" widths={[160, 320]} sizes="88px" /></span>
+        <span class="h-bstrip-text">
+          <span class="h-bstrip-tag">The monograph</span>
+          <span class="h-bstrip-title">Glitches &amp; Glory</span>
+          <span class="h-bstrip-meta">gestalten · 256 pages</span>
+        </span>
+        <span class="h-bstrip-cta">Order the book <span aria-hidden="true">→</span></span>
+      </a>
+    </aside>
+
     <!-- Current work: Istanbul -->
     <section class="wrap h-now" aria-label="Current exhibition">
       {istanbulHero ? (
@@ -166,19 +179,6 @@ const routes = [
         </div>
       )}
     </section>
-
-    <!-- Book strip: a quiet, visible prompt to the order page -->
-    <aside class="wrap h-bstrip" aria-label="The monograph">
-      <a class="h-bstrip-in" href={ORDER_MAIN} target="_blank" rel="noopener">
-        <span class="h-bstrip-cover"><Image src={glitchesCover} alt="" widths={[160, 320]} sizes="88px" /></span>
-        <span class="h-bstrip-text">
-          <span class="h-bstrip-tag">The monograph</span>
-          <span class="h-bstrip-title">Glitches &amp; Glory</span>
-          <span class="h-bstrip-meta">gestalten · 256 pages</span>
-        </span>
-        <span class="h-bstrip-cta">Order the book <span aria-hidden="true">→</span></span>
-      </a>
-    </aside>
 
     <!-- Works -->
     <div class="wrap h-works" id="works">
@@ -362,6 +362,7 @@ const routes = [
 
 /* --- current exhibition --- */
 .home .h-now{margin-top:clamp(76px,10vw,150px)}
+.home .h-bstrip + .h-now{margin-top:clamp(36px,5vw,72px)}
 .home .h-hero{margin:0}
 .home .h-hero img{width:100%;height:auto}
 .home .h-hero-link{display:block}
@@ -436,7 +437,7 @@ const routes = [
 
 
 /* --- book strip (quiet order prompt) --- */
-.home .h-bstrip{padding-top:clamp(28px,4vw,56px)}
+.home .h-bstrip{padding-top:clamp(24px,3vw,44px);padding-bottom:clamp(8px,1.2vw,16px)}
 .home .h-bstrip-in{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:clamp(16px,2.4vw,36px);
   padding:clamp(14px,1.6vw,20px) 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
 .home .h-bstrip-cover{display:block;width:clamp(64px,6vw,88px);line-height:0}
