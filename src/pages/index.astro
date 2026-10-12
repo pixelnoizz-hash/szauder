@@ -108,8 +108,8 @@ const contexts = [
 ];
 
 const routes = [
-  { label: 'Studio enquiries', value: 'davidszauderstudio@gmail.com', href: 'mailto:davidszauderstudio@gmail.com' },
-  { label: 'Press & images', value: 'davidszauderstudio@gmail.com', href: 'mailto:davidszauderstudio@gmail.com' },
+  { label: 'International enquiries', name: 'David Szauder Studio', value: 'davidszauderstudio@gmail.com', href: 'mailto:davidszauderstudio@gmail.com' },
+  { label: 'Italian enquiries', name: 'Anna Pia Lorenzi', value: 'annapialorenzi@art-power.com', href: 'mailto:annapialorenzi@art-power.com' },
   { label: 'Moving image', value: '@davidszauder', href: 'https://www.instagram.com/davidszauder/' },
   { label: 'Bio & CV', value: 'Full biography', href: '/bio' },
 ];
@@ -280,7 +280,7 @@ const routes = [
         {routes.map((r) => (
           <div class="h-route">
             <dt>{r.label}</dt>
-            <dd><a href={r.href}>{r.value}</a></dd>
+            <dd>{r.name && <span class="h-route-name">{r.name}</span>}<a href={r.href}>{r.value}</a></dd>
           </div>
         ))}
       </dl>
@@ -419,6 +419,7 @@ const routes = [
 .home .h-routes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(20px,2.6vw,40px);margin:0;padding-top:28px;border-top:1px solid var(--hair)}
 .home .h-route dt{font-family:var(--mono);font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust);margin-bottom:12px}
 .home .h-route dd{margin:0}
+.home .h-route-name{display:block;font-family:var(--serif);font-size:clamp(1.125rem,1rem + .4vw,1.3rem);color:var(--bone);margin-bottom:6px}
 .home .h-route a{font-family:var(--serif);font-size:clamp(1.125rem,1rem + .4vw,1.3rem);border-bottom:1px solid var(--hair);padding-bottom:3px;
   transition:border-color .3s;overflow-wrap:anywhere}
 .home .h-route a:hover{border-bottom-color:var(--ember)}
