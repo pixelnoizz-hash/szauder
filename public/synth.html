@@ -297,7 +297,7 @@ const SC={moll:[0,2,3,5,7,8,10],dur:[0,2,4,5,7,9,11],dor:[0,2,3,5,7,9,10],mixo:[
 const SCL={moll:'minor',dur:'major',dor:'dorian',mixo:'mixolydian'};
 const mtof=m=>440*Math.pow(2,(m-69)/12);
 const cp=o=>JSON.parse(JSON.stringify(o));
-const ENGS=[['juno','Juno'],['moog','Moog'],['prophet','Prophet'],['dx7','DX7'],['vcs3','VCS3']];
+const ENGS=[['juno','Juno'],['moog','Moog'],['prophet','Prophet'],['dx7','DX7'],['vcs3','VCS3'],['cs80','CS-80']];
 const ENG_L=Object.fromEntries(ENGS);
 const semi=d=>SC[st.sc][((d%7)+7)%7]+12*Math.floor(d/7);
 const LANES=[['k','Kick'],['c','Clap'],['s','Snare'],['h','Hat'],['o','Open hat'],['p','Perc']];
@@ -530,7 +530,8 @@ const SHP={};function shape(a){const k=Math.round(a*20);if(!SHP[k]){const c=new 
 function trig(tr,t,notes,dur,vel){
  if(tr.eng==='dx7')return trigDX(tr,t,notes,dur,vel);
  if(tr.eng==='vcs3')return trigVC(tr,t,notes,dur,vel);
- if(tr.params.x==='dx7'||tr.params.x==='vcs3')return null;
+ if(tr.eng==='cs80')return trigCS(tr,t,notes,dur,vel);
+ if(tr.params.x==='dx7'||tr.params.x==='vcs3'||tr.params.x==='cs80')return null;
  const held=!isFinite(dur);
  const p=tr.params,sc=1/Math.sqrt(notes.length),amp=ctx.createGain(),f1=ctx.createBiquadFilter(),f2=ctx.createBiquadFilter(),srcs=[];
  f1.type=f2.type='lowpass';f1.Q.value=p.res;f2.Q.value=p.lq||0;
@@ -783,10 +784,10 @@ PRE.push(
  vcp('Init Patch','Basic',{cut:1800,res:1,a:.01,d:.4,s:.7,r:.3,ch:1},[[0,3,1],[5,2,.3]])
 );
 const ENG_PRE={
- chord:{juno:'Juno Pad',moog:'Moog Lead',prophet:'Prophet Pad',dx7:'E. Piano',vcs3:'VCS Sweep'},
- bass:{juno:'Juno Bass',moog:'Moog Bass',prophet:'Prophet Bass',dx7:'FM Bass',vcs3:'VCS Sub'},
- arp:{juno:'Italo Arp',moog:'Moog Pluck',prophet:'Prophet Bell',dx7:'Glass Bells',vcs3:'Glass FM'},
- kb:{juno:'Soft Lead',moog:'Moog Lead',prophet:'Prophet Lead',dx7:'E. Piano',vcs3:'VCS Sweep'}
+ chord:{juno:'Juno Pad',moog:'Moog Lead',prophet:'Prophet Pad',dx7:'E. Piano',vcs3:'VCS Sweep',cs80:'CS-80 Billie'},
+ bass:{juno:'Juno Bass',moog:'Moog Bass',prophet:'Prophet Bass',dx7:'FM Bass',vcs3:'VCS Sub',cs80:'CS-80 Bass'},
+ arp:{juno:'Italo Arp',moog:'Moog Pluck',prophet:'Prophet Bell',dx7:'Glass Bells',vcs3:'Glass FM',cs80:'CS-80 Pluck'},
+ kb:{juno:'Soft Lead',moog:'Moog Lead',prophet:'Prophet Lead',dx7:'E. Piano',vcs3:'VCS Sweep',cs80:'CS-80 Vangelis Lead'}
 };
 const firstPreset=(e,m)=>PI(ENG_PRE[m||'chord'][e]);
 
@@ -851,9 +852,67 @@ STYLES.push(
   C:T('Soul Bell Pad','chord','x...............',{ext:4,len:16,vol:.5})}),
  SX(S('80s Pop',117,6,'moll','CS-80 chords',50,['#e8b4a0','#f6d8c8','#8a2a3c'],'linn','rim',[0,0,5,4],.2,.3,
   {k:'x...x...x...x...',s:'....x.......x...',h:'x.x.x.x.x.x.x.x.',p:'..x.....x...x...'},
-  T('CS-80 Soft Chords','chord','x...............',{ext:4,len:16,vol:.6}),
+  T('CS-80 Billie','chord','x...............',{ext:4,len:16,vol:.75}),
   T('Moog Funk','bass','x..x....x..x..x.',{oct:2,len:1,vol:.5,deg:Z({3:0,8:4,11:2,14:0})})),{tape:.1,
   C:T('DX Pop Keys','chord','..x.......x.....',{ext:4,len:1,vol:.6})})
+);
+
+/* ---------- CS-80 engine: two layers, own HP+LP filter per layer, ribbon, vibrato ---------- */
+const csp=(n,g,o)=>Object.assign({n,g,x:'cs80',
+ c1:305,h1:60,f1:2300,a1:.22,r1:.6,
+ c2:520,h2:180,f2:1800,a2:.34,r2:.8,m2:.55,o2:0,
+ res:1.5,d:.9,s:.5,det:6,vib:5,vr:5.2,sw:.4,drv:.1,rib:0,rt:.15,
+ e:.3,v:.4,ch:1},o);
+function trigCS(tr,t,notes,dur,vel){
+ const p=tr.params;if(!p||p.x!=='cs80')return null;
+ const held=!isFinite(dur),sc=1/Math.sqrt(notes.length),srcs=[],envs=[],fq=[];
+ const d=Math.max(p.d,.05),s=p.s;
+ const mas=ctx.createGain();mas.gain.value=.3*vel*sc;
+ let dest=mas;if(p.drv>0){const ws=ctx.createWaveShaper();ws.curve=shape(p.drv);ws.connect(mas);dest=ws}
+ mas.connect(tr.n.inp);
+ /* vibrato LFO, onset delayed like the real thing */
+ const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=p.vr;lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(p.vib,t+.6);lfo.connect(lg);lfo.start(t);srcs.push(lfo);
+ const rmax=Math.max(p.r1,p.r2);
+ const layer=(L)=>{
+  const c=L?p.c2:p.c1,h=L?p.h2:p.h1,fe=L?p.f2:p.f1,a=Math.max(L?p.a2:p.a1,.004),r=Math.max(L?p.r2:p.r1,.03),lvl=L?p.m2:1;
+  if(lvl<=0)return;
+  const hp=ctx.createBiquadFilter(),lp=ctx.createBiquadFilter(),ag=ctx.createGain();
+  hp.type='highpass';hp.frequency.value=Math.max(h,10);hp.Q.value=.7;lp.type='lowpass';lp.Q.value=p.res;
+  const lo=Math.min(Math.max(c,60),16000),pk=Math.min(lo+fe,16000),su=Math.min(Math.max(lo+fe*s,60),16000),sw=Math.min(su*(1+p.sw),16000),q=lp.frequency;
+  q.setValueAtTime(lo,t);q.exponentialRampToValueAtTime(Math.max(pk,lo+1),t+a);q.exponentialRampToValueAtTime(su,t+a+d);if(p.sw>0)q.exponentialRampToValueAtTime(Math.max(sw,su),t+a+d+3);
+  if(!held)q.setTargetAtTime(lo,t+dur,r/3);
+  fq.push([q,lo,r]);
+  ag.gain.setValueAtTime(0,t);ag.gain.linearRampToValueAtTime(lvl,t+a);ag.gain.setTargetAtTime(lvl*s,t+a,d/3);if(!held)ag.gain.setTargetAtTime(0,t+dur,r/3);
+  envs.push([ag.gain,r]);
+  hp.connect(lp);lp.connect(ag);ag.connect(dest);
+  const sg=ctx.createGain(),pg=ctx.createGain();sg.gain.value=.5;pg.gain.value=.22;sg.connect(hp);pg.connect(hp);
+  const dt=(L?-1:1)*p.det,oc=L?p.o2:0;
+  notes.forEach(n=>{
+   const fr=mtof(n);
+   const mk=(type,det,g)=>{const o=ctx.createOscillator();if(type==='pulse')o.setPeriodicWave(PW);else o.type=type;o.frequency.value=fr;
+    const base=det+oc;o.detune.setValueAtTime(base+(p.rib||0)*100,t);if(p.rib)o.detune.linearRampToValueAtTime(base,t+Math.max(p.rt,.02));
+    lg.connect(o.detune);o.connect(g);o.start(t);srcs.push(o)};
+   mk('sawtooth',dt,sg);mk('sawtooth',-dt*.6,sg);mk('pulse',dt*.4,pg);
+  });
+ };
+ layer(0);layer(1);
+ if(!held){const end=t+dur+rmax*2+.1;srcs.forEach(x=>x.stop(end))}
+ const rel=()=>{
+  const rt=ctx.currentTime;
+  envs.forEach(([g,r])=>{cancelHold(g,rt);g.setTargetAtTime(0,rt,r/3)});
+  fq.forEach(([q,lo,r])=>{cancelHold(q,rt);q.setTargetAtTime(lo,rt,r/3)});
+  const end=rt+rmax*2+.1;srcs.forEach(x=>{try{x.stop(end)}catch(e){}});
+ };
+ return{rel,p};
+}
+PRE.push(
+ csp('CS-80 Billie','CS-80',{}),
+ csp('CS-80 Layer Brass','CS-80',{c1:520,f1:4200,a1:.09,r1:.25,c2:900,h2:250,f2:3500,a2:.14,r2:.3,m2:.7,d:.5,s:.7,det:7,vib:7,sw:.5,drv:.25,res:2.5,v:.3}),
+ csp('CS-80 Vangelis Lead','CS-80',{c1:900,f1:3800,a1:.05,r1:.35,c2:1500,h2:300,f2:3000,a2:.09,r2:.45,m2:.6,d:.6,s:.75,det:8,vib:14,vr:5.6,sw:.6,drv:.3,res:3,rib:-2,rt:.14,v:.4,e:.35}),
+ csp('CS-80 Layer Strings','CS-80',{c1:1100,f1:1500,a1:.45,r1:.9,c2:1900,h2:400,f2:1200,a2:.6,r2:1.1,m2:.7,d:.8,s:.8,det:11,vib:6,sw:.2,drv:.05,res:1,v:.5}),
+ csp('CS-80 Pad','CS-80',{c1:420,f1:1700,a1:1.1,r1:1.6,c2:800,h2:150,f2:1500,a2:1.4,r2:2,m2:.8,d:1.5,s:.7,det:9,vib:4,vr:4.6,sw:.7,drv:.05,v:.55,e:.4}),
+ csp('CS-80 Bass','CS-80',{c1:260,h1:30,f1:2600,a1:.006,r1:.15,c2:420,h2:60,f2:1800,a2:.01,r2:.2,m2:.4,d:.3,s:.35,det:4,vib:0,sw:0,drv:.3,res:3,v:.05,e:.1,ch:0}),
+ csp('CS-80 Pluck','CS-80',{c1:700,f1:3500,a1:.003,r1:.3,c2:1400,h2:250,f2:3000,a2:.004,r2:.4,m2:.5,d:.28,s:.05,det:6,vib:3,sw:0,drv:.15,res:2.5,v:.35})
 );
 /* ---------- Felület ---------- */
 const cells={},rowEls={},labEls={},labT={};let ROWS=[];const yk=r=>+r.slice(1);
@@ -1013,7 +1072,7 @@ function renderPanel(){
  st.syn.forEach((t,k)=>{const b=el('button','tab'+(k===st.sel?' act':''),trackLabel(k));b.type='button';b.appendChild(el('small',null,t.params.n));
   b.onclick=()=>{st.sel=k;resetRm();renderPanel()};tabs.appendChild(b)});
  buildPresetSelect();$('#pSel').value=tr.p;
- const an=tr.eng!=='dx7'&&tr.eng!=='vcs3';
+ const an=isAn(tr.eng);
  seg('#mEng',ENGS,()=>tr.eng,v=>{tr.eng=v;setPreset(firstPreset(v,tr.m))});
  $('#advBtn').hidden=!an;$('#advBtn').classList.toggle('on',!!st.adv);$('#advBtn').setAttribute('aria-pressed',!!st.adv);$('#sndDel').hidden=tr.params.g!=='Mine';
  seg('#mMode',[['chord','Chord'],['arp','Arp'],['bass','Bass']],()=>tr.m,v=>{tr.m=v;paintRow('y'+st.sel);renderPanel()});
@@ -1030,6 +1089,7 @@ function renderPanel(){
  if(tr.m==='chord')mkSlider(sb,'Strum',0,90,1,tr.arp.strum|0,v=>v?v+' ms':'off',v=>{tr.arp.strum=v});
  if(tr.m==='arp')mkSlider(sb,'Start note',1,8,1,(tr.arp.start|0)+1,v=>'note '+v,v=>{tr.arp.start=v-1});
  if(tr.eng==='dx7'){mkSlider(sb,'Volume',0,1,.01,tr.vol,v=>Math.round(v*100)+'%',v=>{tr.vol=v;applyTrack(tr)});dxPanel(sb,tr,p)}
+ else if(tr.eng==='cs80'){mkSlider(sb,'Volume',0,1,.01,tr.vol,v=>Math.round(v*100)+'%',v=>{tr.vol=v;applyTrack(tr)});csPanel(sb,tr,p)}
  else if(tr.eng==='vcs3'){mkSlider(sb,'Volume',0,1,.01,tr.vol,v=>Math.round(v*100)+'%',v=>{tr.vol=v;applyTrack(tr)});vcPanel(sb,tr,p)}
  else{
   mkSlider(sb,'Brightness',0,100,1,Math.round(100*Math.log(p.cut/80)/Math.log(100)),v=>Math.round(80*Math.pow(100,v/100))+' Hz',v=>{p.cut=80*Math.pow(100,v/100)});
@@ -1065,7 +1125,8 @@ $('#pitch').addEventListener('pointermove',e=>{if(pdrag)pitchAt(e)});
 ['pointerup','pointercancel','pointerleave'].forEach(n=>$('#pitch').addEventListener(n,()=>{pdrag=false}));
 
 /* presetek */
-function visIdx(tr){const e=tr.eng||'juno',an=e!=='dx7'&&e!=='vcs3';return PRE.map((p,i)=>i).filter(i=>PRE[i].x===e||(an&&PRE[i].x==='any'))}
+const isAn=e=>e!=='dx7'&&e!=='vcs3'&&e!=='cs80';
+function visIdx(tr){const e=tr.eng||'juno',an=isAn(e);return PRE.map((p,i)=>i).filter(i=>PRE[i].x===e||(an&&PRE[i].x==='any'))}
 function buildPresetSelect(){
  const s=$('#pSel');s.innerHTML='';const groups={},tr=st.syn[st.sel];
  visIdx(tr).forEach(i=>{const p=PRE[i];if(!groups[p.g]){groups[p.g]=el('optgroup');groups[p.g].label=p.g;s.appendChild(groups[p.g])}const o=el('option',null,p.n);o.value=i;groups[p.g].appendChild(o)});
@@ -1303,6 +1364,25 @@ function vcPanel(sb,tr,p){
  mkSlider(sb,'Release',.03,4,.01,p.r,v=>v.toFixed(2)+' s',v=>{p.r=v});
  sendSliders(sb,tr,p);
  paintAct();
+}
+
+/* ---------- CS-80 panel ---------- */
+function csPanel(sb,tr,p){
+ const pc=v=>Math.round(v*100)+'%',hz=v=>Math.round(v)+' Hz',sec=v=>v.toFixed(2)+' s';
+ const S=(l,k,mn,mx,sp,f)=>mkSlider(sb,l,mn,mx,sp,p[k],f||pc,v=>{p[k]=v;if(k==='e'||k==='v')applyTrack(tr)});
+ const LG=(l,k,mn,mx,f)=>mkSlider(sb,l,0,100,1,Math.round(100*Math.log(p[k]/mn)/Math.log(mx/mn)),v=>hz(mn*Math.pow(mx/mn,v/100)),v=>{p[k]=mn*Math.pow(mx/mn,v/100)});
+ sb.appendChild(el('div','sub','Layer I'));
+ LG('Cutoff','c1',60,8000);LG('High-pass','h1',20,2000);S('Filter env','f1',0,8000,100,v=>Math.round(v/80)+'%');S('Attack','a1',.004,2.5,.01,sec);S('Release','r1',.05,3,.05,sec);
+ sb.appendChild(el('div','sub','Layer II'));
+ S('Level','m2',0,1,.01);LG('Cutoff','c2',60,8000);LG('High-pass','h2',20,2000);S('Filter env','f2',0,8000,100,v=>Math.round(v/80)+'%');S('Attack','a2',.004,2.5,.01,sec);S('Release','r2',.05,3,.05,sec);
+ S('Octave','o2',0,1200,1200,v=>v?'+1 oct':'unison');
+ sb.appendChild(el('div','sub','Voice'));
+ S('Resonance','res',0,14,.5,v=>v+' dB');S('Decay','d',.05,3,.05,sec);S('Sustain','s',0,1,.01);S('Detune','det',0,30,1,v=>v+' ct');S('Filter swell','sw',0,2,.05);S('Brass drive','drv',0,1,.01);
+ sb.appendChild(el('div','sub','Vibrato & ribbon'));
+ S('Vibrato depth','vib',0,40,1,v=>v+' ct');S('Vibrato rate','vr',.5,9,.1,v=>v.toFixed(1)+' Hz');
+ S('Ribbon slide','rib',-12,12,.5,v=>v?(v>0?'from +':'from ')+v+' st':'off');S('Ribbon time','rt',.02,1,.01,sec);
+ S('Echo send','e',0,1,.01);S('Space send','v',0,1,.01);
+ sb.appendChild(el('p','tip','Two layers like the real CS-80, each with its own high-pass and low-pass. Ribbon: every note slides in from below or above. Filter swell: the filter keeps opening while you hold the chord (the aftertouch feel).'));
 }
 /* ---------- Performance recorder ----------
    A take = the starting state of everything (s0) + a list of moves keyed by step.
