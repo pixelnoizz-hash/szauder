@@ -528,6 +528,17 @@ function hit(r,v,t){const k=KITS[st.kit];if(r==='p')PV[st.pv](t,v);else DR[r](t,
 /* ---------- Szinti ---------- */
 const SHP={};function shape(a){const k=Math.round(a*20);if(!SHP[k]){const c=new Float32Array(512),g=1+k*.4;for(let i=0;i<512;i++){const x=i/256-1;c[i]=Math.tanh(x*g)/Math.tanh(g)}SHP[k]=c}return SHP[k]}
 function trig(tr,t,notes,dur,vel){
+ const v=trig0(tr,t,notes,dur,vel);
+ if(v&&v.upd&&ctx){const fin=isFinite(dur);v.t0=t;v.tOff=fin?t+dur:Infinity;v.end=fin?t+dur+8:Infinity;
+  const L=tr.vs||(tr.vs=[]);L.push(v);if(L.length>48)tr.vs=L.filter(x=>!x.dead&&x.end>ctx.currentTime)}
+ return v;
+}
+function liveUpd(tr){
+ if(!ctx||!tr||!tr.vs)return;const now=ctx.currentTime;
+ tr.vs.forEach(v=>{if(v.dead||v.end<now||v.t0>now||v.tOff<now)return;try{v.upd(now)}catch(e){}});
+}
+function liveAll(){st.syn.forEach(liveUpd)}
+function trig0(tr,t,notes,dur,vel){
  if(tr.eng==='dx7')return trigDX(tr,t,notes,dur,vel);
  if(tr.eng==='vcs3')return trigVC(tr,t,notes,dur,vel);
  if(tr.eng==='cs80')return trigCS(tr,t,notes,dur,vel);
@@ -547,11 +558,18 @@ function trig(tr,t,notes,dur,vel){
   if(p.sq>0)osc('pulse',fr,p.det*.5,gq);
   if(p.sub>0)osc('square',fr/2,0,gb)});
  if(p.nz>0){const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=NB;s.loop=true;g.gain.value=p.nz*sc;s.connect(g);g.connect(f1);s.start(t);if(end==null)srcs.push(s);else s.stop(end)}
- return{amp,f1,f2,lo,p,srcs};
+ const vo={amp,f1,f2,lo,p,srcs};
+ vo.upd=now=>{
+  if(now<t+a+.02)return;
+  const lo2=Math.min(Math.max(p.cut,60),16000),su2=Math.min(Math.max(lo2+p.env*p.s,60),16000);
+  [f1,f2].forEach(f=>{cancelHold(f.frequency,now);f.frequency.setTargetAtTime(su2,now,.05)});
+  f1.Q.value=p.res;f2.Q.value=p.lq||0;vo.lo=lo2;
+ };
+ return vo;
 }
 const cancelHold=(prm,t)=>{if(prm.cancelAndHoldAtTime)prm.cancelAndHoldAtTime(t);else prm.cancelScheduledValues(t)};
 function relVoice(v){
- if(!v)return;if(v.rel){v.rel();return}
+ if(!v)return;v.dead=true;if(v.rel){v.rel();return}
  const rt=ctx.currentTime,p=v.p;
  [v.f1,v.f2].forEach(f=>{cancelHold(f.frequency,rt);f.frequency.setTargetAtTime(v.lo,rt,p.r/3)});
  cancelHold(v.amp.gain,rt);v.amp.gain.setTargetAtTime(0,rt,p.r/3);
@@ -711,7 +729,7 @@ function vcsPins(mx){
 function vcsLoop(mx,s,d){const m=mx.slice();m[s*7+d]=.3;return!vcsPins(m).some(q=>q[0]===s&&q[1]===d)}
 function trigVC(tr,t,notes,dur,vel){
  const p=tr.params;if(!p||!p.mx||p.mx.length<42)return null;
- const held=!isFinite(dur),sc=1/Math.sqrt(notes.length),pins=vcsPins(p.mx),srcs=[],ctl=[];
+ const held=!isFinite(dur),sc=1/Math.sqrt(notes.length),pins=vcsPins(p.mx),srcs=[],ctl=[],fls=[];
  const a=Math.max(p.a||0,.004),d=Math.max(p.d||0,.03),r=Math.max(p.r||0,.03),s=p.s==null?.6:p.s;
  const amp=ctx.createGain(),peak=.34*vel*sc;
  amp.gain.setValueAtTime(0,t);amp.gain.linearRampToValueAtTime(peak,t+a);amp.gain.setTargetAtTime(peak*s,t+a,d/3);
@@ -729,7 +747,7 @@ function trigVC(tr,t,notes,dur,vel){
   const eg=ctx.createGain();eg.gain.setValueAtTime(0,t);eg.gain.linearRampToValueAtTime(1,t+a);eg.gain.setTargetAtTime(s,t+a,d/3);
   if(!held)eg.gain.setTargetAtTime(0,t+dur,r/3);
   cs.connect(eg);ctl.push(eg);
-  const fl=ctx.createBiquadFilter();fl.type='lowpass';fl.frequency.value=cut;fl.Q.value=p.res||0;
+  const fl=ctx.createBiquadFilter();fl.type='lowpass';fl.frequency.value=cut;fl.Q.value=p.res||0;fls.push(fl);
   const mix=ctx.createGain(),dir=ctx.createGain();fl.connect(mix);dir.connect(mix);mix.connect(amp);
   const S=[o1,o2,o3,ng,rg,eg],T=[o1.detune,o2.detune,fl.detune,fl,rg,rg.gain,dir];
   pins.forEach(([si,di,amt])=>{
@@ -743,7 +761,7 @@ function trigVC(tr,t,notes,dur,vel){
   [amp.gain].concat(ctl.map(e=>e.gain)).forEach(prm=>{cancelHold(prm,rt);prm.setTargetAtTime(0,rt,r/3)});
   const end=rt+r*2+.05;srcs.forEach(x=>{try{x.stop(end)}catch(e){}});
  };
- return{rel,p};
+ return{rel,p,upd:now=>{const c=Math.min(Math.max(p.cut||800,40),16000);fls.forEach(f=>{f.frequency.cancelScheduledValues(now);f.frequency.setTargetAtTime(c,now,.05);f.Q.value=p.res||0})}};
 }
 
 /* ---------- Presets for the new engines ---------- */
@@ -872,7 +890,7 @@ function trigCS(tr,t,notes,dur,vel){
  mas.connect(tr.n.inp);
  /* vibrato LFO, onset delayed like the real thing */
  const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=p.vr;lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(p.vib,t+.6);lfo.connect(lg);lfo.start(t);srcs.push(lfo);
- const rmax=Math.max(p.r1,p.r2);
+ const rmax=Math.max(p.r1,p.r2),LS=[];
  const layer=(L)=>{
   const c=L?p.c2:p.c1,h=L?p.h2:p.h1,fe=L?p.f2:p.f1,a=Math.max(L?p.a2:p.a1,.004),r=Math.max(L?p.r2:p.r1,.03),lvl=L?p.m2:1;
   if(lvl<=0)return;
@@ -884,7 +902,7 @@ function trigCS(tr,t,notes,dur,vel){
   fq.push([q,lo,r]);
   ag.gain.setValueAtTime(0,t);ag.gain.linearRampToValueAtTime(lvl,t+a);ag.gain.setTargetAtTime(lvl*s,t+a,d/3);if(!held)ag.gain.setTargetAtTime(0,t+dur,r/3);
   envs.push([ag.gain,r]);
-  hp.connect(lp);lp.connect(ag);ag.connect(dest);
+  LS.push([L,hp,lp]);hp.connect(lp);lp.connect(ag);ag.connect(dest);
   const sg=ctx.createGain(),pg=ctx.createGain();sg.gain.value=.5;pg.gain.value=.22;sg.connect(hp);pg.connect(hp);
   const dt=(L?-1:1)*p.det,oc=L?p.o2:0;
   notes.forEach(n=>{
@@ -903,7 +921,14 @@ function trigCS(tr,t,notes,dur,vel){
   fq.forEach(([q,lo,r])=>{cancelHold(q,rt);q.setTargetAtTime(lo,rt,r/3)});
   const end=rt+rmax*2+.1;srcs.forEach(x=>{try{x.stop(end)}catch(e){}});
  };
- return{rel,p};
+ const upd=now=>{
+  LS.forEach(([L,hp,lp])=>{
+   const c=L?p.c2:p.c1,h=L?p.h2:p.h1,fe=L?p.f2:p.f1,lo=Math.min(Math.max(c,60),16000),su=Math.min(Math.max(lo+fe*p.s,60),16000);
+   cancelHold(lp.frequency,now);lp.frequency.setTargetAtTime(su,now,.05);hp.frequency.setTargetAtTime(Math.max(h,10),now,.05);lp.Q.value=p.res;
+  });
+  lg.gain.setTargetAtTime(p.vib,now,.1);lfo.frequency.setTargetAtTime(p.vr,now,.1);
+ };
+ return{rel,p,upd};
 }
 PRE.push(
  csp('CS-80 Billie','CS-80',{}),
@@ -1106,9 +1131,9 @@ function renderPanel(){
  else if(tr.eng==='cs80'){mkSlider(sb,'Volume',0,1,.01,tr.vol,v=>Math.round(v*100)+'%',v=>{tr.vol=v;applyTrack(tr)});csPanel(sb,tr,p)}
  else if(tr.eng==='vcs3'){mkSlider(sb,'Volume',0,1,.01,tr.vol,v=>Math.round(v*100)+'%',v=>{tr.vol=v;applyTrack(tr)});vcPanel(sb,tr,p)}
  else{
-  mkSlider(sb,'Brightness',0,100,1,Math.round(100*Math.log(p.cut/80)/Math.log(100)),v=>Math.round(80*Math.pow(100,v/100))+' Hz',v=>{p.cut=80*Math.pow(100,v/100)});
-  mkSlider(sb,'Resonance',0,20,.5,p.res,v=>v+' dB',v=>{p.res=v});
-  mkSlider(sb,'Filter env',0,8000,100,p.env,v=>Math.round(v/80)+'%',v=>{p.env=v});
+  mkSlider(sb,'Brightness',0,100,1,Math.round(100*Math.log(p.cut/80)/Math.log(100)),v=>Math.round(80*Math.pow(100,v/100))+' Hz',v=>{p.cut=80*Math.pow(100,v/100);liveUpd(tr)});
+  mkSlider(sb,'Resonance',0,20,.5,p.res,v=>v+' dB',v=>{p.res=v;liveUpd(tr)});
+  mkSlider(sb,'Filter env',0,8000,100,p.env,v=>Math.round(v/80)+'%',v=>{p.env=v;liveUpd(tr)});
   mkSlider(sb,'Release',.05,3,.05,p.r,v=>v.toFixed(2)+' s',v=>{p.r=v});
   mkSlider(sb,'Volume',0,1,.01,tr.vol,v=>Math.round(v*100)+'%',v=>{tr.vol=v;applyTrack(tr)});
   if(st.adv)advSliders(sb,tr,p);
@@ -1370,8 +1395,8 @@ function vcPanel(sb,tr,p){
  G.lfo.push(segF(sb,'LFO',[['sine','Sine'],['triangle','Tri'],['sawtooth','Saw'],['square','Square']],()=>p.o3w,v=>{p.o3w=v}));
  mkSlider(sb,'LFO rate',0,100,1,Math.round(100*Math.log((p.o3f||1)/.05)/Math.log(800)),v=>(.05*Math.pow(800,v/100)).toFixed(2)+' Hz',v=>{p.o3f=.05*Math.pow(800,v/100)});G.lfo.push(L());
  sb.appendChild(el('div','sub','Filter & envelope'));
- mkSlider(sb,'Brightness',0,100,1,Math.round(100*Math.log(p.cut/80)/Math.log(100)),v=>Math.round(80*Math.pow(100,v/100))+' Hz',v=>{p.cut=80*Math.pow(100,v/100)});G.fl.push(L());
- mkSlider(sb,'Resonance',0,24,.5,p.res||0,v=>v+' dB',v=>{p.res=v});G.fl.push(L());
+ mkSlider(sb,'Brightness',0,100,1,Math.round(100*Math.log(p.cut/80)/Math.log(100)),v=>Math.round(80*Math.pow(100,v/100))+' Hz',v=>{p.cut=80*Math.pow(100,v/100);liveUpd(tr)});G.fl.push(L());
+ mkSlider(sb,'Resonance',0,24,.5,p.res||0,v=>v+' dB',v=>{p.res=v;liveUpd(tr)});G.fl.push(L());
  mkSlider(sb,'Attack',.004,3,.01,p.a,v=>v.toFixed(2)+' s',v=>{p.a=v});
  mkSlider(sb,'Decay',.03,4,.01,p.d,v=>v.toFixed(2)+' s',v=>{p.d=v});
  mkSlider(sb,'Sustain',0,1,.01,p.s,pctF,v=>{p.s=v});
@@ -1383,8 +1408,8 @@ function vcPanel(sb,tr,p){
 /* ---------- CS-80 panel ---------- */
 function csPanel(sb,tr,p){
  const pc=v=>Math.round(v*100)+'%',hz=v=>Math.round(v)+' Hz',sec=v=>v.toFixed(2)+' s';
- const S=(l,k,mn,mx,sp,f)=>mkSlider(sb,l,mn,mx,sp,p[k],f||pc,v=>{p[k]=v;if(k==='e'||k==='v')applyTrack(tr)});
- const LG=(l,k,mn,mx,f)=>mkSlider(sb,l,0,100,1,Math.round(100*Math.log(p[k]/mn)/Math.log(mx/mn)),v=>hz(mn*Math.pow(mx/mn,v/100)),v=>{p[k]=mn*Math.pow(mx/mn,v/100)});
+ const S=(l,k,mn,mx,sp,f)=>mkSlider(sb,l,mn,mx,sp,p[k],f||pc,v=>{p[k]=v;if(k==='e'||k==='v')applyTrack(tr);liveUpd(tr)});
+ const LG=(l,k,mn,mx,f)=>mkSlider(sb,l,0,100,1,Math.round(100*Math.log(p[k]/mn)/Math.log(mx/mn)),v=>hz(mn*Math.pow(mx/mn,v/100)),v=>{p[k]=mn*Math.pow(mx/mn,v/100);liveUpd(tr)});
  sb.appendChild(el('div','sub','Layer I'));
  LG('Cutoff','c1',60,8000);LG('High-pass','h1',20,2000);S('Filter env','f1',0,8000,100,v=>Math.round(v/80)+'%');S('Attack','a1',.004,2.5,.01,sec);S('Release','r1',.05,3,.05,sec);
  sb.appendChild(el('div','sub','Layer II'));
@@ -2064,13 +2089,13 @@ function glTick(){
  const p=Math.min(1,(performance.now()-gl.t0)/gl.dur),e=p*p*(3-2*p);
  if(p>=1){finishGlide();return}
  gl.keys.forEach(k=>{const v=glVal(gl.from[k],gl.to[k],e);setPathIn(st,k,v);if(base)base[k]=v});
- afterReplay(gl.keys);
+ afterReplay(gl.keys);liveAll();
 }
 function finishGlide(){
  if(!gl)return;
  const g=gl;clearInterval(g.iv);gl=null;
  g.keys.forEach(k=>{setPathIn(st,k,g.to[k]);if(base)base[k]=g.to[k]});
- afterReplay(g.keys);
+ afterReplay(g.keys);liveAll();
 }
 
 /* ---------- Song view ---------- */
