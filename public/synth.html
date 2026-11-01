@@ -175,7 +175,11 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
 .key.w:first-child{border-left-width:1px}
 .key.b{position:absolute;top:0;height:58%;width:6.4%;transform:translateX(-50%);background:#111;border-radius:0 0 4px 4px;z-index:2}
 .key.dn{background:var(--ac)}
-.kbd.min .krow.main,.kbd.min .keys,.kbd.min .kset{display:none}
+.kbd.min .krow.main,.kbd.min .keys,.kbd.min .kset,.kbd.min .rib{display:none}
+.rib{position:relative;height:26px;margin:2px 0 4px;border-radius:13px;background:linear-gradient(90deg,rgba(0,0,0,.06),rgba(0,0,0,.14) 50%,rgba(0,0,0,.06));border:1px solid rgba(0,0,0,.12);touch-action:none;user-select:none;-webkit-user-select:none;overflow:hidden}
+.rib span{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.45;pointer-events:none}
+.rib i{position:absolute;top:2px;bottom:2px;width:22px;left:calc(50% - 11px);border-radius:11px;background:#1a1a1a;opacity:.85;pointer-events:none}
+.rib.on i{opacity:1}
 </style>
 
 <div class="app">
@@ -276,6 +280,7 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
     <div id="kSet" class="kset" hidden>
       <div class="krow"><span class="lab">Synth</span><div class="seg" id="kEng"></div></div>
       <div class="krow"><button id="kPrev" class="ic" type="button" aria-label="Previous preset">◀</button><select id="kPre" aria-label="Keyboard preset"></select><button id="kNext" class="ic" type="button" aria-label="Next preset">▶</button></div>
+      <div class="krow"><span class="lab">Ribbon</span><div class="seg" id="kRib"></div></div>
       <div class="krow"><span class="lab">Volume</span><input id="kVol" type="range" min="0" max="1" step="0.01" value="0.85" aria-label="Keyboard volume" style="flex:1;min-width:90px"></div>
       <div class="krow"><span class="lab">Chorus</span><div class="seg" id="kCh"></div></div>
       <div class="krow" id="kChordRow"><span class="lab">Chord</span><select id="kChord" aria-label="Chord type"></select></div>
@@ -286,6 +291,7 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
       <div class="seg" id="kMode"></div>
       <div class="koct"><button id="kOm" class="ic" type="button" aria-label="Octave down">−</button><b id="kOv">C3</b><button id="kOp" class="ic" type="button" aria-label="Octave up">+</button></div>
     </div>
+    <div id="rib" class="rib" aria-label="Pitch ribbon"><i></i><span>ribbon</span></div>
     <div id="kKeys" class="keys"></div>
   </div>
 </div>
@@ -488,7 +494,7 @@ function buildGraph(){
  for(let i=0;i<vd.length;i++)vd[i]=(Math.random()*2-1)*.05;
  for(let c=0;c<70;c++){const p0=Math.floor(Math.random()*(vd.length-400)),a0=(.4+Math.random()*.6)*(Math.random()<.5?-1:1),ln=20+Math.floor(Math.random()*160);for(let j=0;j<ln;j++)vd[p0+j]+=a0*Math.exp(-4*j/ln)*(Math.random()*.6+.4)}
  const vs=ctx.createBufferSource();vs.buffer=vb;vs.loop=true;vs.connect(vhp);vhp.connect(vg);vg.connect(comp);vs.start();
- const duck=ctx.createGain();duck.connect(master);ctx.__tp={tdry,twet,tlp,vg};ctx.__duck=duck;
+ const duck=ctx.createGain();duck.connect(master);ctx.__tp={tdry,twet,tlp,vg};ctx.__duck=duck;{const bd=ctx.createConstantSource();bd.offset.value=0;bd.start();ctx.__bend=bd}
  drumBus=ctx.createGain();drumBus.gain.value=.9;drumBus.connect(master);
  echoIn=ctx.createGain();echoDel=ctx.createDelay(2);const fb=ctx.createGain(),lp=ctx.createBiquadFilter();fb.gain.value=.5;lp.type='lowpass';lp.frequency.value=3000;
  echoRet=ctx.createGain();echoIn.connect(echoDel);echoDel.connect(lp);lp.connect(fb);fb.connect(echoDel);lp.connect(echoRet);echoRet.connect(master);
@@ -552,7 +558,7 @@ function trig0(tr,t,notes,dur,vel){
  const gs=ctx.createGain(),gq=ctx.createGain(),gb=ctx.createGain();gs.gain.value=p.saw*.5*sc;gq.gain.value=p.sq*.5*sc;gb.gain.value=p.sub*.5*sc;
  [gs,gq,gb].forEach(g=>g.connect(f1));f1.connect(f2);if(p.drv>0){const ws=ctx.createWaveShaper();ws.curve=shape(p.drv);f2.connect(ws);ws.connect(amp)}else f2.connect(amp);amp.connect(tr.n.inp);
  const end=held?null:t+dur+p.r*2+.05;
- const osc=(type,f,c,g)=>{const o=ctx.createOscillator();if(type==='pulse')o.setPeriodicWave(PW);else o.type=type;o.frequency.value=f;o.detune.value=c+(p.dr?(Math.random()*2-1)*p.dr:0);o.connect(g);o.start(t);if(end==null)srcs.push(o);else o.stop(end)};
+ const osc=(type,f,c,g)=>{const o=ctx.createOscillator();if(type==='pulse')o.setPeriodicWave(PW);else o.type=type;o.frequency.value=f;o.detune.value=c+(p.dr?(Math.random()*2-1)*p.dr:0);if(ctx.__bend)ctx.__bend.connect(o.detune);o.connect(g);o.start(t);if(end==null)srcs.push(o);else o.stop(end)};
  notes.forEach(n=>{const fr=mtof(n);
   if(p.saw>0){osc('sawtooth',fr,p.det,gs);if(p.det>0)osc('sawtooth',fr,-p.det,gs)}
   if(p.sq>0)osc('pulse',fr,p.det*.5,gq);
@@ -738,8 +744,8 @@ function trigVC(tr,t,notes,dur,vel){
  const PS=[1200,1200,400,1200,1200,2400],CS=[2400,2400,2400,2400,2400,4800],cut=Math.min(Math.max(p.cut||800,40),16000);
  notes.forEach(nt=>{
   const f0=mtof(nt);
-  const mk=(type,fr,det)=>{const o=ctx.createOscillator();if(type==='pulse')o.setPeriodicWave(PW);else o.type=type;o.frequency.value=fr;o.detune.value=det||0;o.start(t);srcs.push(o);return o};
-  const o1=mk(p.o1w||'sawtooth',f0),o2=mk(p.o2w||'sawtooth',f0*Math.pow(2,(p.o2s||0)/12),p.o2d),o3=mk(p.o3w||'sine',Math.max(p.o3f||1,.01));
+  const mk=(type,fr,det,bn)=>{const o=ctx.createOscillator();if(bn&&ctx.__bend)ctx.__bend.connect(o.detune);if(type==='pulse')o.setPeriodicWave(PW);else o.type=type;o.frequency.value=fr;o.detune.value=det||0;o.start(t);srcs.push(o);return o};
+  const o1=mk(p.o1w||'sawtooth',f0,0,1),o2=mk(p.o2w||'sawtooth',f0*Math.pow(2,(p.o2s||0)/12),p.o2d,1),o3=mk(p.o3w||'sine',Math.max(p.o3f||1,.01));
   const nz=ctx.createBufferSource();nz.buffer=NB;nz.loop=true;nz.start(t,Math.random()*.5);srcs.push(nz);
   const ng=ctx.createGain();ng.gain.value=.6;nz.connect(ng);
   const rg=ctx.createGain();rg.gain.value=0;
@@ -909,7 +915,7 @@ function trigCS(tr,t,notes,dur,vel){
    const fr=mtof(n);
    const mk=(type,det,g)=>{const o=ctx.createOscillator();if(type==='pulse')o.setPeriodicWave(PW);else o.type=type;o.frequency.value=fr;
     const base=det+oc;o.detune.setValueAtTime(base+(p.rib||0)*100,t);if(p.rib)o.detune.linearRampToValueAtTime(base,t+Math.max(p.rt,.02));
-    lg.connect(o.detune);o.connect(g);o.start(t);srcs.push(o)};
+    lg.connect(o.detune);if(ctx.__bend)ctx.__bend.connect(o.detune);o.connect(g);o.start(t);srcs.push(o)};
    mk('sawtooth',dt,sg);mk('sawtooth',-dt*.6,sg);mk('pulse',dt*.4,pg);
   });
  };
@@ -1835,6 +1841,19 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(k in QK)kbRelease('k'+k)});
 buildKb();
+
+/* ---------- Ribbon (live pitch bend for all sounding voices) ---------- */
+(function(){
+ let rng=7,down=false;const R=$('#rib'),th=R.querySelector('i');
+ const move=v=>{th.style.left='calc('+(50+v*50)+'% - '+(11+v*11)+'px)'};
+ const set=(v,tc)=>{move(v);if(ctx&&ctx.__bend)ctx.__bend.offset.setTargetAtTime(v*rng*100,ctx.currentTime,tc)};
+ const at=e=>{const r=R.getBoundingClientRect();return Math.max(-1,Math.min(1,((e.clientX-r.left)/r.width)*2-1))};
+ R.addEventListener('pointerdown',e=>{ensureAudio();down=true;R.classList.add('on');try{R.setPointerCapture(e.pointerId)}catch(_){}set(at(e),.015)});
+ R.addEventListener('pointermove',e=>{if(down)set(at(e),.015)});
+ const up=()=>{if(!down)return;down=false;R.classList.remove('on');set(0,.12)};
+ ['pointerup','pointercancel','lostpointercapture'].forEach(n=>R.addEventListener(n,up));
+ seg('#kRib',[[2,'±2'],[7,'±7'],[12,'±12']],()=>rng,v=>{rng=v});
+})();
 /* ---------- Patterns ----------
    A pattern is the musical content of the grid: drum steps, every track's steps,
    pitches, mode and the chord bars. Sounds are shared: st.pb holds the base
