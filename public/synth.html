@@ -839,7 +839,11 @@ function mkSlider(box,label,min,max,step,val,fmt,onIn){
  r.type='range';r.min=min;r.max=max;r.step=step;r.value=val;r.setAttribute('aria-label',label);o.textContent=fmt(+val);
  r.oninput=()=>{const v=+r.value;o.textContent=fmt(v);onIn(v)};w.append(l,r,o);box.appendChild(w);
 }
+function paintLabels(){
+ ROWS.forEach(r=>{if(r[0]!=='y'||!labT[r])return;const k=yk(r),t=st.syn[k];if(!t)return;labT[r].textContent=trackLabel(k);labEls[r].textContent=t.params.n});
+}
 function renderPanel(){
+ paintLabels();
  const tr=st.syn[st.sel],tabs=$('#tabs');tabs.innerHTML='';
  st.syn.forEach((t,k)=>{const b=el('button','tab'+(k===st.sel?' act':''),trackLabel(k));b.type='button';b.appendChild(el('small',null,t.params.n));
   b.onclick=()=>{st.sel=k;resetRm();renderPanel()};tabs.appendChild(b)});
