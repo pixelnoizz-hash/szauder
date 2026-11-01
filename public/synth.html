@@ -191,6 +191,7 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
 .rib span{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.45;pointer-events:none}
 .rib i{position:absolute;top:2px;bottom:2px;width:22px;left:calc(50% - 11px);border-radius:11px;background:#1a1a1a;opacity:.85;pointer-events:none}
 .rib.on i{opacity:1}
+#mEng,#kEng{flex-wrap:wrap;border-radius:16px}
 </style>
 
 <div class="app">
@@ -320,7 +321,7 @@ const SC={moll:[0,2,3,5,7,8,10],dur:[0,2,4,5,7,9,11],dor:[0,2,3,5,7,9,10],mixo:[
 const SCL={moll:'minor',dur:'major',dor:'dorian',mixo:'mixolydian'};
 const mtof=m=>440*Math.pow(2,(m-69)/12);
 const cp=o=>JSON.parse(JSON.stringify(o));
-const ENGS=[['juno','Juno'],['moog','Moog'],['prophet','Prophet'],['dx7','DX7'],['vcs3','VCS3'],['cs80','CS-80']];
+const ENGS=[['juno','Juno'],['moog','Moog'],['prophet','Prophet'],['dx7','DX7'],['vcs3','VCS3'],['cs80','CS-80'],['bar','Baroque'],['mel','Mello']];
 const ENG_L=Object.fromEntries(ENGS);
 const semi=d=>SC[st.sc][((d%7)+7)%7]+12*Math.floor(d/7);
 const LANES=[['k','Kick'],['c','Clap'],['s','Snare'],['h','Hat'],['o','Open hat'],['p','Perc']];
@@ -579,7 +580,9 @@ function trig0(tr,t,notes,dur,vel){
  if(tr.eng==='dx7')return trigDX(tr,t,notes,dur,vel);
  if(tr.eng==='vcs3')return trigVC(tr,t,notes,dur,vel);
  if(tr.eng==='cs80')return trigCS(tr,t,notes,dur,vel);
- if(tr.params.x==='dx7'||tr.params.x==='vcs3'||tr.params.x==='cs80')return null;
+ if(tr.eng==='bar')return trigBar(tr,t,notes,dur,vel);
+ if(tr.eng==='mel')return trigMel(tr,t,notes,dur,vel);
+ if(tr.params.x==='dx7'||tr.params.x==='vcs3'||tr.params.x==='cs80'||tr.params.x==='bar'||tr.params.x==='mel')return null;
  const held=!isFinite(dur);
  const p=tr.params,sc=1/Math.sqrt(notes.length),amp=ctx.createGain(),f1=ctx.createBiquadFilter(),f2=ctx.createBiquadFilter(),srcs=[];
  f1.type=f2.type='lowpass';f1.Q.value=p.res;f2.Q.value=p.lq||0;
@@ -844,10 +847,10 @@ PRE.push(
  vcp('Init Patch','Basic',{cut:1800,res:1,a:.01,d:.4,s:.7,r:.3,ch:1},[[0,3,1],[5,2,.3]])
 );
 const ENG_PRE={
- chord:{juno:'Juno Pad',moog:'Moog Lead',prophet:'Prophet Pad',dx7:'E. Piano',vcs3:'VCS Sweep',cs80:'CS-80 Billie'},
- bass:{juno:'Juno Bass',moog:'Moog Bass',prophet:'Prophet Bass',dx7:'FM Bass',vcs3:'VCS Sub',cs80:'CS-80 Bass'},
- arp:{juno:'Italo Arp',moog:'Moog Pluck',prophet:'Prophet Bell',dx7:'Glass Bells',vcs3:'Glass FM',cs80:'CS-80 Pluck'},
- kb:{juno:'Soft Lead',moog:'Moog Lead',prophet:'Prophet Lead',dx7:'E. Piano',vcs3:'VCS Sweep',cs80:'CS-80 Vangelis Lead'}
+ chord:{juno:'Juno Pad',moog:'Moog Lead',prophet:'Prophet Pad',dx7:'E. Piano',vcs3:'VCS Sweep',cs80:'CS-80 Billie',bar:'Organ Principal',mel:'Mello Strings'},
+ bass:{juno:'Juno Bass',moog:'Moog Bass',prophet:'Prophet Bass',dx7:'FM Bass',vcs3:'VCS Sub',cs80:'CS-80 Bass',bar:'Organ Pedal',mel:'Mello Cello'},
+ arp:{juno:'Italo Arp',moog:'Moog Pluck',prophet:'Prophet Bell',dx7:'Glass Bells',vcs3:'Glass FM',cs80:'CS-80 Pluck',bar:'Harpsichord',mel:'Mello Flute'},
+ kb:{juno:'Soft Lead',moog:'Moog Lead',prophet:'Prophet Lead',dx7:'E. Piano',vcs3:'VCS Sweep',cs80:'CS-80 Vangelis Lead',bar:'Organ Full',mel:'Mello Choir'}
 };
 const firstPreset=(e,m)=>PI(ENG_PRE[m||'chord'][e]);
 
@@ -1009,6 +1012,120 @@ STYLES.push(
   T('Moog Sub','bass','x.........x.',{oct:2,len:4,vol:.8,deg:Z({0:0,10:4})})),{tri:1,hum:10,tape:.15,pump:.2,
   C:T('Glass Bells','arp','x.x.x.x.x.x.',{ext:3,oct:5,vol:.4,arp:CH({dir:'up',gate:.5})})})
 );
+
+/* ---------- Baroque engine (organ + harpsichord) and Mellotron engine ---------- */
+const BAR_HN=[1,3,2,4,6,8,10,12,16],BAR_DB=["16'","5⅓'","8'","4'","2⅔'","2'","1⅗'","1⅓'","1'"];
+function barWave(key,f){const c=ctx.__bw||(ctx.__bw={});if(!c[key]){const im=new Float32Array(33);f(im);c[key]=ctx.createPeriodicWave(new Float32Array(33),im)}return c[key]}
+function trigBar(tr,t,notes,dur,vel){
+ const p=tr.params;if(!p||p.x!=='bar')return null;
+ const held=!isFinite(dur),org=p.k==='org',sc=1/Math.sqrt(notes.length),srcs=[],envs=[];
+ const mas=ctx.createGain();mas.gain.value=.3*vel*sc*(1-CV('fm')*.3);
+ let dest=mas;const dv=Math.min(1,(p.drv||0)+CV('fm')*.8);if(dv>0){const ws=ctx.createWaveShaper();ws.curve=shape(dv);ws.connect(mas);dest=ws}
+ mas.connect(tr.n.inp);
+ const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.Q.value=.5;lp.frequency.value=p.cut;
+ if(!org){lp.frequency.setValueAtTime(Math.min(p.cut*2.2,16000),t);lp.frequency.exponentialRampToValueAtTime(Math.max(p.cut*.8,200),t+.25)}
+ if(!org&&p.nas>0){const pk=ctx.createBiquadFilter();pk.type='peaking';pk.frequency.value=1500;pk.Q.value=1.2;pk.gain.value=p.nas*10;lp.connect(pk);pk.connect(dest)}else lp.connect(dest);
+ let lg=null;
+ if(org&&p.les>0){const lfo=ctx.createOscillator();lg=ctx.createGain();lfo.frequency.value=p.lr;lg.gain.value=p.les;lfo.connect(lg);lfo.start(t);srcs.push(lfo)}
+ const a=Math.max(p.a||.005,.003),r=Math.max(p.r||.07,.02);
+ let wv=null;
+ if(org){const key='o'+p.db.join('');wv=barWave(key,im=>{p.db.forEach((v,i)=>{im[BAR_HN[i]]+=v/8})})}
+ else{const key='h'+Math.round(p.r4*20);wv=barWave(key,im=>{for(let n=1;n<33;n++)im[n]=1/n+(n%2===0?p.r4*2/n:0)})}
+ let tail=r*2+.1;
+ notes.forEach(n=>{
+  const fr=mtof(n),ng=ctx.createGain(),o=ctx.createOscillator();o.setPeriodicWave(wv);o.frequency.value=org?fr/2:fr;
+  if(lg)lg.connect(o.detune);bendConn(o);o.connect(ng);ng.connect(lp);o.start(t);srcs.push(o);envs.push(ng.gain);
+  if(org){
+   ng.gain.setValueAtTime(0,t);ng.gain.linearRampToValueAtTime(1,t+a);if(!held)ng.gain.setTargetAtTime(0,t+dur,r/3);
+   if(p.perc>0){const po=ctx.createOscillator(),pg=ctx.createGain();po.frequency.value=fr*3;pg.gain.setValueAtTime(p.perc*.6,t);pg.gain.setTargetAtTime(0,t,.09);po.connect(pg);pg.connect(lp);po.start(t);po.stop(t+.8);if(lg)lg.connect(po.detune)}
+   if(p.clk>0)nzBurst(t,.012,'highpass',2200,p.clk*.5,lp);
+  }else{
+   const dec=Math.min(4,Math.max(.15,p.dec*Math.pow(262/fr,.4))),dl=dec*2.4+.1;
+   ng.gain.setValueAtTime(0,t);ng.gain.linearRampToValueAtTime(1,t+.002);ng.gain.setTargetAtTime(0,t+.002,dec/3);
+   if(!held)ng.gain.setTargetAtTime(0,t+dur,r/3);
+   tail=Math.min(Math.max(tail,0),dl+dur);
+   if(p.pl>0)nzBurst(t,.02,'bandpass',1800,p.pl*.7,lp);
+  }
+ });
+ if(!held){const end=org?t+dur+r*2+.1:t+Math.min(dur+r*2+.1,Math.min(4,Math.max(.15,p.dec))*2.4+.2);srcs.forEach(x=>x.stop(end))}
+ const rel=()=>{const rt=ctx.currentTime;envs.forEach(g=>{cancelHold(g,rt);g.setTargetAtTime(0,rt,r/3)});srcs.forEach(x=>{try{x.stop(rt+r*2+.1)}catch(e){}})};
+ return{rel,p};
+}
+function nzBurst(t,d,type,f,g,dest){const s=ctx.createBufferSource(),fl=ctx.createBiquadFilter(),a=ctx.createGain();s.buffer=NB;fl.type=type;fl.frequency.value=f;fl.Q.value=.8;a.gain.setValueAtTime(g,t);a.gain.exponentialRampToValueAtTime(.001,t+d);s.connect(fl);fl.connect(a);a.connect(dest);s.start(t,Math.random()*.5);s.stop(t+d+.03)}
+const MEL_F=[[[700,6,1],[1150,8,.6],[2600,10,.3]],[[320,6,1],[800,8,.35],[2500,10,.1]]];
+function trigMel(tr,t,notes,dur,vel){
+ const p=tr.params;if(!p||p.x!=='mel')return null;
+ const held=!isFinite(dur),sc=1/Math.sqrt(notes.length),srcs=[],envs=[];
+ const mx=Math.max(p.mx||8,.5),d2=Math.max(.06,held?mx:Math.min(dur,mx)),tend=t+d2,a=Math.max(p.a,.005),r=Math.max(p.r,.03);
+ const mas=ctx.createGain();mas.gain.value=.3*vel*sc*(1-CV('fm')*.3);mas.connect(tr.n.inp);
+ const ws=ctx.createWaveShaper();ws.curve=shape(Math.min(1,(p.sat||0)+CV('fm')*.8));ws.connect(mas);
+ const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.Q.value=.7;lp.frequency.value=p.cut;lp.connect(ws);
+ const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=p.fr*(.9+Math.random()*.2);lg.gain.value=p.fl+CV('pi')*50;lfo.connect(lg);lfo.start(t);srcs.push(lfo);
+ const wv=p.k==='flute'?barWave('mf',im=>{im[1]=1;im[2]=.2;im[3]=.07;im[4]=.02}):null;
+ const vw=Math.max(0,Math.min(1,p.vw||0));
+ notes.forEach(n=>{
+  const fr=mtof(n+(p.oc||0)),ng=ctx.createGain();envs.push(ng.gain);
+  ng.gain.setValueAtTime(0,t);ng.gain.linearRampToValueAtTime(1,t+a);ng.gain.setTargetAtTime(0,tend,r/3);
+  const curve=base=>{const m=8,c=new Float32Array(m),w=p.wo+CV('pi')*80;for(let i=0;i<m;i++)c[i]=base+(Math.random()*2-1)*w;return c};
+  const mk=(type,base)=>{const o=ctx.createOscillator();if(wv)o.setPeriodicWave(wv);else o.type=type;o.frequency.value=fr;o.detune.setValueCurveAtTime(curve(base),t,d2);lg.connect(o.detune);bendConn(o);o.start(t);srcs.push(o);return o};
+  if(p.k==='choir'){
+   const bus=ctx.createGain();bus.gain.value=.5;mk('sawtooth',p.det).connect(bus);mk('sawtooth',-p.det).connect(bus);
+   MEL_F[0].forEach((f0,i)=>{const f1=MEL_F[1][i],bp=ctx.createBiquadFilter(),g=ctx.createGain();bp.type='bandpass';bp.frequency.value=f0[0]+(f1[0]-f0[0])*vw;bp.Q.value=f0[1];g.gain.value=(f0[2]+(f1[2]-f0[2])*vw)*1.6;bus.connect(bp);bp.connect(g);g.connect(ng)});
+  }else if(p.k==='flute'){mk('sine',0).connect(ng)}
+  else{const g=ctx.createGain();g.gain.value=.5;mk('sawtooth',p.det).connect(g);mk('sawtooth',-p.det).connect(g);g.connect(ng)}
+  ng.connect(lp);
+  if(p.br>0&&p.k!=='str'){const s=ctx.createBufferSource(),bf=ctx.createBiquadFilter(),bg=ctx.createGain();s.buffer=NB;s.loop=true;bf.type='bandpass';bf.frequency.value=p.k==='flute'?3200:2200;bf.Q.value=1.2;bg.gain.value=p.br*.12;s.connect(bf);bf.connect(bg);bg.connect(ng);s.start(t,Math.random()*.5);srcs.push(s)}
+ });
+ const end=tend+r*2+.1;srcs.forEach(x=>x.stop(end));
+ const rel=()=>{const rt=ctx.currentTime;if(rt>=tend)return;envs.forEach(g=>{cancelHold(g,rt);g.setTargetAtTime(0,rt,r/3)});srcs.forEach(x=>{try{x.stop(rt+r*2+.1)}catch(e){}})};
+ return{rel,p};
+}
+const bap=(n,g,o)=>Object.assign({n,g,x:'bar',k:'org',db:[0,0,8,0,0,0,0,0,0],perc:0,clk:.25,les:6,lr:5.4,drv:0,cut:7000,a:.01,r:.07,r4:.5,nas:.3,dec:1.4,pl:.3,e:.25,v:.35,ch:0},o);
+const mep=(n,g,o)=>Object.assign({n,g,x:'mel',k:'str',cut:3200,fl:7,fr:5.6,wo:9,sat:.35,a:.03,r:.16,mx:8,det:7,vw:0,br:.2,oc:0,e:.3,v:.45,ch:1},o);
+PRE.push(
+ bap('Organ Full','Organ',{db:[8,8,8,0,0,0,0,0,0],les:8,perc:.4,clk:.3,drv:.1}),
+ bap('Organ Principal','Organ',{db:[0,0,8,8,0,6,0,0,3],les:4,clk:.2,cut:6000,v:.4}),
+ bap('Organ Flute','Organ',{db:[0,0,8,0,0,3,0,0,0],les:3,clk:.15,cut:4500,a:.02,v:.4}),
+ bap('Organ Plenum','Organ',{db:[4,0,8,8,6,7,5,5,6],les:5,clk:.25,drv:.15,cut:9000,v:.4}),
+ bap('Organ Pedal','Organ',{db:[8,0,8,0,0,0,0,0,0],les:0,clk:.4,cut:900,r:.1,e:.05,v:.1}),
+ bap('Harpsichord','Harpsichord',{k:'har',r4:.6,nas:.3,cut:5200,dec:1.4,pl:.35,r:.06}),
+ bap('Harpsichord Lute','Harpsichord',{k:'har',r4:.1,nas:.8,cut:3200,dec:.9,pl:.2,r:.05}),
+ bap('Harpsichord Bright','Harpsichord',{k:'har',r4:1,nas:.2,cut:8000,dec:1.8,pl:.45,r:.07}),
+ mep('Mello Strings','Mellotron',{}),
+ mep('Mello Cello','Mellotron',{cut:1500,a:.05,det:5,oc:-12,fl:5,wo:8}),
+ mep('Mello Choir','Mellotron',{k:'choir',cut:5000,det:5,vw:.2,br:.4,a:.04,r:.2,wo:11}),
+ mep('Mello Flute','Mellotron',{k:'flute',cut:6000,fl:9,br:.6,a:.025,r:.12,sat:.2}),
+ mep('Mello Warped','Mellotron',{cut:1800,fl:14,wo:30,sat:.6,det:12,mx:6,v:.55})
+);
+function barPanel(sb,tr,p){
+ const pc=v=>Math.round(v*100)+'%',sec=v=>v.toFixed(2)+' s',hz=v=>Math.round(v)+' Hz';
+ const S=(l,k,mn,mx,sp,f)=>mkSlider(sb,l,mn,mx,sp,p[k],f||pc,v=>{p[k]=v;if(k==='e'||k==='v')applyTrack(tr)});
+ if(p.k==='org'){
+  sb.appendChild(el('div','sub','Drawbars'));
+  BAR_DB.forEach((nm,i)=>mkSlider(sb,nm,0,8,1,p.db[i],v=>String(v),v=>{p.db[i]=v}));
+  sb.appendChild(el('div','sub','Organ'));
+  S('Percussion','perc',0,1,.01);S('Key click','clk',0,1,.01);S('Leslie depth','les',0,40,1,v=>v+' ct');S('Leslie speed','lr',.8,7,.1,v=>v.toFixed(1)+' Hz');S('Drive','drv',0,1,.01);
+  S('Tone','cut',500,12000,100,hz);S('Attack','a',.003,.3,.005,sec);S('Release','r',.02,1,.01,sec);
+ }else{
+  sb.appendChild(el('div','sub','Harpsichord'));
+  S('4\' register','r4',0,1,.01);S('Nasal (lute stop)','nas',0,1,.01);S('Brightness','cut',800,12000,100,hz);S('Decay','dec',.2,4,.05,sec);S('Pluck click','pl',0,1,.01);S('Damper','r',.02,.6,.01,sec);S('Drive','drv',0,1,.01);
+ }
+ S('Echo send','e',0,1,.01);S('Space send','v',0,1,.01);
+ sb.appendChild(el('p','tip',p.k==='org'?'Nine drawbars like a tonewheel organ: the 16\' bar sounds an octave below the key. Leslie is the slow pitch wobble of the rotating speaker.':'A plucked 8\' and 4\' register. The tone starts bright and mellows as it decays; the nasal control is the lute stop.'));
+}
+function melPanel(sb,tr,p){
+ const pc=v=>Math.round(v*100)+'%',sec=v=>v.toFixed(2)+' s',hz=v=>Math.round(v)+' Hz',ct=v=>v+' ct';
+ const S=(l,k,mn,mx,sp,f)=>mkSlider(sb,l,mn,mx,sp,p[k],f||pc,v=>{p[k]=v;if(k==='e'||k==='v')applyTrack(tr)});
+ sb.appendChild(el('div','sub','Tape'));
+ S('Tone','cut',500,10000,100,hz);S('Flutter','fl',0,40,1,ct);S('Flutter speed','fr',2,9,.1,v=>v.toFixed(1)+' Hz');S('Wow','wo',0,60,1,ct);S('Saturation','sat',0,1,.01);S('Tape length','mx',1,8,.5,v=>v+' s');
+ sb.appendChild(el('div','sub','Voice'));
+ if(p.k!=='flute')S('Detune','det',0,30,1,ct);
+ if(p.k==='choir')S('Vowel (ah to oo)','vw',0,1,.01);
+ if(p.k!=='str')S('Breath','br',0,1,.01);
+ S('Attack','a',.005,.6,.005,sec);S('Release','r',.03,1.5,.01,sec);S('Transpose','oc',-24,12,12,v=>v?v+' st':'off');
+ S('Echo send','e',0,1,.01);S('Space send','v',0,1,.01);
+ sb.appendChild(el('p','tip','Emulates the tape-replay keyboard: a note runs out after the tape length, and the pitch wobbles with wow and flutter. Corruption makes the tape wander further.'));
+}
 /* ---------- Felület ---------- */
 const cells={},rowEls={},labEls={},labT={};let ROWS=[];const yk=r=>+r.slice(1);
 const root=document.documentElement;
@@ -1195,6 +1312,8 @@ function renderPanel(){
  if(tr.m==='arp')mkSlider(sb,'Start note',1,8,1,(tr.arp.start|0)+1,v=>'note '+v,v=>{tr.arp.start=v-1});
  if(tr.eng==='dx7'){mkSlider(sb,'Volume',0,1,.01,tr.vol,v=>Math.round(v*100)+'%',v=>{tr.vol=v;applyTrack(tr)});dxPanel(sb,tr,p)}
  else if(tr.eng==='cs80'){mkSlider(sb,'Volume',0,1,.01,tr.vol,v=>Math.round(v*100)+'%',v=>{tr.vol=v;applyTrack(tr)});csPanel(sb,tr,p)}
+ else if(tr.eng==='bar'){mkSlider(sb,'Volume',0,1,.01,tr.vol,v=>Math.round(v*100)+'%',v=>{tr.vol=v;applyTrack(tr)});barPanel(sb,tr,p)}
+ else if(tr.eng==='mel'){mkSlider(sb,'Volume',0,1,.01,tr.vol,v=>Math.round(v*100)+'%',v=>{tr.vol=v;applyTrack(tr)});melPanel(sb,tr,p)}
  else if(tr.eng==='vcs3'){mkSlider(sb,'Volume',0,1,.01,tr.vol,v=>Math.round(v*100)+'%',v=>{tr.vol=v;applyTrack(tr)});vcPanel(sb,tr,p)}
  else{
   mkSlider(sb,'Brightness',0,100,1,Math.round(100*Math.log(p.cut/80)/Math.log(100)),v=>Math.round(80*Math.pow(100,v/100))+' Hz',v=>{p.cut=80*Math.pow(100,v/100);liveUpd(tr)});
@@ -1230,7 +1349,7 @@ $('#pitch').addEventListener('pointermove',e=>{if(pdrag)pitchAt(e)});
 ['pointerup','pointercancel','pointerleave'].forEach(n=>$('#pitch').addEventListener(n,()=>{pdrag=false}));
 
 /* presetek */
-const isAn=e=>e!=='dx7'&&e!=='vcs3'&&e!=='cs80';
+const isAn=e=>e!=='dx7'&&e!=='vcs3'&&e!=='cs80'&&e!=='bar'&&e!=='mel';
 function visIdx(tr){const e=tr.eng||'juno',an=isAn(e);return PRE.map((p,i)=>i).filter(i=>PRE[i].x===e||(an&&PRE[i].x==='any'))}
 function buildPresetSelect(){
  const s=$('#pSel');s.innerHTML='';const groups={},tr=st.syn[st.sel];
@@ -2558,9 +2677,12 @@ function applyDrum(i){
 /* ---------- Arrange: analysis, sections and recipes for any imported piece ---------- */
 const ARR_CH=8; /* section grain in beats */
 const REC=[
- {n:'Dark cinematic',d:'Slow and wide. Strings and a heavy bass; drums only arrive at the peak.',bpm:70,
-  dr:[null,'Slow pulse','Half-time'],snd:{lead:'CS-80 Vangelis Lead',mid:'CS-80 Layer Strings',bass:'CS-80 Bass'},
+ {n:'Dark cinematic',d:'Slow and wide. Tape choir and strings over a heavy bass; drums only arrive at the peak.',bpm:70,
+  dr:[null,'Slow pulse','Half-time'],snd:{lead:'Mello Choir',mid:'Mello Strings',bass:'CS-80 Bass'},
   vol:{lead:[.55,.7,.8],mid:[.5,.65,.75],bass:[.6,.7,.8]},cor:[.04,.18,.4,.75],fx:{rev:.55,echo:.25,tape:.35,pump:0}},
+ {n:'Baroque machine',d:'Harpsichord, church organ and an organ pedal. Clean and mechanical, with sparse ticking drums.',bpm:92,
+  dr:[null,'Tick tock','Minimal'],snd:{lead:'Harpsichord',mid:'Organ Principal',bass:'Organ Pedal'},
+  vol:{lead:[.6,.7,.8],mid:[.4,.5,.55],bass:[.5,.6,.65]},cor:[.02,.12,.3,.7],fx:{rev:.5,echo:.15,tape:.1,pump:0}},
  {n:'Techno',d:'Straight kick, dark pad, sub bass. Builds from a minimal groove to an industrial peak.',bpm:128,
   dr:['Minimal','Driving','Industrial'],snd:{lead:'Prophet Lead',mid:'Dark Pad',bass:'Moog Sub'},
   vol:{lead:[.5,.65,.75],mid:[.45,.55,.6],bass:[.65,.75,.8]},cor:[0,.12,.3,.6],fx:{rev:.25,echo:.3,tape:.1,pump:.5}},
@@ -2578,12 +2700,12 @@ const KMAJ=[6.35,2.23,3.48,2.33,4.38,4.09,2.52,5.19,2.39,3.66,2.29,2.88],KMIN=[6
 function arrRolls(){return st.syn.map((t,k)=>({t,k})).filter(x=>x.t.m==='roll'&&x.t.notes&&x.t.notes.length)}
 function arrAnalyze(){
  const R=arrRolls();if(!R.length)return null;
- const mean=t=>t.notes.reduce((s,e)=>s+e[2],0)/t.notes.length;
+ const NS=t=>t.src||t.notes,mean=t=>NS(t).reduce((s,e)=>s+e[2],0)/NS(t).length;
  const rk=R.slice().sort((a,b)=>mean(a.t)-mean(b.t)),role={};
  rk.forEach((x,i)=>{role[x.k]=rk.length===1?'lead':i===0?'bass':i===rk.length-1?'lead':'mid'});
- let tot=0;R.forEach(x=>{const l=x.t.notes[x.t.notes.length-1];tot=Math.max(tot,l[0]+l[1])});
+ let tot=0;R.forEach(x=>{const nn=NS(x.t),l=nn[nn.length-1];tot=Math.max(tot,l[0]+l[1])});
  const C=Math.max(1,Math.ceil(tot/ARR_CH-1e-6)),e=Array(C).fill(0),pc=Array(12).fill(0);
- R.forEach(x=>x.t.notes.forEach(n=>{e[Math.min(C-1,Math.floor(n[0]/ARR_CH))]+=.5+n[3]*.5;pc[n[2]%12]+=n[1]}));
+ R.forEach(x=>NS(x.t).forEach(n=>{e[Math.min(C-1,Math.floor(n[0]/ARR_CH))]+=.5+n[3]*.5;pc[n[2]%12]+=n[1]}));
  let best=-9,key='';
  for(let r=0;r<12;r++)[[KMAJ,'major'],[KMIN,'minor']].forEach(([pr,nm])=>{
   const a=pc.map((_,i)=>pc[(i+r)%12]),ma=a.reduce((s,v)=>s+v,0)/12,mp=pr.reduce((s,v)=>s+v,0)/12;
@@ -2609,13 +2731,42 @@ function arrSetDrums(name){
  const p=name&&DRUMLIB.find(x=>x.n===name);
  LANES.forEach(([k])=>{st.d[k]=pat(p?(p.d[k]||''):'');st.mute[k]=false});return p;
 }
-function applyArrange(rc,keepTempo,A){
+function arrThin(src,role,simp,meas){
+ if(!simp)return src;
+ const g=role==='bass'?(simp===2?meas:meas/2):role==='lead'?(simp===2?meas/2:1):(simp===2?meas:meas/2);
+ const last=src[src.length-1],end=last?last[0]+last[1]:0,out=[];
+ for(let w=0;w*g<end-1e-6;w++){
+  const ws=w*g,we=ws+g,cand=[];
+  for(let i=bisectN(src,ws-1e-6);i<src.length&&src[i][0]<we-1e-6;i++)cand.push(src[i]);
+  let pick=null;
+  if(cand.length){
+   if(role==='bass'){const early=cand.filter(n=>n[0]<ws+g*.3),pool=early.length?early:cand;pick=pool.reduce((a,b)=>b[2]<a[2]?b:a)}
+   else pick=cand[0];
+  }else{for(let i=bisectN(src,ws)-1,c=0;i>=0&&c<12;i--,c++){const n=src[i];if(n[0]+n[1]>ws+.05){pick=n;break}}}
+  if(!pick)continue;
+  const pv=out[out.length-1];
+  if(pv&&pv[2]===pick[2]&&Math.abs(pv[0]+pv[1]-(ws-g*.08))<.01)pv[1]=ws+g*.92-pv[0];
+  else out.push([ws,g*.92,pick[2],pick[3]]);
+ }
+ return out;
+}
+function arrBlank(S,C,simp){
+ const b=Array(C).fill(false);if(!simp)return b;
+ S.forEach(s=>{const len=s.b-s.a;
+  for(let c=s.a;c<s.b;c++){const i=c-s.a;
+   if(s.out){if(i>=1)b[c]=true;continue}
+   if(s.lv===0&&len>=2&&i<Math.max(1,len>>1))b[c]=true;
+   else if(len>=3&&i%(simp===2?4:6)===(simp===2?3:5))b[c]=true;
+  }});
+ return b;
+}
+function applyArrange(rc,keepTempo,A,simp){
  if(playing)stop();ensureAudio();
- const {role,C,S}=A,L2=C*ARR_CH;
+ const {role,C,S}=A,L2=C*ARR_CH,blank=arrBlank(S,C,simp|0);
  st.syn=st.syn.map((t,k)=>{
   const r=role[k];if(!r)return t;
   const nt=mkTrack(T(rc.snd[r],'chord','................',{ext:3,len:2,vol:rc.vol[r][1]}),t,k);
-  nt.eng=PRE[nt.p].x==='any'?'juno':PRE[nt.p].x;nt.m='roll';nt.notes=t.notes;nt.rl=L2;nt.tp=t.tp|0;nt.gt=t.gt||.95;return nt});
+  nt.eng=PRE[nt.p].x==='any'?'juno':PRE[nt.p].x;nt.m='roll';nt.src=t.src||t.notes;nt.notes=arrThin(nt.src,r,simp|0,st.meas||4);if(r==='lead'&&simp){nt.notes=nt.notes.filter(n=>!blank[Math.min(C-1,Math.floor(n[0]/ARR_CH))])};nt.rl=L2;nt.tp=t.tp|0;nt.gt=t.gt||.95;return nt});
  if(!keepTempo)st.bpm=rc.bpm;
  st.tri=0;st.hum=0;st.rev=rc.fx.rev;st.echo=rc.fx.echo;st.tape=rc.fx.tape;st.pump=rc.fx.pump;
  const mp=rc.dr.map(n=>n&&DRUMLIB.find(x=>x.n===n)).find(Boolean);
@@ -2642,14 +2793,16 @@ function openArrPanel(){
  const f=el('div','field'),sel=el('select');sel.setAttribute('aria-label','Arrangement recipe');
  REC.forEach((r,i)=>{const o=el('option',null,r.n);o.value=i;sel.appendChild(o)});f.appendChild(sel);box.appendChild(f);
  const ds=el('p','tip');box.appendChild(ds);
+ const sf=el('div','field'),ss=el('select');ss.setAttribute('aria-label','Simplify the notes');[['0','Simplify: off'],['1','Simplify: light'],['2','Simplify: strong']].forEach(([v,l])=>{const o=el('option',null,l);o.value=v;ss.appendChild(o)});ss.value='2';sf.appendChild(ss);box.appendChild(sf);
+ const sh=el('p','tip');box.appendChild(sh);
  const kp=el('label','chk'),kc=el('input');kc.type='checkbox';kp.append(kc,' Keep the current tempo');box.appendChild(el('div','field')).appendChild(kp);
  const warn=(st.meas&&st.meas!==4)?el('p','tip','This piece is in '+st.meas+'/4. The drums are built on a 4-beat bar, so they will not line up with the bars.'):null;if(warn)box.appendChild(warn);
  const upd=()=>{const r=REC[+sel.value],bpm=kc.checked?st.bpm:r.bpm;
-  ds.textContent=r.d;
+  ds.textContent=r.d;sh.textContent=['Keeps every note of the piece.','Bass: two held notes a bar. Melody: one note a beat. Fewer, longer notes; the melody still rests now and then.','Bass: one held note a bar. Melody: one note per half bar, resting in the intro, at phrase ends and in the outro.'][+ss.value];
   sec.textContent=A.R.length+' voices · '+A.key+' · '+A.S.length+' sections · about '+Math.round(A.C*ARR_CH*60/bpm)+' s at '+bpm+' bpm'};
- sel.onchange=upd;kc.onchange=upd;upd();
+ sel.onchange=upd;kc.onchange=upd;ss.onchange=upd;upd();
  const bt=el('div','field'),go=el('button','pill on','Apply'),no=el('button','pill','Cancel');go.type='button';no.type='button';
- go.onclick=()=>{applyArrange(REC[+sel.value],kc.checked,A);box.hidden=true};no.onclick=()=>{box.hidden=true};
+ go.onclick=()=>{applyArrange(REC[+sel.value],kc.checked,A,+ss.value);box.hidden=true};no.onclick=()=>{box.hidden=true};
  bt.append(go,no);box.appendChild(bt);box.scrollIntoView&&box.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 function arrVis(){const b=$('#arrBtn');if(b)b.hidden=!arrRolls().length}
