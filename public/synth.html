@@ -106,6 +106,11 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
 .pg{min-width:48px;padding:10px 0;text-align:center;font:800 17px var(--disp)}
 .pg.queued{box-shadow:inset 0 0 0 2px var(--ac)}
 .pg.add{opacity:.7}
+.songrow{display:flex;flex-wrap:wrap;gap:6px;min-height:20px}
+.slot{min-width:54px;text-align:center;padding:8px 10px}.slot b{font:800 17px var(--disp)}.slot small{display:block}
+.slot.now{box-shadow:inset 0 0 0 2px var(--ac)}
+.slN{min-width:34px;text-align:center;font:700 14px var(--mono)}
+#songView .field{flex-wrap:wrap}
 .patact{margin:0 0 4px;flex-wrap:nowrap;gap:6px}.patact .lab{display:none}.patact .pill.sm{padding:0 10px;font-size:12.5px;flex:none}.patact .seg button{padding:0 9px;font-size:12.5px}
 .dxd svg{width:100%;height:auto;max-height:190px;display:block;margin:2px 0}
 .dxn{cursor:pointer;outline:none}.dxn circle{fill:var(--cell);stroke:var(--ink);stroke-width:1.5}
@@ -164,8 +169,10 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
   <nav id="styles" class="chips" aria-label="Styles"></nav>
   <div class="saverow"><input id="saveName" type="text" maxlength="24" placeholder="Name to save, e.g. Morning loop" aria-label="Project name"><button id="saveBtn" class="pill">Save</button><span id="saveMsg" class="tip" role="status"></span></div>
 
+  <div class="field" id="viewRow"><span class="lab">View</span><div class="seg" id="view"></div></div>
+  <div id="patView">
   <nav id="pager" class="chips pager" aria-label="Patterns"></nav>
-  <div class="field patact"><span class="lab">Changes</span><div class="seg tight" id="scope" aria-label="Apply sound changes to"></div><button id="patDup" class="pill sm" type="button">Duplicate</button><button id="patDel" class="pill sm" type="button">Delete</button></div>
+  <div class="field patact"><span class="lab">Changes</span><div class="seg tight" id="scope" aria-label="Apply sound changes to"></div><button id="patDel" class="pill sm" type="button">Delete</button></div>
   <p id="patMsg" class="tip" role="status"></p>
 
   <section id="grid" class="grid" aria-label="Step grid"></section>
@@ -175,6 +182,17 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
   <div class="tools"><button id="rand" class="pill" type="button">Dice</button><button id="clr" class="pill" type="button">Clear</button></div>
 
   <div class="prog"><span class="lab">Chord<br>bars</span><div id="prog" class="progrow"></div></div>
+  </div>
+  <section class="panel" id="songView" hidden>
+    <div class="hrow"><h2>Song</h2><span id="songInfo" class="meta"></span></div>
+    <p class="tip">Tap letters to add patterns in the order they play. Press play to hear the whole song.</p>
+    <div class="field"><span class="lab">Add</span><div id="songAdd" class="chips" style="padding:0"></div></div>
+    <div id="songRow" class="songrow"></div>
+    <div class="field" id="slotCtl" hidden><button id="slL" class="pill sm" type="button" aria-label="Move earlier">◀</button><button id="slR" class="pill sm" type="button" aria-label="Move later">▶</button><button id="slM" class="pill sm" type="button" aria-label="Fewer repeats">−</button><b id="slN" class="slN"></b><button id="slP" class="pill sm" type="button" aria-label="More repeats">+</button><button id="slX" class="pill sm" type="button">Remove</button></div>
+    <div class="field"><span class="lab">Glide</span><div class="seg tight" id="songGlide"></div></div>
+    <p class="tip">Glide eases sliders such as cutoff and volume into the next pattern. Sound changes (a different synth or preset) switch at the bar line.</p>
+    <p id="songMsg" class="tip" role="status"></p>
+  </section>
 
   <section class="panel" id="perf">
     <div class="hrow"><h2>Performance</h2><span id="takeInfo" class="meta"></span></div>
@@ -1239,6 +1257,7 @@ function frame(){
 }
 function start(){
  playing=true;abs=0;curAbs=-1;touch={};pendingFresh=false;
+ patOnStart();
  if(takeActive()){
   const cur=snapFlat();let folded=false;
   if(base)for(const k in cur)if(cur[k]!==base[k]){setPathIn(take.s0,k,cur[k]);folded=true}
@@ -1536,6 +1555,9 @@ buildKb();
    or "only this pattern" (override). */
 const PAT_MAX=8,LET='ABCDEFGH';
 st.pats=[];st.pi=0;st.qi=-1;st.pb={};st.exp={};st.scope='all';
+st.song={slots:[],glide:0,auto:true};st.view='pat';
+let ph=0,sp=0,sr=0,songSel=-1,gl=null;
+const pIdx=id=>st.pats.findIndex(P=>P.id===id);
 const capTrack=t=>({on:t.on.slice(),deg:t.deg.slice(),m:t.m,ext:t.ext,oct:t.oct,len:t.len,arp:cp(t.arp)});
 function capContent(){const d={};LANES.forEach(([k])=>{d[k]=st.d[k].slice()});return{d,prog:st.prog.slice(),syn:st.syn.map(capTrack)}}
 function loadContent(c){
@@ -1576,6 +1598,7 @@ function targetSound(P){
 }
 function takePaths(){const s=new Set();if(take&&take.len&&follow)for(const k in take.by)for(const p in take.by[k])s.add(p);return s}
 function flushEdits(){
+ finishGlide();
  const P=st.pats[st.pi];if(!P)return;
  const cur=soundFlat(),skip=takePaths(),exp=st.exp,pb=st.pb,all=st.scope==='all',wp=[];
  st.syn.forEach((t,k)=>{
@@ -1598,18 +1621,22 @@ function flushEdits(){
 function commitPat(){const P=st.pats[st.pi];if(!P)return;flushEdits();P.c=capContent();P.take=take}
 function initPats(){
  st.pats=[{id:'A',c:capContent(),ov:{},take:null}];st.pi=0;st.qi=-1;st.pb=soundFlat();st.exp=soundFlat();st.scope='all';
+ killGlide();st.song={slots:[{p:'A',n:1}],glide:st.song.glide||0,auto:true};songSel=0;
 }
 function refreshTakeSound(tk){
  const s=tk.s0,T=soundFlat();s.echo=T.echo;s.rev=T.rev;
  s.syn.forEach((x,k)=>{const pre='syn.'+k+'.';if(T[pre+'eng']===undefined)return;x.eng=T[pre+'eng'];x.vol=T[pre+'vol'];x.params=unflat(T,pre+'params.')});
 }
-function doSwitch(j,skipCommit){
+function doSwitch(j,skipCommit,glide){
+ finishGlide();
  if(!skipCommit){
   if(take&&take.len===0)finalizeTake();
   commitPat();
  }
  const Q=st.pats[j];st.pi=j;st.qi=-1;
- loadContent(Q.c);applySound(targetSound(Q));st.exp=soundFlat();
+ loadContent(Q.c);
+ const T=targetSound(Q);
+ if(glide>0&&ctx&&playing)startGlide(T,glide);else{applySound(T);st.exp=soundFlat()}
  take=Q.take||null;follow=true;recArm=false;pendingFresh=false;touch={};
  if(take&&take.len)refreshTakeSound(take);
  persistTake();resetExport();afterPat();
@@ -1618,13 +1645,25 @@ function afterPat(){
  paintAll();renderProg();renderMix();renderPanel();buildPager();updateTakeUI();base=snapFlat();
 }
 function patTick(){
- if(st.qi<0||abs%64!==0)return;
- const j=st.qi;
+ const at=ph%64===0,first=ph===0;ph++;
+ if(!at)return;
+ let j=-1,S=st.song.slots;
+ if(st.view==='song'&&!first&&S.length){
+  sr++;
+  if(!S[sp]||sr>=S[sp].n){sr=0;sp=(sp+1)%S.length}
+  j=pIdx(S[sp].p);
+ }
+ if(st.qi>=0)j=st.qi;
+ if(j<0||(j===st.pi&&st.qi<0))return;
  if(take&&take.len===0)finalizeTake();
  else if(recArm&&takeActive()){captureChanges(Math.max(0,Math.min(abs,take.len)-1));persistTake()}
- doSwitch(j);abs=0;
+ doSwitch(j,false,st.song.glide);abs=0;
 }
-function patOnStop(){if(st.qi>=0){const j=st.qi;st.qi=-1;doSwitch(j)}}
+function patOnStart(){
+ ph=0;sp=0;sr=0;finishGlide();
+ if(st.view==='song'&&st.song.slots.length){const j=pIdx(st.song.slots[0].p);if(j>=0&&j!==st.pi)doSwitch(j)}
+}
+function patOnStop(){finishGlide();if(st.qi>=0){const j=st.qi;st.qi=-1;doSwitch(j)}}
 const patMsg=t=>{$('#patMsg').textContent=t};
 function gotoPat(j){
  if(j===st.pi&&st.qi<0)return;
@@ -1632,18 +1671,21 @@ function gotoPat(j){
  doSwitch(j);patMsg('');
 }
 function newPat(copy){
+ copy=true;
  if(st.pats.length>=PAT_MAX){patMsg('Eight patterns is the limit.');return}
  commitPat();
  const used=st.pats.map(P=>P.id),id=[...LET].find(c=>!used.includes(c)),cur=st.pats[st.pi],c=cp(cur.c);
  if(!copy){LANES.forEach(([k])=>{c.d[k]=Array(16).fill(0)});c.syn.forEach(x=>{x.on=Array(16).fill(0);x.deg=Array(16).fill(0)})}
  st.pats.splice(st.pi+1,0,{id,c,ov:copy?cp(cur.ov):{},take:null});
+ if(st.song.auto)st.song.slots.push({p:id,n:1});
  if(st.scope==='all'){st.scope='one'}
  gotoPat(st.pi+1);
- patMsg((copy?'Copied to ':'New empty pattern ')+id+'. Changes to sounds now apply only to '+id+' (switch at "Changes" to change that).');
+ patMsg('Pattern '+id+' is a copy of '+cur.id+'. Use Clear below for an empty one. Sound changes now apply only to '+id+'.');
 }
 function delPat(){
  if(st.pats.length<2)return;
- commitPat();const i=st.pi;st.pats.splice(i,1);st.qi=-1;
+ commitPat();const i=st.pi,did=st.pats[i].id;st.pats.splice(i,1);st.qi=-1;
+ st.song.slots=st.song.slots.filter(x=>x.p!==did);songSel=Math.min(songSel,st.song.slots.length-1);
  doSwitch(Math.min(i,st.pats.length-1),true);patMsg('Pattern deleted.');
 }
 function buildPager(){
@@ -1653,15 +1695,16 @@ function buildPager(){
   b.setAttribute('aria-label','Pattern '+P.id+(j===st.pi?' (current)':j===st.qi?' (next)':''));
   b.onclick=()=>{ensureAudio();gotoPat(j)};n.appendChild(b);
  });
- if(st.pats.length<PAT_MAX){const a=el('button','chip pg add','+');a.type='button';a.setAttribute('aria-label','New empty pattern');a.onclick=()=>newPat(false);n.appendChild(a)}
+ if(st.pats.length<PAT_MAX){const a=el('button','chip pg add','+');a.type='button';a.setAttribute('aria-label','New pattern, a copy of this one');a.onclick=()=>newPat(true);n.appendChild(a)}
  seg('#scope',[['all','All patterns'],['one','Only '+st.pats[st.pi].id]],()=>st.scope,v=>{flushEdits();st.scope=v;updOv()});
  $('#patDel').disabled=st.pats.length<2;
+ buildSong();
 }
-$('#patDup').onclick=()=>newPat(true);
 $('#patDel').onclick=delPat;
 
 /* what differs from the base on the selected track */
 function ovKeys(k){
+ if(gl)return [];
  const P=st.pats[st.pi],pre='syn.'+k+'.',o={};
  for(const key in P.ov)if(key.startsWith(pre))o[key]=1;
  if(st.scope==='one'){
@@ -1693,10 +1736,11 @@ function styleGate(key){
  patMsg('This replaces patterns '+st.pats.map(P=>P.id).join(', ')+'. Tap it again to continue.');
  return false;
 }
-function patSave(snap){commitPat();snap.pats=cp(st.pats);snap.pi=st.pi;snap.pb=cp(st.pb)}
+function patSave(snap){commitPat();snap.pats=cp(st.pats);snap.pi=st.pi;snap.pb=cp(st.pb);snap.song=cp(st.song)}
 function restorePats(p){
  if(p.pats&&p.pats.length){
-  st.pats=cp(p.pats);st.pi=Math.min(p.pi||0,st.pats.length-1);st.qi=-1;st.pb=cp(p.pb||{});st.scope='one';
+  st.pats=cp(p.pats);st.pi=Math.min(p.pi||0,st.pats.length-1);st.qi=-1;st.pb=cp(p.pb||{});st.scope='one';killGlide();
+  st.song=p.song?cp(p.song):{slots:st.pats.map(P=>({p:P.id,n:1})),glide:0,auto:true};songSel=st.song.slots.length?0:-1;
   const Q=st.pats[st.pi];loadContent(Q.c);applySound(targetSound(Q));st.exp=soundFlat();take=Q.take||null;follow=true;
  }else initPats();
 }
@@ -1724,6 +1768,102 @@ function patTrackRemoved(k){
  reindexKeys(st.pb,k);reindexKeys(st.exp,k);
  st.pats.forEach(P=>{P.take=null});
 }
+
+/* ---------- glide between patterns ---------- */
+const GL_DISC=/\.params\.(alg|fb|o2s|mx\.\d+|ops\.\d+\.r)$/;
+function killGlide(){if(gl){clearInterval(gl.iv);gl=null}}
+function startGlide(T,bars){
+ const cur=soundFlat(),from={},to={},imm={},wh=[];
+ st.syn.forEach((t,k)=>{const n='syn.'+k+'.params.n',e='syn.'+k+'.eng';if(T[n]!==undefined&&(T[n]!==cur[n]||T[e]!==cur[e]))wh.push('syn.'+k+'.')});
+ const sub={};
+ for(const key in T){
+  if(wh.some(p=>key.startsWith(p))){sub[key]=T[key];continue}
+  const v=T[key],c=cur[key];
+  if(v===c||c===undefined)continue;
+  if(typeof v==='number'&&typeof c==='number'&&!GL_DISC.test(key)){from[key]=c;to[key]=v}else imm[key]=v;
+ }
+ if(Object.keys(sub).length)applySound(sub);
+ const ik=Object.keys(imm);
+ ik.forEach(k=>setPathIn(st,k,imm[k]));
+ if(ik.length)afterReplay(ik);
+ const keys=Object.keys(to);
+ st.exp=Object.assign(soundFlat(),to);
+ if(!keys.length)return;
+ gl={from,to,keys,t0:performance.now(),dur:bars*16*(60/st.bpm/4)*1000,iv:setInterval(glTick,50)};
+}
+function glTick(){
+ if(!gl)return;
+ const p=Math.min(1,(performance.now()-gl.t0)/gl.dur),e=p*p*(3-2*p);
+ if(p>=1){finishGlide();return}
+ gl.keys.forEach(k=>{
+  const a=gl.from[k],b=gl.to[k],lo=Math.min(a,b),hi=Math.max(a,b);
+  const v=(lo>0&&hi/lo>3)?a*Math.pow(b/a,e):a+(b-a)*e;
+  setPathIn(st,k,v);
+ });
+ afterReplay(gl.keys);
+}
+function finishGlide(){
+ if(!gl)return;
+ const g=gl;clearInterval(g.iv);gl=null;
+ g.keys.forEach(k=>setPathIn(st,k,g.to[k]));
+ afterReplay(g.keys);
+}
+
+/* ---------- Song view ---------- */
+const GLIDES=[[0,'Jump'],[1,'1 bar'],[2,'2 bars'],[4,'4 bars']],REPS=[1,2,3,4,6,8];
+const songEdit=()=>{st.song.auto=false};
+function setView(v){
+ st.view=v;$('#patView').hidden=v==='song';$('#songView').hidden=v!=='song';
+ if(v==='song'){
+  const S=st.song.slots;
+  if(songSel<0&&S.length)songSel=0;
+  if(playing&&S.length){
+   const i=S.findIndex(x=>x.p===st.pats[st.pi].id);
+   if(i>=0){sp=i;sr=0}else{sp=S.length-1;sr=S[sp].n-1}
+  }
+  buildSong();
+ }
+}
+function buildSong(){
+ const add=$('#songAdd');if(!add)return;
+ add.innerHTML='';
+ st.pats.forEach(P=>{
+  const b=el('button','chip pg',P.id);b.type='button';b.setAttribute('aria-label','Add pattern '+P.id+' to the song');
+  b.onclick=()=>{songEdit();st.song.slots.push({p:P.id,n:1});songSel=st.song.slots.length-1;buildSong()};add.appendChild(b);
+ });
+ const row=$('#songRow'),S=st.song.slots;row.innerHTML='';
+ if(songSel>=S.length)songSel=S.length-1;
+ S.forEach((x,i)=>{
+  const b=el('button','chip slot'+(i===songSel?' act':''));b.type='button';
+  b.append(el('b',null,x.p),el('small',null,'×'+x.n));b.setAttribute('aria-label','Song part '+(i+1)+', pattern '+x.p+', '+x.n+' times');
+  b.onclick=()=>{songSel=i;buildSong()};row.appendChild(b);
+ });
+ if(!S.length)row.appendChild(el('p','tip','The song is empty. Tap a letter above.'));
+ $('#slotCtl').hidden=songSel<0||!S.length;
+ if(songSel>=0&&S[songSel])$('#slN').textContent='×'+S[songSel].n;
+ seg('#songGlide',GLIDES,()=>st.song.glide,v=>{st.song.glide=v});
+ const bars=S.reduce((a,x)=>a+x.n*4,0);
+ txt($('#songInfo'),S.length?bars+' bars':'');
+ updSong();
+}
+function updSong(){
+ const row=$('#songRow');if(!row||$('#songView').hidden)return;
+ const on=playing&&st.view==='song';
+ [...row.children].forEach((c,i)=>c.classList&&c.classList.toggle('now',on&&i===sp));
+}
+function slotMove(d){
+ const S=st.song.slots,i=songSel,j=i+d;if(i<0||j<0||j>=S.length)return;
+ songEdit();[S[i],S[j]]=[S[j],S[i]];songSel=j;buildSong();
+}
+function slotRep(d){
+ const x=st.song.slots[songSel];if(!x)return;
+ const k=Math.max(0,Math.min(REPS.length-1,REPS.indexOf(x.n)+d));songEdit();x.n=REPS[k];buildSong();
+}
+$('#slL').onclick=()=>slotMove(-1);$('#slR').onclick=()=>slotMove(1);
+$('#slM').onclick=()=>slotRep(-1);$('#slP').onclick=()=>slotRep(1);
+$('#slX').onclick=()=>{if(songSel<0)return;songEdit();st.song.slots.splice(songSel,1);songSel=Math.min(songSel,st.song.slots.length-1);buildSong()};
+seg('#view',[['pat','Pattern'],['song','Song']],()=>st.view,v=>setView(v));
+setInterval(()=>{if(!document.hidden)updSong()},300);
 /* ---------- Start ---------- */
 loadSaved();buildStyles();buildGrid();buildPresetSelect();buildMixSelects();applyStyle(1);
 take=lsGet('racsgep.take')||null;if(take&&!(take.s0&&take.by&&take.len>0))take=null;
