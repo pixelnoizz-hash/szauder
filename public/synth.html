@@ -142,6 +142,7 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
 .dxd svg{width:100%;height:auto;max-height:190px;display:block;margin:2px 0}
 .dxn{cursor:pointer;outline:none}.dxn circle{fill:var(--cell);stroke:var(--ink);stroke-width:1.5}
 .dxn.car circle{fill:var(--ink)}.dxn.sel circle{stroke:var(--ac);stroke-width:4}
+.dxn.off{opacity:.3}
 .dxn:focus-visible circle{stroke:var(--ac);stroke-width:4}
 .dxn text{font:600 12px var(--mono);fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none}.dxn.car text{fill:#fff}
 .dxe{stroke:var(--ink);stroke-width:1.6;fill:none}.dxf{stroke:var(--ac);stroke-width:2;fill:none}
@@ -1081,6 +1082,8 @@ function dxDraw(box,tr){
  const p=tr.params,al=ALG[Math.max(0,Math.min(31,Math.round(p.alg||1)-1))],NS='http://www.w3.org/2000/svg';
  const lev=[0,0,0,0,0,0];let ch=true,g=0;
  while(ch&&g++<20){ch=false;al.mods.forEach(([s,d])=>{if(lev[s]<lev[d]+1){lev[s]=lev[d]+1;ch=true}})}
+ const lvl=i=>Math.max(0,p.ops[i].l||0),memo={};
+ const act=i=>{if(i in memo)return memo[i];memo[i]=false;return memo[i]=lvl(i)>.02&&(al.car.includes(i)||al.mods.some(([a,d])=>a===i&&act(d)))};
  const mx=Math.max(...lev),W=252,RH=38,H=34+mx*RH,xs=[0,0,0,0,0,0],ys=lev.map(l=>20+(mx-l)*RH);
  const rows=[];for(let l=0;l<=mx;l++)rows.push([]);lev.forEach((l,i)=>rows[l].push(i));
  rows[0].forEach((o,j)=>{xs[o]=(j+.5)*W/rows[0].length});
@@ -1096,7 +1099,7 @@ function dxDraw(box,tr){
  al.mods.forEach(([s,d])=>sv.appendChild(mk('line',{x1:xs[s],y1:ys[s]+11,x2:xs[d],y2:ys[d]-11,class:'dxe'})));
  if(al.fb>=0){const x=xs[al.fb],y=ys[al.fb];sv.appendChild(mk('path',{d:'M'+(x-6)+' '+(y-10)+' C'+(x-16)+' '+(y-28)+' '+(x+16)+' '+(y-28)+' '+(x+6)+' '+(y-10),class:'dxf'}))}
  for(let i=0;i<6;i++){
-  const isC=al.car.includes(i),gg=mk('g',{class:'dxn'+(isC?' car':'')+(i===(st.dxop||0)?' sel':''),tabindex:0,role:'button','aria-label':'Operator '+(i+1)});
+  const isC=al.car.includes(i),gg=mk('g',{class:'dxn'+(isC?' car':'')+(i===(st.dxop||0)?' sel':'')+(act(i)?'':' off'),tabindex:0,role:'button','aria-label':'Operator '+(i+1)});
   gg.appendChild(mk('circle',{cx:xs[i],cy:ys[i],r:11}));
   const t=mk('text',{x:xs[i],y:ys[i]});t.textContent=i+1;gg.appendChild(t);
   const pick=()=>{st.dxop=i;renderPanel()};gg.addEventListener('click',pick);gg.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}});
@@ -1114,7 +1117,7 @@ function dxPanel(sb,tr,p){
  mkSlider(sb,'Feedback',0,7,1,p.fb||0,v=>v,v=>{p.fb=v});
  mkSlider(sb,'Brightness',.2,2,.05,p.mi==null?1:p.mi,pctF,v=>{p.mi=v});
  dxDraw(dg,tr);
- sb.appendChild(el('p','tip','Circles are operators. Dark ones are carriers (you hear them), light ones modulate the operator below them. Tap one to edit it.'));
+ sb.appendChild(el('p','tip','Circles are operators. Dark ones are carriers (you hear them), light ones modulate the operator below them. Tap one to edit it. Faded ones are silent right now: their level is 0, or nothing they feed is heard.'));
  const ew=el('div');ew.style.cssText='display:flex;flex-direction:column;gap:2px';
  segF(sb,'Operator',[0,1,2,3,4,5].map(i=>[i,String(i+1)]),()=>st.dxop,v=>{st.dxop=v;renderPanel()});
  sb.appendChild(ew);
@@ -1126,7 +1129,7 @@ function dxPanel(sb,tr,p){
   const rs=DX_RATIOS.includes(o.r)?DX_RATIOS:DX_RATIOS.concat(o.r).sort((a,b)=>a-b);
   rs.forEach(r=>{const op=el('option',null,'×'+r);op.value=r;sel.appendChild(op)});sel.value=o.r;
   sel.onchange=()=>{o.r=+sel.value};row.append(el('span','lab','Ratio'),sel,el('span'));ew.appendChild(row);
-  mkSlider(ew,'Level',0,1,.01,o.l,pctF,v=>{o.l=v});
+  mkSlider(ew,'Level',0,1,.01,o.l,pctF,v=>{o.l=v;dxDraw(dg,tr)});
   mkSlider(ew,'Fine tune',-50,50,1,o.dt||0,v=>v+' ct',v=>{o.dt=v});
   mkSlider(ew,'Attack',.001,3,.001,o.a,v=>v.toFixed(2)+' s',v=>{o.a=v});
   mkSlider(ew,'Decay',.02,4,.01,o.d,v=>v.toFixed(2)+' s',v=>{o.d=v});
@@ -1159,27 +1162,39 @@ function vcPanel(sb,tr,p){
    b.onclick=()=>{
     const i=(lvl(p.mx[s*7+d])+1)%4;
     if(i>0&&vcsLoop(p.mx,s,d)){msg.textContent='That would patch a loop (a signal feeding itself). Break the other connection first.';return}
-    p.mx[s*7+d]=VC_LV[i];b.dataset.l=i;msg.textContent='Rows are sources, columns are where they go. Tap a pin to patch it, tap again for more amount.';
+    p.mx[s*7+d]=VC_LV[i];b.dataset.l=i;paintAct();msg.textContent='Rows are sources, columns are where they go. Tap a pin to patch it, tap again for more amount.';
    };
    mx.appendChild(b);
   }
  });
  sb.appendChild(msg);
+ const actTip=el('p','tip');sb.appendChild(actTip);
+ const G={o1:[],o2:[],lfo:[],fl:[]},L=()=>sb.lastElementChild;
+ function paintAct(){
+  const pins=vcsPins(p.mx),A=new Set(),filt=pins.some(q=>q[1]===3);let ch=true;
+  while(ch){ch=false;pins.forEach(([s,d])=>{if(A.has(s))return;
+   if(d===3||d===6||(d===0&&A.has(0))||(d===1&&A.has(1))||((d===4||d===5)&&A.has(4))||(d===2&&filt)){A.add(s);ch=true}})}
+  const off=[];
+  const set=(g,on,name)=>{g.forEach(e=>{e.style.opacity=on?'':'.38'});if(!on)off.push(name)};
+  set(G.o1,A.has(0),'Osc 1');set(G.o2,A.has(1),'Osc 2');set(G.lfo,A.has(2),'LFO');set(G.fl,filt,'Filter');
+  actTip.textContent=!pins.length?'Nothing is patched, so there is no sound. Tap pins in the matrix.':off.length?'Faded controls do nothing right now ('+off.join(', ')+'). Patch them into the sound in the matrix to bring them in.':'';
+ }
  sb.appendChild(el('div','sub','Oscillators'));
- segF(sb,'Osc 1',WAVES,()=>p.o1w,v=>{p.o1w=v});
- segF(sb,'Osc 2',WAVES,()=>p.o2w,v=>{p.o2w=v});
- mkSlider(sb,'Osc 2 pitch',-24,24,1,p.o2s||0,v=>(v>0?'+':'')+v+' st',v=>{p.o2s=v});
- mkSlider(sb,'Osc 2 fine',-50,50,1,p.o2d||0,v=>v+' ct',v=>{p.o2d=v});
- segF(sb,'LFO',[['sine','Sine'],['triangle','Tri'],['sawtooth','Saw'],['square','Square']],()=>p.o3w,v=>{p.o3w=v});
- mkSlider(sb,'LFO rate',0,100,1,Math.round(100*Math.log((p.o3f||1)/.05)/Math.log(800)),v=>(.05*Math.pow(800,v/100)).toFixed(2)+' Hz',v=>{p.o3f=.05*Math.pow(800,v/100)});
+ G.o1.push(segF(sb,'Osc 1',WAVES,()=>p.o1w,v=>{p.o1w=v}));
+ G.o2.push(segF(sb,'Osc 2',WAVES,()=>p.o2w,v=>{p.o2w=v}));
+ mkSlider(sb,'Osc 2 pitch',-24,24,1,p.o2s||0,v=>(v>0?'+':'')+v+' st',v=>{p.o2s=v});G.o2.push(L());
+ mkSlider(sb,'Osc 2 fine',-50,50,1,p.o2d||0,v=>v+' ct',v=>{p.o2d=v});G.o2.push(L());
+ G.lfo.push(segF(sb,'LFO',[['sine','Sine'],['triangle','Tri'],['sawtooth','Saw'],['square','Square']],()=>p.o3w,v=>{p.o3w=v}));
+ mkSlider(sb,'LFO rate',0,100,1,Math.round(100*Math.log((p.o3f||1)/.05)/Math.log(800)),v=>(.05*Math.pow(800,v/100)).toFixed(2)+' Hz',v=>{p.o3f=.05*Math.pow(800,v/100)});G.lfo.push(L());
  sb.appendChild(el('div','sub','Filter & envelope'));
- mkSlider(sb,'Brightness',0,100,1,Math.round(100*Math.log(p.cut/80)/Math.log(100)),v=>Math.round(80*Math.pow(100,v/100))+' Hz',v=>{p.cut=80*Math.pow(100,v/100)});
- mkSlider(sb,'Resonance',0,24,.5,p.res||0,v=>v+' dB',v=>{p.res=v});
+ mkSlider(sb,'Brightness',0,100,1,Math.round(100*Math.log(p.cut/80)/Math.log(100)),v=>Math.round(80*Math.pow(100,v/100))+' Hz',v=>{p.cut=80*Math.pow(100,v/100)});G.fl.push(L());
+ mkSlider(sb,'Resonance',0,24,.5,p.res||0,v=>v+' dB',v=>{p.res=v});G.fl.push(L());
  mkSlider(sb,'Attack',.004,3,.01,p.a,v=>v.toFixed(2)+' s',v=>{p.a=v});
  mkSlider(sb,'Decay',.03,4,.01,p.d,v=>v.toFixed(2)+' s',v=>{p.d=v});
  mkSlider(sb,'Sustain',0,1,.01,p.s,pctF,v=>{p.s=v});
  mkSlider(sb,'Release',.03,4,.01,p.r,v=>v.toFixed(2)+' s',v=>{p.r=v});
  sendSliders(sb,tr,p);
+ paintAct();
 }
 /* ---------- Performance recorder ----------
    A take = the starting state of everything (s0) + a list of moves keyed by step.
