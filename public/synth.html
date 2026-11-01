@@ -2653,7 +2653,13 @@ const DRUMLIB=[
  /* Ambient / sparse */
  DP('Sparse','Heartbeat','dusty','rim',60,50,{k:'x..x............',h:'................',p:'........o.......'}),
  DP('Sparse','Slow pulse','dub','shaker',70,50,{k:'x...............',s:'........x.......',h:'..x...x...x...x.'}),
- DP('Sparse','Tick tock','tight','rim',90,50,{h:'x...x...x...x...',p:'..o...o...o...o.',o:'..............x.'})
+ DP('Sparse','Tick tock','tight','rim',90,50,{h:'x...x...x...x...',p:'..o...o...o...o.',o:'..............x.'}),
+ /* Waltz 3/4: 12 steps a bar, a step is a sixteenth, so the beats fall on steps 1, 5 and 9 */
+ DP('Waltz 3/4','Waltz soft','brush','rim',90,50,{k:'x...........',h:'..x...x...x.',p:'....o...o...'},1),
+ DP('Waltz 3/4','Waltz classic','dusty','rim',90,50,{k:'x...........',s:'....x...x...',h:'x.x.x.x.x.x.'},1),
+ DP('Waltz 3/4','Waltz drive','909','shaker',100,50,{k:'x...x...x...',c:'........x...',h:'..x...x...x.',p:'x.x.x.x.x.x.'},1),
+ DP('Waltz 3/4','Waltz heartbeat','dusty','rim',80,50,{k:'x...........',p:'........o...'},1),
+ DP('Waltz 3/4','Waltz dark','dub','shaker',80,50,{k:'x.......x...',s:'....x.......',h:'..x...x...x.'},1)
 ];
 let drumIdx=-1,drumAlso=true;
 function applyDrum(i){
@@ -2697,10 +2703,13 @@ const REC=[
   vol:{lead:[.55,.65,.75],mid:[.45,.55,.65],bass:[.65,.75,.8]},cor:[0,.08,.2,.45],fx:{rev:.35,echo:.3,tape:.15,pump:.35}}
 ];
 const KMAJ=[6.35,2.23,3.48,2.33,4.38,4.09,2.52,5.19,2.39,3.66,2.29,2.88],KMIN=[6.33,2.68,3.52,5.38,2.6,3.53,2.54,4.75,3.98,2.69,3.34,3.17];
+const WALTZ=['Waltz soft','Waltz classic','Waltz drive'];
+function arrWz(){return st.meas===3||arrRolls().some(x=>x.t.wz)}
+function arrBase(t,wz){const b=t.src||t.notes;return(!wz||t.wz)?b:b.map(n=>[n[0]*4/3,n[1]*4/3,n[2],n[3]])}
 function arrRolls(){return st.syn.map((t,k)=>({t,k})).filter(x=>x.t.m==='roll'&&x.t.notes&&x.t.notes.length)}
 function arrAnalyze(){
  const R=arrRolls();if(!R.length)return null;
- const NS=t=>t.src||t.notes,mean=t=>NS(t).reduce((s,e)=>s+e[2],0)/NS(t).length;
+  const wz=arrWz(),wasWz=R.some(x=>x.t.wz),NS=t=>arrBase(t,wz),mean=t=>NS(t).reduce((s,e)=>s+e[2],0)/NS(t).length;
  const rk=R.slice().sort((a,b)=>mean(a.t)-mean(b.t)),role={};
  rk.forEach((x,i)=>{role[x.k]=rk.length===1?'lead':i===0?'bass':i===rk.length-1?'lead':'mid'});
  let tot=0;R.forEach(x=>{const nn=NS(x.t),l=nn[nn.length-1];tot=Math.max(tot,l[0]+l[1])});
@@ -2725,7 +2734,7 @@ function arrAnalyze(){
  while(S.length>10){let i=0;S.forEach((x,j)=>{if(x.b-x.a<S[i].b-S[i].a)i=j});mrg(i)}
  const last=S[S.length-1];
  if(last.b-last.a>=4){const m=last.b-2;last.b=m;S.push({a:m,b:m+2,lv:0,out:1})}else last.out=1;
- return{R,role,C,tot,key,S,energy:e};
+ return{R,role,C,tot,key,S,energy:e,wz,wasWz};
 }
 function arrSetDrums(name){
  const p=name&&DRUMLIB.find(x=>x.n===name);
@@ -2762,20 +2771,20 @@ function arrBlank(S,C,simp){
 }
 function applyArrange(rc,keepTempo,A,simp){
  if(playing)stop();ensureAudio();
- const {role,C,S}=A,L2=C*ARR_CH,blank=arrBlank(S,C,simp|0);
+ const {role,C,S,wz}=A,L2=C*ARR_CH,blank=arrBlank(S,C,simp|0);
  st.syn=st.syn.map((t,k)=>{
   const r=role[k];if(!r)return t;
   const nt=mkTrack(T(rc.snd[r],'chord','................',{ext:3,len:2,vol:rc.vol[r][1]}),t,k);
-  nt.eng=PRE[nt.p].x==='any'?'juno':PRE[nt.p].x;nt.m='roll';nt.src=t.src||t.notes;nt.notes=arrThin(nt.src,r,simp|0,st.meas||4);if(r==='lead'&&simp){nt.notes=nt.notes.filter(n=>!blank[Math.min(C-1,Math.floor(n[0]/ARR_CH))])};nt.rl=L2;nt.tp=t.tp|0;nt.gt=t.gt||.95;return nt});
- if(!keepTempo)st.bpm=rc.bpm;
- st.tri=0;st.hum=0;st.rev=rc.fx.rev;st.echo=rc.fx.echo;st.tape=rc.fx.tape;st.pump=rc.fx.pump;
- const mp=rc.dr.map(n=>n&&DRUMLIB.find(x=>x.n===n)).find(Boolean);
+  nt.eng=PRE[nt.p].x==='any'?'juno':PRE[nt.p].x;nt.m='roll';nt.src=arrBase(t,wz);nt.wz=wz?1:0;nt.notes=arrThin(nt.src,r,simp|0,wz?4:(st.meas||4));if(r==='lead'&&simp){nt.notes=nt.notes.filter(n=>!blank[Math.min(C-1,Math.floor(n[0]/ARR_CH))])};nt.rl=L2;nt.tp=t.tp|0;nt.gt=t.gt||.95;return nt});
+ if(!keepTempo)st.bpm=wz?Math.round(rc.bpm*4/3):rc.bpm;else if(wz&&!A.wasWz)st.bpm=Math.round(st.bpm*4/3);
+ st.tri=wz?1:0;st.meas=wz?3:(st.meas||4);st.hum=0;st.rev=rc.fx.rev;st.echo=rc.fx.echo;st.tape=rc.fx.tape;st.pump=rc.fx.pump;
+ const mp=wz?(rc.dr.some(Boolean)?DRUMLIB.find(x=>x.n===WALTZ[1]):null):rc.dr.map(n=>n&&DRUMLIB.find(x=>x.n===n)).find(Boolean);
  if(mp){st.kit=mp.kit;st.pv=mp.pv;st.sw=mp.sw}else st.sw=50;
  st.prog=[0,0];st.name=((st.name||'MIDI')+' '+rc.n).slice(0,24);st.tag='arranged · '+rc.n;
  const order=[];S.forEach(s=>{const k=s.out?3:s.lv;if(!order.includes(k))order.push(k)});
  st.pats=[];
  order.forEach((k,i)=>{
-  arrSetDrums(k===3?rc.dr[0]:rc.dr[k]);
+  {const nm=k===3?rc.dr[0]:rc.dr[k];arrSetDrums(wz?(nm?WALTZ[k===3?0:k]:null):nm)}
   const ov={cor:rc.cor[k]},li=k===3?0:k;
   Object.keys(role).forEach(j=>{ov['syn.'+j+'.vol']=rc.vol[role[j]][li]});
   st.pats.push({id:LET[i],c:capContent(),ov,take:null});
@@ -2796,8 +2805,8 @@ function openArrPanel(){
  const sf=el('div','field'),ss=el('select');ss.setAttribute('aria-label','Simplify the notes');[['0','Simplify: off'],['1','Simplify: light'],['2','Simplify: strong']].forEach(([v,l])=>{const o=el('option',null,l);o.value=v;ss.appendChild(o)});ss.value='2';sf.appendChild(ss);box.appendChild(sf);
  const sh=el('p','tip');box.appendChild(sh);
  const kp=el('label','chk'),kc=el('input');kc.type='checkbox';kp.append(kc,' Keep the current tempo');box.appendChild(el('div','field')).appendChild(kp);
- const warn=(st.meas&&st.meas!==4)?el('p','tip','This piece is in '+st.meas+'/4. The drums are built on a 4-beat bar, so they will not line up with the bars.'):null;if(warn)box.appendChild(warn);
- const upd=()=>{const r=REC[+sel.value],bpm=kc.checked?st.bpm:r.bpm;
+ const warn=A.wz?el('p','tip','3/4: the piece is re-gridded onto the 12-step triplet grid, so the drums follow the waltz bars. The BPM shown is one third higher; the real speed is the same.'):(st.meas&&st.meas!==4)?el('p','tip','This piece is in '+st.meas+'/4. The drums are built on a 4-beat bar, so they will not line up with the bars.'):null;if(warn)box.appendChild(warn);
+ const upd=()=>{const r=REC[+sel.value],bpm=kc.checked?(A.wz&&!A.wasWz?Math.round(st.bpm*4/3):st.bpm):(A.wz?Math.round(r.bpm*4/3):r.bpm);
   ds.textContent=r.d;sh.textContent=['Keeps every note of the piece.','Bass: two held notes a bar. Melody: one note a beat. Fewer, longer notes; the melody still rests now and then.','Bass: one held note a bar. Melody: one note per half bar, resting in the intro, at phrase ends and in the outro.'][+ss.value];
   sec.textContent=A.R.length+' voices · '+A.key+' · '+A.S.length+' sections · about '+Math.round(A.C*ARR_CH*60/bpm)+' s at '+bpm+' bpm'};
  sel.onchange=upd;kc.onchange=upd;ss.onchange=upd;upd();
