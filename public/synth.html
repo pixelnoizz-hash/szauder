@@ -240,6 +240,7 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
     <p id="takeMsg" class="tip" role="status"></p>
     <div class="field"><button id="followBtn" class="pill on" type="button">Follow take: on</button><button id="clearTake" class="pill" type="button">Clear take</button></div>
     <div class="field"><span class="lab">Render</span><div class="seg" id="mTarget"></div></div>
+    <div class="field"><span class="lab">Ending</span><div class="seg" id="mLoop"></div><span class="tip">Seamless: the reverb tail wraps to the start, so it loops cleanly</span></div>
     <div class="field"><span class="lab">Loops in file</span><div class="seg" id="mPass"></div></div>
     <div class="field"><button id="renderBtn" class="pill go" type="button">Render WAV</button><button id="listenBtn" class="pill" type="button" hidden>Listen</button><button id="saveWav" class="pill on" type="button" hidden>Save file</button></div>
     <p id="expMsg" class="tip" role="status"></p>
@@ -1594,7 +1595,7 @@ function stop(){
 }
 
 /* ---------- Take UI ---------- */
-let rendered=null,passes=1,dlCap=null,lsrc=null,rtarget='take';
+let rendered=null,passes=1,dlCap=null,lsrc=null,rtarget='take',rloop=false,lastLen=0;
 const txt=(el_,t)=>{if(el_.textContent!==t)el_.textContent=t};
 function updateTakeUI(){
  const has=!!(take&&take.len),live=playing&&recording(),open=!!(take&&take.len===0);
@@ -1647,7 +1648,7 @@ function renderTake(nPass){
    const ev=take.by[ts];if(ev)for(const p in ev)setPathIn(st,p,ev[p]);
    times[n]=tt;tt+=SD();
   }
-  const dur=tt+3.5;
+  lastLen=tt;const dur=tt+3.5;
   if(dur>480)throw new Error('Too long to render here (limit 8 minutes). Use fewer loops.');
   const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext;
   off=new OAC(2,Math.ceil(dur*SR),SR);
@@ -1698,16 +1699,27 @@ function zipStore(name,data){
  return new Blob([lh,nb,u8,ch,nb,eo],{type:'application/zip'});
 }
 const fmtTime=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
-const baseName=()=>(((rtarget==='song'?st.name+' song':take&&take.name)||st.name)||'take').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').toLowerCase()||'take';
+const baseName=()=>(rendered&&rendered.loop?'loop-':'')+(((rtarget==='song'?st.name+' song':take&&take.name)||st.name)||'take').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').toLowerCase()||'take';
 
+function foldLoop(buf,len){
+ const sr=buf.sampleRate,n=Math.min(buf.length,Math.round(len*sr)),out=new AudioBuffer({numberOfChannels:buf.numberOfChannels,length:n,sampleRate:sr});
+ for(let c=0;c<buf.numberOfChannels;c++){
+  const s=buf.getChannelData(c),o=out.getChannelData(c);
+  for(let i=0;i<n;i++)o[i]=s[i];
+  for(let i=n;i<s.length;i++)o[(i-n)%n]+=s[i];
+ }
+ return out;
+}
 async function doRender(){
  if(busy||(rtarget==='take'&&(!take||!take.len)))return;
  if(playing)stop();
  resetExport();busy=true;updateTakeUI();txt($('#expMsg'),'Rendering… this can take a little while.');
  await new Promise(r=>setTimeout(r,60));
  try{
-  const buf=await(rtarget==='song'?renderSong(passes):renderTake(passes)),wav=wavFromBuffer(buf);
-  rendered={buffer:buf,wav};
+  let buf=await(rtarget==='song'?renderSong(passes):renderTake(passes));
+  const lp=rloop&&lastLen>0;if(lp)buf=foldLoop(buf,lastLen);
+  const wav=wavFromBuffer(buf);
+  rendered={buffer:buf,wav,loop:lp};
   txt($('#expMsg'),'Rendered '+fmtTime(buf.duration)+' · '+(wav.byteLength/1048576).toFixed(1)+' MB. Listen first, then save.'+(window.claude?' The file is saved as a .zip with the .wav inside, because that is the only way this page can hand over audio.':''));
   $('#listenBtn').hidden=false;$('#saveWav').hidden=false;
  }catch(e){txt($('#expMsg'),'Could not render: '+(e&&e.message?e.message:e))}
@@ -1716,7 +1728,7 @@ async function doRender(){
 function listen(){
  if(lsrc){try{lsrc.stop()}catch(e){}lsrc=null;$('#listenBtn').textContent='Listen';return}
  if(!rendered)return;ensureAudio();
- const s=ctx.createBufferSource();s.buffer=rendered.buffer;s.connect(ctx.destination);
+ const s=ctx.createBufferSource();s.buffer=rendered.buffer;s.loop=!!rendered.loop;s.connect(ctx.destination);
  s.onended=()=>{lsrc=null;$('#listenBtn').textContent='Listen'};s.start();lsrc=s;$('#listenBtn').textContent='Stop';
 }
 async function saveFile(){
@@ -1738,6 +1750,7 @@ async function saveFile(){
  }
 }
 $('#renderBtn').onclick=doRender;$('#listenBtn').onclick=listen;$('#saveWav').onclick=saveFile;
+seg('#mLoop',[[false,'Normal'],[true,'Seamless loop']],()=>rloop,v=>{rloop=v;resetExport();updateTakeUI()});
 seg('#mTarget',[['take','Take'],['song','Whole song']],()=>rtarget,v=>{rtarget=v;resetExport();updateTakeUI()});
 seg('#mPass',[[1,'1×'],[2,'2×'],[4,'4×']],()=>passes,v=>{passes=v;resetExport()});
 
@@ -2263,7 +2276,7 @@ function renderSong(nPass){
  try{
   const times=[];let tt=0;
   songWalk(plan,nPass,gb,n=>{times[n]=tt;tt+=SD()});
-  const dur=tt+3.5;
+  lastLen=tt;const dur=tt+3.5;
   if(dur>480)throw new Error('Too long to render here (limit 8 minutes). Use fewer loops.');
   const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext;
   off=new OAC(2,Math.ceil(dur*SR),SR);
