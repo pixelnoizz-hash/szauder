@@ -551,7 +551,7 @@ function arpNote(tr,pool){
  if(dir==='down')seq=pool.slice().reverse();
  else if(dir==='updown')seq=pool.concat(pool.slice(1,-1).reverse());
  else seq=pool;
- return seq[tr.ai++%seq.length];
+ return seq[(tr.ai++ +(tr.arp.start|0))%seq.length];
 }
 function nextOnDist(arr,i){for(let k=1;k<=16;k++)if(arr[(i+k)%16])return k;return 16}
 function playSynth(k,t,i,bar,sd){
@@ -922,6 +922,7 @@ function renderPanel(){
  $('#fArp').hidden=tr.m!=='arp';$('#fExt').hidden=tr.m==='bass';$('#fPitch').hidden=tr.m!=='bass';
  const sb=$('#sliders');sb.innerHTML='';const p=tr.params;
  if(tr.m!=='arp')mkSlider(sb,'Length',1,16,1,tr.len,v=>v+' steps',v=>{tr.len=v;paintRow('y'+st.sel)});
+ if(tr.m==='arp')mkSlider(sb,'Start note',1,8,1,(tr.arp.start|0)+1,v=>'note '+v,v=>{tr.arp.start=v-1});
  if(tr.eng==='dx7'){mkSlider(sb,'Volume',0,1,.01,tr.vol,v=>Math.round(v*100)+'%',v=>{tr.vol=v;applyTrack(tr)});dxPanel(sb,tr,p)}
  else if(tr.eng==='vcs3'){mkSlider(sb,'Volume',0,1,.01,tr.vol,v=>Math.round(v*100)+'%',v=>{tr.vol=v;applyTrack(tr)});vcPanel(sb,tr,p)}
  else{
