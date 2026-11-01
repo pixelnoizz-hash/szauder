@@ -112,6 +112,33 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
 .slN{min-width:34px;text-align:center;font:700 14px var(--mono)}
 #songView .field{flex-wrap:wrap}
 .patact{margin:0 0 4px;flex-wrap:nowrap;gap:6px}.patact .lab{display:none}.patact .pill.sm{padding:0 10px;font-size:12.5px;flex:none}.patact .seg button{padding:0 9px;font-size:12.5px}
+
+.cols{display:flex;flex-direction:column}
+.colL,.colR{display:contents}
+#styles{order:0}.saverow{order:1}#viewRow,#patView,#songView{order:2}#perf,#synth,#mix{order:3}
+/* Wide screens and phones on their side: two columns, the grid stays in view while the right column scrolls */
+@media (min-width:800px){
+ .app{max-width:1240px}
+ .cols{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:28px;align-items:start}
+ .colL,.colR{display:block}
+ .colL{position:sticky;top:calc(var(--barh,78px) + 4px);max-height:calc(100vh - var(--barh,78px) - var(--kbh,190px) - 12px);overflow-y:auto;scrollbar-width:thin;padding-bottom:6px}
+ .colR>.panel:first-child{margin-top:0}
+ .kin{max-width:760px}
+}
+@media (min-width:560px) and (max-width:799px){.app{max-width:720px}.kin{max-width:720px}}
+@media (max-height:520px) and (orientation:landscape){
+ header .eyebrow,header .meta,.hint,.beatnums{display:none}
+ h1{font-size:22px;margin:0}
+ .app{padding-block:6px calc(var(--kbh,40px) + 12px)}
+ .bar{padding:5px 0;gap:6px}
+ .play{width:44px;height:44px}.play svg{width:20px;height:20px}
+ .bpm button{width:32px;height:32px}.bpm b{font-size:19px}
+ .pill{height:36px}
+ .cell{height:26px}.grid{gap:5px}.rl{min-height:26px;padding:2px 0}
+ .keys{height:56px}
+ .panel{margin-top:14px}
+ .saverow{margin-bottom:6px}
+}
 .dxd svg{width:100%;height:auto;max-height:190px;display:block;margin:2px 0}
 .dxn{cursor:pointer;outline:none}.dxn circle{fill:var(--cell);stroke:var(--ink);stroke-width:1.5}
 .dxn.car circle{fill:var(--ink)}.dxn.sel circle{stroke:var(--ac);stroke-width:4}
@@ -166,9 +193,8 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
     <button id="rec" class="pill rec" type="button" aria-pressed="false" aria-label="Record your moves"><span class="dot"></span><span class="t">Rec</span></button>
   </div>
 
-  <nav id="styles" class="chips" aria-label="Styles"></nav>
-  <div class="saverow"><input id="saveName" type="text" maxlength="24" placeholder="Name to save, e.g. Morning loop" aria-label="Project name"><button id="saveBtn" class="pill">Save</button><span id="saveMsg" class="tip" role="status"></span></div>
 
+  <div class="cols"><div class="colL">
   <div class="field" id="viewRow"><span class="lab">View</span><div class="seg" id="view"></div></div>
   <div id="patView">
   <nav id="pager" class="chips pager" aria-label="Patterns"></nav>
@@ -194,6 +220,9 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
     <p id="songMsg" class="tip" role="status"></p>
   </section>
 
+  </div><div class="colR">
+  <nav id="styles" class="chips" aria-label="Styles"></nav>
+  <div class="saverow"><input id="saveName" type="text" maxlength="24" placeholder="Name to save, e.g. Morning loop" aria-label="Project name"><button id="saveBtn" class="pill">Save</button><span id="saveMsg" class="tip" role="status"></span></div>
   <section class="panel" id="perf">
     <div class="hrow"><h2>Performance</h2><span id="takeInfo" class="meta"></span></div>
     <p id="takeMsg" class="tip" role="status"></p>
@@ -232,6 +261,7 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
     <label><span class="lab">Perc sound</span><select id="pvSel"></select></label>
     <p class="tip">Press play first to start the audio. Also check your phone's silent switch.</p>
   </section>
+  </div></div>
 </div>
 
 <div id="kbd" class="kbd" role="group" aria-label="Keyboard">
@@ -1255,9 +1285,11 @@ function frame(){
  if(uiPending()&&!sliderHeld&&performance.now()-lastUi>110){lastUi=performance.now();flushUI()}
  requestAnimationFrame(frame);
 }
+let wakeL=null;
 function start(){
  playing=true;abs=0;curAbs=-1;touch={};pendingFresh=false;
  patOnStart();
+ try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(w=>{wakeL=w}).catch(()=>{})}catch(e){}
  if(takeActive()){
   const cur=snapFlat();let folded=false;
   if(base)for(const k in cur)if(cur[k]!==base[k]){setPathIn(take.s0,k,cur[k]);folded=true}
@@ -1275,6 +1307,7 @@ function stop(){
   if(take&&take.len===0)finalizeTake();
   else if(recArm&&takeActive()){captureChanges(Math.max(0,Math.min(abs,take.len)-1));persistTake();resetExport()}
  }
+ try{if(wakeL){wakeL.release();wakeL=null}}catch(e){}
  playing=false;clearInterval(timer);queue.length=0;setNow(-1,0);
  recArm=false;pendingFresh=false;touch={};base=snapFlat();curAbs=-1;
  $('#play').classList.remove('on');$('#play').setAttribute('aria-label','Play');
@@ -1533,8 +1566,18 @@ kEl.addEventListener('pointermove',e=>{
 window.addEventListener('blur',kbReleaseAll);
 $('#kOm').onclick=()=>{kbReleaseAll();kb.oct=Math.max(1,kb.oct-1);kbOct()};
 $('#kOp').onclick=()=>{kbReleaseAll();kb.oct=Math.min(6,kb.oct+1);kbOct()};
-function setKbh(){document.documentElement.style.setProperty('--kbh',$('#kbd').offsetHeight+'px')}
-$('#kGrab').onclick=()=>{const m=$('#kbd').classList.toggle('min');$('#kGrab').setAttribute('aria-label',m?'Show keys':'Hide keys');setKbh()};
+function setKbh(){const r=document.documentElement.style;r.setProperty('--kbh',$('#kbd').offsetHeight+'px');const b=document.querySelector('.bar');if(b)r.setProperty('--barh',(b.offsetHeight+(parseFloat(getComputedStyle(b).top)||0))+'px')}
+function kbMin(m,save){$('#kbd').classList.toggle('min',m);$('#kGrab').setAttribute('aria-label',m?'Show keys':'Hide keys');if(save)try{localStorage.setItem('racsgep.kmin',m?'1':'0')}catch(e){}setKbh()}
+$('#kGrab').onclick=()=>kbMin(!$('#kbd').classList.contains('min'),true);
+{let v=null;try{v=localStorage.getItem('racsgep.kmin')}catch(e){}
+ if(v===null&&window.matchMedia&&matchMedia('(max-height:520px) and (orientation:landscape)').matches)v='1';
+ if(v==='1')kbMin(true,false)}
+/* desktop: 1-8 jump to a pattern (space already plays) */
+window.addEventListener('keydown',e=>{
+ if(e.ctrlKey||e.metaKey||e.altKey)return;
+ const t=e.target,tag=t&&t.tagName;if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||tag==='BUTTON')return;
+ if(/^[1-8]$/.test(e.key)){const b=document.querySelectorAll('#pager .pg:not(.add)')[+e.key-1];if(b)b.click()}
+});
 if(window.ResizeObserver)new ResizeObserver(setKbh).observe($('#kbd'));
 window.addEventListener('resize',setKbh);
 const QK={a:0,w:1,s:2,e:3,d:4,f:5,t:6,g:7,y:8,h:9,u:10,j:11,k:12,o:13,l:14};
