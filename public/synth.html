@@ -914,6 +914,20 @@ PRE.push(
  csp('CS-80 Bass','CS-80',{c1:260,h1:30,f1:2600,a1:.006,r1:.15,c2:420,h2:60,f2:1800,a2:.01,r2:.2,m2:.4,d:.3,s:.35,det:4,vib:0,sw:0,drv:.3,res:3,v:.05,e:.1,ch:0}),
  csp('CS-80 Pluck','CS-80',{c1:700,f1:3500,a1:.003,r1:.3,c2:1400,h2:250,f2:3000,a2:.004,r2:.4,m2:.5,d:.28,s:.05,det:6,vib:3,sw:0,drv:.15,res:2.5,v:.35})
 );
+
+/* ---------- Oxygene-style: VCS3 sequence + lead, string machine ---------- */
+PRE.push(
+ vcp('Oxy Lead','Oxygene',{o1w:'pulse',o2w:'sawtooth',o2s:0,o2d:9,o3w:'sine',o3f:5.3,cut:1900,res:3,a:.03,d:.5,s:.8,r:.5,e:.4,v:.6,ch:1},[[0,3,1],[1,3,.6],[2,0,.06],[2,1,.06],[2,2,.12],[5,2,.25]]),
+ vcp('Oxy Sequence','Oxygene',{o1w:'sawtooth',o2w:'pulse',o2s:-12,o2d:4,o3w:'sine',o3f:.4,cut:700,res:6,a:.003,d:.18,s:.15,r:.12,e:.3,v:.25,ch:0},[[0,3,1],[1,3,.7],[5,2,.55],[2,2,.1]]),
+ vcp('Oxy Wind','Oxygene',{o3w:'sine',o3f:.18,cut:900,res:7,a:1.4,d:1.5,s:.8,r:1.8,e:.2,v:.7,ch:0},[[3,3,1],[2,2,.45],[5,2,.2]])
+);
+STYLES.push(
+ SX(S('Oxygene',122,9,'moll','analog sequence',50,['#7fb7c9','#c9e3ea','#143c52'],'dusty','rim',[0,0,5,3],.35,.55,
+  {k:'x.......x.......',s:'....x.......x...',h:'x.x.x.x.x.x.x.x.',p:'......x.......x.'},
+  T('Oxy Sequence','bass','xxxxxxxxxxxxxxxx',{oct:3,len:1,vol:1,deg:[0,2,4,2,0,2,4,2,0,2,4,2,0,2,4,2]}),
+  T('Oxy Lead','bass','x.....x...x.....',{oct:4,len:4,vol:1,deg:Z({0:4,6:2,10:3})})),{hum:10,tape:.2,
+  C:T('CS-80 Layer Strings','chord','x...............',{ext:3,len:16,vol:.5})})
+);
 /* ---------- Felület ---------- */
 const cells={},rowEls={},labEls={},labT={};let ROWS=[];const yk=r=>+r.slice(1);
 const root=document.documentElement;
