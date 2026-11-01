@@ -52,6 +52,7 @@ button{cursor:pointer;border:0;background:none}
 .mrow{display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap}
 .mrow .mn{flex:1;min-width:150px;font-size:12.5px}
 .mrow select{max-width:100%;height:32px}
+.more{margin:6px 0 2px}.more summary{cursor:pointer;font:600 10.5px var(--body);letter-spacing:.07em;text-transform:uppercase;padding:8px 0;opacity:.7}
 .chk{display:flex;align-items:center;gap:6px;font-size:13px}
 .cell:nth-child(4n+1):not(:first-child){margin-left:4px}
 .tri .steps,.tri .pitch{grid-template-columns:repeat(12,1fr)}
@@ -127,7 +128,7 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
 
 .cols{display:flex;flex-direction:column}
 .colL,.colR{display:contents}
-#styles{order:0}.saverow{order:1}#viewRow,#patView,#songView{order:2}#perf,#synth,#mix{order:3}
+#styles{order:0}.saverow{order:1}#viewRow,#patView,#songView{order:2}#synth,#mix{order:3}#perf{order:4}#midiPanel{order:1}
 /* Wide screens and phones on their side: two columns, the grid stays in view while the right column scrolls */
 @media (min-width:800px){
  .app{max-width:1240px}
@@ -246,16 +247,7 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
   <nav id="styles" class="chips" aria-label="Styles"></nav>
   <div class="saverow"><input id="saveName" type="text" maxlength="24" placeholder="Name to save, e.g. Morning loop" aria-label="Project name"><button id="saveBtn" class="pill">Save</button><button id="midiBtn" class="pill" type="button">MIDI</button><input id="midiFile" type="file" accept=".mid,.midi,audio/midi" hidden><span id="saveMsg" class="tip" role="status"></span><span id="midiMsg" class="tip" role="status"></span></div>
   <section class="panel" id="midiPanel" hidden></section>
-  <section class="panel" id="perf">
-    <div class="hrow"><h2>Performance</h2><span id="takeInfo" class="meta"></span></div>
-    <p id="takeMsg" class="tip" role="status"></p>
-    <div class="field"><button id="followBtn" class="pill on" type="button">Follow take: on</button><button id="clearTake" class="pill" type="button">Clear take</button></div>
-    <div class="field"><span class="lab">Render</span><div class="seg" id="mTarget"></div></div>
-    <div class="field"><span class="lab">Ending</span><div class="seg" id="mLoop"></div><span class="tip">Seamless: the reverb tail wraps to the start, so it loops cleanly</span></div>
-    <div class="field"><span class="lab">Loops in file</span><div class="seg" id="mPass"></div></div>
-    <div class="field"><button id="renderBtn" class="pill go" type="button">Render WAV</button><button id="listenBtn" class="pill" type="button" hidden>Listen</button><button id="saveWav" class="pill on" type="button" hidden>Save file</button></div>
-    <p id="expMsg" class="tip" role="status"></p>
-  </section>
+
 
   <section class="panel" id="synth">
     <div class="hrow"><h2>Synths</h2><button id="advBtn" class="pill" type="button" aria-pressed="false">Advanced</button></div>
@@ -286,6 +278,16 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
     </div>
     <label><span class="lab">Perc sound</span><select id="pvSel"></select></label>
     <p class="tip">Press play first to start the audio. Also check your phone's silent switch.</p>
+  </section>
+  <section class="panel" id="perf">
+    <div class="hrow"><h2>Performance</h2><span id="takeInfo" class="meta"></span></div>
+    <p id="takeMsg" class="tip" role="status"></p>
+    <div class="field"><button id="followBtn" class="pill on" type="button">Follow take: on</button><button id="clearTake" class="pill" type="button">Clear take</button></div>
+    <div class="field"><span class="lab">Render</span><div class="seg" id="mTarget"></div></div>
+    <div class="field"><span class="lab">Ending</span><div class="seg" id="mLoop"></div><span class="tip">Seamless: the reverb tail wraps to the start, so it loops cleanly</span></div>
+    <div class="field"><span class="lab">Loops in file</span><div class="seg" id="mPass"></div></div>
+    <div class="field"><button id="renderBtn" class="pill go" type="button">Render WAV</button><button id="listenBtn" class="pill" type="button" hidden>Listen</button><button id="saveWav" class="pill on" type="button" hidden>Save file</button></div>
+    <p id="expMsg" class="tip" role="status"></p>
   </section>
   </div></div>
 </div>
@@ -446,7 +448,7 @@ const PVL={rim:'Rim',ride:'Ride',shaker:'Shaker',tom:'Tom',cowbell:'Cowbell'};
 
 /* ---------- Állapot ---------- */
 const pat=s=>Array.from({length:16},(_,i)=>(s&&s[i]==='x')?1:(s&&s[i]==='o')?2:0);
-const st={bpm:130,root:5,sc:'moll',sw:50,hum:0,pump:0,tape:0,echo:.25,rev:.25,master:.8,kit:'909',pv:'ride',prog:[0,0,0,0],d:{},mute:{},syn:[],sel:0,si:0,tag:'',name:'',key:'b0'};
+const st={bpm:130,root:5,sc:'moll',sw:50,hum:0,pump:0,tape:0,cor:0,cw:{pi:.7,rd:.8,fm:1,dh:.6,mr:.5},echo:.25,rev:.25,master:.8,kit:'909',pv:'ride',prog:[0,0,0,0],d:{},mute:{},syn:[],sel:0,si:0,tag:'',name:'',key:'b0'};
 
 function dropNodes(tr){if(tr&&tr.n){try{tr.n.out.disconnect()}catch(e){}tr.n=null}}
 function mkTrack(t,old,k){
@@ -455,7 +457,7 @@ function mkTrack(t,old,k){
  tr.params=cp(PRE[pi]);return tr;
 }
 function loadStyleData(i){
- const s=STYLES[i];st.si=i;st.name=s.n;st.bpm=s.bpm;st.root=s.root;st.sc=s.sc;st.sw=s.sw;st.tri=s.tri||0;st.hum=s.hum||0;st.pump=s.pump||0;st.tape=s.tape||0;st.echo=s.echo;st.rev=s.rev;st.kit=s.kit;st.pv=s.pv;st.prog=s.prog.slice();st.tag=s.tag;
+ const s=STYLES[i];st.si=i;st.name=s.n;st.bpm=s.bpm;st.root=s.root;st.sc=s.sc;st.sw=s.sw;st.tri=s.tri||0;st.cor=s.cor||0;st.hum=s.hum||0;st.pump=s.pump||0;st.tape=s.tape||0;st.echo=s.echo;st.rev=s.rev;st.kit=s.kit;st.pv=s.pv;st.prog=s.prog.slice();st.tag=s.tag;
  LANES.forEach(([k])=>{st.d[k]=pat(s.d[k]);st.mute[k]=false});
  const old=st.syn;old.slice(3).forEach(dropNodes);st.sel=Math.min(st.sel||0,2);st.syn=[mkTrack(s.A,old[0],0),mkTrack(s.B,old[1],1),mkTrack(s.C||defaultC(),old[2],2)];
 }
@@ -511,7 +513,7 @@ function buildGraph(){
  for(let i=0;i<vd.length;i++)vd[i]=(Math.random()*2-1)*.05;
  for(let c=0;c<70;c++){const p0=Math.floor(Math.random()*(vd.length-400)),a0=(.4+Math.random()*.6)*(Math.random()<.5?-1:1),ln=20+Math.floor(Math.random()*160);for(let j=0;j<ln;j++)vd[p0+j]+=a0*Math.exp(-4*j/ln)*(Math.random()*.6+.4)}
  const vs=ctx.createBufferSource();vs.buffer=vb;vs.loop=true;vs.connect(vhp);vhp.connect(vg);vg.connect(comp);vs.start();
- const duck=ctx.createGain();duck.connect(master);ctx.__tp={tdry,twet,tlp,vg};ctx.__duck=duck;{const bd=ctx.createConstantSource();bd.offset.value=0;bd.start();ctx.__bend=bd}
+ const duck=ctx.createGain();duck.connect(master);ctx.__tp={tdry,twet,tlp,vg};ctx.__duck=duck;{const bd=ctx.createConstantSource();bd.offset.value=0;bd.start();ctx.__bend=bd;const dr=ctx.createConstantSource();dr.offset.value=0;dr.start();ctx.__drift=dr}
  drumBus=ctx.createGain();drumBus.gain.value=.9;drumBus.connect(master);
  echoIn=ctx.createGain();echoDel=ctx.createDelay(2);const fb=ctx.createGain(),lp=ctx.createBiquadFilter();fb.gain.value=.5;lp.type='lowpass';lp.frequency.value=3000;
  echoRet=ctx.createGain();echoIn.connect(echoDel);echoDel.connect(lp);lp.connect(fb);fb.connect(echoDel);lp.connect(echoRet);echoRet.connect(master);
@@ -550,7 +552,21 @@ function hit(r,v,t){const k=KITS[st.kit];if(r==='p')PV[st.pv](t,v);else DR[r](t,
 
 /* ---------- Szinti ---------- */
 const SHP={};function shape(a){const k=Math.round(a*20);if(!SHP[k]){const c=new Float32Array(512),g=1+k*.4;for(let i=0;i<512;i++){const x=i/256-1;c[i]=Math.tanh(x*g)/Math.tanh(g)}SHP[k]=c}return SHP[k]}
+/* ---------- Corruption engine ---------- */
+const CV=k=>{const m=st.cor||0;return m<=0?0:Math.min(1,Math.pow(m,1.15)*((st.cw&&st.cw[k])==null?1:st.cw[k]))};
+const CJ=sd=>{const r=CV('rd');return r>0?(Math.random()*2-1)*r*sd*.9:0};
+const DIS=[1,-1,6,-6,11,-11,13,-13];
+let STUT=0;
+function cdiss(ns){const p=CV('dh')*.4;return p>0?ns.map(n=>Math.random()<p?n+DIS[(Math.random()*DIS.length)|0]:n):ns}
+function corStut(tr,t){
+ const m=CV('mr');if(m<=0){tr.stut=0;return false}
+ if(tr.stut>0){tr.stut--;if(tr.lastT){STUT=1;try{trig(tr,t,tr.lastT.n,tr.lastT.d,tr.lastT.v)}finally{STUT=0}}return true}
+ if(Math.random()<m*.08)tr.stut=1+Math.floor(Math.random()*5);
+ return false;
+}
+const bendConn=o=>{if(ctx.__bend)ctx.__bend.connect(o.detune);if(ctx.__drift)ctx.__drift.connect(o.detune)};
 function trig(tr,t,notes,dur,vel){
+ if(!STUT&&(st.cor||0)>0&&st.syn.indexOf(tr)>=0){notes=cdiss(notes);if(isFinite(dur))tr.lastT={n:notes,d:dur,v:vel}}
  const v=trig0(tr,t,notes,dur,vel);
  if(v&&v.upd&&ctx){const fin=isFinite(dur);v.t0=t;v.tOff=fin?t+dur:Infinity;v.end=fin?t+dur+8:Infinity;
   const L=tr.vs||(tr.vs=[]);L.push(v);if(L.length>48)tr.vs=L.filter(x=>!x.dead&&x.end>ctx.currentTime)}
@@ -571,11 +587,11 @@ function trig0(tr,t,notes,dur,vel){
  f1.type=f2.type='lowpass';f1.Q.value=p.res;f2.Q.value=p.lq||0;
  const lo=Math.min(Math.max(p.cut,60),16000),pk=Math.min(lo+p.env,16000),su=Math.min(Math.max(lo+p.env*p.s,60),16000),a=Math.max(p.a,.004);
  [f1,f2].forEach(f=>{const q=f.frequency;q.setValueAtTime(lo,t);q.exponentialRampToValueAtTime(Math.max(pk,lo+1),t+a);q.exponentialRampToValueAtTime(su,t+a+p.d);if(!held)q.setTargetAtTime(lo,t+dur,p.r/3)});
- const peak=.34*vel;amp.gain.setValueAtTime(0,t);amp.gain.linearRampToValueAtTime(peak,t+a);amp.gain.setTargetAtTime(peak*p.s,t+a,p.d/3);if(!held)amp.gain.setTargetAtTime(0,t+dur,p.r/3);
+ const peak=.34*vel*(1-CV('fm')*.35);amp.gain.setValueAtTime(0,t);amp.gain.linearRampToValueAtTime(peak,t+a);amp.gain.setTargetAtTime(peak*p.s,t+a,p.d/3);if(!held)amp.gain.setTargetAtTime(0,t+dur,p.r/3);
  const gs=ctx.createGain(),gq=ctx.createGain(),gb=ctx.createGain();gs.gain.value=p.saw*.5*sc;gq.gain.value=p.sq*.5*sc;gb.gain.value=p.sub*.5*sc;
- [gs,gq,gb].forEach(g=>g.connect(f1));f1.connect(f2);if(p.drv>0){const ws=ctx.createWaveShaper();ws.curve=shape(p.drv);f2.connect(ws);ws.connect(amp)}else f2.connect(amp);amp.connect(tr.n.inp);
+ [gs,gq,gb].forEach(g=>g.connect(f1));f1.connect(f2);const dvv=Math.min(1,(p.drv||0)+CV('fm')*.85);if(dvv>0){const ws=ctx.createWaveShaper();ws.curve=shape(dvv);f2.connect(ws);ws.connect(amp)}else f2.connect(amp);amp.connect(tr.n.inp);
  const end=held?null:t+dur+p.r*2+.05;
- const osc=(type,f,c,g)=>{const o=ctx.createOscillator();if(type==='pulse')o.setPeriodicWave(PW);else o.type=type;o.frequency.value=f;o.detune.value=c+(p.dr?(Math.random()*2-1)*p.dr:0);if(ctx.__bend)ctx.__bend.connect(o.detune);o.connect(g);o.start(t);if(end==null)srcs.push(o);else o.stop(end)};
+ const osc=(type,f,c,g)=>{const o=ctx.createOscillator();if(type==='pulse')o.setPeriodicWave(PW);else o.type=type;o.frequency.value=f;o.detune.value=c+(p.dr?(Math.random()*2-1)*p.dr:0);bendConn(o);o.connect(g);o.start(t);if(end==null)srcs.push(o);else o.stop(end)};
  notes.forEach(n=>{const fr=mtof(n);
   if(p.saw>0){osc('sawtooth',fr,p.det,gs);if(p.det>0)osc('sawtooth',fr,-p.det,gs)}
   if(p.sq>0)osc('pulse',fr,p.det*.5,gq);
@@ -625,6 +641,8 @@ const GN=()=>st.tri?12:16,SD=()=>60/st.bpm/(st.tri?3:4),SWG=(n,sd)=>st.tri?0:((n
 function nextOnDist(arr,i){const G=GN();for(let k=1;k<=G;k++)if(arr[(i+k)%G])return k;return G}
 function playSynth(k,t,i,bar,sd){
  const tr=st.syn[k];if(tr&&tr.m==='roll'){if(!tr.mute&&tr.n)playRoll(tr,t,i,sd,CAB);return}
+ if(tr.mute||!tr.n)return;
+ if(st.cor>0){t=Math.max(0,t+CJ(sd));if(corStut(tr,t))return}
  if(tr.mute||!tr.on[i]||!tr.n)return;
  const H=st.hum||0;if(H)t=Math.max(0,t+(Math.random()*2-1)*H/100*.014);
  const d=st.prog[bar%st.prog.length],vel=(.9+Math.random()*.1)*(H?1-H/100*.25*Math.random():1);
@@ -644,10 +662,11 @@ function playSynth(k,t,i,bar,sd){
 let playing=false,abs=0,nextT=0,timer=null,CAB=0;const queue=[];
 function playStep(i,b,t,sd,ab){
  const H=st.hum||0;CAB=ab==null?b:ab;
+ if(ctx.__drift){if((st.cor||0)>0)ctx.__drift.offset.setTargetAtTime((Math.random()*2-1)*CV('pi')*140,t,sd*1.5);else ctx.__drift.offset.setTargetAtTime(0,t,.1)}
  LANES.forEach(([r])=>{const v=st.d[r][i];if(v&&!st.mute[r]){
   let tt=t,vv=v===2?.45:1;
   if(H){tt+=(Math.random()*2-1)*H/100*(r==='k'?.008:.02)+((r==='s'||r==='c')?H/100*.012:0);vv*=1-H/100*.3*Math.random()}
-  hit(r,vv,Math.max(tt,0));
+  if(st.cor>0)tt+=CJ(sd)*.5;hit(r,vv,Math.max(tt,0));
   if(r==='k'&&st.pump>0)pumpAt(t,sd);
  }});
  if(i===0)st.syn.forEach(tr=>tr.ai=0);
@@ -708,7 +727,7 @@ function fbWave(lev){
 function trigDX(tr,t,notes,dur,vel){
  const p=tr.params;if(!p||!p.ops||p.ops.length<6)return null;
  const held=!isFinite(dur),al=ALG[Math.max(0,Math.min(31,Math.round(p.alg||1)-1))];
- const sc=1/Math.sqrt(notes.length),IDX=10*(p.mi==null?1:p.mi),fl=Math.round(p.fb||0);
+ const sc=1/Math.sqrt(notes.length),IDX=10*(p.mi==null?1:p.mi)*(1+CV('fm')*2.5),fl=Math.round(p.fb||0);
  const isCar=[0,0,0,0,0,0];al.car.forEach(o=>{isCar[o]=1});
  const out=ctx.createGain();out.gain.value=.3*vel*sc/Math.sqrt(al.car.length);out.connect(tr.n.inp);
  const srcs=[],gs=[];let maxR=.05;
@@ -763,7 +782,7 @@ function trigVC(tr,t,notes,dur,vel){
  const PS=[1200,1200,400,1200,1200,2400],CS=[2400,2400,2400,2400,2400,4800],cut=Math.min(Math.max(p.cut||800,40),16000);
  notes.forEach(nt=>{
   const f0=mtof(nt);
-  const mk=(type,fr,det,bn)=>{const o=ctx.createOscillator();if(bn&&ctx.__bend)ctx.__bend.connect(o.detune);if(type==='pulse')o.setPeriodicWave(PW);else o.type=type;o.frequency.value=fr;o.detune.value=det||0;o.start(t);srcs.push(o);return o};
+  const mk=(type,fr,det,bn)=>{const o=ctx.createOscillator();if(bn)bendConn(o);if(type==='pulse')o.setPeriodicWave(PW);else o.type=type;o.frequency.value=fr;o.detune.value=det||0;o.start(t);srcs.push(o);return o};
   const o1=mk(p.o1w||'sawtooth',f0,0,1),o2=mk(p.o2w||'sawtooth',f0*Math.pow(2,(p.o2s||0)/12),p.o2d,1),o3=mk(p.o3w||'sine',Math.max(p.o3f||1,.01));
   const nz=ctx.createBufferSource();nz.buffer=NB;nz.loop=true;nz.start(t,Math.random()*.5);srcs.push(nz);
   const ng=ctx.createGain();ng.gain.value=.6;nz.connect(ng);
@@ -910,8 +929,8 @@ function trigCS(tr,t,notes,dur,vel){
  const p=tr.params;if(!p||p.x!=='cs80')return null;
  const held=!isFinite(dur),sc=1/Math.sqrt(notes.length),srcs=[],envs=[],fq=[];
  const d=Math.max(p.d,.05),s=p.s;
- const mas=ctx.createGain();mas.gain.value=.3*vel*sc;
- let dest=mas;if(p.drv>0){const ws=ctx.createWaveShaper();ws.curve=shape(p.drv);ws.connect(mas);dest=ws}
+ const mas=ctx.createGain();mas.gain.value=.3*vel*sc*(1-CV('fm')*.35);
+ let dest=mas;const dvv=Math.min(1,(p.drv||0)+CV('fm')*.85);if(dvv>0){const ws=ctx.createWaveShaper();ws.curve=shape(dvv);ws.connect(mas);dest=ws}
  mas.connect(tr.n.inp);
  /* vibrato LFO, onset delayed like the real thing */
  const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=p.vr;lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(p.vib,t+.6);lfo.connect(lg);lfo.start(t);srcs.push(lfo);
@@ -934,7 +953,7 @@ function trigCS(tr,t,notes,dur,vel){
    const fr=mtof(n);
    const mk=(type,det,g)=>{const o=ctx.createOscillator();if(type==='pulse')o.setPeriodicWave(PW);else o.type=type;o.frequency.value=fr;
     const base=det+oc;o.detune.setValueAtTime(base+(p.rib||0)*100,t);if(p.rib)o.detune.linearRampToValueAtTime(base,t+Math.max(p.rt,.02));
-    lg.connect(o.detune);if(ctx.__bend)ctx.__bend.connect(o.detune);o.connect(g);o.start(t);srcs.push(o)};
+    lg.connect(o.detune);bendConn(o);o.connect(g);o.start(t);srcs.push(o)};
    mk('sawtooth',dt,sg);mk('sawtooth',-dt*.6,sg);mk('pulse',dt*.4,pg);
   });
  };
@@ -1104,7 +1123,7 @@ function afterLoad(){
 function applyStyle(i){loadStyleData(i);st.key='b'+i;initPats();afterLoad()}
 function applyProject(j){
  const p=projects[j];st.name=p.name;st.key='u'+j;st.tag='saved';
- ['bpm','root','sc','sw','echo','rev','kit','pv'].forEach(k=>st[k]=p[k]);st.hum=p.hum||0;st.pump=p.pump||0;st.tape=p.tape||0;st.tri=p.tri||0;st.prog=p.prog.slice();
+ ['bpm','root','sc','sw','echo','rev','kit','pv'].forEach(k=>st[k]=p[k]);st.hum=p.hum||0;st.pump=p.pump||0;st.tape=p.tape||0;st.cor=p.cor||0;if(p.cw)st.cw=Object.assign({},st.cw,p.cw);st.tri=p.tri||0;st.prog=p.prog.slice();
  LANES.forEach(([k])=>{st.d[k]=p.d[k].slice();st.mute[k]=false});
  const old=st.syn;
  st.syn=p.syn.map((t,k)=>{const tr=JSON.parse(JSON.stringify(t));tr.mute=false;tr.ai=0;tr.n=old[k]?old[k].n:null;tr.eng=t.eng||(k===2?'moog':'juno');tr.params=cp(tr.params);
@@ -1117,7 +1136,7 @@ function applyProject(j){
 function saveProject(){
  const inp=$('#saveName'),name=(inp.value||'').trim()||('Project '+(projects.length+1));
  const d={};LANES.forEach(([k])=>d[k]=st.d[k].slice());
- const snap={name,tri:st.tri||0,bpm:st.bpm,root:st.root,sc:st.sc,sw:st.sw,hum:st.hum,pump:st.pump,tape:st.tape,echo:st.echo,rev:st.rev,kit:st.kit,pv:st.pv,prog:st.prog.slice(),d,
+ const snap={name,tri:st.tri||0,bpm:st.bpm,root:st.root,sc:st.sc,sw:st.sw,hum:st.hum,pump:st.pump,tape:st.tape,cor:st.cor||0,cw:Object.assign({},st.cw),echo:st.echo,rev:st.rev,kit:st.kit,pv:st.pv,prog:st.prog.slice(),d,
   syn:st.syn.map(tr=>({eng:tr.eng,p:tr.p,params:cp(tr.params),m:tr.m,on:tr.on.slice(),ext:tr.ext,oct:tr.oct,len:tr.len,vol:tr.vol,arp:Object.assign({},tr.arp),deg:tr.deg.slice(),notes:tr.notes,rl:tr.rl,tp:tr.tp,gt:tr.gt}))};
  snap.take=(take&&take.len)?cloneJ(take):null;patSave(snap);
  const ex=projects.findIndex(p=>p.name===name);if(ex>=0)projects[ex]=snap;else projects.push(snap);
@@ -1278,6 +1297,11 @@ function renderMix(){
  mkSlider(b,'Humanize',0,100,1,st.hum||0,v=>v+'%',v=>{st.hum=v});
  mkSlider(b,'Pump',0,1,.01,st.pump||0,v=>Math.round(v*100)+'%',v=>{st.pump=v});
  mkSlider(b,'Tape & vinyl',0,1,.01,st.tape||0,v=>Math.round(v*100)+'%',v=>{st.tape=v;applyFx()});
+ mkSlider(b,'Corruption',0,100,1,Math.round((st.cor||0)*100),v=>v+'%',v=>{st.cor=v/100});
+ {const dt=document.createElement('details');dt.className='more';dt.open=!!window.__corOpen;dt.ontoggle=()=>{window.__corOpen=dt.open};
+  dt.appendChild(el('summary',null,'Corruption · what breaks'));
+  [['pi','Pitch drift'],['rd','Timing slip'],['fm','FM & distortion'],['dh','Wrong notes'],['mr','Stuck motifs']].forEach(([k,l])=>mkSlider(dt,l,0,100,1,Math.round((st.cw[k]==null?1:st.cw[k])*100),v=>v+'%',v=>{st.cw[k]=v/100}));
+  b.appendChild(dt)}
  mkSlider(b,'Echo',0,1,.01,st.echo,v=>Math.round(v*100)+'%',v=>{st.echo=v;applyFx()});
  mkSlider(b,'Space',0,1,.01,st.rev,v=>Math.round(v*100)+'%',v=>{st.rev=v;applyFx()});
  mkSlider(b,'Master volume',0,1,.01,st.master,v=>Math.round(v*100)+'%',v=>{st.master=v;applyFx()});
@@ -1483,7 +1507,7 @@ const UI0=()=>({grid:0,prog:0,mix:0,panel:0,head:0,pitch:0});
 let ui=UI0(),sliderHeld=false,lastUi=0;
 
 function snapState(){
- const o={bpm:st.bpm,root:st.root,sc:st.sc,sw:st.sw,hum:st.hum,pump:st.pump,tape:st.tape,echo:st.echo,rev:st.rev,master:st.master,kit:st.kit,pv:st.pv,prog:st.prog.slice(),d:{},mute:{}};
+ const o={bpm:st.bpm,root:st.root,sc:st.sc,sw:st.sw,hum:st.hum,pump:st.pump,tape:st.tape,cor:st.cor||0,echo:st.echo,rev:st.rev,master:st.master,kit:st.kit,pv:st.pv,prog:st.prog.slice(),d:{},mute:{}};
  LANES.forEach(([k])=>{o.d[k]=st.d[k].slice();o.mute[k]=!!st.mute[k]});
  o.syn=st.syn.map(tr=>({eng:tr.eng,m:tr.m,on:tr.on.slice(),ext:tr.ext,oct:tr.oct,len:tr.len,vol:tr.vol,mute:!!tr.mute,arp:Object.assign({},tr.arp),deg:tr.deg.slice(),params:cp(tr.params)}));
  return o;
@@ -1504,7 +1528,7 @@ function setPathIn(o,path,v){
 }
 function restoreSnap(s){
  const c=cloneJ(s);
- ['bpm','root','sc','sw','hum','pump','tape','echo','rev','master','kit','pv'].forEach(k=>{st[k]=c[k]});
+ ['bpm','root','sc','sw','hum','pump','tape','cor','echo','rev','master','kit','pv'].forEach(k=>{st[k]=(k==='cor'&&c[k]==null)?0:c[k]});
  st.prog=c.prog;LANES.forEach(([k])=>{st.d[k]=c.d[k];st.mute[k]=c.mute[k]});
  c.syn.forEach((t,k)=>{const tr=st.syn[k];if(!tr)return;Object.assign(tr,t);tr.ai=0;const j=PRE.findIndex(x=>x.n===tr.params.n);if(j>=0)tr.p=j});
 }
@@ -1518,7 +1542,7 @@ function markUI(p){
  if(/^syn\.\d\.(on|deg)\./.test(p))ui.pitch=1;
  else if(p.startsWith('syn.')&&!/^syn\.\d\.mute/.test(p)){ui.panel=1;ui.grid=1}
  if(p.startsWith('prog.'))ui.prog=1;
- if(/^(bpm|sw|hum|pump|tape|echo|rev|master)$/.test(p)){ui.mix=1;ui.head=1}
+ if(/^(bpm|sw|hum|pump|tape|cor|echo|rev|master)$/.test(p)){ui.mix=1;ui.head=1}
  if(/^(root|sc|kit|pv)$/.test(p)){ui.mix=1;ui.head=1;ui.prog=1;ui.grid=1}
 }
 function flushUI(){
@@ -2313,9 +2337,10 @@ function renderSong(nPass){
 function bisectN(a,x){let lo=0,hi=a.length;while(lo<hi){const m=(lo+hi)>>1;if(a[m][0]<x)lo=m+1;else hi=m}return lo}
 function playRoll(tr,t,i,sd,ab){
  const N=tr.notes;if(!N||!N.length)return;
+ if(st.cor>0&&corStut(tr,t+CJ(sd)))return;
  const G=GN(),w=4/G,L=tr.rl||16,ws=(((ab*G+i)*w)%L),we=ws+w,H=st.hum||0,spb=60/st.bpm,gt=tr.gt||.95;
  for(let k=bisectN(N,ws-1e-6);k<N.length&&N[k][0]<we-1e-6;k++){
-  const e=N[k];let tt=t+(e[0]-ws)/w*sd;
+  const e=N[k];let tt=t+(e[0]-ws)/w*sd+CJ(sd);
   if(H)tt+=(Math.random()*2-1)*H/100*.014;
   const vel=Math.min(1,e[3]*(H?1-H/100*.25*Math.random():1));
   trig(tr,Math.max(tt,0),[e[2]+(tr.tp|0)],Math.max(.03,e[1]*spb*gt),vel);
