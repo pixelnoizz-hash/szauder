@@ -101,6 +101,12 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
 #perf .meta{margin:0}
 .tools{display:flex;gap:8px;margin-top:10px}
 .seg.tight .sg{padding:7px 9px}
+.pill.sm{height:34px;padding:0 12px;font-size:13px}
+.pager{padding-bottom:6px}
+.pg{min-width:48px;padding:10px 0;text-align:center;font:800 17px var(--disp)}
+.pg.queued{box-shadow:inset 0 0 0 2px var(--ac)}
+.pg.add{opacity:.7}
+.patact{margin:0 0 4px;flex-wrap:nowrap;gap:6px}.patact .lab{display:none}.patact .pill.sm{padding:0 10px;font-size:12.5px;flex:none}.patact .seg button{padding:0 9px;font-size:12.5px}
 .dxd svg{width:100%;height:auto;max-height:190px;display:block;margin:2px 0}
 .dxn{cursor:pointer;outline:none}.dxn circle{fill:var(--cell);stroke:var(--ink);stroke-width:1.5}
 .dxn.car circle{fill:var(--ink)}.dxn.sel circle{stroke:var(--ac);stroke-width:4}
@@ -158,6 +164,10 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
   <nav id="styles" class="chips" aria-label="Styles"></nav>
   <div class="saverow"><input id="saveName" type="text" maxlength="24" placeholder="Name to save, e.g. Morning loop" aria-label="Project name"><button id="saveBtn" class="pill">Save</button><span id="saveMsg" class="tip" role="status"></span></div>
 
+  <nav id="pager" class="chips pager" aria-label="Patterns"></nav>
+  <div class="field patact"><span class="lab">Changes</span><div class="seg tight" id="scope" aria-label="Apply sound changes to"></div><button id="patDup" class="pill sm" type="button">Duplicate</button><button id="patDel" class="pill sm" type="button">Delete</button></div>
+  <p id="patMsg" class="tip" role="status"></p>
+
   <section id="grid" class="grid" aria-label="Step grid"></section>
   <div class="row" style="margin-top:4px"><span></span><div class="beatnums"><span>1</span><span>2</span><span>3</span><span>4</span></div></div>
   <p class="hint">Tap a step, or drag a finger along a row. Tap a row name to mute it, tap it again to hear it.</p>
@@ -178,6 +188,7 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px;margin:0}
   <section class="panel" id="synth">
     <div class="hrow"><h2>Synths</h2><button id="advBtn" class="pill" type="button" aria-pressed="false">Advanced</button></div>
     <div class="tabs" id="tabs"></div>
+    <div class="field" id="ovRow" hidden><p id="ovInfo" class="tip" style="flex:1;min-width:150px;margin:0"></p><button id="ovReset" class="pill sm" type="button">Reset to base</button></div>
     <div class="field" id="fAdd"><span class="lab">Tracks</span><select id="addEng" aria-label="Synth for the new track" style="width:auto;flex:none"></select><button id="addTrk" class="pill" type="button">Add track</button><button id="rmTrk" class="pill" type="button">Remove this track</button></div>
     <p id="trkMsg" class="tip" role="status"></p>
     <div class="field" id="fEng"><span class="lab">Synth</span><div class="seg tight" id="mEng"></div></div>
@@ -772,12 +783,12 @@ function loadSaved(){projects=lsGet('racsgep.proj')||[];(lsGet('racsgep.snd')||[
 function buildStyles(){
  const n=$('#styles');n.innerHTML='';
  STYLES.forEach((s,i)=>{const b=el('button','chip');b.type='button';b.dataset.k='b'+i;b.append(el('b',null,s.n),el('small',null,s.bpm+' BPM'));
-  b.onclick=()=>{ensureAudio();applyStyle(i)};n.appendChild(b)});
+  b.onclick=()=>{if(!styleGate('b'+i))return;ensureAudio();applyStyle(i)};n.appendChild(b)});
  projects.forEach((p,j)=>{
   const b=el('div','chip user'),t=el('span'),x=el('button','x','×');b.dataset.k='u'+j;b.tabIndex=0;b.setAttribute('role','button');
   t.append(el('b',null,p.name),el('small',null,p.bpm+' BPM · yours'));x.type='button';x.setAttribute('aria-label','Delete '+p.name);
   x.onclick=ev=>{ev.stopPropagation();projects.splice(j,1);persist();st.key='';buildStyles();setHead()};
-  b.append(t,x);b.onclick=()=>{ensureAudio();applyProject(j)};b.onkeydown=ev=>{if(ev.key==='Enter')b.onclick()};n.appendChild(b)});
+  b.append(t,x);b.onclick=()=>{if(!styleGate('u'+j))return;ensureAudio();applyProject(j)};b.onkeydown=ev=>{if(ev.key==='Enter')b.onclick()};n.appendChild(b)});
 }
 function setHead(){
  $('#sName').textContent=st.name;
@@ -787,11 +798,11 @@ function setHead(){
 }
 function afterLoad(){
  if(ctx){st.syn.forEach(tr=>{if(!tr.n)initTrackNodes(tr);else applyTrack(tr)});applyFx()}
- setHead();buildGrid();paintAll();renderProg();renderPanel();renderMix();
+ setHead();buildGrid();paintAll();renderProg();renderPanel();renderMix();buildPager();
  const a=[...$('#styles').children].find(c=>c.dataset.k===st.key);if(a&&a.scrollIntoView)a.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
  updateTakeUI();
 }
-function applyStyle(i){loadStyleData(i);st.key='b'+i;afterLoad()}
+function applyStyle(i){loadStyleData(i);st.key='b'+i;initPats();afterLoad()}
 function applyProject(j){
  const p=projects[j];st.name=p.name;st.key='u'+j;st.tag='saved';
  ['bpm','root','sc','sw','echo','rev','kit','pv'].forEach(k=>st[k]=p[k]);st.prog=p.prog.slice();
@@ -801,7 +812,7 @@ function applyProject(j){
   const ix=PRE.findIndex(x=>x.n===tr.params.n);tr.p=ix<0?0:ix;return tr});
  if(st.syn.length<3)st.syn.push(mkTrack(defaultC(),old[2],2));
  old.slice(st.syn.length).forEach(dropNodes);st.sel=Math.min(st.sel,st.syn.length-1);
- take=p.take?cloneJ(p.take):null;follow=true;pendingFresh=false;base=snapFlat();persistTake();resetExport();
+ take=p.take?cloneJ(p.take):null;follow=true;pendingFresh=false;restorePats(p);base=snapFlat();persistTake();resetExport();
  afterLoad();
 }
 function saveProject(){
@@ -809,7 +820,7 @@ function saveProject(){
  const d={};LANES.forEach(([k])=>d[k]=st.d[k].slice());
  const snap={name,bpm:st.bpm,root:st.root,sc:st.sc,sw:st.sw,echo:st.echo,rev:st.rev,kit:st.kit,pv:st.pv,prog:st.prog.slice(),d,
   syn:st.syn.map(tr=>({eng:tr.eng,p:tr.p,params:cp(tr.params),m:tr.m,on:tr.on.slice(),ext:tr.ext,oct:tr.oct,len:tr.len,vol:tr.vol,arp:Object.assign({},tr.arp),deg:tr.deg.slice()}))};
- snap.take=(take&&take.len)?cloneJ(take):null;
+ snap.take=(take&&take.len)?cloneJ(take):null;patSave(snap);
  const ex=projects.findIndex(p=>p.name===name);if(ex>=0)projects[ex]=snap;else projects.push(snap);
  persist();inp.value='';st.name=name;st.tag='saved';st.key='u'+(ex>=0?ex:projects.length-1);buildStyles();setHead();
  $('#saveMsg').textContent='Saved: '+name+'. It stays in this browser.';
@@ -871,7 +882,7 @@ function renderPanel(){
   mkSlider(sb,'Volume',0,1,.01,tr.vol,v=>Math.round(v*100)+'%',v=>{tr.vol=v;applyTrack(tr)});
   if(st.adv)advSliders(sb,tr,p);
  }
- renderPitch();
+ renderPitch();updOv();
 }
 function advSliders(sb,tr,p){
  const pc=v=>Math.round(v*100)+'%',S=(l,k,mn,mx,sp,f)=>mkSlider(sb,l,mn,mx,sp,p[k]||0,f||pc,v=>{p[k]=v;if(k==='e'||k==='v')applyTrack(tr)});
@@ -928,9 +939,9 @@ $('#pSel').onchange=e=>setPreset(+e.target.value);
 const trkMsg=t=>{$('#trkMsg').textContent=t};
 function addTrack(eng){
  if(st.syn.length>=6){trkMsg('Six tracks is the limit.');return}
- ensureAudio();
+ ensureAudio();patBeforeStruct();
  const tr=mkTrack(T(PRE[firstPreset(eng,'chord')].n,'chord','................',{ext:3,len:2,vol:.7}),null,0);
- tr.eng=eng;st.syn.push(tr);if(ctx)initTrackNodes(tr);
+ tr.eng=eng;st.syn.push(tr);if(ctx)initTrackNodes(tr);patTrackAdded();
  st.sel=st.syn.length-1;if(base)base=snapFlat();
  buildGrid();paintAll();renderPanel();renderProg();updateTakeUI();
  trkMsg('Added '+trackLabel(st.sel)+'. Tap steps in its row, then pick a preset below.');
@@ -942,7 +953,7 @@ function removeTrack(){
  const b=$('#rmTrk');
  if(!b.dataset.arm){b.dataset.arm='1';b.textContent=(take&&take.len)?'Tap again: this also clears the take':'Tap again to remove';rmTimer=setTimeout(resetRm,3500);return}
  resetRm();
- const k=st.sel;dropNodes(st.syn[k]);st.syn.splice(k,1);st.sel=Math.min(k,st.syn.length-1);
+ patBeforeStruct();const k=st.sel;dropNodes(st.syn[k]);st.syn.splice(k,1);st.sel=Math.min(k,st.syn.length-1);patTrackRemoved(k);
  const had=!!(take&&take.len);
  if(take){take=null;persistTake();resetExport();if(playing&&recArm)pendingFresh=true}
  base=snapFlat();buildGrid();paintAll();renderPanel();renderProg();updateTakeUI();
@@ -1200,6 +1211,7 @@ function applyEventsAt(n){
 }
 function autoTick(){
  if(!base)base=snapFlat();
+ patTick();
  if(pendingFresh&&abs%16===0){abs=0;beginFresh();pendingFresh=false;base=snapFlat()}
  if(takeActive()&&abs>=take.len){
   captureChanges(take.len-1);restoreSnap(take.s0);abs=0;touch={};afterReplay([]);ui={grid:1,prog:1,mix:1,panel:1,head:1,pitch:1};
@@ -1247,7 +1259,7 @@ function stop(){
  playing=false;clearInterval(timer);queue.length=0;setNow(-1,0);
  recArm=false;pendingFresh=false;touch={};base=snapFlat();curAbs=-1;
  $('#play').classList.remove('on');$('#play').setAttribute('aria-label','Play');
- updateTakeUI();
+ patOnStop();updateTakeUI();
 }
 
 /* ---------- Take UI ---------- */
@@ -1515,6 +1527,203 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(k in QK)kbRelease('k'+k)});
 buildKb();
+/* ---------- Patterns ----------
+   A pattern is the musical content of the grid: drum steps, every track's steps,
+   pitches, mode and the chord bars. Sounds are shared: st.pb holds the base
+   sound of the whole song, and each pattern keeps only the settings that differ
+   from it (P.ov). Edits are noticed by comparing the live sound with what was
+   applied when the pattern was entered, and filed under "all patterns" (base)
+   or "only this pattern" (override). */
+const PAT_MAX=8,LET='ABCDEFGH';
+st.pats=[];st.pi=0;st.qi=-1;st.pb={};st.exp={};st.scope='all';
+const capTrack=t=>({on:t.on.slice(),deg:t.deg.slice(),m:t.m,ext:t.ext,oct:t.oct,len:t.len,arp:cp(t.arp)});
+function capContent(){const d={};LANES.forEach(([k])=>{d[k]=st.d[k].slice()});return{d,prog:st.prog.slice(),syn:st.syn.map(capTrack)}}
+function loadContent(c){
+ LANES.forEach(([k])=>{st.d[k]=c.d[k].slice()});st.prog=c.prog.slice();
+ c.syn.forEach((x,k)=>{const t=st.syn[k];if(!t)return;t.on=x.on.slice();t.deg=x.deg.slice();t.m=x.m;t.ext=x.ext;t.oct=x.oct;t.len=x.len;t.arp=cp(x.arp);t.ai=0});
+}
+function soundFlat(){
+ const o={echo:st.echo,rev:st.rev};
+ st.syn.forEach((t,k)=>{o['syn.'+k+'.eng']=t.eng;o['syn.'+k+'.vol']=t.vol;flat(t.params,'syn.'+k+'.params',o)});
+ return o;
+}
+function unflat(map,pre){
+ const root={};
+ for(const k in map){
+  if(!k.startsWith(pre))continue;
+  const path=k.slice(pre.length).split('.');let o=root;
+  for(let i=0;i<path.length-1;i++){const key=path[i];if(o[key]==null)o[key]=/^\d+$/.test(path[i+1])?[]:{};o=o[key]}
+  o[path[path.length-1]]=map[k];
+ }
+ return root;
+}
+function applySound(T){
+ if(T.echo!==undefined)st.echo=T.echo;
+ if(T.rev!==undefined)st.rev=T.rev;
+ st.syn.forEach((t,k)=>{
+  const pre='syn.'+k+'.';
+  if(T[pre+'eng']!==undefined)t.eng=T[pre+'eng'];
+  if(T[pre+'vol']!==undefined)t.vol=T[pre+'vol'];
+  const pp=unflat(T,pre+'params.');
+  if(Object.keys(pp).length){t.params=pp;const j=PRE.findIndex(x=>x.n===pp.n);if(j>=0)t.p=j}
+ });
+ if(ctx){applyFx();st.syn.forEach(t=>{if(!t.n)initTrackNodes(t);else applyTrack(t)})}
+}
+function targetSound(P){
+ const T=Object.assign({},st.pb);
+ st.syn.forEach((t,k)=>{const pre='syn.'+k+'.params.';if(P.ov[pre+'n']!==undefined){for(const key in T)if(key.startsWith(pre))delete T[key]}});
+ return Object.assign(T,P.ov);
+}
+function takePaths(){const s=new Set();if(take&&take.len&&follow)for(const k in take.by)for(const p in take.by[k])s.add(p);return s}
+function flushEdits(){
+ const P=st.pats[st.pi];if(!P)return;
+ const cur=soundFlat(),skip=takePaths(),exp=st.exp,pb=st.pb,all=st.scope==='all',wp=[];
+ st.syn.forEach((t,k)=>{
+  const n='syn.'+k+'.params.n',e='syn.'+k+'.eng';
+  if(exp[n]!==undefined&&(cur[n]!==exp[n]||cur[e]!==exp[e]))wp.push('syn.'+k+'.params.');
+ });
+ wp.forEach(pre=>{
+  if(all)for(const key in pb)if(key.startsWith(pre))delete pb[key];
+  for(const key in P.ov)if(key.startsWith(pre))delete P.ov[key];
+  for(const key in cur)if(key.startsWith(pre)&&!skip.has(key)){if(all)pb[key]=cur[key];else P.ov[key]=cur[key]}
+ });
+ for(const key in cur){
+  if(skip.has(key)||wp.some(p=>key.startsWith(p))||cur[key]===exp[key])continue;
+  if(all){pb[key]=cur[key];delete P.ov[key]}
+  else if(cur[key]===pb[key])delete P.ov[key];
+  else P.ov[key]=cur[key];
+ }
+ st.exp=cur;
+}
+function commitPat(){const P=st.pats[st.pi];if(!P)return;flushEdits();P.c=capContent();P.take=take}
+function initPats(){
+ st.pats=[{id:'A',c:capContent(),ov:{},take:null}];st.pi=0;st.qi=-1;st.pb=soundFlat();st.exp=soundFlat();st.scope='all';
+}
+function refreshTakeSound(tk){
+ const s=tk.s0,T=soundFlat();s.echo=T.echo;s.rev=T.rev;
+ s.syn.forEach((x,k)=>{const pre='syn.'+k+'.';if(T[pre+'eng']===undefined)return;x.eng=T[pre+'eng'];x.vol=T[pre+'vol'];x.params=unflat(T,pre+'params.')});
+}
+function doSwitch(j,skipCommit){
+ if(!skipCommit){
+  if(take&&take.len===0)finalizeTake();
+  commitPat();
+ }
+ const Q=st.pats[j];st.pi=j;st.qi=-1;
+ loadContent(Q.c);applySound(targetSound(Q));st.exp=soundFlat();
+ take=Q.take||null;follow=true;recArm=false;pendingFresh=false;touch={};
+ if(take&&take.len)refreshTakeSound(take);
+ persistTake();resetExport();afterPat();
+}
+function afterPat(){
+ paintAll();renderProg();renderMix();renderPanel();buildPager();updateTakeUI();base=snapFlat();
+}
+function patTick(){
+ if(st.qi<0||abs%64!==0)return;
+ const j=st.qi;
+ if(take&&take.len===0)finalizeTake();
+ else if(recArm&&takeActive()){captureChanges(Math.max(0,Math.min(abs,take.len)-1));persistTake()}
+ doSwitch(j);abs=0;
+}
+function patOnStop(){if(st.qi>=0){const j=st.qi;st.qi=-1;doSwitch(j)}}
+const patMsg=t=>{$('#patMsg').textContent=t};
+function gotoPat(j){
+ if(j===st.pi&&st.qi<0)return;
+ if(playing){st.qi=(j===st.pi)?-1:j;buildPager();patMsg(st.qi>=0?'Pattern '+st.pats[j].id+' starts at the next 4-bar loop.':'');return}
+ doSwitch(j);patMsg('');
+}
+function newPat(copy){
+ if(st.pats.length>=PAT_MAX){patMsg('Eight patterns is the limit.');return}
+ commitPat();
+ const used=st.pats.map(P=>P.id),id=[...LET].find(c=>!used.includes(c)),cur=st.pats[st.pi],c=cp(cur.c);
+ if(!copy){LANES.forEach(([k])=>{c.d[k]=Array(16).fill(0)});c.syn.forEach(x=>{x.on=Array(16).fill(0);x.deg=Array(16).fill(0)})}
+ st.pats.splice(st.pi+1,0,{id,c,ov:copy?cp(cur.ov):{},take:null});
+ if(st.scope==='all'){st.scope='one'}
+ gotoPat(st.pi+1);
+ patMsg((copy?'Copied to ':'New empty pattern ')+id+'. Changes to sounds now apply only to '+id+' (switch at "Changes" to change that).');
+}
+function delPat(){
+ if(st.pats.length<2)return;
+ commitPat();const i=st.pi;st.pats.splice(i,1);st.qi=-1;
+ doSwitch(Math.min(i,st.pats.length-1),true);patMsg('Pattern deleted.');
+}
+function buildPager(){
+ const n=$('#pager');if(!n)return;n.innerHTML='';
+ st.pats.forEach((P,j)=>{
+  const b=el('button','chip pg'+(j===st.pi?' act':'')+(j===st.qi?' queued':''),P.id);b.type='button';
+  b.setAttribute('aria-label','Pattern '+P.id+(j===st.pi?' (current)':j===st.qi?' (next)':''));
+  b.onclick=()=>{ensureAudio();gotoPat(j)};n.appendChild(b);
+ });
+ if(st.pats.length<PAT_MAX){const a=el('button','chip pg add','+');a.type='button';a.setAttribute('aria-label','New empty pattern');a.onclick=()=>newPat(false);n.appendChild(a)}
+ seg('#scope',[['all','All patterns'],['one','Only '+st.pats[st.pi].id]],()=>st.scope,v=>{flushEdits();st.scope=v;updOv()});
+ $('#patDel').disabled=st.pats.length<2;
+}
+$('#patDup').onclick=()=>newPat(true);
+$('#patDel').onclick=delPat;
+
+/* what differs from the base on the selected track */
+function ovKeys(k){
+ const P=st.pats[st.pi],pre='syn.'+k+'.',o={};
+ for(const key in P.ov)if(key.startsWith(pre))o[key]=1;
+ if(st.scope==='one'){
+  const cur=soundFlat(),skip=takePaths();
+  for(const key in cur)if(key.startsWith(pre)&&!skip.has(key)&&cur[key]!==st.exp[key]&&cur[key]!==st.pb[key])o[key]=1;
+ }
+ return Object.keys(o);
+}
+function updOv(){
+ const row=$('#ovRow');if(!row||!st.pats.length)return;
+ const P=st.pats[st.pi],ks=ovKeys(st.sel);
+ row.hidden=!ks.length;if(!ks.length)return;
+ const own=ks.some(x=>x.endsWith('.params.n'));
+ txt($('#ovInfo'),own?'Pattern '+P.id+' has its own sound on this track.':ks.length+(ks.length===1?' setting':' settings')+' on this track differ in pattern '+P.id+'.');
+}
+$('#ovReset').onclick=()=>{
+ flushEdits();const P=st.pats[st.pi],pre='syn.'+st.sel+'.';
+ for(const key in P.ov)if(key.startsWith(pre))delete P.ov[key];
+ applySound(targetSound(P));st.exp=soundFlat();base=snapFlat();renderPanel();renderMix();
+};
+setInterval(()=>{if(!document.hidden)updOv()},600);
+
+/* styles and projects replace the whole song: ask once */
+let gateKey='',gateT=0;
+function styleGate(key){
+ if(st.pats.length<2)return true;
+ if(gateKey===key){clearTimeout(gateT);gateKey='';return true}
+ gateKey=key;clearTimeout(gateT);gateT=setTimeout(()=>{gateKey='';patMsg('')},4000);
+ patMsg('This replaces patterns '+st.pats.map(P=>P.id).join(', ')+'. Tap it again to continue.');
+ return false;
+}
+function patSave(snap){commitPat();snap.pats=cp(st.pats);snap.pi=st.pi;snap.pb=cp(st.pb)}
+function restorePats(p){
+ if(p.pats&&p.pats.length){
+  st.pats=cp(p.pats);st.pi=Math.min(p.pi||0,st.pats.length-1);st.qi=-1;st.pb=cp(p.pb||{});st.scope='one';
+  const Q=st.pats[st.pi];loadContent(Q.c);applySound(targetSound(Q));st.exp=soundFlat();take=Q.take||null;follow=true;
+ }else initPats();
+}
+
+/* tracks added or removed: keep every pattern in step */
+function patBeforeStruct(){commitPat()}
+function patTrackAdded(){
+ const k=st.syn.length-1,t=st.syn[k],pre='syn.'+k+'.',cur=soundFlat();
+ const e=capTrack(t);e.on=Array(16).fill(0);e.deg=Array(16).fill(0);
+ st.pats.forEach(P=>P.c.syn.push(cp(e)));
+ for(const key in cur)if(key.startsWith(pre)){st.pb[key]=cur[key];st.exp[key]=cur[key]}
+}
+function reindexKeys(map,k){
+ const o={};
+ for(const key in map){
+  const m=/^syn\.(\d+)\.(.*)$/.exec(key);
+  if(!m){o[key]=map[key];continue}
+  const i=+m[1];if(i===k)continue;
+  o['syn.'+(i>k?i-1:i)+'.'+m[2]]=map[key];
+ }
+ for(const key in map)delete map[key];Object.assign(map,o);
+}
+function patTrackRemoved(k){
+ st.pats.forEach(P=>{P.c.syn.splice(k,1);reindexKeys(P.ov,k)});
+ reindexKeys(st.pb,k);reindexKeys(st.exp,k);
+ st.pats.forEach(P=>{P.take=null});
+}
 /* ---------- Start ---------- */
 loadSaved();buildStyles();buildGrid();buildPresetSelect();buildMixSelects();applyStyle(1);
 take=lsGet('racsgep.take')||null;if(take&&!(take.s0&&take.by&&take.len>0))take=null;
