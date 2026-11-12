@@ -252,5 +252,13 @@ body.manager-open .reset, body.manager-open .help { opacity: 0; pointer-events: 
 .modes button.final{display:inline-flex;align-items:center;gap:.45em;margin-left:1.2em;padding:.35em .9em;color:var(--ink);border:1px solid var(--ink);}
 .modes button.final svg{width:1em;height:1em;}
 .modes button.final:hover{background:var(--yellow);}
+
+.modes button.stn{display:none;}
+@media (max-width:1100px){
+  .modes button.stn{display:inline-block;border:1px solid var(--ink);color:var(--ink);padding:.35em .8em;margin-right:.4em;}
+  body.index-open .index{display:flex;z-index:4;bottom:calc(var(--pad) + 4.6em);max-height:60vh;overflow:auto;width:min(19.5em,calc(100vw - 2 * var(--pad) - 2em));}
+  body.media-open .index{display:none;}
+}
+
 /* public page: media manager is for the author only */
 .sel-mg, .ov-mg, .ov-none { display: none !important; }
