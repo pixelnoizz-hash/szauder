@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en"><head><meta name="robots" content="noindex, nofollow, noarchive"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Feeding of Satan — test</title>
+<style>
+html,body{margin:0;height:100%;background:#7a0d14;overflow:hidden;font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#26292a;touch-action:none;user-select:none;-webkit-user-select:none}
+#app{position:fixed;inset:0}canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.panel{background:rgba(245,244,240,.92);padding:.7em 1em;border:1px solid rgba(38,41,42,.25)}
+#gauge{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:min(420px,calc(100vw - 28px));text-align:center}
+#bar{position:relative;height:12px;margin:.45em 0 .2em;background:linear-gradient(90deg,#f6ecec 0%,#f0b3ba 28%,#e0455a 55%,#a50f18 100%);border:1px solid #26292a}
+#mark{position:absolute;top:-7px;width:0;height:0;margin-left:-7px;border:7px solid transparent;border-top:9px solid #26292a;border-bottom:0}
+#gauge small{display:flex;justify-content:space-between;font-size:.78em;letter-spacing:.1em;text-transform:uppercase;color:#5a6264}
+#spasm{margin-top:.3em;color:#a50f18;font-weight:600;opacity:0;transition:opacity .3s;font-size:.9em;letter-spacing:.08em;text-transform:uppercase}#spasm.on{opacity:1}
+#board{position:absolute;top:14px;right:14px;min-width:10.5em}#board div,#e-r div{display:flex;justify-content:space-between;gap:1.5em;padding:.15em 0}#board .me,#e-r .me{font-weight:600}
+#hint{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);width:min(320px,calc(100vw - 28px));text-align:center;font-size:.85em;color:#26292a}
+#charge{height:8px;margin-top:.5em;background:#d8d6cf}#charge i{display:block;height:100%;width:0;background:#26292a}
+.pop{position:absolute;left:0;top:0;pointer-events:none;font-weight:700;font-size:1.15em;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}.pop.you{color:#ffd35a;font-size:1.5em}
+.ov{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(20,6,8,.55)}.ov.on{display:flex}
+.card{background:#f5f4f0;max-width:min(440px,calc(100vw - 36px));padding:1.6em 1.8em;border:1px solid #26292a}
+.card h1,.card h2{margin:0 0 .15em;font-weight:500;letter-spacing:-.02em;font-size:1.9em;line-height:1.1}.card .sub{color:#5a6264;letter-spacing:.12em;text-transform:uppercase;font-size:.78em;margin-bottom:1em}
+.card ul{margin:.6em 0 1.2em;padding-left:1.1em}.card li{margin:.25em 0}
+button{font:inherit;cursor:pointer;background:#e8c35a;border:1px solid #26292a;color:#26292a;padding:.6em 1.3em;font-weight:600}
+#e-r{margin:.9em 0 1.1em;border-top:1px solid rgba(38,41,42,.25);padding-top:.6em}#e-r p{margin:.6em 0 0;color:#5a6264}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+@media (max-width:700px){#board{top:88px;min-width:8.5em;font-size:.85em;padding:.4em .7em}}
+</style></head><body>
+<div id="app"><canvas id="gl"></canvas>
+<div id="gauge" class="panel"><small><span>Angel</span><span>Fed</span><span>Bursts</span></small><div id="bar"><div id="mark"></div></div><div id="spasm"></div></div>
+<div id="board" class="panel"></div>
+<div id="hint" class="panel">hold to load · release to throw<div id="charge"><i></i></div></div>
+<div id="flash"></div>
+<div id="start" class="ov on"><div class="card"><h1 id="t-title"></h1><div class="sub" id="t-sub"></div><ul id="t-how"></ul><button id="go"></button></div></div>
+<div id="end" class="ov"><div class="card"><h2 id="e-h"></h2><p id="e-s" style="margin:.3em 0 0"></p><div id="e-r"></div><button id="again"></button></div></div>
+</div>
+<script src="js/feed.js"></script></body></html>
