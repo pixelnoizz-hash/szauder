@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hell — Visitor Atlas</title>
+<link rel="stylesheet" href="css/atlas.css">
+</head>
+<body data-mode="explore">
+<div id="app">
+  <canvas id="gl"></canvas>
+  <div id="hotspots"></div>
+
+  <header id="brand" class="ui brand"></header>
+  <nav id="index" class="ui index" aria-label="Locations"></nav>
+  <aside class="ui side">
+    <div id="legend" class="legend"></div>
+    <p id="note" class="note"></p>
+  </aside>
+
+  <div class="ui bar">
+    <div id="modes" class="modes" role="tablist"></div>
+    <div id="views" class="views"></div>
+    <div class="spacer"></div>
+    <div id="scale" class="scale"><i></i><span>1 km</span></div>
+    <div id="ctrl" class="ctrl"></div>
+  </div>
+  <button id="reset" class="reset" type="button"></button>
+  <div id="help" class="help"></div>
+  <aside id="sel" class="sel" aria-live="polite"></aside>
+  <div id="hud" class="hud"></div>
+
+  <aside id="manager" class="manager" aria-hidden="true" aria-label="Media manager"></aside>
+  <aside id="overlay" class="overlay" aria-hidden="true" aria-label="Location media"></aside>
+</div>
+
+<!-- Content lives in config; edit it without rebuilding. -->
+<script src="config/atlas-config.js"></script>
+<script src="dist/atlas.js"></script>
+</body>
+</html>
