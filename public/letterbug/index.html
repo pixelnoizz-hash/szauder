@@ -7,8 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0d0e12;--ink:#ece6da;--dim:#8b8679;--line:#2b2b31;--bug:#f0cf8a;--red:#ff5b3a;--chip:#17181d}
-body.paper{--bg:#f3eee4;--ink:#1c1b19;--dim:#8a8478;--line:#d9d1c2;--bug:#2234c9;--red:#e2401f;--chip:#ebe5d8}
+:root{--bg:#0d0e12;--ink:#ece6da;--dim:#8b8679;--line:#2b2b31;--bug:#f0cf8a;--red:#ff6b4e;--chip:#17181d}
+body.paper{--bg:#d3cfc5;--ink:#1d1c1a;--dim:#6c675d;--line:#b3ad9f;--bug:#151517;--red:#c84a36;--chip:#c9c4b8}
+body.paper{background:radial-gradient(ellipse 120% 70% at 25% 0%,#ebe7de 0%,#d3cfc5 45%,#bcb7ab 100%) fixed}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--ink)}
 body{font-family:'DM Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.04em;min-height:100vh;display:flex;flex-direction:column;transition:background .4s,color .4s}
@@ -45,11 +46,11 @@ textarea{width:100%;min-height:230px;background:transparent;color:var(--ink);bor
 .row{display:flex;gap:6px;justify-content:flex-end}
 </style>
 </head>
-<body>
+<body class="paper">
 <header>
   <div class="brand">letter<b>bug</b></div>
   <div class="tag">eats a poem, lays another · <a href="/" style="color:inherit">David Szauder</a></div>
-  <button class="b" id="bTheme">paper</button>
+  <button class="b" id="bTheme">night</button>
 </header>
 <div class="chips" id="chips"></div>
 <div class="stagewrap"><canvas id="stage"></canvas></div>
@@ -153,163 +154,165 @@ function layout(){
 function stepX(dt){const k=Math.min(1,dt*9);for(const L of lines){let x=X0;for(const sl of L.slots){sl.w+=(sl.wt-sl.w)*k;sl.x=x;x+=sl.w*FS;}}}
 const cy=L=>L.y-FS*.3;
 
-// ---------- the creature: a fluffy, slightly absurd letter-eater ----------
-// it keeps eaten letters in its tummy and keeps mutating:
-// vowels sprout googly eyes, consonants grow more and longer stilt-legs (it then eats with a long tongue),
-// capitals stack tiny top hats on its head, punctuation makes the tail wag,
-// for a moment after every bite its body turns into the letter it just ate,
-// it hiccups letters in bubbles and sometimes spins. Too big → poof, it starts over.
-const bug={x:0,y:0,v:0,odo:0,pulses:[],eatP:0,hop:0,sx:1,sy:1,face:1,lx:0,ly:0,vx:0,spin:0,spinV:0,antic:3,px:0,py:0,pvx:0,pvy:0,trail:[]};
-const G={age:0,hue:28,ear:.3,fluff:.2,eyes:0,legs:0,hats:[],wob:.3,mass:0,rs:0,morph:0,morphCh:'',eyeSeeds:[],blinks:[]};
-let RUNID=0,sparks=[],bubbles=[];
+// ---------- the creature: a shaggy, long-legged sculpture-beast ----------
+// black fur, matte coloured balls, pink tube-eyes, a coral ring-eye, black horns, claw-tipped antennae,
+// a teal knitted rump, hooves, and a long trunk with a pink ball at its tip that sucks up letters.
+// It mutates with what it eats: vowels a/e/i/y open new eyes, o/u knit more teal, consonants lengthen
+// and multiply the legs, hard consonants grow horns, capitals stick new balls on its back,
+// punctuation sprouts antennae. The eaten letters sit on its fur like polka dots. Too big → it bursts and starts again.
+const bug={x:0,y:0,v:0,odo:0,pulses:[],eatP:0,hop:0,face:1,fs:1,lx:0,ly:0,vx:0,antic:4,px:0,py:0,pvx:0,pvy:0,shake:0,root:{x:0,y:0},trail:[]};
+const G={age:0,eyes:0,legs:0,spikes:0,knit:0,ant:0,balls:[],mass:0,rs:0,eyeSeeds:[],blinks:[]};
+const FUR=Array.from({length:120},()=>Math.random());
+const COL={black:'#151517',fur:'#1f1f23',teal:'#3f8796',tealL:'#5aa3b1',yellow:'#e2a72a',pink:'#ec7180',blue:'#4f8197',coral:'#e8735f',orange:'#f2a33a',cream:'#f1e8d4',hoof:'#2a2420'};
+const BALLC=[COL.yellow,COL.pink,COL.blue,COL.coral];
+let RUNID=0,sparks=[];
 function bugAt(x,y){bug.x=x;bug.y=y;bug.v=0;}
 function trailPush(){}
-const legLen=()=>G.rs*(.15+1.25*G.legs);
-const lift=()=>legLen()*.85;
-const mouthOff=()=>G.rs*.32+lift();
+const mouthOff=()=>0;
+function rnd(){return Math.random();}
 function steer(tx,ty,dt,spd){
   const dx=tx-bug.x,dy=ty-bug.y,d=Math.hypot(dx,dy);
-  if(d>1){bug.lx+=(dx/d-bug.lx)*Math.min(1,dt*6);bug.ly+=(dy/d-bug.ly)*Math.min(1,dt*6);if(Math.abs(dx)>2)bug.face=dx>0?1:-1;}
+  if(d>1){bug.lx+=(dx/d-bug.lx)*Math.min(1,dt*6);bug.ly+=(dy/d-bug.ly)*Math.min(1,dt*6);if(Math.abs(dx)>FS*.6)bug.face=dx>0?1:-1;}
   if(d<.5){bug.v*=.8;return d;}
   const want=spd*Math.min(1,Math.max(.15,d/(FS*1.2)));
-  bug.v+=(want-bug.v)*Math.min(1,dt*8);
+  bug.v+=(want-bug.v)*Math.min(1,dt*7);
   const st=Math.min(bug.v*dt,d);bug.x+=dx/d*st;bug.y+=dy/d*st;bug.odo+=st;bug.vx=dx/d*bug.v;
   return d;
 }
-const fillC=(a=1,h=G.hue)=>`hsla(${h.toFixed(1)},${dark?62:70}%,${dark?78:80}%,${a})`;
-const lineC=(a=1,h=G.hue)=>`hsla(${h.toFixed(1)},${dark?40:45}%,${dark?55:32}%,${a})`;
-const cc=lineC;
-function rnd(){return Math.random();}
 function geneEat(ch){
   G.age++;const c=ch.toLowerCase();
-  G.hue=(G.hue+((ch.codePointAt(0)%9)-4)*1.4+360)%360;
-  if('aeiy'.includes(c))G.eyes=Math.min(1,G.eyes+.022);
-  else if('ou'.includes(c))G.ear=Math.min(1,G.ear+.08);
-  else if(/[a-z]/.test(c)){G.legs=Math.min(1,G.legs+(/[ktxzvwjqbl]/.test(c)?.02:.008));G.fluff=Math.min(1,G.fluff+.02);}
-  else if(c.trim())G.wob=Math.min(1,G.wob+.12);
-  if(ch!==c&&G.hats.length<6&&rnd()<.4)G.hats.push({h:(G.hue+120+rnd()*120)%360,tall:.8+rnd()*.7,tilt:rnd()-.5});
-  if(/\S/.test(ch)){G.morph=1;G.morphCh=ch;}
+  if('aeiy'.includes(c))G.eyes=Math.min(1,G.eyes+.025);
+  else if('ou'.includes(c))G.knit=Math.min(1,G.knit+.06);
+  else if(/[a-z]/.test(c)){const hard=/[ktxzvwjqb]/.test(c);G.legs=Math.min(1,G.legs+(hard?.018:.009));if(hard)G.spikes=Math.min(1,G.spikes+.045);}
+  else if(c.trim())G.ant=Math.min(1,G.ant+.2);
+  if(ch!==c&&G.balls.length<5&&rnd()<.5)G.balls.push({u:rnd()*1.2-.6,s:rnd(),c:BALLC[(rnd()*4)|0],w:rnd()*7});
   bug.eatP=1;
-  if(G.age>=150)poof();
+  if(G.age>=150)burst();
 }
-function poof(){
-  const c0=bug.y-bug.hop;
-  for(let i=0;i<30;i++){const a=rnd()*7,v=FS*(1.5+rnd()*3);sparks.push({x:bug.x+Math.cos(a)*G.rs*.6,y:c0+Math.sin(a)*G.rs*.6,vx:Math.cos(a)*v,vy:Math.sin(a)*v-FS,t:0,hue:G.hue+rnd()*60-30});}
-  G.hats.forEach((h,i)=>sparks.push({x:bug.x,y:c0-G.rs*(1.2+i*.5),vx:(rnd()-.5)*FS*4,vy:-FS*(2+rnd()*2),t:0,hue:h.h,hat:true,rot:0}));
-  G.age=0;G.mass*=.4;G.fluff*=.5;G.eyes=0;G.legs=0;G.hats=[];G.ear=.3;G.hue=(G.hue+70+rnd()*80)%360;G.rs*=.55;
-  setStatus('<em>poof!</em> · it starts small again');
+function burst(){
+  const c=bug.root;
+  for(let i=0;i<46;i++){const a=rnd()*7,v=FS*(1.5+rnd()*4);sparks.push({x:c.x-bug.fs*G.rs,y:c.y-G.rs*.4,vx:Math.cos(a)*v,vy:Math.sin(a)*v-FS*1.5,t:0,tuft:true,rot:rnd()*7});}
+  G.balls.forEach(b=>sparks.push({x:c.x,y:c.y-G.rs,vx:(rnd()-.5)*FS*6,vy:-FS*(2+rnd()*3),t:0,ball:b.c,r:G.rs*(.2+.1*b.s)}));
+  G.age=0;G.mass*=.4;G.eyes=0;G.legs=0;G.spikes=0;G.knit=0;G.ant=0;G.balls=[];G.rs*=.6;
+  setStatus('<em>burst!</em> · it shakes off everything and starts again');
 }
-function targetR(){return FS*(.62+.36*Math.min(1,G.age/150)+.22*Math.min(1,stomach.length/26)+.08*G.mass);}
-function eyeCount(){return 2+Math.floor(G.eyes*5.99);}
+function targetR(){return FS*(.55+.32*Math.min(1,G.age/150)+.16*Math.min(1,stomach.length/26)+.06*G.mass);}
+function eyeCount(){return 2+Math.floor(G.eyes*4.99);}
 function stepCreature(dt){
-  for(const[k,b]of[['ear',.3],['fluff',.2],['wob',.3]])G[k]+=(b-G[k])*dt*.012;
   if(!G.rs)G.rs=targetR();
   G.rs+=(targetR()-G.rs)*Math.min(1,dt*2.5);
-  const mv=Math.min(1,bug.v/(FS*1.6)),ph=bug.odo/(FS*.8)*Math.PI;
-  bug.hop=Math.abs(Math.sin(ph))*FS*.34*mv*(1-G.legs*.6);
-  const land=mv*(1-Math.abs(Math.sin(ph)));
-  bug.sy=1-.14*land+.1*mv*Math.abs(Math.sin(ph))+.025*Math.sin(T*3)-.12*bug.eatP*Math.sin(bug.eatP*9);
-  bug.sx=2-bug.sy;
-  bug.eatP*=Math.pow(.04,dt);G.morph*=Math.pow(.02,dt*SPEED);
-  // googly pupils: springy, they lag behind movement
-  const tx=bug.lx*.5-bug.vx/(FS*8),ty=bug.ly*.4+(bug.hop>1?.3:0);
-  bug.pvx+=((tx-bug.px)*90-bug.pvx*7)*dt;bug.pvy+=((ty-bug.py)*90-bug.pvy*7)*dt;bug.px+=bug.pvx*dt;bug.py+=bug.pvy*dt;
-  const n=eyeCount();while(G.eyeSeeds.length<n){G.eyeSeeds.push({a:rnd(),b:rnd(),s:.75+rnd()*.6});G.blinks.push({t:rnd()*3,c:0});}
-  G.blinks.forEach(b=>{b.t-=dt;if(b.t<0){b.c=.13;b.t=1.5+rnd()*4;}if(b.c>0)b.c-=dt;});
-  // antics
+  bug.fs+=(bug.face-bug.fs)*Math.min(1,dt*5);
+  const mv=Math.min(1,bug.v/(FS*1.4));bug.hop=Math.abs(Math.sin(bug.odo/(FS*.9)*Math.PI))*FS*.08*mv;
+  bug.eatP*=Math.pow(.05,dt);bug.shake*=Math.pow(.1,dt);
+  const tx=bug.lx*.6-bug.vx/(FS*8),ty=bug.ly*.5;
+  bug.pvx+=((tx-bug.px)*80-bug.pvx*7)*dt;bug.pvy+=((ty-bug.py)*80-bug.pvy*7)*dt;bug.px+=bug.pvx*dt;bug.py+=bug.pvy*dt;
+  const n=eyeCount();while(G.eyeSeeds.length<n){G.eyeSeeds.push({a:rnd(),b:rnd(),s:.75+rnd()*.5,ring:G.eyeSeeds.length%2===0});G.blinks.push({t:rnd()*3,c:0});}
+  G.blinks.forEach(b=>{b.t-=dt;if(b.t<0){b.c=.14;b.t=2+rnd()*4;}if(b.c>0)b.c-=dt;});
   bug.antic-=dt;
-  if(bug.antic<0){bug.antic=4+rnd()*7;
-    if(rnd()<.45&&bug.spinV===0){bug.spinV=1;}
-    else{const ch=stomach.length?stomach[(rnd()*stomach.length)|0].ch:'?';bubbles.push({ch,x:bug.x+bug.face*G.rs*.2,y:bug.y-bug.hop+G.rs*.2,t:0,w:rnd()*7});bug.eatP=.6;}}
-  if(bug.spinV){bug.spin+=dt*Math.PI*2*1.6;if(bug.spin>=Math.PI*2){bug.spin=0;bug.spinV=0;}}
-  bubbles.forEach(b=>{b.t+=dt;b.y-=FS*.9*dt;b.x+=Math.sin(b.t*3+b.w)*FS*.3*dt;});
-  bubbles=bubbles.filter(b=>{if(b.t>2.2){rings.push({x:b.x,y:b.y,t:0});return false;}return true;});
-  sparks.forEach(p=>{p.t+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=FS*4*dt;p.vx*=.97;if(p.hat)p.rot+=dt*6;});sparks=sparks.filter(p=>p.t<1.6);
-  for(let k=stomach.length-1;k>=0;k--){const e=stomach[k];e.age+=dt;e.a+=dt*(.25+.2*e.o);
+  if(bug.antic<0){bug.antic=5+rnd()*7;
+    if(rnd()<.5||!stomach.length)bug.shake=1;
+    else{const e=stomach[(rnd()*stomach.length)|0];sparks.push({x:bug.root.x-bug.fs*G.rs*.6,y:bug.root.y-G.rs*.9,vx:-bug.fs*FS*(1+rnd()),vy:-FS*3,t:0,ball:BALLC[(rnd()*4)|0],r:G.rs*.16,ch:e.ch});}}
+  sparks.forEach(p=>{p.t+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=FS*7*dt;p.vx*=.985;if(p.rot!=null)p.rot+=dt*5;});sparks=sparks.filter(p=>p.t<1.8);
+  for(let k=stomach.length-1;k>=0;k--){const e=stomach[k];e.age+=dt;
     if(e.age>50||stomach.length>48&&k===0){stomach.splice(k,1);G.mass=Math.min(1,G.mass+.025);updStomach();}}
 }
-function star(x,y,r){ctx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,rr=i%2?r*.35:r;ctx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr);}ctx.closePath();ctx.fill();}
-function topHat(w,h,hue){ctx.fillStyle=`hsl(${hue},45%,${dark?30:28}%)`;ctx.strokeStyle='#1d1b22';ctx.lineWidth=Math.max(1,w*.06);
-  ctx.beginPath();ctx.ellipse(0,0,w*.75,w*.16,0,0,7);ctx.fill();ctx.stroke();
-  ctx.beginPath();ctx.rect(-w*.42,-h,w*.84,h);ctx.fill();ctx.stroke();
-  ctx.fillStyle=`hsl(${(hue+150)%360},70%,65%)`;ctx.fillRect(-w*.42,-h*.32,w*.84,h*.16);}
+function shadeBall(x,y,r,c){const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,'rgba(255,255,255,.35)');g.addColorStop(.35,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(0,0,0,.28)');
+  ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.fillStyle=g;ctx.fill();}
+function furLine(x0,y0,x1,y1,w,k){ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();}
 function drawCreature(t,alpha){
-  const r=G.rs,L=legLen(),lf=lift(),cx=bug.x,cy0=bug.y-bug.hop,sx=bug.sx,sy=bug.sy,f=bug.face;
-  ctx.save();ctx.globalAlpha=alpha;ctx.lineJoin='round';ctx.lineCap='round';
+  const r=G.rs,fs=bug.fs,mv=Math.min(1,bug.v/(FS*1.4));
+  const fat=Math.min(1,stomach.length/26),gA=Math.min(1,G.age/150);
+  const rx=r*(1.15+.45*gA+.2*fat),ry=r*.72*(1+.12*fat),L=r*(1.05+1.7*G.legs);
+  const gy=bug.y+FS*.42,cy=gy-L-ry*.5-bug.hop,cx=bug.x-fs*rx*.7;
+  const tipCol=dark?'#77777e':'#3b3b41';
+  ctx.save();ctx.globalAlpha=alpha;ctx.lineCap='round';ctx.lineJoin='round';
   // ground shadow
-  const gy=bug.y+r*.85+L;
-  ctx.fillStyle=dark?'rgba(0,0,0,.45)':'rgba(60,40,20,.12)';
-  ctx.beginPath();ctx.ellipse(cx,gy,r*.8*(1-bug.hop/(FS*1.2)),r*.13,0,0,7);ctx.fill();
-  // tongue, reaching down to the letter while eating
-  if(bug.eatP>.15&&MODE==='run'){const my=cy0+r*.3*sy;
-    ctx.strokeStyle='#e86a85';ctx.lineWidth=Math.max(2,r*.12);ctx.beginPath();ctx.moveTo(cx+bug.lx*r*.08,my);
-    const end=my+Math.max(r*.12,(lf+r*.03)*Math.min(1,bug.eatP*1.6));ctx.quadraticCurveTo(cx+Math.sin(t*20)*r*.08,(my+end)/2,cx,end);ctx.stroke();
-    ctx.fillStyle='#e86a85';ctx.beginPath();ctx.arc(cx,end,Math.max(1.5,r*.09),0,7);ctx.fill();}
-  ctx.translate(cx,cy0);
-  if(bug.spin)ctx.rotate(bug.spin*f);
-  const lw=Math.max(1,r*.06);ctx.lineWidth=lw;ctx.strokeStyle=lineC(1);
-  // stilt legs
-  const nl=2+Math.floor(G.legs*4.99),stepP=bug.odo/(FS*.7)*Math.PI;
-  for(let i=0;i<nl;i++){const u=nl===1?0:i/(nl-1)-.5,hx=u*r*1.15*sx,hy=r*.55*sy;
-    const sw=Math.sin(stepP+i*Math.PI*.9)*r*.35*Math.min(1,bug.v/FS),fx=hx*1.25+sw*f,fy=hy+L+r*.3;
-    const kx=(hx+fx)/2+u*r*.4+Math.sin(t*2+i)*r*.05,ky=(hy+fy)/2-L*.12;
-    ctx.strokeStyle=lineC(1);ctx.lineWidth=Math.max(1,r*.07);ctx.beginPath();ctx.moveTo(hx,hy);ctx.quadraticCurveTo(kx,ky,fx,fy);ctx.stroke();
-    ctx.fillStyle=fillC(1,(G.hue+180)%360);ctx.beginPath();ctx.ellipse(fx+f*r*.07,fy,r*.16,r*.09,0,0,7);ctx.fill();ctx.lineWidth=Math.max(1,r*.05);ctx.stroke();}
-  ctx.lineWidth=lw;ctx.strokeStyle=lineC(1);
-  // tail puff
-  const tw=Math.sin(t*(3+6*G.wob))*r*.1*(.5+G.wob);
-  ctx.fillStyle=fillC();ctx.beginPath();ctx.arc(-f*r*.98,r*.25+tw,r*(.22+.12*G.fluff),0,7);ctx.fill();ctx.stroke();
-  // ears
-  const el=r*(.32+.7*G.ear),ew=r*(.26-.06*G.ear);
-  for(const s of[-1,1]){const ang=s*(.42+.15*Math.sin(t*1.3+s))+Math.sin(t*2)*.05;
-    ctx.save();ctx.translate(s*r*.42,-r*.72*sy);ctx.rotate(ang);
-    ctx.beginPath();ctx.ellipse(0,-el*.5,ew,el*.62,0,0,7);ctx.fillStyle=fillC();ctx.fill();ctx.stroke();
-    ctx.beginPath();ctx.ellipse(0,-el*.48,ew*.5,el*.42,0,0,7);ctx.fillStyle='rgba(255,140,160,.55)';ctx.fill();ctx.restore();}
-  // body: fluffy blob, or for a moment the letter it just ate
-  const m=G.morph;
-  if(m<.97){const K=14+Math.round(G.fluff*10),amp=.015+.06*G.fluff;ctx.save();ctx.globalAlpha=alpha*(1-m);
-    ctx.beginPath();for(let k=0;k<=K*4;k++){const a=k/(K*4)*Math.PI*2,rr=r*(1+amp*Math.abs(Math.sin(a*K/2+t*.6)));ctx.lineTo(Math.cos(a)*rr*sx,Math.sin(a)*rr*sy);}
-    ctx.closePath();ctx.fillStyle=fillC();ctx.fill();ctx.stroke();ctx.restore();}
-  if(m>.03){ctx.save();ctx.globalAlpha=alpha*Math.min(1,m*1.4);ctx.font='600 '+(r*2.9)+'px '+SERIF;ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.scale(sx*(1+.15*(1-m)),sy);ctx.fillStyle=fillC();ctx.lineWidth=lw*1.4;ctx.strokeStyle=lineC(1);ctx.strokeText(G.morphCh,0,r*.12);ctx.fillText(G.morphCh,0,r*.12);ctx.restore();}
-  // tummy with the eaten letters
-  ctx.save();ctx.globalAlpha=alpha*(1-m*.8);ctx.beginPath();ctx.ellipse(0,r*.5*sy,r*.46*sx,r*.36*sy,0,0,7);ctx.fillStyle='rgba(255,255,255,.42)';ctx.fill();ctx.clip();
-  ctx.font='600 '+Math.max(7,r*.27)+'px '+SERIF;ctx.textAlign='center';ctx.fillStyle=pal.red;
-  stomach.slice(-9).forEach(e=>{const rx=Math.cos(e.a)*r*.32*e.rr*sx,ry=r*.5*sy+Math.sin(e.a)*r*.22*e.rr*sy;e.px=cx+rx;e.py=cy0+ry;
-    ctx.globalAlpha=alpha*(1-m*.8)*Math.min(1,e.age*3)*(e.age>42?Math.max(0,(50-e.age)/8):1)*.7;ctx.fillText(e.ch,rx,ry+r*.09);});
-  ctx.restore();ctx.globalAlpha=alpha;
-  // hat tower
-  let hy=-r*sy*.9;
-  G.hats.forEach((h,i)=>{const w=r*(.55-i*.05),hh=w*h.tall;ctx.save();ctx.translate(Math.sin(t*1.7+i)*r*.05*(i+1),hy);ctx.rotate(h.tilt*.35+Math.sin(t*2+i)*.06*(i+1));topHat(w,hh,h.h);ctx.restore();hy-=hh+w*.12;});
-  // googly eyes
+  ctx.fillStyle=dark?'rgba(0,0,0,.4)':'rgba(40,32,24,.16)';ctx.beginPath();ctx.ellipse(cx,gy+r*.08,rx*1.25,r*.16,0,0,7);ctx.fill();
+  // legs (back row first, slightly darker)
+  const nl=2+Math.floor(G.legs*4.99),ph=bug.odo/(FS*1.1)*Math.PI;
+  const legs=[];
+  for(let i=0;i<nl;i++){const u=nl===1?0:i/(nl-1);legs.push({i,u,x:cx+fs*rx*(-.62+1.2*u),back:i%2===1});}
+  const drawLeg=(lg,dim)=>{
+    const sw=Math.sin(ph+lg.i*Math.PI*.85),lift=Math.max(0,sw)*r*.18*mv;
+    const fx=lg.x+fs*sw*r*.35*mv+(lg.back?-fs*r*.12:0),fy=gy-lift,hx=lg.x,hy=cy+ry*.35;
+    const teal=G.knit>.35&&(fs>0?lg.u<G.knit*.6:lg.u>1-G.knit*.6);
+    const col=teal?(dim?'#2f6874':COL.teal):(dim?'#0c0c0e':COL.black);
+    const kx=(hx+fx)/2-fs*r*.12,ky=(hy+fy)/2;
+    ctx.strokeStyle=col;ctx.lineWidth=r*(teal?.34:.22);ctx.beginPath();ctx.moveTo(hx,hy);ctx.quadraticCurveTo(kx,ky,fx,fy-r*.12);ctx.stroke();
+    if(!teal){ctx.strokeStyle=dim?'#1a1a1d':tipCol;for(let k=0;k<6;k++){const q=k/6,x=hx+(fx-hx)*q+(kx-(hx+fx)/2)*Math.sin(q*Math.PI),y=hy+(fy-hy)*q;const s=(FUR[(k*7+lg.i*13)%120]-.5)*2;furLine(x,y,x+s*r*.16,y+r*.05,1,k);}}
+    // hoof with a fur tuft
+    ctx.fillStyle=dim?'#1a1612':COL.hoof;ctx.beginPath();ctx.ellipse(fx+fs*r*.05,fy-r*.07,r*.2,r*.12,0,0,7);ctx.fill();
+    ctx.strokeStyle=teal?COL.tealL:tipCol;for(let k=0;k<5;k++){const a=-Math.PI*(.15+.7*k/4);furLine(fx+Math.cos(a)*r*.15,fy-r*.14,fx+Math.cos(a)*r*.25,fy-r*.14+Math.sin(a)*r*.1,1);}
+  };
+  legs.filter(l=>l.back).forEach(l=>drawLeg(l,true));
+  // horns along the back
+  const nsp=Math.floor(G.spikes*7.99);
+  for(let k=0;k<nsp;k++){const u=.12+.76*(k/(Math.max(1,nsp-1)||1)),x=cx+fs*rx*(.55-1.15*u),yy=cy-ry*Math.sqrt(Math.max(0,1-((x-cx)/rx)**2))*.95;
+    const h=r*(.3+.25*FUR[k*5%120]),w=r*.13,lean=-fs*.35;
+    ctx.fillStyle=COL.black;ctx.beginPath();ctx.moveTo(x-w,yy+r*.06);ctx.quadraticCurveTo(x+lean*h*.3,yy-h*.6,x+lean*h*.55,yy-h);ctx.quadraticCurveTo(x+w*.4,yy-h*.4,x+w,yy+r*.06);ctx.closePath();ctx.fill();
+    ctx.strokeStyle=dark?'#55555c':'#44444a';ctx.lineWidth=.8;for(let j=1;j<4;j++){ctx.beginPath();ctx.moveTo(x-w*(1-j*.22),yy-h*j*.22);ctx.lineTo(x+w*(1-j*.22)+lean*h*j*.12,yy-h*j*.22);ctx.stroke();}}
+  // antennae with claw tips
+  const na=Math.floor(G.ant*3.99);
+  for(let k=0;k<na;k++){const bx=cx+fs*rx*(.45-.18*k),by=cy-ry*.75,len=r*(1+.3*k),a=-Math.PI/2+fs*(.55-.22*k)+Math.sin(t*1.6+k)*.08;
+    const ex=bx+Math.cos(a)*len,ey=by+Math.sin(a)*len;ctx.strokeStyle=COL.black;ctx.lineWidth=r*.07;ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(ex,ey);ctx.stroke();
+    ctx.lineWidth=r*.06;for(const d of[-.55,0,.55]){ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex+Math.cos(a+d)*r*.2,ey+Math.sin(a+d)*r*.2);ctx.stroke();}
+    ctx.fillStyle=COL.black;ctx.beginPath();ctx.arc(bx+Math.cos(a)*len*.5,by+Math.sin(a)*len*.5,r*.055,0,7);ctx.fill();}
+  // shaggy body
+  const K=60,sh=bug.shake;
+  const pts=[];for(let k=0;k<K;k++){const a=k/K*Math.PI*2,n=FUR[k%120];pts.push({a,x:cx+Math.cos(a)*rx*(1+.05*n),y:cy+Math.sin(a)*ry*(1+.07*n)});}
+  ctx.fillStyle=COL.black;ctx.beginPath();pts.forEach((p,k)=>k?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fill();
+  // teal knitted rump
+  if(G.knit>.03){ctx.save();ctx.beginPath();ctx.ellipse(cx,cy,rx*.97,ry*.97,0,0,7);ctx.clip();
+    const w=2*rx*G.knit*.85,x0=fs>0?cx-rx:cx+rx-w;ctx.fillStyle=COL.teal;ctx.fillRect(x0,cy-ry,w,ry*2);
+    ctx.strokeStyle=COL.tealL;ctx.lineWidth=.8;const st=Math.max(3,r*.12);
+    for(let yy=cy-ry;yy<cy+ry;yy+=st)for(let xx=x0;xx<x0+w;xx+=st){ctx.beginPath();ctx.moveTo(xx,yy);ctx.lineTo(xx+st*.5,yy+st*.6);ctx.lineTo(xx+st,yy);ctx.stroke();}
+    ctx.restore();}
+  // fur strands around the edge
+  for(let k=0;k<K*2;k++){const p=pts[k%K],a=p.a+(FUR[(k*3)%120]-.5)*.25,n=FUR[(k*11)%120];
+    const inTeal=G.knit>.03&&(fs>0?p.x<cx-rx+2*rx*G.knit*.85:p.x>cx+rx-2*rx*G.knit*.85);
+    const len=r*(.1+.18*n)*(1+sh*.8*Math.sin(t*40+k));const wv=Math.sin(t*2.5+k*.7)*.2+sh*Math.sin(t*30+k);
+    ctx.strokeStyle=inTeal?COL.tealL:(k%3?COL.fur:tipCol);
+    furLine(p.x,p.y,p.x+Math.cos(a+wv)*len,p.y+Math.sin(a+wv)*len,inTeal?1:1.3);}
+  // eaten letters sit on its fur like polka dots
+  ctx.font='600 '+Math.max(8,r*.3)+'px '+SERIF;ctx.textAlign='center';
+  stomach.slice(-10).forEach((e,k)=>{const a=(e.a||0),q=.25+.6*(e.rr||.5),x=cx+Math.cos(a)*rx*q*.85,y=cy+Math.sin(a)*ry*q*.75;e.px=x;e.py=y;
+    ctx.globalAlpha=alpha*Math.min(1,e.age*3)*(e.age>42?Math.max(0,(50-e.age)/8):1)*.9;ctx.fillStyle=COL.cream;ctx.fillText(e.ch,x,y+r*.1);});
+  ctx.globalAlpha=alpha;
+  // coloured balls on its back
+  G.balls.forEach(b=>{const x=cx+fs*rx*b.u,br=r*(.22+.12*b.s),yy=cy-ry*Math.sqrt(Math.max(0,1-b.u*b.u))*.85+Math.sin(t*1.5+b.w)*r*.03;shadeBall(x,yy,br,b.c);});
+  // eyes: a big pink ball-eye at the front, then tube-eyes and ring-eyes as it eats vowels
   const n=eyeCount();
   for(let i=0;i<n;i++){const sd=G.eyeSeeds[i];if(!sd)continue;
     let ex,ey,er;
-    if(i<2){ex=(i?1:-1)*r*.33+f*r*.05;ey=-r*.12*sy;er=r*.15;}
-    else{const a=-Math.PI*(.15+.7*sd.a);ex=Math.cos(a)*r*(.45+.3*sd.b)*sx;ey=Math.sin(a)*r*(.45+.3*sd.b)*sy-r*.05;er=r*.1*sd.s;}
-    const bl=G.blinks[i]&&G.blinks[i].c>0;
-    ctx.save();ctx.translate(ex,ey);
-    ctx.fillStyle='#fff';ctx.strokeStyle='#1d1b22';ctx.lineWidth=Math.max(1,er*.14);ctx.beginPath();ctx.arc(0,0,er,0,7);ctx.fill();ctx.stroke();
-    if(bl){ctx.beginPath();ctx.moveTo(-er,0);ctx.lineTo(er,0);ctx.stroke();}
-    else{const px=Math.max(-1,Math.min(1,bug.px+Math.sin(t*1.3+i)*.15))*er*.45,py=Math.max(-1,Math.min(1,bug.py+Math.cos(t*1.1+i)*.15))*er*.45;
-      ctx.fillStyle='#1d1b22';ctx.beginPath();ctx.arc(px,py,er*.5,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(px-er*.18,py-er*.18,er*.13,0,7);ctx.fill();}
-    ctx.restore();}
-  // blush + mouth
-  ctx.fillStyle='rgba(255,120,140,.45)';for(const s of[-1,1]){ctx.beginPath();ctx.ellipse(s*r*.6,r*.1,r*.14,r*.075,0,0,7);ctx.fill();}
-  ctx.strokeStyle='#1d1b22';ctx.lineWidth=Math.max(1,r*.05);
-  const my=r*.2,mx=f*r*.05;
-  if(bug.eatP>.25){ctx.fillStyle='#4a2430';ctx.beginPath();ctx.ellipse(mx,my+r*.03,r*.09*bug.eatP+r*.03,r*.11*bug.eatP+r*.02,0,0,7);ctx.fill();}
-  else{ctx.beginPath();ctx.arc(mx-r*.06,my,r*.06,.1*Math.PI,.9*Math.PI);ctx.arc(mx+r*.06,my,r*.06,.1*Math.PI,.9*Math.PI);ctx.stroke();}
+    if(i===0){ex=cx+fs*rx*.78;ey=cy-ry*.12;er=r*.3;}
+    else if(i===1){ex=cx+fs*rx*.25;ey=cy-ry*.45;er=r*.33;}
+    else{ex=cx+fs*rx*(.6-1.2*sd.a);ey=cy+ry*(-.4+.75*sd.b);er=r*.2*sd.s;}
+    const bl=G.blinks[i]&&G.blinks[i].c>0,px=Math.max(-1,Math.min(1,bug.px))*er*.35,py=Math.max(-1,Math.min(1,bug.py))*er*.35;
+    if(i<2){shadeBall(ex,ey,er,COL.pink);ctx.fillStyle='#120f12';ctx.beginPath();ctx.ellipse(ex+px+fs*er*.2,ey+py,er*.32,bl?er*.04:er*.32,0,0,7);ctx.fill();}
+    else if(sd.ring){ctx.fillStyle=COL.coral;ctx.beginPath();ctx.arc(ex,ey,er,0,7);ctx.fill();ctx.fillStyle=COL.orange;ctx.beginPath();ctx.arc(ex,ey,er*.72,0,7);ctx.fill();
+      ctx.fillStyle='#120f12';ctx.beginPath();ctx.ellipse(ex+px*.5,ey+py*.5,er*.45,bl?er*.05:er*.45,0,0,7);ctx.fill();}
+    else{ctx.fillStyle='#c4566a';ctx.beginPath();ctx.ellipse(ex-fs*er*.25,ey,er*.75,er,0,0,7);ctx.fill();
+      ctx.fillStyle=COL.pink;ctx.beginPath();ctx.ellipse(ex,ey,er*.75,er,0,0,7);ctx.fill();
+      ctx.fillStyle='#120f12';ctx.beginPath();ctx.ellipse(ex+fs*er*.05+px*.3,ey+py*.3,er*.45,bl?er*.05:er*.62,0,0,7);ctx.fill();}}
+  // front legs over the body bottom
+  legs.filter(l=>!l.back).forEach(l=>drawLeg(l,false));
+  // the trunk, hanging down to the letter; it reaches when eating
+  const rx0=cx+fs*rx*.88,ry0=cy+ry*.3;bug.root={x:rx0,y:ry0};
+  const e=Math.min(1,bug.eatP*1.6);
+  const tx=bug.x+Math.sin(t*1.3)*r*.12*(1-e),ty=(gy-r*.45)*(1-e)+bug.y*e;
+  const c1x=rx0+fs*r*.55,c1y=ry0+(ty-ry0)*.2;
+  ctx.strokeStyle=COL.black;
+  const N=16;let px0=rx0,py0=ry0;
+  for(let k=1;k<=N;k++){const q=k/N,a1=(1-q)*(1-q),a2=2*(1-q)*q,a3=q*q,x=a1*rx0+a2*c1x+a3*tx,y=a1*ry0+a2*c1y+a3*ty;
+    ctx.lineWidth=r*(.26-.15*q);ctx.beginPath();ctx.moveTo(px0,py0);ctx.lineTo(x,y);ctx.stroke();
+    if(k%2){ctx.strokeStyle=tipCol;furLine(x,y,x+fs*r*.1,y+r*.03,1);ctx.strokeStyle=COL.black;}
+    px0=x;py0=y;}
+  shadeBall(tx,ty,r*.12,COL.pink);
   ctx.restore();
-  // hiccup bubbles
-  bubbles.forEach(b=>{const k=Math.min(1,b.t*3),br=FS*.32*k;ctx.globalAlpha=alpha*(b.t>1.8?Math.max(0,(2.2-b.t)/.4):1);
-    ctx.strokeStyle=lineC(.8);ctx.lineWidth=1;ctx.beginPath();ctx.arc(b.x,b.y,br,0,7);ctx.stroke();ctx.fillStyle=fillC(.15);ctx.fill();
-    ctx.fillStyle=pal.red;ctx.font='600 '+(FS*.38)+'px '+SERIF;ctx.textAlign='center';ctx.fillText(b.ch,b.x,b.y+FS*.12);
-    ctx.fillStyle='rgba(255,255,255,.7)';ctx.beginPath();ctx.arc(b.x-br*.4,b.y-br*.4,br*.12,0,7);ctx.fill();});
-  // sparkles + flying hats
-  sparks.forEach(p=>{ctx.globalAlpha=alpha*Math.max(0,1-p.t/1.6);
-    if(p.hat){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);topHat(r*.45,r*.5,p.hue);ctx.restore();}
-    else{ctx.fillStyle=`hsl(${p.hue},70%,${dark?75:55}%)`;star(p.x,p.y,FS*.12*(1-p.t/1.6));}});
+  // flying tufts, balls, hiccuped letters
+  sparks.forEach(p=>{ctx.globalAlpha=alpha*Math.max(0,1-p.t/1.8);
+    if(p.tuft){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.strokeStyle=COL.black;ctx.lineWidth=1.5;for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(k*1.6)*FS*.18,Math.sin(k*1.6)*FS*.18);ctx.stroke();}ctx.restore();}
+    else{shadeBall(p.x,p.y,p.r,p.ball);if(p.ch){ctx.fillStyle=COL.cream;ctx.font='600 '+(p.r*1.3)+'px '+SERIF;ctx.textAlign='center';ctx.fillText(p.ch,p.x,p.y+p.r*.4);}}});
   ctx.globalAlpha=1;
 }
 
@@ -458,7 +461,7 @@ function draw(t){
   ctx.globalAlpha=1;
 
   // eaten letters flying into the bug
-  parts.forEach(p=>{const k=ease(Math.min(1,p.t));const ex=p.out?p.tx:bug.x,ey=p.out?p.ty:bug.y-bug.hop+G.rs*.3;const x=p.x+(ex-p.x)*k,y=p.y+(ey-p.y)*k-Math.sin(k*Math.PI)*FS*.5;
+  parts.forEach(p=>{const k=ease(Math.min(1,p.t));const ex=p.out?p.tx:bug.root.x,ey=p.out?p.ty:bug.root.y;const x=p.x+(ex-p.x)*k,y=p.y+(ey-p.y)*k-Math.sin(k*Math.PI)*FS*.5;
     const sc=p.out?.4+.6*k:1-k*.8;ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);ctx.globalAlpha=p.out?(1-k)*.9:1-k*.6;ctx.fillStyle=pal.red;ctx.font='500 '+FS+'px '+SERIF;ctx.fillText(p.ch,0,0);ctx.restore();});
   rings.forEach(r=>{ctx.globalAlpha=(1-r.t)*.6;ctx.strokeStyle=pal.red;ctx.lineWidth=1;ctx.beginPath();ctx.arc(r.x,r.y,(r.small?FS*.04+r.t*FS*.25:FS*.15+r.t*FS*.55),0,7);ctx.stroke();});
   ctx.globalAlpha=1;
@@ -560,7 +563,7 @@ $('bEndless').onclick=()=>{ENDLESS=!ENDLESS;$('bEndless').classList.toggle('on',
 $('bTrace').onclick=()=>{TRACE=!TRACE;$('bTrace').classList.toggle('on',TRACE);};
 $('bSpeed').onclick=()=>{SPEED=SPEED===1?2:SPEED===2?4:1;$('bSpeed').textContent=SPEED+'×';};
 $('bCopy').onclick=async()=>{if(!result)return;try{await navigator.clipboard.writeText(result.title+'\n\n'+result.lines.join('\n'));$('bCopy').textContent='copied';}catch(e){$('bCopy').textContent='copy failed';}setTimeout(()=>$('bCopy').textContent='copy',1400);};
-$('bTheme').onclick=()=>{document.body.classList.toggle('paper');readPal();$('bTheme').textContent=dark?'paper':'night';};
+$('bTheme').onclick=()=>{document.body.classList.toggle('paper');readPal();$('bTheme').textContent=dark?'day':'night';};
 window.addEventListener('resize',()=>{layout();});
 
 renderChips();
