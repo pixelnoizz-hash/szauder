@@ -1,0 +1,4499 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>MILLIÁRDÁSÓ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap&subset=latin-ext" rel="stylesheet">
+<style>
+:root{
+  --gold:#d6b468; --gold-dim:rgba(214,180,104,.38); --ink:#f1ead8; --muted:#a9a393; --faint:#6f7680;
+  --red:#e2523f; --green:#8fbf6f; --amber:#e2b85c; --panel:rgba(9,13,19,.80); --panel2:rgba(14,19,27,.88);
+  --u:1px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#05070b;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;color:var(--ink);
+  font-family:"IBM Plex Sans Condensed","Roboto Condensed","Arial Narrow",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+#stage{position:absolute;left:50%;top:50%;width:960px;height:540px;transform:translate(-50%,-50%);overflow:hidden;background:#000;
+  font-size:calc(var(--u)*11)}
+#game{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;display:block}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+.lbl{font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-size:calc(var(--u)*9.5)}
+.panel{background:var(--panel);border:1px solid var(--gold-dim);box-shadow:0 0 0 1px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.03);
+  border-radius:calc(var(--u)*3)}
+
+/* ---------------- HUD ---------------- */
+#hud{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .4s}
+#hud.on{opacity:1}
+#portrait{position:absolute;left:calc(var(--u)*12);top:calc(var(--u)*12);display:flex;gap:calc(var(--u)*8);align-items:center}
+#portrait .frame{width:calc(var(--u)*58);height:calc(var(--u)*58);padding:calc(var(--u)*3);border:1px solid var(--gold);background:#0b1018;
+  box-shadow:0 0 0 calc(var(--u)*2) rgba(0,0,0,.65), inset 0 0 0 1px rgba(214,180,104,.25);border-radius:calc(var(--u)*3);position:relative}
+#portrait canvas{width:100%;height:100%;image-rendering:pixelated;display:block}
+#portrait .frame.alarm{border-color:var(--red);box-shadow:0 0 0 calc(var(--u)*2) rgba(0,0,0,.65),0 0 calc(var(--u)*10) rgba(226,82,63,.45)}
+#portrait .who .name{font-weight:700;letter-spacing:.12em;font-size:calc(var(--u)*10.5)}
+#portrait .who .role{color:var(--muted);font-size:calc(var(--u)*9);letter-spacing:.06em;margin-top:calc(var(--u)*2)}
+#portrait .who .phase{margin-top:calc(var(--u)*4);font-size:calc(var(--u)*9);letter-spacing:.1em;color:var(--amber)}
+
+#missions{position:absolute;left:calc(var(--u)*12);top:calc(var(--u)*84);width:calc(var(--u)*196);display:flex;flex-direction:column;gap:calc(var(--u)*6)}
+#missions .panel{padding:calc(var(--u)*6) calc(var(--u)*8) calc(var(--u)*7)}
+#missions h3{display:flex;align-items:center;gap:calc(var(--u)*5);font-size:calc(var(--u)*10);letter-spacing:.12em;color:var(--gold);
+  border-bottom:1px solid rgba(214,180,104,.22);padding-bottom:calc(var(--u)*4);margin-bottom:calc(var(--u)*5)}
+#missions h3 svg{width:calc(var(--u)*11);height:calc(var(--u)*11)}
+.mi{display:grid;grid-template-columns:calc(var(--u)*11) 1fr;gap:calc(var(--u)*6);align-items:start;margin-top:calc(var(--u)*4);font-size:calc(var(--u)*10);line-height:1.25}
+.mi .box{width:calc(var(--u)*10);height:calc(var(--u)*10);border:1px solid #8b8678;margin-top:calc(var(--u)*1);position:relative;border-radius:1px}
+.mi.done .box{border-color:var(--green);background:rgba(143,191,111,.18)}
+.mi.done .box:after{content:"";position:absolute;left:calc(var(--u)*2.5);top:calc(var(--u)*0);width:calc(var(--u)*3);height:calc(var(--u)*6);border:solid var(--green);border-width:0 calc(var(--u)*1.6) calc(var(--u)*1.6) 0;transform:rotate(45deg)}
+.mi.failed .box{border-color:#8a3a33}
+.mi.failed .box:after{content:"";position:absolute;left:calc(var(--u)*1);right:calc(var(--u)*1);top:50%;height:1px;background:#c6463a}
+.mi.done .t{color:#b9c9ab}
+.mi.failed .t{color:#8a8478;text-decoration:line-through}
+.mi .p{display:block;color:var(--faint);font-size:calc(var(--u)*9);margin-top:calc(var(--u)*1)}
+.mi.done .p{color:var(--green)}
+.mi.flash{animation:mflash 1.4s}
+@keyframes mflash{0%,100%{background:transparent}20%{background:rgba(143,191,111,.18)}}
+
+#mapwrap{position:absolute;left:calc(var(--u)*12);bottom:calc(var(--u)*12);padding:calc(var(--u)*4)}
+#minimap{display:block;width:calc(var(--u)*168);height:calc(var(--u)*108);image-rendering:pixelated}
+#mapwrap .n{position:absolute;right:calc(var(--u)*9);top:calc(var(--u)*7);font-weight:700;font-size:calc(var(--u)*9);color:var(--ink);text-shadow:0 1px 2px #000}
+#mapwrap .leg{position:absolute;left:calc(var(--u)*9);top:calc(var(--u)*7);font-size:calc(var(--u)*8);letter-spacing:.1em;color:rgba(241,234,216,.6);text-shadow:0 1px 2px #000}
+
+#finance{position:absolute;right:calc(var(--u)*12);top:calc(var(--u)*12);width:calc(var(--u)*300);padding:calc(var(--u)*2) 0}
+.frow{display:grid;grid-template-columns:calc(var(--u)*22) 1fr auto;align-items:center;gap:calc(var(--u)*6);padding:calc(var(--u)*6) calc(var(--u)*10);border-bottom:1px solid rgba(214,180,104,.14)}
+.frow:last-child{border-bottom:0}
+.frow svg{width:calc(var(--u)*17);height:calc(var(--u)*17)}
+.frow .lbl{white-space:nowrap}
+.frow .val{white-space:nowrap;font-size:calc(var(--u)*15);font-weight:600;color:var(--ink)}
+.frow .pend{font-size:calc(var(--u)*9.5);color:var(--amber);letter-spacing:.04em;margin-top:calc(var(--u)*-3)}
+.frow .pend:empty{display:none}
+.frow .val.bump{animation:bump .5s}
+@keyframes bump{0%{color:#fff;text-shadow:0 0 8px rgba(143,191,111,.8)}100%{color:var(--ink)}}
+.frow .val.loss{animation:loss .8s}
+@keyframes loss{0%{color:var(--red)}100%{color:var(--ink)}}
+.seg{display:flex;gap:calc(var(--u)*2);margin-top:calc(var(--u)*4)}
+.seg i{flex:1;height:calc(var(--u)*6);background:rgba(255,255,255,.08);border-radius:1px}
+.seg.risk i.on{background:#e3a43c}
+.seg.risk i.on.hi{background:var(--red)}
+.seg.auth i.on{background:#c8453a}
+.frow .pct{font-size:calc(var(--u)*12);font-weight:600;min-width:calc(var(--u)*40);text-align:right}
+.frow .stack{display:flex;flex-direction:column}
+
+#timer{position:absolute;right:calc(var(--u)*12);top:calc(var(--u)*144);width:calc(var(--u)*150);padding:calc(var(--u)*6) calc(var(--u)*10) calc(var(--u)*5)}
+#timer .top{display:flex;align-items:center;gap:calc(var(--u)*6)}
+#timer svg{width:calc(var(--u)*16);height:calc(var(--u)*16)}
+#timer .digits{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:calc(var(--u)*27);color:var(--red);letter-spacing:.04em;line-height:1.05;margin-top:calc(var(--u)*2);
+  text-shadow:0 0 calc(var(--u)*8) rgba(226,82,63,.35)}
+#timer .pen{position:absolute;right:calc(var(--u)*10);bottom:calc(var(--u)*6);color:var(--red);font-weight:700;font-size:calc(var(--u)*11);opacity:0}
+#timer .pen.show{animation:pen 1.8s}
+@keyframes pen{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(calc(var(--u)*-14))}}
+#timer.low .digits{animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.55}}
+
+#status{position:absolute;right:calc(var(--u)*12);bottom:calc(var(--u)*12);width:calc(var(--u)*252);padding:calc(var(--u)*6) calc(var(--u)*10)}
+.srow{display:grid;grid-template-columns:calc(var(--u)*88) 1fr auto;align-items:center;gap:calc(var(--u)*6);padding:calc(var(--u)*3) 0}
+.bar{height:calc(var(--u)*5);background:rgba(255,255,255,.08);border-radius:1px;overflow:hidden}
+.bar b{display:block;height:100%;width:100%;background:#9fb6c8;transition:width .1s linear}
+.bar.ex b{background:#8a6a5a}
+.slots{display:flex;gap:calc(var(--u)*4)}
+.slots i{width:calc(var(--u)*14);height:calc(var(--u)*14);border:1px solid #5c5a52;border-radius:2px;display:grid;place-items:center}
+.slots i.on{border-color:var(--gold);background:rgba(214,180,104,.12)}
+.slots i svg{width:calc(var(--u)*10);height:calc(var(--u)*10);opacity:0}
+.slots i.on svg{opacity:1}
+.srow .v{font-size:calc(var(--u)*10);color:var(--ink)}
+#status .hint{display:flex;justify-content:space-between;margin-top:calc(var(--u)*4);padding-top:calc(var(--u)*4);border-top:1px solid rgba(214,180,104,.14);color:var(--faint);font-size:calc(var(--u)*9);letter-spacing:.06em}
+#mute{pointer-events:auto;cursor:pointer;background:none;border:0;color:var(--muted);font:inherit;letter-spacing:.06em}
+#mute:hover{color:var(--ink)}
+
+#feed{position:absolute;left:50%;bottom:calc(var(--u)*16);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*4);width:calc(var(--u)*420)}
+.note{background:rgba(8,11,16,.84);border-left:calc(var(--u)*2) solid var(--gold);padding:calc(var(--u)*4) calc(var(--u)*10);font-size:calc(var(--u)*11);letter-spacing:.02em;
+  color:var(--ink);animation:noteIn .25s ease-out;transition:opacity .6s, transform .6s;white-space:nowrap}
+.note.bad{border-left-color:var(--red)}
+.note.good{border-left-color:var(--green)}
+.note.warn{border-left-color:var(--amber)}
+.note.out{opacity:0;transform:translateY(calc(var(--u)*-4))}
+@keyframes noteIn{from{opacity:0;transform:translateY(calc(var(--u)*6))}to{opacity:1;transform:none}}
+
+#prompt{position:absolute;transform:translate(-50%,-100%);display:flex;align-items:center;gap:calc(var(--u)*5);white-space:nowrap;
+  background:rgba(8,11,16,.82);border:1px solid rgba(214,180,104,.3);padding:calc(var(--u)*3) calc(var(--u)*7);font-size:calc(var(--u)*10);border-radius:2px;opacity:0;transition:opacity .12s}
+#prompt.on{opacity:1}
+#prompt .k{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:calc(var(--u)*9);color:#0b0f14;background:var(--gold);padding:0 calc(var(--u)*4);border-radius:2px}
+#prompt .k:empty{display:none}
+#prompt.deny{border-color:rgba(226,82,63,.6);color:#e9b2a8}
+
+/* ---------------- touch ---------------- */
+#touch{position:absolute;inset:0;display:none;pointer-events:none}
+body.touch.playing #touch{display:block}
+#stickZone{position:absolute;left:0;top:18%;width:45%;bottom:0;pointer-events:auto}
+#stickBase{position:absolute;width:calc(var(--su)*96);height:calc(var(--su)*96);margin:calc(var(--su)*-48) 0 0 calc(var(--su)*-48);border-radius:50%;
+  border:1px solid rgba(214,180,104,.35);background:rgba(10,14,20,.35);opacity:0;transition:opacity .15s}
+#stickBase.on{opacity:1}
+#stickKnob{position:absolute;left:50%;top:50%;width:calc(var(--su)*42);height:calc(var(--su)*42);border-radius:50%;background:rgba(214,180,104,.35);border:1px solid var(--gold);transform:translate(-50%,-50%)}
+.tbtns{position:absolute;right:calc(var(--su)*22);bottom:calc(var(--su)*20);width:calc(var(--su)*210);height:calc(var(--su)*170)}
+.tb{pointer-events:auto;position:absolute;border-radius:50%;border:1px solid var(--gold-dim);background:rgba(10,14,20,.62);color:var(--ink);
+  font:inherit;font-weight:700;letter-spacing:.1em;font-size:calc(var(--su)*11);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(var(--su)*3)}
+.tb svg{width:42%;height:auto}
+.tb.down{background:rgba(214,180,104,.30);border-color:var(--gold)}
+.tb.big{right:0;bottom:0;width:calc(var(--su)*104);height:calc(var(--su)*104);border-color:var(--gold)}
+.tb.mid{right:calc(var(--su)*118);bottom:calc(var(--su)*6);width:calc(var(--su)*78);height:calc(var(--su)*78)}
+.tb.sm{right:calc(var(--su)*22);bottom:calc(var(--su)*116);width:calc(var(--su)*58);height:calc(var(--su)*58);font-size:calc(var(--su)*9.5)}
+#tpause{pointer-events:auto;position:absolute;left:50%;top:calc(var(--su)*12);margin-left:calc(var(--su)*-18);width:calc(var(--su)*36);height:calc(var(--su)*36);border-radius:3px;
+  border:1px solid var(--gold-dim);background:rgba(10,14,20,.75);color:var(--ink);font:inherit;font-weight:700;font-size:calc(var(--su)*12)}
+body.touch #hud{--u:calc(var(--su)*1.12)}
+body.touch #status{right:auto;left:50%;bottom:calc(var(--su)*8);transform:translateX(-50%);width:calc(var(--u)*230);padding:calc(var(--u)*3) calc(var(--u)*9)}
+body.touch #status .hint{display:none}
+body.touch #mapwrap{left:auto;right:calc(var(--su)*12);bottom:auto;top:calc(var(--u)*222);transform:scale(.72);transform-origin:top right}
+body.touch #missions{transform:scale(.86);transform-origin:top left}
+body.touch #feed{bottom:calc(var(--su)*96);width:calc(var(--su)*360)}
+body.touch .note{white-space:normal;text-align:center}
+#rotate{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#05070b;color:var(--ink);text-align:center;padding:30px}
+#rotate .ph{width:46px;height:78px;border:2px solid var(--gold);border-radius:8px;animation:rot 2.2s ease-in-out infinite}
+@keyframes rot{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
+#rotate b{font-family:"Cinzel",Georgia,serif;color:var(--gold);letter-spacing:.06em;font-size:20px}
+#rotate span{color:var(--muted);font-size:14px;max-width:280px;line-height:1.4}
+body.touch.portrait #rotate{display:flex}
+.touchonly{display:none}
+body.touch .touchonly{display:block}
+body.touch .keyonly{display:none}
+
+/* ---------------- screens ---------------- */
+.screen{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;
+  background:radial-gradient(ellipse at 50% 45%, rgba(5,8,14,.35), rgba(3,5,9,.86) 70%)}
+.screen.on{display:flex}
+.title{font-family:"Cinzel","Trajan Pro",Georgia,serif;font-weight:900;font-size:calc(var(--u)*76);letter-spacing:.02em;line-height:1;
+  background:linear-gradient(180deg,#f6e7bf 0%,#d9b86f 55%,#9c7b3c 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 calc(var(--u)*3) 0 rgba(0,0,0,.8)) drop-shadow(0 0 calc(var(--u)*18) rgba(214,180,104,.18))}
+.orn{display:flex;align-items:center;gap:calc(var(--u)*10);margin:calc(var(--u)*10) 0 calc(var(--u)*8)}
+.orn .ln{height:calc(var(--u)*2);width:calc(var(--u)*150);background:linear-gradient(90deg,transparent,var(--gold))}
+.orn .ln.r{background:linear-gradient(90deg,var(--gold),transparent)}
+.orn svg{height:calc(var(--u)*22);width:auto}
+.sub{letter-spacing:.42em;font-size:calc(var(--u)*11);color:#cfc6b0;font-weight:500}
+.tag{margin-top:calc(var(--u)*16);font-style:italic;color:var(--muted);font-size:calc(var(--u)*14);letter-spacing:.02em}
+.menu{margin-top:calc(var(--u)*30);display:flex;flex-direction:column;gap:calc(var(--u)*8);width:calc(var(--u)*240)}
+.btn{pointer-events:auto;cursor:pointer;background:rgba(10,14,20,.85);border:1px solid var(--gold-dim);color:var(--ink);font:inherit;font-weight:600;
+  font-size:calc(var(--u)*12);letter-spacing:.16em;padding:calc(var(--u)*9) calc(var(--u)*14);text-align:left;display:flex;justify-content:space-between;align-items:center;border-radius:2px;transition:all .12s}
+.touch .btn small{display:none}
+.btn small{margin-left:calc(var(--u)*10);font-family:"IBM Plex Mono",monospace;font-weight:500;color:var(--faint);letter-spacing:.04em;font-size:calc(var(--u)*9)}
+.btn:hover,.btn.sel{border-color:var(--gold);background:rgba(214,180,104,.10);color:#fff}
+.btn.primary{border-color:var(--gold);background:linear-gradient(180deg,rgba(214,180,104,.20),rgba(214,180,104,.07))}
+.foot{position:absolute;bottom:calc(var(--u)*14);color:var(--faint);font-size:calc(var(--u)*9);letter-spacing:.08em}
+.best{margin-top:calc(var(--u)*14);color:var(--faint);font-size:calc(var(--u)*10);letter-spacing:.06em}
+
+.doc{width:calc(var(--u)*640);padding:calc(var(--u)*20) calc(var(--u)*26);background:var(--panel2);border:1px solid var(--gold-dim);border-radius:3px;position:relative}
+.doc h2{font-family:"Cinzel",Georgia,serif;font-weight:700;letter-spacing:.08em;font-size:calc(var(--u)*20);color:var(--gold)}
+.doc .meta{display:flex;justify-content:space-between;color:var(--faint);font-size:calc(var(--u)*9);letter-spacing:.1em;margin-top:calc(var(--u)*4);
+  padding-bottom:calc(var(--u)*10);border-bottom:1px solid rgba(214,180,104,.25)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*22);margin-top:calc(var(--u)*12)}
+.doc h4{font-size:calc(var(--u)*10);letter-spacing:.14em;color:var(--gold);margin:calc(var(--u)*6) 0 calc(var(--u)*6)}
+.keys div{display:grid;grid-template-columns:calc(var(--u)*92) 1fr;padding:calc(var(--u)*3) 0;border-bottom:1px dotted rgba(255,255,255,.08);font-size:calc(var(--u)*11)}
+.keys b{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--ink);font-size:calc(var(--u)*10)}
+.doc ol{padding-left:calc(var(--u)*16);font-size:calc(var(--u)*11);line-height:1.45;color:#ddd5c2}
+.doc p{font-size:calc(var(--u)*10.5);line-height:1.45;color:#c9c1ae;margin-top:calc(var(--u)*4)}
+.doc .acts{display:flex;gap:calc(var(--u)*8);margin-top:calc(var(--u)*16)}
+.doc .acts .btn{flex:1;justify-content:center}
+.stamp{position:absolute;right:calc(var(--u)*22);top:calc(var(--u)*16);border:calc(var(--u)*2) solid rgba(198,70,58,.75);color:rgba(198,70,58,.85);font-weight:700;
+  letter-spacing:.14em;font-size:calc(var(--u)*11);padding:calc(var(--u)*3) calc(var(--u)*8);transform:rotate(-6deg);border-radius:2px}
+
+.rep{margin-top:calc(var(--u)*10)}
+.rep div{display:flex;justify-content:space-between;padding:calc(var(--u)*5) 0;border-bottom:1px dotted rgba(255,255,255,.09);font-size:calc(var(--u)*12)}
+.rep div span:first-child{color:#cfc7b4}
+.rep div .neg{color:#e58a7c}
+.rep div.small{font-size:calc(var(--u)*11)}
+.rep div.small span:first-child{color:var(--muted)}
+.total{display:flex;justify-content:space-between;align-items:baseline;margin-top:calc(var(--u)*12);padding:calc(var(--u)*10) calc(var(--u)*12);
+  border:1px solid var(--gold);background:rgba(214,180,104,.08)}
+.total span:first-child{font-weight:700;letter-spacing:.12em;color:var(--gold);font-size:calc(var(--u)*13)}
+.total span:last-child{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:calc(var(--u)*22);color:#fff}
+.verdict{margin-top:calc(var(--u)*10);font-size:calc(var(--u)*11);color:var(--muted);font-style:italic}
+.rmis{margin-top:calc(var(--u)*6)}
+.rmis .mi{font-size:calc(var(--u)*10.5)}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="game"></canvas>
+
+  <div id="hud">
+    <div id="portrait">
+      <div class="frame" id="pframe"><canvas id="pcanvas"></canvas></div>
+      <div class="who">
+        <div class="name">VAGYONKEZELŐ</div>
+        <div class="role">Megbízott portfóliókezelő</div>
+        <div class="phase" id="phaseLbl">HATÓSÁGI JELENLÉT: ALACSONY</div>
+      </div>
+    </div>
+
+    <div id="missions">
+      <div class="panel">
+        <h3><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="6" cy="6" r="5"/><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="6" r=".6" fill="currentColor"/></svg>FŐKÜLDETÉS</h3>
+        <div id="mMain"></div>
+      </div>
+      <div class="panel">
+        <h3><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 .8l1.5 3.2 3.5.4-2.6 2.4.7 3.5L6 8.6 2.9 10.3l.7-3.5L1 4.4l3.5-.4z"/></svg>MELLÉKKÜLDETÉSEK</h3>
+        <div id="mSide"></div>
+      </div>
+    </div>
+
+    <div id="mapwrap" class="panel">
+      <canvas id="minimap"></canvas>
+      <div class="leg">TÉRKÉP</div>
+      <div class="n">É ↑</div>
+    </div>
+
+    <div id="finance" class="panel">
+      <div class="frow">
+        <svg viewBox="0 0 18 18"><rect x="1.5" y="5" width="13" height="8" rx="1" fill="#5f8d4c"/><rect x="3.5" y="3" width="13" height="8" rx="1" fill="#7fae6a" stroke="#2f4a26" stroke-width=".8"/><circle cx="10" cy="7" r="1.8" fill="#c7e0b4"/></svg>
+        <span class="lbl" style="color:#ddd5c2;font-size:calc(var(--u)*10.5)">ELREJTETT VAGYON</span>
+        <span class="val mono" id="hidden">0 Ft</span>
+        <span></span><span class="pend" id="pending" style="grid-column:2 / 4"></span>
+      </div>
+      <div class="frow">
+        <svg viewBox="0 0 18 18" fill="none" stroke="#cfc6b0" stroke-width="1.3"><path d="M1.5 9s3-5 7.5-5 7.5 5 7.5 5-3 5-7.5 5-7.5-5-7.5-5z"/><circle cx="9" cy="9" r="2.2" fill="#cfc6b0"/></svg>
+        <div class="stack"><span class="lbl" style="color:#ddd5c2">KITETTSÉGI KOCKÁZAT</span><div class="seg risk" id="risk"></div></div>
+        <span class="pct mono" id="riskPct">0%</span>
+      </div>
+      <div class="frow">
+        <svg viewBox="0 0 18 18" fill="none" stroke="#cfc6b0" stroke-width="1.2"><path d="M3 7.5h12l-1-3.5H4z" fill="#cfc6b0"/><path d="M4.5 7.5v1.5a4.5 4.5 0 009 0V7.5"/><rect x="7.5" y="4.6" width="3" height="1.4" fill="#0b0f14" stroke="none"/></svg>
+        <div class="stack"><span class="lbl" style="color:#ddd5c2">HATÓSÁGI AKTIVITÁS</span><div class="seg auth" id="auth"></div></div>
+        <span class="pct" id="authLbl" style="color:var(--red);font-size:calc(var(--u)*11);letter-spacing:.06em">ALACSONY</span>
+      </div>
+    </div>
+
+    <div id="timer" class="panel">
+      <div class="top">
+        <svg viewBox="0 0 18 18" fill="none" stroke="#cfc6b0" stroke-width="1.3"><circle cx="9" cy="10" r="6.3"/><path d="M9 10V6.5M7 1.8h4M9 1.8v1.9M14.2 4.2l1 1"/></svg>
+        <span class="lbl" style="color:#ddd5c2;line-height:1.15">HÁTRALÉVŐ IDŐ</span>
+      </div>
+      <div class="digits" id="time">03:00</div>
+      <div class="pen" id="pen">−10 mp</div>
+    </div>
+
+    <div id="status" class="panel">
+      <div class="srow"><span class="lbl">ÁLLÓKÉPESSÉG</span><div class="bar" id="stam"><b></b></div><span></span></div>
+      <div class="srow"><span class="lbl">CIPELT PÉNZ</span>
+        <div class="slots" id="slots">
+          <i><svg viewBox="0 0 10 10"><path d="M4 1h2l-.5 1.5h-1z" fill="#8a7444"/><path d="M2 4c0-1.2 1.4-1.7 3-1.7S8 2.8 8 4l.6 4.5H1.4z" fill="#c7af7d"/><rect x="4" y="2.4" width="2" height="1.2" fill="#6f9c59"/></svg></i>
+          <i><svg viewBox="0 0 10 10"><path d="M4 1h2l-.5 1.5h-1z" fill="#8a7444"/><path d="M2 4c0-1.2 1.4-1.7 3-1.7S8 2.8 8 4l.6 4.5H1.4z" fill="#c7af7d"/><rect x="4" y="2.4" width="2" height="1.2" fill="#6f9c59"/></svg></i>
+        </div>
+        <span class="v mono" id="carried">0 Ft</span>
+      </div>
+      <div class="srow"><span class="lbl">FURGONBAN</span><span class="v mono" id="vanLeft">26 zsák</span><span></span></div>
+      <div class="hint"><span>ESC — szünet</span><button id="mute">M — HANG: BE</button></div>
+    </div>
+
+    <div id="feed"></div>
+    <div id="prompt"><span class="k"></span><span class="t"></span></div>
+  </div>
+
+  <div id="touch">
+    <div id="stickZone"></div>
+    <div id="stickBase"><div id="stickKnob"></div></div>
+    <div class="tbtns">
+      <button class="tb big" data-key="Space"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 3l6 6M18 6l-8.5 8.5"/><path d="M9.5 14.5l-5 1-1 5 5-1 1-5z" fill="currentColor" fill-opacity=".25"/></svg>ÁSÓ</button>
+      <button class="tb mid" data-key="KeyE"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9.5 3h5l-1 3h-3z"/><path d="M6 10c0-2.5 2.6-4 6-4s6 1.5 6 4l1.5 10h-15z" fill="currentColor" fill-opacity=".25"/></svg>PÉNZ</button>
+      <button class="tb sm" data-key="ShiftLeft">FUTÁS</button>
+    </div>
+    <button id="tpause">II</button>
+  </div>
+
+  <!-- start -->
+  <div class="screen on" id="scrStart">
+    <div class="title">MILLIÁRDÁSÓ</div>
+    <div class="orn">
+      <div class="ln"></div>
+      <svg viewBox="0 0 120 24"><g transform="translate(18,4)"><rect x="0" y="4" width="22" height="12" rx="1" fill="#5f8d4c" stroke="#2c4422"/><rect x="4" y="1" width="22" height="12" rx="1" fill="#7fae6a" stroke="#2c4422"/><circle cx="15" cy="7" r="3" fill="#c7e0b4"/></g><g transform="translate(52,4)"><rect x="0" y="4" width="22" height="12" rx="1" fill="#5f8d4c" stroke="#2c4422"/><rect x="4" y="1" width="22" height="12" rx="1" fill="#7fae6a" stroke="#2c4422"/><circle cx="15" cy="7" r="3" fill="#c7e0b4"/></g><path d="M84 12h24" stroke="#8a6a44" stroke-width="2.4"/><path d="M106 6l10 6-10 6z" fill="#b6bec6" stroke="#5c646c"/></svg>
+      <div class="ln r"></div>
+    </div>
+    <div class="sub">VAGYONELREJTŐ 2D ARCADE JÁTÉK</div>
+    <div class="tag">A pénz nem vész el, csak föld alá kerül.</div>
+    <div class="menu" id="menuStart">
+      <button class="btn primary" data-act="start">ÚJ MENET <small>ENTER</small></button>
+      <button class="btn" data-act="howto">HOGYAN JÁTSSZ <small>H</small></button>
+      <button class="btn" data-act="mute"><span class="ml">HANG: BE</span> <small>M</small></button>
+    </div>
+    <div class="best" id="bestLine"></div>
+    <div class="foot">Fiktív szatíra. Kitalált szereplők, kitalált erdő, valódi forint-elválasztók.</div>
+  </div>
+
+  <!-- how to play -->
+  <div class="screen" id="scrHow">
+    <div class="doc">
+      <div class="stamp">BELSŐ HASZNÁLATRA</div>
+      <h2>ELJÁRÁSRENDI ÚTMUTATÓ</h2>
+      <div class="meta"><span>IKTATÓSZÁM: MÁ-2026/180</span><span>MELLÉKLET: 1 DB ÁSÓ</span></div>
+      <div class="cols">
+        <div>
+          <h4>VEZÉRLÉS</h4>
+          <div class="keys">
+            <div><b>W A S D / ←↑↓→</b><span>Mozgás</span></div>
+            <div><b>SHIFT</b><span>Sprint (állóképesség)</span></div>
+            <div><b>E</b><span>Pénz felvétele / elhelyezése</span></div>
+            <div><b>SPACE (tartva)</b><span>Ásás · betemetés · álcázás</span></div>
+            <div><b>ESC</b><span>Szünet</span></div>
+            <div><b>M</b><span>Hang ki / be</span></div>
+          </div>
+          <p class="touchonly">Telefonon: bal hüvelykujj — mozgás; ÁSÓ (nyomva tartva) — ásás, betemetés, álcázás; PÉNZ — felvétel, elhelyezés; FUTÁS — sprint (nyomva tartva).</p>
+          <h4 style="margin-top:calc(var(--u)*14)">KOCKÁZATKEZELÉS</h4>
+          <p>A nyomozók zseblámpával pásztáznak. A fénykúpba lépve nő a kitettség; pénzzel a kézben üldözés jár. Lebukáskor a cipelt pénz elvész, és 10 mp időveszteség terheli a menetet.</p>
+          <p>A nyitott gödör feltűnő, a betemetett kevésbé, az álcázott alig. A sűrű aljnövényzet és a magas fű takar.</p>
+        </div>
+        <div>
+          <h4>ELJÁRÁSREND</h4>
+          <ol>
+            <li>A furgonból vegyen fel egy vagy két zsákot (E). Két zsák lassít.</li>
+            <li>Válasszon helyszínt. A furgon közelében gyors, de látható; az erdő mélyén biztonságosabb, de messzebb van.</li>
+            <li>Ásson gödröt (SPACE, 2 mp).</li>
+            <li>Helyezze el a pénzt (E), legfeljebb két zsákot gödrönként.</li>
+            <li>Temesse be (SPACE, 1,5 mp). Csak a betemetett pénz számít elrejtettnek.</li>
+            <li>Álcázza a felszínt (SPACE, 2 mp).</li>
+            <li>Ismételje 180 másodpercen át.</li>
+          </ol>
+          <p>Üres gödör is betemethető. A hatóság ezt is ugyanolyan alapossággal dokumentálja.</p>
+        </div>
+      </div>
+      <div class="acts"><button class="btn" data-act="back">VISSZA <small>ESC</small></button><button class="btn primary" data-act="start">ÚJ MENET <small>ENTER</small></button></div>
+    </div>
+  </div>
+
+  <!-- pause -->
+  <div class="screen" id="scrPause">
+    <div class="doc" style="width:calc(var(--u)*330)">
+      <h2>ELJÁRÁS FELFÜGGESZTVE</h2>
+      <div class="meta"><span>A VAGYON NYUGALMI ÁLLAPOTBAN</span><span id="pauseTime">03:00</span></div>
+      <div class="menu" style="width:100%;margin-top:calc(var(--u)*14)">
+        <button class="btn primary" data-act="resume">FOLYTATÁS <small>ESC</small></button>
+        <button class="btn" data-act="restart">ÚJRAKEZDÉS <small>R</small></button>
+        <button class="btn" data-act="howto">HOGYAN JÁTSSZ <small>H</small></button>
+        <button class="btn" data-act="mute"><span class="ml">HANG: BE</span> <small>M</small></button>
+        <button class="btn" data-act="menu">FŐMENÜ <small>Q</small></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- results -->
+  <div class="screen" id="scrResults">
+    <div class="doc" style="width:calc(var(--u)*560)">
+      <div class="stamp" id="resStamp">LEZÁRVA</div>
+      <h2>VAGYONKEZELÉSI JELENTÉS</h2>
+      <div class="meta"><span>IDŐSZAK: 180 MÁSODPERC</span><span id="resDate"></span></div>
+      <div class="rep" id="rep"></div>
+      <div class="total"><span>MEGŐRZÖTT VAGYON</span><span id="repFinal">0 Ft</span></div>
+      <div class="verdict" id="verdict"></div>
+      <div class="rmis" id="resMissions"></div>
+      <div class="acts"><button class="btn" data-act="menu">FŐMENÜ <small>Q</small></button><button class="btn primary" data-act="restart">ÚJRAKEZDÉS <small>ENTER</small></button></div>
+    </div>
+  </div>
+</div>
+<div id="rotate"><div class="ph"></div><b>MILLIÁRDÁSÓ</b><span>Fordítsd el a telefont fekvő helyzetbe. A vagyonkezelés széles képernyőt igényel.</span></div>
+<script>
+(() => {
+  // src/config.ts
+  var VIEW_W = 480;
+  var VIEW_H = 270;
+  var TILE = 16;
+  var MAP_W = 84;
+  var MAP_H = 54;
+  var WORLD_W = MAP_W * TILE;
+  var WORLD_H = MAP_H * TILE;
+  var SESSION_TIME = 180;
+  var TOTAL_BAGS = 26;
+  var BAG_VALUE = 25e7;
+  var TOTAL_MONEY = TOTAL_BAGS * BAG_VALUE;
+  var DIG_TIME = 2;
+  var COVER_TIME = 1.5;
+  var CAMO_TIME = 2;
+  var DEPOSIT_TIME = 0.45;
+  var PICKUP_TIME = 0.28;
+  var CATCH_PENALTY = 10;
+  var HOLE_CAPACITY = 2;
+  var PLAYER_RADIUS = 4.5;
+  var INV_RADIUS = 4.5;
+  var INTERACT_HOLE_DIST = 14;
+  var INTERACT_VAN_DIST = 22;
+  var PLAYER = {
+    walk: 64,
+    sprintMul: 1.62,
+    bag1Mul: 0.88,
+    bag2Mul: 0.68,
+    bag2SprintMul: 1.42,
+    drain: [0.24, 0.3, 0.5],
+    // stamina / s while sprinting, by bags carried
+    regenWalk: 0.15,
+    regenIdle: 0.26,
+    recoverThreshold: 0.3
+  };
+  var PHASES = [
+    { name: "ALACSONY", patrol: 36, suspicious: 50, chase: 84, range: 100, half: 0.42, notice: 1.45, investigate: 2.8, search: 3.2, probe: 0.22, sweepEvery: 0 },
+    { name: "FOKOZOTT", patrol: 40, suspicious: 56, chase: 88, range: 108, half: 0.46, notice: 1.85, investigate: 2.4, search: 2.8, probe: 0.32, sweepEvery: 22 },
+    { name: "RAZZIA", patrol: 47, suspicious: 64, chase: 94, range: 118, half: 0.5, notice: 2.4, investigate: 1.9, search: 2.2, probe: 0.48, sweepEvery: 11 }
+  ];
+  var PHASE_START = [0, 60, 120];
+  var SPAWN_SCHEDULE = [5, 60, 120, 127];
+
+  // src/util.ts
+  var clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+  var lerp = (a, b, t) => a + (b - a) * t;
+  var dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
+  var smoothstep = (a, b, x) => {
+    const t = clamp((x - a) / (b - a), 0, 1);
+    return t * t * (3 - 2 * t);
+  };
+  function angleDiff(a, b) {
+    let d = b - a;
+    while (d > Math.PI) d -= Math.PI * 2;
+    while (d < -Math.PI) d += Math.PI * 2;
+    return d;
+  }
+  function turnTowards(cur, target, maxStep) {
+    const d = angleDiff(cur, target);
+    if (Math.abs(d) <= maxStep) return target;
+    return cur + Math.sign(d) * maxStep;
+  }
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return () => {
+      a = a + 1831565813 >>> 0;
+      let t = a;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function hash2(x, y, seed = 0) {
+    let h = x * 374761393 + y * 668265263 + seed * 2147483647 | 0;
+    h = Math.imul(h ^ h >>> 13, 1274126177);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  }
+  function valueNoise(x, y, seed = 0) {
+    const xi = Math.floor(x), yi = Math.floor(y);
+    const xf = x - xi, yf = y - yi;
+    const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+    const a = hash2(xi, yi, seed), b = hash2(xi + 1, yi, seed);
+    const c = hash2(xi, yi + 1, seed), d = hash2(xi + 1, yi + 1, seed);
+    return lerp(lerp(a, b, u), lerp(c, d, u), v);
+  }
+  function fbm(x, y, seed = 0) {
+    return valueNoise(x, y, seed) * 0.6 + valueNoise(x * 2.1, y * 2.1, seed + 7) * 0.3 + valueNoise(x * 4.3, y * 4.3, seed + 13) * 0.1;
+  }
+  function distToSegment(px, py, ax, ay, bx, by) {
+    const dx = bx - ax, dy = by - ay;
+    const l2 = dx * dx + dy * dy;
+    let t = l2 ? ((px - ax) * dx + (py - ay) * dy) / l2 : 0;
+    t = clamp(t, 0, 1);
+    return Math.hypot(px - (ax + dx * t), py - (ay + dy * t));
+  }
+  function distToPolyline(px, py, pts) {
+    let m = Infinity;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const d = distToSegment(px, py, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1]);
+      if (d < m) m = d;
+    }
+    return m;
+  }
+  function fmtFt(n) {
+    const s = Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\xA0");
+    return s + "\xA0Ft";
+  }
+  function fmtNum(n) {
+    return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\xA0");
+  }
+  function fmtTime(sec) {
+    const s = Math.max(0, Math.ceil(sec));
+    const m = Math.floor(s / 60);
+    return `${String(m).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  }
+  function fmtMillio(bags, bagValue) {
+    const m = bags * bagValue / 1e6;
+    return m >= 1e3 ? `${(m / 1e3).toString().replace(".", ",")} milli\xE1rd` : `${m} milli\xF3`;
+  }
+
+  // src/level.ts
+  var T = { FLOOR: 0, GRASS: 1, TALL: 2, ROAD: 3, TRAIL: 4 };
+  var CELL = 4;
+  var CW = WORLD_W / CELL;
+  var CH = WORLD_H / CELL;
+  var ROAD = [[1360, 300], [1200, 318], [1040, 352], [880, 392], [720, 420], [560, 432], [420, 440], [300, 446], [216, 438]];
+  var CLEARINGS = [
+    { x: 310, y: 560, r: 60 },
+    // just south of the van — convenient, exposed
+    { x: 230, y: 190, r: 60 },
+    { x: 560, y: 200, r: 78 },
+    { x: 1010, y: 150, r: 70 },
+    { x: 560, y: 690, r: 74 },
+    { x: 190, y: 745, r: 56 },
+    { x: 1040, y: 640, r: 72 },
+    { x: 800, y: 565, r: 48 },
+    { x: 1240, y: 300, r: 40 }
+    // road end, police car
+  ];
+  var TRAILS = [
+    [[216, 470], [300, 560], [420, 640], [560, 690], [680, 620], [800, 565], [920, 600], [1040, 640], [1150, 520], [1190, 330]],
+    [[300, 560], [240, 660], [190, 745]],
+    [[330, 440], [270, 320], [230, 190], [400, 170], [560, 200], [700, 250], [860, 190], [1010, 150], [1120, 220], [1200, 312]],
+    [[560, 200], [600, 320], [640, 425]],
+    [[800, 565], [830, 400]],
+    [[560, 690], [500, 560], [470, 440]]
+  ];
+  var ROUTES_RAW = [
+    [[1150, 340], [830, 400], [800, 565], [560, 690], [310, 560], [330, 440], [560, 200], [640, 425], [1e3, 360]],
+    [[1010, 150], [560, 200], [230, 190], [310, 560], [190, 745], [560, 690], [1040, 640], [1150, 520]],
+    [[230, 190], [330, 440], [310, 560], [190, 745], [420, 640], [270, 320]],
+    [[1040, 640], [800, 565], [560, 690], [560, 200], [860, 190], [1010, 150], [1150, 520]]
+  ];
+  var LevelManager = class {
+    // "legtávolabbi erdőrész": farther than this from the van
+    constructor(seed = 1956) {
+      this.terrain = new Uint8Array(CW * CH);
+      this.blocked = new Uint8Array(MAP_W * MAP_H);
+      this.cost = new Float32Array(MAP_W * MAP_H);
+      this.obstacles = [];
+      this.bushes = [];
+      this.clearings = CLEARINGS;
+      this.trails = TRAILS;
+      this.road = ROAD;
+      this.routes = [];
+      this.van = { x: 198, y: 404, w: 36, h: 58, doorX: 216, doorY: 474 };
+      this.car = { x: 1236, y: 268, w: 44, h: 26 };
+      this.playerSpawn = { x: 244, y: 486 };
+      this.policeSpawn = { x: 1222, y: 312 };
+      this.remoteMin = 860;
+      this.bushGrid = [];
+      this.generateTerrain();
+      this.placeObjects(seed);
+      this.buildNavGrid();
+      for (let i = 0; i < MAP_W * MAP_H; i++) this.bushGrid.push([]);
+      for (const b of this.bushes) {
+        const tx0 = Math.max(0, Math.floor((b.x - b.r) / TILE)), tx1 = Math.min(MAP_W - 1, Math.floor((b.x + b.r) / TILE));
+        const ty0 = Math.max(0, Math.floor((b.y - b.r) / TILE)), ty1 = Math.min(MAP_H - 1, Math.floor((b.y + b.r) / TILE));
+        for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) this.bushGrid[ty * MAP_W + tx].push(b);
+      }
+      this.routes = ROUTES_RAW.map((r) => r.map(([x, y]) => this.snapWalkable(x, y)));
+    }
+    // ----- terrain -------------------------------------------------------------
+    classify(x, y) {
+      const dRoad = distToPolyline(x, y, ROAD);
+      if (dRoad < 14) return T.ROAD;
+      const n = fbm(x / 70, y / 70, 3);
+      for (const c of CLEARINGS) {
+        const d = dist(x, y, c.x, c.y);
+        const edge = c.r + (fbm(x / 30, y / 30, 11) - 0.5) * 26;
+        if (d < edge) {
+          if (n > 0.6 || d > edge - 16 && n > 0.48) return T.TALL;
+          return T.GRASS;
+        }
+      }
+      for (const tr of TRAILS) if (distToPolyline(x, y, tr) < 7) return T.TRAIL;
+      if (n > 0.66) return T.TALL;
+      return T.FLOOR;
+    }
+    generateTerrain() {
+      for (let cy = 0; cy < CH; cy++)
+        for (let cx = 0; cx < CW; cx++)
+          this.terrain[cy * CW + cx] = this.classify(cx * CELL + 2, cy * CELL + 2);
+    }
+    terrainAt(x, y) {
+      const cx = Math.floor(x / CELL), cy = Math.floor(y / CELL);
+      if (cx < 0 || cy < 0 || cx >= CW || cy >= CH) return T.FLOOR;
+      return this.terrain[cy * CW + cx];
+    }
+    isDiggable(x, y) {
+      const t = this.terrainAt(x, y);
+      return t !== T.ROAD;
+    }
+    inVanZone(x, y) {
+      const v = this.van;
+      return x > v.x - 16 && x < v.x + v.w + 16 && y > v.y - 16 && y < v.y + v.h + 22;
+    }
+    isRemote(x, y) {
+      return dist(x, y, this.van.doorX, this.van.doorY) > this.remoteMin;
+    }
+    // ----- objects -------------------------------------------------------------
+    openness(x, y) {
+      if (x < 0 || y < 0 || x > WORLD_W || y > WORLD_H) return 0;
+      const dRoad = distToPolyline(x, y, ROAD);
+      if (dRoad < 24) return 1;
+      let o = 0;
+      for (const c of CLEARINGS) {
+        const d = dist(x, y, c.x, c.y);
+        if (d < c.r + 6) return 1;
+        o = Math.max(o, 1 - smoothstep(c.r, c.r + 50, d));
+      }
+      for (const tr of TRAILS) {
+        const d = distToPolyline(x, y, tr);
+        if (d < 12) return 1;
+        o = Math.max(o, 1 - smoothstep(12, 30, d));
+      }
+      if (dRoad < 60) o = Math.max(o, 1 - smoothstep(24, 60, dRoad));
+      const v = this.van;
+      if (x > v.x - 40 && x < v.x + v.w + 40 && y > v.y - 40 && y < v.y + v.h + 50) return 1;
+      return o;
+    }
+    placeObjects(seed) {
+      const rnd = mulberry32(seed);
+      const trees = [];
+      const tooClose = (x, y, md) => {
+        for (const o of this.obstacles) {
+          if (o.shape === "circle") {
+            if (dist(x, y, o.x, o.y) < md + (o.r || 0) - 6) return true;
+          } else if (x > o.x - md && x < o.x + (o.w || 0) + md && y > o.y - md && y < o.y + (o.h || 0) + md) return true;
+        }
+        return false;
+      };
+      for (let ty = 0; ty < MAP_H; ty++) {
+        for (let tx = 0; tx < MAP_W; tx++) {
+          const x = tx * TILE + 8 + (rnd() - 0.5) * 8;
+          const y = ty * TILE + 8 + (rnd() - 0.5) * 8;
+          const border = tx < 2 || ty < 2 || tx >= MAP_W - 2 || ty >= MAP_H - 2;
+          const open = this.openness(x, y);
+          if (open >= 1 && !border) continue;
+          if (border && open >= 1 && distToPolyline(x, y, ROAD) < 24) continue;
+          const dens = 0.18 + fbm(x / 120, y / 120, 5) * 0.42;
+          let p = dens * (1 - open);
+          if (border) p = 0.85;
+          if (rnd() > p) continue;
+          if (tooClose(x, y, 15)) continue;
+          const conifer = fbm(x / 200, y / 200, 9) > 0.55 ? rnd() < 0.7 : rnd() < 0.15;
+          const variant = conifer ? 3 + Math.floor(rnd() * 2) : Math.floor(rnd() * 3);
+          const o = { kind: "tree", shape: "circle", x, y, r: 5.5, sight: true, variant, sortY: y };
+          this.obstacles.push(o);
+          trees.push(o);
+        }
+      }
+      let placed = 0, guard = 0;
+      while (placed < 16 && guard++ < 2e3) {
+        const x = 40 + rnd() * (WORLD_W - 80), y = 40 + rnd() * (WORLD_H - 80);
+        const op = this.openness(x, y);
+        if (op >= 1 || op < 0.05) continue;
+        if (tooClose(x, y, 18)) continue;
+        const r = 6 + rnd() * 3.5;
+        this.obstacles.push({ kind: "rock", shape: "circle", x, y, r, sight: r > 8, variant: Math.floor(rnd() * 3), sortY: y + 2 });
+        placed++;
+      }
+      placed = 0;
+      guard = 0;
+      while (placed < 9 && guard++ < 3e3) {
+        const vertical = rnd() < 0.3;
+        const w = vertical ? 9 : 34 + Math.floor(rnd() * 12);
+        const h = vertical ? 32 + Math.floor(rnd() * 8) : 9;
+        const x = 40 + rnd() * (WORLD_W - 80 - w), y = 40 + rnd() * (WORLD_H - 80 - h);
+        let ok = true;
+        for (const [px, py] of [[x, y], [x + w, y], [x, y + h], [x + w, y + h], [x + w / 2, y + h / 2]]) {
+          const op = this.openness(px, py);
+          if (op >= 1 || op < 0.03) ok = false;
+        }
+        if (!ok || tooClose(x + w / 2, y + h / 2, Math.max(w, h) / 2 + 10)) continue;
+        this.obstacles.push({ kind: "log", shape: "rect", x, y, w, h, sight: false, variant: vertical ? 1 : 0, sortY: y + h });
+        placed++;
+      }
+      const v = this.van;
+      this.obstacles.push({ kind: "van", shape: "rect", x: v.x, y: v.y, w: v.w, h: v.h, sight: true, variant: 0, sortY: v.y + v.h });
+      const c = this.car;
+      this.obstacles.push({ kind: "car", shape: "rect", x: c.x, y: c.y, w: c.w, h: c.h, sight: true, variant: 0, sortY: c.y + c.h });
+      guard = 0;
+      while (this.bushes.length < 120 && guard++ < 6e3) {
+        const x = 30 + rnd() * (WORLD_W - 60), y = 30 + rnd() * (WORLD_H - 60);
+        const op = this.openness(x, y);
+        if (op >= 1) continue;
+        if (op < 0.1 && rnd() < 0.6) continue;
+        if (distToPolyline(x, y, ROAD) < 30) continue;
+        if (tooClose(x, y, 10)) continue;
+        let clash = false;
+        for (const b of this.bushes) if (dist(x, y, b.x, b.y) < b.r + 10) {
+          clash = true;
+          break;
+        }
+        if (clash) continue;
+        this.bushes.push({ x, y, r: 7 + rnd() * 4, variant: Math.floor(rnd() * 3) });
+      }
+    }
+    // ----- navigation ----------------------------------------------------------
+    buildNavGrid() {
+      for (let ty = 0; ty < MAP_H; ty++) {
+        for (let tx = 0; tx < MAP_W; tx++) {
+          const cx = tx * TILE + 8, cy = ty * TILE + 8;
+          let b = 0;
+          for (const o of this.obstacles) {
+            if (o.shape === "circle") {
+              if (Math.abs(o.x - cx) > 20 || Math.abs(o.y - cy) > 20) continue;
+              if (dist(cx, cy, o.x, o.y) < (o.r || 0) + 4) {
+                b = 1;
+                break;
+              }
+            } else {
+              if (cx > o.x - 4 && cx < o.x + (o.w || 0) + 4 && cy > o.y - 4 && cy < o.y + (o.h || 0) + 4) {
+                b = 1;
+                break;
+              }
+            }
+          }
+          this.blocked[ty * MAP_W + tx] = b;
+          let cost = 1;
+          for (const bu of this.bushes) if (dist(cx, cy, bu.x, bu.y) < bu.r) {
+            cost = 1.8;
+            break;
+          }
+          this.cost[ty * MAP_W + tx] = cost;
+        }
+      }
+    }
+    isBlockedTile(tx, ty) {
+      if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) return true;
+      return this.blocked[ty * MAP_W + tx] === 1;
+    }
+    snapWalkable(x, y) {
+      const tx0 = Math.floor(x / TILE), ty0 = Math.floor(y / TILE);
+      for (let r = 0; r < 8; r++) {
+        for (let dy = -r; dy <= r; dy++)
+          for (let dx = -r; dx <= r; dx++) {
+            if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+            if (!this.isBlockedTile(tx0 + dx, ty0 + dy)) return { x: (tx0 + dx) * TILE + 8, y: (ty0 + dy) * TILE + 8 };
+          }
+      }
+      return { x, y };
+    }
+    bushAt(x, y) {
+      const tx = Math.floor(x / TILE), ty = Math.floor(y / TILE);
+      if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H || !this.bushGrid.length) return null;
+      for (const b of this.bushGrid[ty * MAP_W + tx]) {
+        if (Math.abs(b.x - x) > 14 || Math.abs(b.y - y) > 14) continue;
+        if (dist(x, y, b.x, b.y) < b.r - 1) return b;
+      }
+      return null;
+    }
+    randomOpenPoint(rnd) {
+      const c = CLEARINGS[Math.floor(rnd() * (CLEARINGS.length - 1))];
+      const a = rnd() * Math.PI * 2, r = rnd() * c.r * 0.8;
+      return this.snapWalkable(c.x + Math.cos(a) * r, c.y + Math.sin(a) * r);
+    }
+  };
+
+  // src/collision.ts
+  var CollisionSystem = class {
+    constructor(level) {
+      this.level = level;
+      this.buckets = [];
+      for (let i = 0; i < MAP_W * MAP_H; i++) this.buckets.push([]);
+      for (const o of level.obstacles) {
+        let x0, y0, x1, y1;
+        if (o.shape === "circle") {
+          x0 = o.x - o.r;
+          y0 = o.y - o.r;
+          x1 = o.x + o.r;
+          y1 = o.y + o.r;
+        } else {
+          x0 = o.x;
+          y0 = o.y;
+          x1 = o.x + o.w;
+          y1 = o.y + o.h;
+        }
+        const tx0 = Math.max(0, Math.floor((x0 - 8) / TILE)), ty0 = Math.max(0, Math.floor((y0 - 8) / TILE));
+        const tx1 = Math.min(MAP_W - 1, Math.floor((x1 + 8) / TILE)), ty1 = Math.min(MAP_H - 1, Math.floor((y1 + 8) / TILE));
+        for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) this.buckets[ty * MAP_W + tx].push(o);
+      }
+    }
+    bucket(x, y) {
+      const tx = Math.floor(x / TILE), ty = Math.floor(y / TILE);
+      if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) return [];
+      return this.buckets[ty * MAP_W + tx];
+    }
+    /** Push a circle out of all solid shapes; returns true if any contact occurred. */
+    resolve(e, r) {
+      let hit = false;
+      for (let iter = 0; iter < 3; iter++) {
+        const seen = /* @__PURE__ */ new Set();
+        let moved = false;
+        for (const dy of [-1, 0, 1]) for (const dx of [-1, 0, 1]) {
+          for (const o of this.bucket(e.x + dx * TILE * 0.6, e.y + dy * TILE * 0.6)) {
+            if (seen.has(o)) continue;
+            seen.add(o);
+            if (o.shape === "circle") {
+              const ddx = e.x - o.x, ddy = e.y - o.y;
+              const d = Math.hypot(ddx, ddy), min = r + o.r;
+              if (d < min) {
+                const nx = d > 1e-3 ? ddx / d : 1, ny = d > 1e-3 ? ddy / d : 0;
+                e.x = o.x + nx * min;
+                e.y = o.y + ny * min;
+                hit = moved = true;
+              }
+            } else {
+              const cx = Math.max(o.x, Math.min(e.x, o.x + o.w));
+              const cy = Math.max(o.y, Math.min(e.y, o.y + o.h));
+              const ddx = e.x - cx, ddy = e.y - cy;
+              const d = Math.hypot(ddx, ddy);
+              if (d < r) {
+                if (d > 1e-3) {
+                  e.x = cx + ddx / d * r;
+                  e.y = cy + ddy / d * r;
+                } else {
+                  const l = e.x - o.x, rr = o.x + o.w - e.x, t = e.y - o.y, b = o.y + o.h - e.y;
+                  const m = Math.min(l, rr, t, b);
+                  if (m === l) e.x = o.x - r;
+                  else if (m === rr) e.x = o.x + o.w + r;
+                  else if (m === t) e.y = o.y - r;
+                  else e.y = o.y + o.h + r;
+                }
+                hit = moved = true;
+              }
+            }
+          }
+        }
+        if (!moved) break;
+      }
+      const pad = 20;
+      if (e.x < pad) {
+        e.x = pad;
+        hit = true;
+      }
+      if (e.y < pad) {
+        e.y = pad;
+        hit = true;
+      }
+      if (e.x > WORLD_W - pad) {
+        e.x = WORLD_W - pad;
+        hit = true;
+      }
+      if (e.y > WORLD_H - pad) {
+        e.y = WORLD_H - pad;
+        hit = true;
+      }
+      return hit;
+    }
+    /** True when a point lies inside a solid, sight-blocking obstacle. */
+    blocksSight(x, y) {
+      for (const o of this.bucket(x, y)) {
+        if (!o.sight) continue;
+        if (o.shape === "circle") {
+          const rr = o.r * 0.9;
+          if ((x - o.x) * (x - o.x) + (y - o.y) * (y - o.y) < rr * rr) return true;
+        } else if (x > o.x && x < o.x + o.w && y > o.y && y < o.y + o.h) return true;
+      }
+      return false;
+    }
+    /** Minimum clearance to any solid obstacle (used to forbid digging against a trunk). */
+    nearSolid(x, y, margin) {
+      for (const dy of [-1, 0, 1]) for (const dx of [-1, 0, 1]) {
+        for (const o of this.bucket(x + dx * TILE * 0.6, y + dy * TILE * 0.6)) {
+          if (o.shape === "circle") {
+            if (Math.hypot(x - o.x, y - o.y) < o.r + margin) return true;
+          } else if (x > o.x - margin && x < o.x + o.w + margin && y > o.y - margin && y < o.y + o.h + margin) return true;
+        }
+      }
+      return false;
+    }
+  };
+
+  // src/detection.ts
+  var CONE_RAYS = 26;
+  var STEP = 3;
+  var DetectionSystem = class {
+    constructor(level, coll) {
+      this.level = level;
+      this.coll = coll;
+    }
+    /** March a ray; attenuation accumulates through undergrowth and bushes, solid obstacles stop it. */
+    ray(x, y, ang, max) {
+      const dx = Math.cos(ang), dy = Math.sin(ang);
+      let attn = 0;
+      for (let d = STEP; d <= max; d += STEP) {
+        const px = x + dx * d, py = y + dy * d;
+        if (this.coll.blocksSight(px, py)) return { dist: d, attn, blocked: true };
+        const t = this.level.terrainAt(px, py);
+        if (t === T.FLOOR) attn += 45e-4 * STEP;
+        if (this.level.bushAt(px, py)) attn += 0.045 * STEP;
+        if (attn >= 1) return { dist: d, attn: 1, blocked: true };
+      }
+      return { dist: max, attn, blocked: false };
+    }
+    /** Visibility factor (0..1) of a target point from an eye point, ignoring the cone. */
+    lineOfSight(ex, ey, tx, ty) {
+      const d = Math.hypot(tx - ex, ty - ey);
+      if (d < 2) return 1;
+      const r = this.ray(ex, ey, Math.atan2(ty - ey, tx - ex), d - 2);
+      if (r.blocked) return 0;
+      return Math.max(0, 1 - r.attn);
+    }
+    /** Cone polygon distances for rendering and perception. */
+    cone(x, y, ang, half, range, out) {
+      for (let i = 0; i < CONE_RAYS; i++) {
+        const a = ang - half + 2 * half * i / (CONE_RAYS - 1);
+        out[i] = this.ray(x, y, a, range).dist;
+      }
+    }
+    /** How well a point is concealed by its surroundings (1 = fully exposed). */
+    concealment(x, y) {
+      if (this.level.bushAt(x, y)) return 0.35;
+      const t = this.level.terrainAt(x, y);
+      if (t === T.TALL) return 0.55;
+      if (t === T.FLOOR) return 0.85;
+      if (t === T.ROAD) return 1.1;
+      return 1;
+    }
+  };
+
+  // src/pathfinding.ts
+  var Heap = class {
+    constructor(f2) {
+      this.a = [];
+      this.f = f2;
+    }
+    get size() {
+      return this.a.length;
+    }
+    push(n) {
+      const a = this.a;
+      a.push(n);
+      let i = a.length - 1;
+      while (i > 0) {
+        const p = i - 1 >> 1;
+        if (this.f[a[p]] <= this.f[a[i]]) break;
+        [a[p], a[i]] = [a[i], a[p]];
+        i = p;
+      }
+    }
+    pop() {
+      const a = this.a;
+      const top = a[0];
+      const last2 = a.pop();
+      if (a.length) {
+        a[0] = last2;
+        let i = 0;
+        for (; ; ) {
+          const l = i * 2 + 1, r = l + 1;
+          let m = i;
+          if (l < a.length && this.f[a[l]] < this.f[a[m]]) m = l;
+          if (r < a.length && this.f[a[r]] < this.f[a[m]]) m = r;
+          if (m === i) break;
+          [a[m], a[i]] = [a[i], a[m]];
+          i = m;
+        }
+      }
+      return top;
+    }
+  };
+  var N = MAP_W * MAP_H;
+  var g = new Float32Array(N);
+  var f = new Float32Array(N);
+  var from = new Int32Array(N);
+  var stamp = new Uint32Array(N);
+  var closed = new Uint32Array(N);
+  var curStamp = 1;
+  var Pathfinder = class {
+    constructor(level) {
+      this.level = level;
+    }
+    find(sx, sy, gx, gy) {
+      const L = this.level;
+      const start = L.snapWalkable(sx, sy), goal = L.snapWalkable(gx, gy);
+      const s = Math.floor(start.y / TILE) * MAP_W + Math.floor(start.x / TILE);
+      const t = Math.floor(goal.y / TILE) * MAP_W + Math.floor(goal.x / TILE);
+      curStamp++;
+      const heap = new Heap(f);
+      const gxT = t % MAP_W, gyT = t / MAP_W | 0;
+      const h = (n) => {
+        const dx = Math.abs(n % MAP_W - gxT), dy = Math.abs((n / MAP_W | 0) - gyT);
+        return dx + dy + (Math.SQRT2 - 2) * Math.min(dx, dy);
+      };
+      g[s] = 0;
+      f[s] = h(s);
+      from[s] = -1;
+      stamp[s] = curStamp;
+      heap.push(s);
+      let found = false, iter = 0;
+      while (heap.size && iter++ < 6e3) {
+        const n = heap.pop();
+        if (closed[n] === curStamp) continue;
+        closed[n] = curStamp;
+        if (n === t) {
+          found = true;
+          break;
+        }
+        const nx = n % MAP_W, ny = n / MAP_W | 0;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+          if (!dx && !dy) continue;
+          const mx = nx + dx, my = ny + dy;
+          if (L.isBlockedTile(mx, my)) continue;
+          if (dx && dy && (L.isBlockedTile(nx + dx, ny) || L.isBlockedTile(nx, ny + dy))) continue;
+          const m = my * MAP_W + mx;
+          if (closed[m] === curStamp) continue;
+          const step = (dx && dy ? Math.SQRT2 : 1) * L.cost[m];
+          const ng = g[n] + step;
+          if (stamp[m] !== curStamp || ng < g[m]) {
+            stamp[m] = curStamp;
+            g[m] = ng;
+            f[m] = ng + h(m);
+            from[m] = n;
+            heap.push(m);
+          }
+        }
+      }
+      if (!found) return null;
+      const out = [];
+      for (let n = t; n !== -1; n = from[n]) out.push({ x: n % MAP_W * TILE + 8, y: (n / MAP_W | 0) * TILE + 8 });
+      out.reverse();
+      out[out.length - 1] = { x: gx, y: gy };
+      return this.smooth(out);
+    }
+    /** Straight walkable line on the tile grid (with clearance on both sides). */
+    clear(ax, ay, bx, by) {
+      const d = Math.hypot(bx - ax, by - ay);
+      const steps = Math.ceil(d / 4);
+      const nx = d ? -(by - ay) / d : 0, ny = d ? (bx - ax) / d : 0;
+      for (let i = 0; i <= steps; i++) {
+        const x = ax + (bx - ax) * i / steps, y = ay + (by - ay) * i / steps;
+        for (const o of [-4, 0, 4]) {
+          if (this.level.isBlockedTile(Math.floor((x + nx * o) / TILE), Math.floor((y + ny * o) / TILE))) return false;
+        }
+      }
+      return true;
+    }
+    smooth(p) {
+      if (p.length <= 2) return p;
+      const out = [p[0]];
+      let i = 0;
+      while (i < p.length - 1) {
+        let j = p.length - 1;
+        while (j > i + 1 && !this.clear(p[i].x, p[i].y, p[j].x, p[j].y)) j--;
+        out.push(p[j]);
+        i = j;
+      }
+      return out;
+    }
+  };
+
+  // src/player.ts
+  var PlayerController = class {
+    constructor(x, y, coll, level) {
+      this.coll = coll;
+      this.level = level;
+      this.dir = 0;
+      this.fx = 0;
+      this.fy = 1;
+      // facing unit vector
+      this.stamina = 1;
+      this.exhausted = false;
+      this.sprinting = false;
+      this.moving = false;
+      this.speed = 0;
+      this.anim = "idle";
+      this.animT = 0;
+      this.lockT = 0;
+      // short action locks (deposit, pickup)
+      this.lockAnim = "idle";
+      this.stunT = 0;
+      // caught
+      this.detectedT = 0;
+      // startle after being spotted
+      this.action = null;
+      this.stepT = 0;
+      this.onStep = null;
+      this.idleT = 0;
+      this.x = x;
+      this.y = y;
+    }
+    update(dt, input2, bags) {
+      this.animT += dt;
+      if (this.detectedT > 0) this.detectedT -= dt;
+      if (this.stunT > 0) {
+        this.stunT -= dt;
+        this.anim = "caught";
+        this.moving = false;
+        this.sprinting = false;
+        this.recover(dt, false);
+        return;
+      }
+      if (this.lockT > 0) {
+        this.lockT -= dt;
+        this.anim = this.lockAnim;
+        this.moving = false;
+        this.sprinting = false;
+        this.recover(dt, false);
+        return;
+      }
+      const ax = input2.axis();
+      const len = Math.hypot(ax.x, ax.y);
+      this.moving = len > 0;
+      if (this.moving) {
+        const nx = ax.x / len, ny = ax.y / len;
+        this.fx = nx;
+        this.fy = ny;
+        if (Math.abs(nx) > Math.abs(ny) + 0.01) this.dir = nx < 0 ? 2 : 3;
+        else this.dir = ny < 0 ? 1 : 0;
+        const wantSprint = input2.isDown("ShiftLeft", "ShiftRight");
+        if (this.exhausted && this.stamina >= PLAYER.recoverThreshold) this.exhausted = false;
+        this.sprinting = wantSprint && !this.exhausted && this.stamina > 0;
+        let sp = PLAYER.walk;
+        if (bags === 1) sp *= PLAYER.bag1Mul;
+        if (bags === 2) sp *= PLAYER.bag2Mul;
+        if (this.sprinting) sp *= bags === 2 ? PLAYER.bag2SprintMul : PLAYER.sprintMul;
+        const t = this.level.terrainAt(this.x, this.y);
+        if (this.level.bushAt(this.x, this.y)) sp *= 0.62;
+        else if (t === T.TALL) sp *= 0.9;
+        else if (t === T.ROAD) sp *= 0.94;
+        this.speed = sp;
+        this.x += nx * sp * dt;
+        this.y += ny * sp * dt;
+        this.coll.resolve(this, PLAYER_RADIUS);
+        if (this.sprinting) {
+          this.stamina -= PLAYER.drain[bags] * dt;
+          if (this.stamina <= 0) {
+            this.stamina = 0;
+            this.exhausted = true;
+            this.sprinting = false;
+          }
+        } else this.recover(dt, true);
+        this.anim = this.sprinting ? "run" : "walk";
+        this.stepT -= dt;
+        if (this.stepT <= 0) {
+          this.stepT = this.sprinting ? 0.22 : bags === 2 ? 0.42 : 0.34;
+          this.onStep?.(t, this.sprinting);
+        }
+        this.action = null;
+        this.idleT = 0;
+      } else {
+        this.sprinting = false;
+        this.speed = 0;
+        this.recover(dt, false);
+        this.anim = this.action ? this.action : "idle";
+        this.idleT += dt;
+      }
+    }
+    recover(dt, walking) {
+      if (this.sprinting) return;
+      this.stamina = Math.min(1, this.stamina + (walking ? PLAYER.regenWalk : PLAYER.regenIdle) * dt);
+    }
+    lock(anim, t) {
+      this.lockAnim = anim;
+      this.lockT = t;
+      this.animT = 0;
+    }
+    /** Point in front of the player's feet where a new hole goes. */
+    digPoint() {
+      return { x: this.x + this.fx * 7, y: this.y + this.fy * 5 + 3 };
+    }
+  };
+
+  // src/money.ts
+  var MoneySystem = class {
+    constructor() {
+      this.van = TOTAL_BAGS;
+      this.carried = 0;
+      this.deposited = 0;
+      // bags ever placed into holes
+      this.confiscatedBuried = 0;
+      // bags excavated by investigators
+      this.confiscatedCarried = 0;
+      // bags taken when caught
+      this.caught = 0;
+    }
+    takeFromVan() {
+      if (this.van <= 0 || this.carried >= 2) return false;
+      this.van--;
+      this.carried++;
+      return true;
+    }
+    deposit(h, n) {
+      this.carried -= n;
+      h.bags += n;
+      this.deposited += n;
+    }
+    confiscateCarried() {
+      const n = this.carried;
+      this.confiscatedCarried += n;
+      this.carried = 0;
+      this.caught++;
+      return n;
+    }
+    confiscateHole(h) {
+      const n = h.bags;
+      this.confiscatedBuried += n;
+      h.bags = 0;
+      return n;
+    }
+    hiddenBags(holes) {
+      let n = 0;
+      for (const h of holes) if (h.state === "COVERED" || h.state === "CAMO") n += h.bags;
+      return n;
+    }
+    exposedBags(holes) {
+      let n = 0;
+      for (const h of holes) if (h.state === "OPEN" || h.state === "FILLED") n += h.bags;
+      return n;
+    }
+    /** Sanity: all 26 bags must be accounted for at all times. */
+    audit(holes) {
+      let inHoles = 0;
+      for (const h of holes) inHoles += h.bags;
+      return this.van + this.carried + inHoles + this.confiscatedBuried + this.confiscatedCarried === TOTAL_BAGS;
+    }
+    static value(bags) {
+      return bags * BAG_VALUE;
+    }
+  };
+
+  // src/digging.ts
+  var nextId = 1;
+  var DiggingSystem = class {
+    constructor(level, coll) {
+      this.level = level;
+      this.coll = coll;
+      this.holes = [];
+    }
+    nearest(x, y, maxD, includeExcavated = false) {
+      let best = null, bd = maxD;
+      for (const h of this.holes) {
+        if (!includeExcavated && h.state === "EXCAVATED") continue;
+        const d = Math.hypot(h.x - x, h.y - y);
+        if (d < bd) {
+          bd = d;
+          best = h;
+        }
+      }
+      return best;
+    }
+    canDigAt(x, y) {
+      if (!this.level.isDiggable(x, y)) return "A k\xF6vezetlen \xFAt nem \xE1shat\xF3.";
+      if (this.level.inVanZone(x, y)) return "T\xFAl k\xF6zel a j\xE1rm\u0171h\xF6z.";
+      if (this.coll.nearSolid(x, y, 3)) return "Gy\xF6k\xE9rzet. Kiss\xE9 arr\xE9bb.";
+      for (const h of this.holes) if (Math.hypot(h.x - x, h.y - y) < 15) return "T\xFAl k\xF6zel egy m\xE1sik g\xF6d\xF6rh\xF6z.";
+      return null;
+    }
+    create(x, y, now) {
+      const h = {
+        id: nextId++,
+        x: Math.round(x),
+        y: Math.round(y),
+        state: "DIGGING",
+        dig: 0,
+        cover: 0,
+        camo: 0,
+        bags: 0,
+        touched: now,
+        notice: 0,
+        claimedBy: null,
+        remote: this.level.isRemote(x, y),
+        tall: this.level.terrainAt(x, y) === T.TALL,
+        everCamo: false
+      };
+      this.holes.push(h);
+      return h;
+    }
+    /** Advance the hold-Space action on a hole. Returns the event that completed this frame, if any. */
+    work(h, dt, now) {
+      h.touched = now;
+      switch (h.state) {
+        case "DIGGING":
+          h.dig += dt / DIG_TIME;
+          if (h.dig >= 1) {
+            h.dig = 1;
+            h.state = "OPEN";
+            return "dug";
+          }
+          return null;
+        case "OPEN":
+        case "FILLED":
+          h.cover += dt / COVER_TIME;
+          if (h.cover >= 1) {
+            h.cover = 1;
+            h.state = "COVERED";
+            return "covered";
+          }
+          return null;
+        case "COVERED":
+          h.camo += dt / CAMO_TIME;
+          if (h.camo >= 1) {
+            h.camo = 1;
+            h.state = "CAMO";
+            h.everCamo = true;
+            return "camo";
+          }
+          return null;
+      }
+      return null;
+    }
+    spaceAction(h) {
+      if (!h) return "dig";
+      if (h.state === "DIGGING") return "dig";
+      if (h.state === "OPEN" || h.state === "FILLED") return "cover";
+      if (h.state === "COVERED") return "camo";
+      return null;
+    }
+    canDeposit(h) {
+      return !!h && (h.state === "OPEN" || h.state === "FILLED") && h.bags < HOLE_CAPACITY;
+    }
+    /** How suspicious a site looks (before distance/cone factors). */
+    suspicion(h, now) {
+      let s = 0;
+      switch (h.state) {
+        case "DIGGING":
+          s = 0.55 + 0.45 * h.dig;
+          break;
+        case "OPEN":
+        case "FILLED":
+          s = 1;
+          break;
+        case "COVERED":
+          s = 0.45;
+          break;
+        case "CAMO":
+          s = 0.1;
+          break;
+        default:
+          return 0;
+      }
+      if (now - h.touched < 15) s *= 1.25;
+      if (h.tall) s *= 0.6;
+      return s;
+    }
+  };
+
+  // src/investigators.ts
+  var Investigator = class {
+    constructor(id, x, y, route, rnd) {
+      this.id = id;
+      this.x = x;
+      this.y = y;
+      this.route = route;
+      this.state = "ENTER";
+      this.lookA = Math.PI;
+      this.moveA = Math.PI;
+      this.wp = 0;
+      this.path = null;
+      this.pi = 0;
+      this.goal = null;
+      this.repathT = 0;
+      this.timer = 0;
+      this.awareness = 0;
+      this.lastSeen = { x: 0, y: 0 };
+      this.lostT = 0;
+      this.target = null;
+      this.hole = null;
+      this.cone = new Float32Array(CONE_RAYS);
+      this.range = 100;
+      this.half = 0.42;
+      this.walkT = 0;
+      this.moving = false;
+      this.ignoreT = 0;
+      this.sweepT = 8;
+      this.pauseT = 0;
+      this.glimpse = null;
+      this.glimpseT = 0;
+      this.seesPlayer = false;
+      this.playerVis = 0;
+      this.stuckT = 0;
+      this.stepT = 0;
+      this.excavating = false;
+      this.alertT = 0;
+      // for icon pop animation
+      this.visibleToPlayer = false;
+      this.seenAt = -99;
+      this.seenX = 0;
+      this.seenY = 0;
+      this.scan = rnd() * 6;
+      this.sweepT = 6 + rnd() * 6;
+    }
+    get icon() {
+      if (this.state === "CHASE") return "!";
+      if (this.state === "SUSPICIOUS" || this.state === "INVESTIGATE" || this.state === "SEARCH") return "?";
+      return "";
+    }
+    setState(s, ctx) {
+      if (this.state === s) return;
+      if (s !== "SUSPICIOUS" && s !== "INVESTIGATE" && s !== "SEARCH") this.releaseHole();
+      if (s === "CHASE" || s === "SUSPICIOUS") this.alertT = 0.6;
+      this.state = s;
+      this.path = null;
+      this.excavating = false;
+      if (s === "RETURN") {
+        let best = 0, bd = Infinity;
+        this.route.forEach((p, i) => {
+          const d = dist(p.x, p.y, this.x, this.y);
+          if (d < bd) {
+            bd = d;
+            best = i;
+          }
+        });
+        this.wp = best;
+      }
+    }
+    releaseHole() {
+      if (this.hole && this.hole.claimedBy === this) this.hole.claimedBy = null;
+      this.hole = null;
+    }
+    goTo(gx, gy, speed, dt, ctx, arrive = 6) {
+      const d = dist(this.x, this.y, gx, gy);
+      if (d < arrive) {
+        this.moving = false;
+        return true;
+      }
+      this.repathT -= dt;
+      if (!this.path || !this.goal || dist(this.goal.x, this.goal.y, gx, gy) > 12 || this.repathT <= 0) {
+        if (ctx.paths.clear(this.x, this.y, gx, gy)) this.path = [{ x: gx, y: gy }];
+        else this.path = ctx.paths.find(this.x, this.y, gx, gy) || [{ x: gx, y: gy }];
+        this.pi = this.path.length > 1 ? 1 : 0;
+        this.goal = { x: gx, y: gy };
+        this.repathT = 1 + ctx.rnd() * 0.6;
+      }
+      let wp = this.path[this.pi];
+      while (this.pi < this.path.length - 1 && dist(this.x, this.y, wp.x, wp.y) < 6) wp = this.path[++this.pi];
+      const a = Math.atan2(wp.y - this.y, wp.x - this.x);
+      this.moveA = a;
+      let sp = speed;
+      if (ctx.level.bushAt(this.x, this.y)) sp *= 0.65;
+      const px = this.x, py = this.y;
+      const step = Math.min(sp * dt, dist(this.x, this.y, wp.x, wp.y) + 0.01);
+      this.x += Math.cos(a) * step;
+      this.y += Math.sin(a) * step;
+      ctx.coll.resolve(this, INV_RADIUS);
+      const moved = dist(px, py, this.x, this.y);
+      if (moved < sp * dt * 0.3) {
+        this.stuckT += dt;
+        if (this.stuckT > 0.5) {
+          this.path = null;
+          this.stuckT = 0;
+        }
+      } else this.stuckT = 0;
+      this.moving = true;
+      this.walkT += dt;
+      this.stepT -= dt;
+      if (this.stepT <= 0) {
+        this.stepT = speed > 70 ? 0.25 : 0.42;
+        ctx.onStep(this);
+      }
+      return false;
+    }
+    update(dt, ctx) {
+      const P = ctx.phase;
+      this.range = P.range;
+      this.half = P.half;
+      if (this.ignoreT > 0) this.ignoreT -= dt;
+      if (this.alertT > 0) this.alertT -= dt;
+      this.moving = false;
+      this.think(dt, ctx);
+      this.perceive(dt, ctx);
+    }
+    // ----------------------------------------------------------------- behaviour
+    think(dt, ctx) {
+      const P = ctx.phase;
+      let lookTarget = this.moveA;
+      let turnRate = 5;
+      if (this.glimpseT > 0 && this.glimpse && (this.state === "PATROL" || this.state === "RETURN" || this.state === "ENTER")) {
+        this.glimpseT -= dt;
+        this.lookA = turnTowards(this.lookA, Math.atan2(this.glimpse.y - this.y, this.glimpse.x - this.x), 4.5 * dt);
+        return;
+      }
+      switch (this.state) {
+        case "ENTER": {
+          const p = this.route[this.wp];
+          if (this.goTo(p.x, p.y, P.patrol, dt, ctx)) this.setState("PATROL", ctx);
+          lookTarget = this.moveA;
+          break;
+        }
+        case "PATROL": {
+          const p = this.route[this.wp];
+          this.scan += dt * 1.25;
+          if (this.pauseT > 0) {
+            this.pauseT -= dt;
+            lookTarget = this.moveA + Math.sin(this.scan * 1.6) * 1.3;
+            turnRate = 2.4;
+          } else {
+            if (this.goTo(p.x, p.y, P.patrol, dt, ctx, 10)) {
+              this.wp = (this.wp + 1) % this.route.length;
+              this.pauseT = (ctx.phaseIdx === 2 ? 0.5 : 1) + ctx.rnd() * 1.2;
+            }
+            lookTarget = this.moveA + Math.sin(this.scan) * 0.6;
+            turnRate = 3;
+          }
+          if (P.sweepEvery > 0) {
+            this.sweepT -= dt;
+            if (this.sweepT <= 0) {
+              this.sweepT = P.sweepEvery * (0.8 + ctx.rnd() * 0.4);
+              this.startSweep(ctx);
+            }
+          }
+          break;
+        }
+        case "SUSPICIOUS": {
+          if (this.hole) {
+            if (this.hole.state === "EXCAVATED" || this.hole.claimedBy && this.hole.claimedBy !== this) {
+              this.setState("RETURN", ctx);
+              break;
+            }
+            if (this.goTo(this.hole.x, this.hole.y, P.suspicious, dt, ctx, 14)) {
+              this.state = "INVESTIGATE";
+              this.timer = P.investigate * 0.5;
+            }
+          } else if (this.target) {
+            if (this.goTo(this.target.x, this.target.y, P.suspicious, dt, ctx, 10)) {
+              this.state = "INVESTIGATE";
+              this.timer = P.investigate;
+            }
+          } else this.setState("RETURN", ctx);
+          lookTarget = this.moveA;
+          break;
+        }
+        case "INVESTIGATE": {
+          this.timer -= dt;
+          if (this.hole) {
+            lookTarget = Math.atan2(this.hole.y - this.y, this.hole.x - this.x) + Math.sin(this.timer * 3) * 0.5;
+          } else {
+            this.lookA += dt * 2;
+            lookTarget = this.lookA;
+            this.probe(dt, ctx);
+          }
+          if (this.timer <= 0) {
+            if (this.hole) {
+              this.state = "SEARCH";
+              this.timer = P.search;
+              this.excavating = false;
+            } else this.setState("RETURN", ctx);
+          }
+          break;
+        }
+        case "SEARCH": {
+          const h = this.hole;
+          if (!h || h.state === "EXCAVATED") {
+            this.setState("RETURN", ctx);
+            break;
+          }
+          if (!this.excavating) {
+            if (this.goTo(h.x, h.y + 6, P.suspicious, dt, ctx, 9)) {
+              this.excavating = true;
+              this.timer = P.search;
+            }
+            lookTarget = this.moveA;
+          } else {
+            this.timer -= dt;
+            lookTarget = Math.atan2(h.y - this.y, h.x - this.x);
+            this.walkT += dt;
+            if (this.timer <= 0) {
+              const bags = h.bags;
+              h.state = "EXCAVATED";
+              h.claimedBy = null;
+              ctx.onExcavated(this, h, bags);
+              this.hole = null;
+              this.setState("RETURN", ctx);
+            }
+          }
+          break;
+        }
+        case "CHASE": {
+          const pl = ctx.player;
+          if (ctx.playerBags === 0) {
+            this.target = { ...this.lastSeen };
+            this.awareness = 0.6;
+            this.state = "SUSPICIOUS";
+            this.path = null;
+            break;
+          }
+          if (this.seesPlayer) {
+            this.lastSeen = { x: pl.x, y: pl.y };
+            this.lostT = 0;
+            this.goTo(pl.x, pl.y, P.chase, dt, ctx, 2);
+            lookTarget = Math.atan2(pl.y - this.y, pl.x - this.x);
+            turnRate = 8;
+          } else {
+            this.lostT += dt;
+            if (this.goTo(this.lastSeen.x, this.lastSeen.y, P.chase * 0.92, dt, ctx, 6)) this.lookA += dt * 3;
+            lookTarget = this.moving ? this.moveA : this.lookA;
+            if (this.lostT > 3.2) {
+              this.awareness = 0.4;
+              this.target = { x: this.x, y: this.y };
+              this.state = "INVESTIGATE";
+              this.timer = P.investigate;
+            }
+          }
+          if (dist(this.x, this.y, pl.x, pl.y) < 10 && pl.stunT <= 0 && this.ignoreT <= 0) {
+            ctx.onCatch(this);
+            this.ignoreT = 4;
+            this.awareness = 0;
+            this.setState("RETURN", ctx);
+          }
+          break;
+        }
+        case "RETURN": {
+          const p = this.route[this.wp];
+          if (this.goTo(p.x, p.y, P.patrol, dt, ctx, 10)) this.setState("PATROL", ctx);
+          lookTarget = this.moveA;
+          break;
+        }
+      }
+      if (this.state !== "INVESTIGATE" || this.hole) {
+        this.lookA = turnTowards(this.lookA, lookTarget, turnRate * dt);
+      }
+    }
+    /** Intelligence-led sweep toward a recently active area (raid behaviour). */
+    startSweep(ctx) {
+      const cands = ctx.dig.holes.filter((h) => h.state !== "EXCAVATED" && !h.claimedBy);
+      let p;
+      if (cands.length && ctx.rnd() < 0.65) {
+        cands.sort((a2, b) => b.touched - a2.touched);
+        const h = cands[Math.floor(Math.pow(ctx.rnd(), 2) * cands.length)];
+        const a = ctx.rnd() * Math.PI * 2, r = 15 + ctx.rnd() * 40;
+        p = ctx.level.snapWalkable(h.x + Math.cos(a) * r, h.y + Math.sin(a) * r);
+      } else p = ctx.level.randomOpenPoint(ctx.rnd);
+      this.target = p;
+      this.state = "SUSPICIOUS";
+      this.path = null;
+      this.alertT = 0.6;
+    }
+    /** While investigating a spot, examine the ground nearby. */
+    probe(dt, ctx) {
+      for (const h of ctx.dig.holes) {
+        if (h.state === "EXCAVATED" || h.claimedBy) continue;
+        if (dist(h.x, h.y, this.x, this.y) > 46) continue;
+        let rate = 0;
+        if (h.state === "CAMO") rate = ctx.phase.probe;
+        else if (h.state === "COVERED") rate = 0.8;
+        else rate = 1.6;
+        if (h.tall) rate *= 0.7;
+        if (ctx.rnd() < rate * dt) {
+          this.claim(h, ctx);
+          this.timer = Math.min(this.timer, ctx.phase.investigate * 0.5);
+          return;
+        }
+      }
+    }
+    claim(h, ctx) {
+      this.releaseHole();
+      this.hole = h;
+      this.path = null;
+      h.claimedBy = this;
+      h.notice = 1;
+      ctx.onHoleNoticed(this, h);
+    }
+    // ---------------------------------------------------------------- perception
+    perceive(dt, ctx) {
+      const P = ctx.phase;
+      ctx.det.cone(this.x, this.y, this.lookA, this.half, this.range, this.cone);
+      const pl = ctx.player;
+      const dx = pl.x - this.x, dy = pl.y - this.y;
+      const d = Math.hypot(dx, dy);
+      const ang = Math.atan2(dy, dx);
+      const inCone = d < this.range && Math.abs(angleDiff(this.lookA, ang)) <= this.half;
+      let vis = 0;
+      let los = 0;
+      if (inCone || d < 28 || this.state === "CHASE" && d < this.range * 1.2) los = ctx.det.lineOfSight(this.x, this.y, pl.x, pl.y);
+      if (inCone && los > 0) vis = (1 - Math.pow(d / this.range, 2) * 0.7) * los;
+      if (d < 28 && los > 0) vis = Math.max(vis, 0.5 * los * (1 - d / 28) + 0.15);
+      const conceal = ctx.det.concealment(pl.x, pl.y);
+      vis *= conceal;
+      let act2 = 1;
+      if (pl.sprinting) act2 *= 1.35;
+      if (ctx.playerActing) act2 *= 1.3;
+      if (ctx.playerBags === 1) act2 *= 1.1;
+      if (ctx.playerBags === 2) act2 *= 1.3;
+      if (!pl.moving && !ctx.playerActing) act2 *= 0.75;
+      this.playerVis = vis * act2;
+      if (this.state === "CHASE") {
+        const hidden = conceal < 0.4 && d > 36;
+        this.seesPlayer = los > 0.15 && d < this.range * 1.2 && !hidden;
+      } else {
+        this.seesPlayer = vis > 0.05;
+        if (this.ignoreT <= 0) {
+          if (this.playerVis > 0.04) {
+            this.glimpse = { x: pl.x, y: pl.y };
+            this.glimpseT = 1.1;
+            if (ctx.playerBags > 0) this.awareness += this.playerVis * P.notice * 2.2 * dt;
+            else this.awareness = Math.min(0.7, this.awareness + this.playerVis * P.notice * 0.35 * dt);
+          } else this.awareness = Math.max(0, this.awareness - 0.22 * dt);
+          if (this.awareness >= 1 && ctx.playerBags > 0) {
+            this.awareness = 1;
+            this.lastSeen = { x: pl.x, y: pl.y };
+            this.lostT = 0;
+            this.setState("CHASE", ctx);
+            ctx.onChase(this);
+            return;
+          }
+          if (this.awareness >= 0.5 && (this.state === "PATROL" || this.state === "RETURN" || this.state === "ENTER")) {
+            this.target = { x: pl.x, y: pl.y };
+            this.setState("SUSPICIOUS", ctx);
+          } else if (this.state === "SUSPICIOUS" && !this.hole && this.playerVis > 0.1) {
+            this.target = { x: pl.x, y: pl.y };
+          }
+        }
+      }
+      if (this.state === "CHASE" || this.state === "SEARCH") return;
+      for (const h of ctx.dig.holes) {
+        if (h.state === "EXCAVATED") continue;
+        const hd = dist(h.x, h.y, this.x, this.y);
+        if (hd > this.range) continue;
+        const s = ctx.dig.suspicion(h, ctx.now);
+        if (s <= 0) continue;
+        const hang = Math.atan2(h.y - this.y, h.x - this.x);
+        const hin = Math.abs(angleDiff(this.lookA, hang)) <= this.half;
+        if (!hin && hd > 28) continue;
+        const hlos = ctx.det.lineOfSight(this.x, this.y, h.x, h.y);
+        if (hlos <= 0) continue;
+        let v = hin ? s * (1 - hd / this.range * 0.55) * hlos : 0;
+        if (hd < 28) v = Math.max(v, s * 1.2 * hlos);
+        h.notice = Math.min(1.2, h.notice + v * P.notice * 1.6 * dt);
+        if (h.notice >= 1 && !h.claimedBy) {
+          const free = this.state === "PATROL" || this.state === "RETURN" || this.state === "ENTER" || this.state === "SUSPICIOUS" && !this.hole || this.state === "INVESTIGATE" && !this.hole;
+          if (free) {
+            this.claim(h, ctx);
+            this.setState("SUSPICIOUS", ctx);
+            this.state = "SUSPICIOUS";
+            return;
+          }
+        }
+      }
+    }
+  };
+
+  // src/missions.ts
+  var MissionSystem = class {
+    constructor() {
+      this.camoCount = 0;
+      this.hiddenCleanBags = 0;
+      // bags covered before the first time being caught
+      this.caught = false;
+      this.remoteDone = false;
+      this.bestHidden = 0;
+      this.doneFlags = {};
+    }
+    onCovered(h) {
+      if (h.bags > 0 && !this.caught) this.hiddenCleanBags += h.bags;
+      if (h.bags > 0 && h.remote) this.remoteDone = true;
+    }
+    onCamo(h) {
+      this.camoCount++;
+      if (h.bags > 0 && h.remote) this.remoteDone = true;
+    }
+    onCaught() {
+      if (this.hiddenCleanBags < 4) this.caught = true;
+    }
+    views(hiddenBags) {
+      this.bestHidden = Math.max(this.bestHidden, hiddenBags);
+      const cleanDone = this.hiddenCleanBags >= 4;
+      return [
+        {
+          id: "main",
+          text: "Rejtsd el a 6,5 milli\xE1rd forintot, miel\u0151tt lej\xE1r az id\u0151!",
+          progress: `${fmtNum(hiddenBags * BAG_VALUE / 1e6)} / 6\xA0500 M Ft`,
+          done: hiddenBags >= TOTAL_BAGS,
+          failed: false
+        },
+        {
+          id: "camo",
+          text: "T\xFCntess el 3 friss f\xF6ldkupacot!",
+          progress: `${Math.min(3, this.camoCount)}/3`,
+          done: this.camoCount >= 3,
+          failed: false
+        },
+        {
+          id: "clean",
+          text: "\xC1ss el egymilli\xE1rdot lebuk\xE1s n\xE9lk\xFCl!",
+          progress: cleanDone ? "4/4" : this.caught ? "lebuk\xE1s" : `${this.hiddenCleanBags}/4 zs\xE1k`,
+          done: cleanDone,
+          failed: !cleanDone && this.caught
+        },
+        {
+          id: "remote",
+          text: "Rejts el p\xE9nzt az erd\u0151 legt\xE1volabbi r\xE9sz\xE9n!",
+          progress: this.remoteDone ? "k\xE9sz" : "jel\xF6lt z\xF3na",
+          done: this.remoteDone,
+          failed: false
+        }
+      ];
+    }
+    /** Returns ids of missions completed since the last call. */
+    newlyDone(views) {
+      const out = [];
+      for (const v of views) if (v.done && !this.doneFlags[v.id]) {
+        this.doneFlags[v.id] = true;
+        out.push(v);
+      }
+      return out;
+    }
+  };
+
+  // src/render/environment.ts
+  var rgb = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  var GROUND = {
+    [T.FLOOR]: ["#1b241c", "#1f291f", "#232c20", "#262a1d", "#1a211d"].map(rgb),
+    [T.GRASS]: ["#223620", "#273d23", "#2c4326", "#20321e", "#304a2b"].map(rgb),
+    [T.TALL]: ["#1f331d", "#253c21", "#2b4525", "#1c2e1b", "#335030"].map(rgb),
+    [T.ROAD]: ["#2b231b", "#31281f", "#382e23", "#251e17", "#3d3226"].map(rgb),
+    [T.TRAIL]: ["#29291e", "#2e2d20", "#33311f", "#252619", "#383522"].map(rgb)
+  };
+  var EnvironmentArt = class {
+    constructor(level) {
+      this.level = level;
+      this.trees = [];
+      this.bushes = [];
+      this.rocks = /* @__PURE__ */ new Map();
+      this.logs = /* @__PURE__ */ new Map();
+      this.ground = this.buildGround();
+      for (let v = 0; v < 5; v++) this.trees.push(this.buildTree(v));
+      for (let v = 0; v < 3; v++) this.bushes.push(this.buildBush(v));
+      for (const o of level.obstacles) {
+        if (o.kind === "rock") this.rocks.set(o, this.buildRock(o));
+        if (o.kind === "log") this.logs.set(o, this.buildLog(o));
+      }
+      this.fog = this.buildFog();
+    }
+    // ------------------------------------------------------------------ ground
+    buildGround() {
+      const c = document.createElement("canvas");
+      c.width = WORLD_W;
+      c.height = WORLD_H;
+      const ctx = c.getContext("2d");
+      const img = ctx.createImageData(WORLD_W, WORLD_H);
+      const d = img.data;
+      const L = this.level;
+      const road = L.road;
+      for (let y = 0; y < WORLD_H; y++) {
+        for (let x = 0; x < WORLD_W; x++) {
+          const jx = (hash2(x >> 1, y >> 1, 41) - 0.5) * 6, jy = (hash2(x >> 1, y >> 1, 43) - 0.5) * 6;
+          const sx = Math.min(WORLD_W - 1, Math.max(0, x + jx)), sy = Math.min(WORLD_H - 1, Math.max(0, y + jy));
+          const t = L.terrain[Math.floor(sy / CELL) * CW + Math.floor(sx / CELL)];
+          const pal = GROUND[t];
+          const n = valueNoise(x / 9, y / 9, 5) * 0.55 + hash2(x, y, 7) * 0.45;
+          let idx = n < 0.3 ? 3 : n < 0.5 ? 0 : n < 0.68 ? 1 : n < 0.86 ? 2 : 4;
+          let [r, g2, b] = pal[idx];
+          if (t === T.ROAD) {
+            const dr = distToPolyline(x, y, road);
+            const rut = Math.abs(dr - 6);
+            if (rut < 1.6) {
+              r -= 9;
+              g2 -= 8;
+              b -= 6;
+            }
+            const pn = valueNoise(x / 14, y / 10, 21);
+            if (pn > 0.72 && dr < 12) {
+              r = 40;
+              g2 = 54;
+              b = 70;
+              if (pn > 0.8) {
+                r = 52;
+                g2 = 68;
+                b = 86;
+              }
+              if (hash2(x, y, 3) > 0.985) {
+                r = 120;
+                g2 = 140;
+                b = 160;
+              }
+            }
+          } else if (t === T.FLOOR) {
+            const h = hash2(x, y, 11);
+            if (h > 0.985) {
+              r = 74;
+              g2 = 50;
+              b = 32;
+            } else if (h > 0.975) {
+              r = 58;
+              g2 = 44;
+              b = 30;
+            }
+          } else if (t === T.GRASS || t === T.TALL) {
+            const h = hash2(x, y, 13);
+            if (h > 0.992) {
+              r = 70;
+              g2 = 96;
+              b = 74;
+            }
+          }
+          const m = 1.12 + (valueNoise(x / 160, y / 160, 33) - 0.5) * 0.14;
+          const o = (y * WORLD_W + x) * 4;
+          d[o] = Math.max(0, Math.min(255, r * m));
+          d[o + 1] = Math.max(0, Math.min(255, g2 * m));
+          d[o + 2] = Math.max(0, Math.min(255, b * m + 2));
+          d[o + 3] = 255;
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+      const rnd = mulberry32(77);
+      for (let i = 0; i < 26e3; i++) {
+        const x = Math.floor(rnd() * WORLD_W), y = Math.floor(rnd() * WORLD_H);
+        if (L.terrainAt(x, y) !== T.TALL) continue;
+        const h = 2 + Math.floor(rnd() * 3);
+        ctx.fillStyle = rnd() < 0.5 ? "#36532f" : "#2c4628";
+        ctx.fillRect(x, y - h, 1, h);
+        if (rnd() < 0.2) {
+          ctx.fillStyle = "#4b6a42";
+          ctx.fillRect(x, y - h, 1, 1);
+        }
+      }
+      ctx.fillStyle = "rgba(5,10,10,0.35)";
+      for (const o of L.obstacles) {
+        if (o.kind !== "tree") continue;
+        ctx.beginPath();
+        ctx.ellipse(o.x + 2, o.y + 1, 10, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      return c;
+    }
+    // ------------------------------------------------------------------ trees
+    buildTree(v) {
+      const c = document.createElement("canvas");
+      const W = 40, H = 50;
+      c.width = W;
+      c.height = H;
+      const ctx = c.getContext("2d");
+      const rnd = mulberry32(100 + v * 17);
+      const conifer = v >= 3;
+      const ax = 20, ay = 47;
+      ctx.fillStyle = "#2a1e16";
+      ctx.fillRect(ax - 2, ay - 9, 4, 9);
+      ctx.fillStyle = "#3c2c20";
+      ctx.fillRect(ax - 2, ay - 9, 1, 9);
+      ctx.fillStyle = "#1b130e";
+      ctx.fillRect(ax + 1, ay - 9, 1, 9);
+      ctx.fillStyle = "#2a1e16";
+      ctx.fillRect(ax - 3, ay - 1, 6, 1);
+      const blobs = [];
+      if (!conifer) {
+        const big = v === 0 ? 1.1 : v === 1 ? 1 : 0.85;
+        blobs.push([ax, ay - 25, 12 * big]);
+        for (let i = 0; i < 5; i++) {
+          const a = rnd() * Math.PI * 2;
+          blobs.push([ax + Math.cos(a) * 8 * big, ay - 25 + Math.sin(a) * 6 * big, (6 + rnd() * 4) * big]);
+        }
+      }
+      const tones = conifer ? ["#0a1611", "#10211a", "#163024", "#1f3f30", "#2b5040"] : ["#0b160f", "#132718", "#1b3520", "#25462a", "#335a36"];
+      const img = ctx.getImageData(0, 0, W, H);
+      const inside = (x, y) => {
+        if (conifer) {
+          const top = 4, base = ay - 9;
+          if (y < top || y > base) return -1;
+          const t = (y - top) / (base - top);
+          const tier = (y - top) % 9 / 9;
+          const hw = 2 + t * 13 * (0.65 + tier * 0.35);
+          const dx = Math.abs(x - ax);
+          return dx < hw ? hw - dx : -1;
+        }
+        let best = -1;
+        for (const [bx, by, br] of blobs) {
+          const d = br - Math.hypot(x - bx, y - by);
+          if (d > best) best = d;
+        }
+        return best;
+      };
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const k = inside(x + 0.5, y + 0.5);
+        if (k <= 0) continue;
+        let light;
+        if (conifer) {
+          const tier = (y - 4) % 9 / 9;
+          light = (1 - tier) * 0.7 + (ax - x) / 30 + 0.1;
+        } else {
+          let bb = blobs[0], bd = -1;
+          for (const b2 of blobs) {
+            const dd = b2[2] - Math.hypot(x - b2[0], y - b2[1]);
+            if (dd > bd) {
+              bd = dd;
+              bb = b2;
+            }
+          }
+          const nx = (x - bb[0]) / bb[2], ny = (y - bb[1]) / bb[2];
+          light = 0.5 - nx * 0.45 - ny * 0.55;
+        }
+        light += (hash2(x, y, v) - 0.5) * 0.35;
+        let ti = light < 0.05 ? 0 : light < 0.3 ? 1 : light < 0.55 ? 2 : light < 0.8 ? 3 : 4;
+        if (k < 1.2 && inside(x + 1.5, y + 1.5) <= 0) ti = 0;
+        const [r, g2, b] = rgb(tones[ti]);
+        const o = (y * W + x) * 4;
+        img.data[o] = r;
+        img.data[o + 1] = g2;
+        img.data[o + 2] = b;
+        img.data[o + 3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+      return c;
+    }
+    drawTree(ctx, o, sx, sy, alpha) {
+      const spr = this.trees[o.variant];
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(spr, Math.round(sx - 20), Math.round(sy - 47));
+      ctx.globalAlpha = 1;
+    }
+    // ------------------------------------------------------------------ bushes
+    buildBush(v) {
+      const W = 26, H = 20;
+      const c = document.createElement("canvas");
+      c.width = W;
+      c.height = H;
+      const ctx = c.getContext("2d");
+      const rnd = mulberry32(300 + v);
+      const blobs = [];
+      for (let i = 0; i < 5; i++) blobs.push([13 + (rnd() - 0.5) * 12, 11 + (rnd() - 0.5) * 6, 4 + rnd() * 3]);
+      const tones = ["#0c1a10", "#132a18", "#1a3820", "#244629", "#2f5532"];
+      const img = ctx.getImageData(0, 0, W, H);
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        let bd = -1, bb = blobs[0];
+        for (const b2 of blobs) {
+          const d = b2[2] - Math.hypot(x - b2[0], y - b2[1]);
+          if (d > bd) {
+            bd = d;
+            bb = b2;
+          }
+        }
+        if (bd <= 0) continue;
+        const nx = (x - bb[0]) / bb[2], ny = (y - bb[1]) / bb[2];
+        let light = 0.45 - nx * 0.4 - ny * 0.5 + (hash2(x, y, 9 + v) - 0.5) * 0.45;
+        let ti = light < 0.05 ? 0 : light < 0.3 ? 1 : light < 0.55 ? 2 : light < 0.8 ? 3 : 4;
+        if (bd < 1) ti = 0;
+        const [r, g2, b] = rgb(tones[ti]);
+        const o = (y * W + x) * 4;
+        img.data[o] = r;
+        img.data[o + 1] = g2;
+        img.data[o + 2] = b;
+        img.data[o + 3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+      return c;
+    }
+    drawBush(ctx, b, sx, sy, alpha = 1) {
+      const s = b.r / 9;
+      const spr = this.bushes[b.variant];
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(spr, Math.round(sx - 13 * s), Math.round(sy - 13 * s), Math.round(26 * s), Math.round(20 * s));
+      ctx.globalAlpha = 1;
+    }
+    // ------------------------------------------------------------------ rocks & logs
+    buildRock(o) {
+      const r = o.r;
+      const W = Math.ceil(r * 2 + 4), H = Math.ceil(r * 1.7 + 4);
+      const c = document.createElement("canvas");
+      c.width = W;
+      c.height = H;
+      const ctx = c.getContext("2d");
+      const img = ctx.getImageData(0, 0, W, H);
+      const cx = W / 2, cy = H / 2 + 1;
+      const tones = ["#1f242b", "#2f353e", "#3e4550", "#4f5764", "#626b78"];
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const nx = (x - cx) / r, ny = (y - cy) / (r * 0.8);
+        const wob = (hash2(Math.floor(Math.atan2(ny, nx) * 4 + 10), 1, o.variant) - 0.5) * 0.25;
+        const d = nx * nx + ny * ny;
+        if (d > 1 + wob) continue;
+        let light = 0.55 - nx * 0.4 - ny * 0.6 + (hash2(x, y, 5) - 0.5) * 0.25;
+        let ti = light < 0.15 ? 0 : light < 0.4 ? 1 : light < 0.65 ? 2 : light < 0.9 ? 3 : 4;
+        if (d > 0.82 + wob && ny > 0) ti = 0;
+        let [R, G, B] = rgb(tones[ti]);
+        if (ny < -0.45 && hash2(x, y, 8) > 0.45) {
+          R = 44;
+          G = 64;
+          B = 40;
+        }
+        const p = (y * W + x) * 4;
+        img.data[p] = R;
+        img.data[p + 1] = G;
+        img.data[p + 2] = B;
+        img.data[p + 3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+      return c;
+    }
+    buildLog(o) {
+      const vertical = o.variant === 1;
+      const W = o.w + 2, H = o.h + (vertical ? 2 : 4);
+      const c = document.createElement("canvas");
+      c.width = W;
+      c.height = H;
+      const ctx = c.getContext("2d");
+      if (!vertical) {
+        ctx.fillStyle = "#2b1f16";
+        ctx.fillRect(1, 2, W - 2, H - 4);
+        ctx.fillStyle = "#3a2a1e";
+        ctx.fillRect(1, 2, W - 2, 2);
+        ctx.fillStyle = "#1c140e";
+        ctx.fillRect(1, H - 3, W - 2, 1);
+        for (let x = 3; x < W - 3; x += 3) {
+          ctx.fillStyle = hash2(x, 1, 4) > 0.5 ? "#241a12" : "#33251a";
+          ctx.fillRect(x, 4 + x % 2, 2, 1);
+        }
+        ctx.fillStyle = "#6a5238";
+        ctx.fillRect(0, 2, 3, H - 4);
+        ctx.fillStyle = "#8a6c4a";
+        ctx.fillRect(1, 4, 1, H - 8);
+        for (let x = 6; x < W - 4; x++) if (hash2(x, 2, 6) > 0.6) {
+          ctx.fillStyle = "#2e4628";
+          ctx.fillRect(x, 2, 1, 1 + (hash2(x, 3, 6) > 0.8 ? 1 : 0));
+        }
+      } else {
+        ctx.fillStyle = "#2b1f16";
+        ctx.fillRect(1, 1, W - 2, H - 2);
+        ctx.fillStyle = "#3a2a1e";
+        ctx.fillRect(1, 1, 2, H - 2);
+        ctx.fillStyle = "#1c140e";
+        ctx.fillRect(W - 2, 1, 1, H - 2);
+        ctx.fillStyle = "#6a5238";
+        ctx.fillRect(1, 0, W - 2, 3);
+        ctx.fillStyle = "#8a6c4a";
+        ctx.fillRect(3, 1, W - 6, 1);
+        for (let y = 5; y < H - 2; y++) if (hash2(1, y, 6) > 0.65) {
+          ctx.fillStyle = "#2e4628";
+          ctx.fillRect(1, y, 1, 1);
+        }
+      }
+      return c;
+    }
+    drawRock(ctx, o, sx, sy) {
+      const c = this.rocks.get(o);
+      ctx.fillStyle = "rgba(4,8,10,0.4)";
+      ctx.fillRect(Math.round(sx - o.r), Math.round(sy + o.r * 0.55), Math.round(o.r * 2), 2);
+      ctx.drawImage(c, Math.round(sx - c.width / 2), Math.round(sy - c.height / 2 - 1));
+    }
+    drawLog(ctx, o, sx, sy) {
+      const c = this.logs.get(o);
+      ctx.fillStyle = "rgba(4,8,10,0.4)";
+      ctx.fillRect(Math.round(sx), Math.round(sy + o.h), o.w, 2);
+      ctx.drawImage(c, Math.round(sx - 1), Math.round(sy - 2));
+    }
+    // ------------------------------------------------------------------ vehicles
+    /** White delivery van, rear doors open toward the viewer, cargo visible. */
+    drawVan(ctx, sx, sy, bags, highlight, t) {
+      const x = Math.round(sx), y = Math.round(sy);
+      ctx.fillStyle = "rgba(3,6,10,0.45)";
+      ctx.fillRect(x - 1, y + 4, 40, 58);
+      ctx.fillStyle = "#0d0e10";
+      ctx.fillRect(x - 1, y + 8, 2, 8);
+      ctx.fillRect(x + 35, y + 8, 2, 8);
+      ctx.fillRect(x - 1, y + 36, 2, 9);
+      ctx.fillRect(x + 35, y + 36, 2, 9);
+      ctx.fillStyle = "#b9c0c7";
+      ctx.fillRect(x, y, 36, 46);
+      ctx.fillStyle = "#dfe3e7";
+      ctx.fillRect(x + 2, y + 1, 32, 42);
+      ctx.fillStyle = "#eef1f3";
+      ctx.fillRect(x + 3, y + 2, 14, 40);
+      ctx.fillStyle = "#c4cbd1";
+      for (let i = 0; i < 4; i++) ctx.fillRect(x + 3, y + 10 + i * 9, 30, 1);
+      ctx.fillStyle = "#a9b1b8";
+      ctx.fillRect(x + 31, y + 2, 2, 41);
+      ctx.fillStyle = "#8e979f";
+      ctx.fillRect(x + 22, y + 18, 7, 5);
+      ctx.fillStyle = "#cfd5da";
+      ctx.fillRect(x + 22, y + 18, 7, 1);
+      ctx.fillStyle = "#20262d";
+      ctx.fillRect(x - 3, y + 6, 3, 2);
+      ctx.fillRect(x + 36, y + 6, 3, 2);
+      ctx.fillStyle = "#2a3441";
+      ctx.fillRect(x + 4, y + 1, 28, 4);
+      ctx.fillStyle = "#4b5b6c";
+      ctx.fillRect(x + 6, y + 1, 10, 1);
+      const ry = y + 44;
+      ctx.fillStyle = "#c7cdd3";
+      ctx.fillRect(x, ry, 36, 14);
+      ctx.fillStyle = "#1a1612";
+      ctx.fillRect(x + 5, ry + 1, 26, 11);
+      ctx.fillStyle = "#2a2219";
+      ctx.fillRect(x + 5, ry + 1, 26, 3);
+      ctx.fillStyle = "#ffd9a0";
+      ctx.fillRect(x + 15, ry + 1, 6, 1);
+      const shown = Math.ceil(bags / TOTAL_BAGS * 12);
+      for (let i = 0; i < shown; i++) {
+        const col = i % 4, row = Math.floor(i / 4);
+        const bx = x + 7 + col * 6, by = ry + 9 - row * 3;
+        ctx.fillStyle = "#b39a69";
+        ctx.fillRect(bx, by, 5, 3);
+        ctx.fillStyle = "#d0b986";
+        ctx.fillRect(bx, by, 4, 1);
+        ctx.fillStyle = "#5f8d4c";
+        ctx.fillRect(bx + 2, by, 1, 1);
+      }
+      ctx.fillStyle = "#e6e9ec";
+      ctx.fillRect(x - 5, ry + 1, 4, 13);
+      ctx.fillStyle = "#aeb5bc";
+      ctx.fillRect(x - 2, ry + 1, 1, 13);
+      ctx.fillStyle = "#e6e9ec";
+      ctx.fillRect(x + 37, ry + 1, 4, 13);
+      ctx.fillStyle = "#aeb5bc";
+      ctx.fillRect(x + 37, ry + 1, 1, 13);
+      ctx.fillStyle = "#28323c";
+      ctx.fillRect(x - 4, ry + 3, 2, 4);
+      ctx.fillRect(x + 38, ry + 3, 2, 4);
+      ctx.fillStyle = "#d23a2b";
+      ctx.fillRect(x + 1, ry + 2, 3, 4);
+      ctx.fillRect(x + 32, ry + 2, 3, 4);
+      ctx.fillStyle = "#ff7a5c";
+      ctx.fillRect(x + 1, ry + 2, 1, 1);
+      ctx.fillRect(x + 32, ry + 2, 1, 1);
+      ctx.fillStyle = "#2b2f35";
+      ctx.fillRect(x, ry + 12, 36, 2);
+      ctx.fillStyle = "#e8d38a";
+      ctx.fillRect(x + 15, ry + 12, 6, 1);
+      if (highlight) {
+        const a = 0.35 + Math.sin(t * 5) * 0.15;
+        ctx.strokeStyle = `rgba(232,205,140,${a})`;
+        ctx.strokeRect(x + 4.5, ry + 0.5, 27, 12);
+      }
+    }
+    drawCar(ctx, sx, sy) {
+      const x = Math.round(sx), y = Math.round(sy);
+      ctx.fillStyle = "rgba(3,6,10,0.45)";
+      ctx.fillRect(x + 2, y + 4, 44, 25);
+      ctx.fillStyle = "#0c0d10";
+      ctx.fillRect(x + 6, y - 1, 7, 2);
+      ctx.fillRect(x + 31, y - 1, 7, 2);
+      ctx.fillRect(x + 6, y + 25, 7, 2);
+      ctx.fillRect(x + 31, y + 25, 7, 2);
+      ctx.fillStyle = "#262b33";
+      ctx.fillRect(x, y, 44, 26);
+      ctx.fillStyle = "#323843";
+      ctx.fillRect(x + 1, y + 1, 42, 10);
+      ctx.fillStyle = "#1b2029";
+      ctx.fillRect(x + 1, y + 18, 42, 7);
+      ctx.fillStyle = "#3c4350";
+      ctx.fillRect(x + 14, y + 4, 18, 14);
+      ctx.fillStyle = "#121822";
+      ctx.fillRect(x + 9, y + 4, 5, 14);
+      ctx.fillStyle = "#121822";
+      ctx.fillRect(x + 32, y + 5, 4, 12);
+      ctx.fillStyle = "#5d6c7d";
+      ctx.fillRect(x + 10, y + 5, 1, 4);
+      ctx.fillStyle = "#f2e3b0";
+      ctx.fillRect(x, y + 3, 1, 4);
+      ctx.fillRect(x, y + 19, 1, 4);
+      ctx.fillStyle = "#6b1d1a";
+      ctx.fillRect(x + 43, y + 3, 1, 4);
+      ctx.fillRect(x + 43, y + 19, 1, 4);
+      ctx.fillStyle = "#1d3150";
+      ctx.fillRect(x + 21, y + 9, 4, 2);
+    }
+    // ------------------------------------------------------------------ burial sites
+    drawHole(ctx, h, sx, sy, t) {
+      const x = Math.round(sx), y = Math.round(sy);
+      const dirt = "#4b3524", dirtHi = "#654832", dirtDk = "#33241a", pit = "#0f0a07";
+      const fresh = "#3f2d1f";
+      switch (h.state) {
+        case "DIGGING": {
+          const p = h.dig;
+          const r = 3 + Math.round(p * 4);
+          ctx.fillStyle = fresh;
+          ctx.fillRect(x - r, y - 2, r * 2, 4);
+          ctx.fillRect(x - r + 1, y - 3, r * 2 - 2, 6);
+          if (p > 0.35) {
+            ctx.fillStyle = pit;
+            ctx.fillRect(x - Math.round(r * 0.6), y - 1, Math.round(r * 1.2), 2 + (p > 0.7 ? 1 : 0));
+          }
+          const ph = 1 + Math.round(p * 3);
+          ctx.fillStyle = dirt;
+          ctx.fillRect(x + r - 1, y - ph, 5, ph + 1);
+          ctx.fillStyle = dirtHi;
+          ctx.fillRect(x + r - 1, y - ph, 3, 1);
+          break;
+        }
+        case "OPEN":
+        case "FILLED": {
+          ctx.fillStyle = dirtDk;
+          ctx.fillRect(x - 7, y - 3, 14, 7);
+          ctx.fillRect(x - 6, y - 4, 12, 9);
+          ctx.fillStyle = pit;
+          ctx.fillRect(x - 5, y - 2, 10, 5);
+          ctx.fillRect(x - 4, y - 3, 8, 7);
+          ctx.fillStyle = "#21170f";
+          ctx.fillRect(x - 5, y - 2, 10, 1);
+          if (h.bags > 0) {
+            ctx.fillStyle = "#b39a69";
+            ctx.fillRect(x - 4, y, 4, 2);
+            ctx.fillStyle = "#d0b986";
+            ctx.fillRect(x - 4, y, 3, 1);
+            ctx.fillStyle = "#5f8d4c";
+            ctx.fillRect(x - 2, y - 1, 1, 1);
+            if (h.bags > 1) {
+              ctx.fillStyle = "#a58c5d";
+              ctx.fillRect(x + 1, y + 1, 4, 2);
+              ctx.fillStyle = "#c9b07e";
+              ctx.fillRect(x + 1, y + 1, 3, 1);
+            }
+          }
+          ctx.fillStyle = dirt;
+          ctx.fillRect(x + 6, y - 4, 7, 6);
+          ctx.fillRect(x + 7, y - 6, 5, 2);
+          ctx.fillStyle = dirtHi;
+          ctx.fillRect(x + 7, y - 6, 3, 1);
+          ctx.fillRect(x + 6, y - 4, 2, 1);
+          if (h.cover > 0) {
+            const k = Math.round(h.cover * 8);
+            ctx.fillStyle = fresh;
+            ctx.fillRect(x - 5, y - 2, Math.min(10, k + 2), 5);
+          }
+          break;
+        }
+        case "COVERED": {
+          ctx.fillStyle = dirtDk;
+          ctx.fillRect(x - 7, y - 2, 14, 5);
+          ctx.fillStyle = fresh;
+          ctx.fillRect(x - 6, y - 3, 12, 5);
+          ctx.fillStyle = dirt;
+          ctx.fillRect(x - 5, y - 4, 9, 3);
+          ctx.fillStyle = dirtHi;
+          ctx.fillRect(x - 4, y - 4, 4, 1);
+          if (h.camo > 0) {
+            const n = Math.round(h.camo * 10);
+            for (let i = 0; i < n; i++) {
+              ctx.fillStyle = i % 3 === 0 ? "#5a3d24" : "#2c4428";
+              ctx.fillRect(x - 6 + i * 5 % 12, y - 3 + i * 3 % 5, 1, 1);
+            }
+          }
+          break;
+        }
+        case "CAMO": {
+          ctx.fillStyle = "rgba(70,52,32,0.45)";
+          ctx.fillRect(x - 6, y - 2, 12, 4);
+          ctx.fillStyle = "#2c4428";
+          ctx.fillRect(x - 5, y - 3, 3, 1);
+          ctx.fillRect(x + 1, y - 2, 3, 1);
+          ctx.fillRect(x - 2, y + 1, 4, 1);
+          ctx.fillStyle = "#5a3d24";
+          ctx.fillRect(x - 3, y - 1, 1, 1);
+          ctx.fillRect(x + 3, y, 1, 1);
+          ctx.fillStyle = "#4a3a28";
+          ctx.fillRect(x - 4, y + 1, 5, 1);
+          break;
+        }
+        case "EXCAVATED": {
+          ctx.fillStyle = dirtDk;
+          ctx.fillRect(x - 8, y - 4, 16, 9);
+          ctx.fillStyle = pit;
+          ctx.fillRect(x - 5, y - 2, 10, 5);
+          ctx.fillStyle = dirt;
+          ctx.fillRect(x - 10, y + 2, 5, 3);
+          ctx.fillRect(x + 6, y - 5, 5, 4);
+          ctx.fillStyle = "#c9c4b8";
+          ctx.fillRect(x - 10, y - 9, 1, 8);
+          ctx.fillRect(x + 10, y - 9, 1, 8);
+          for (let i = -9; i <= 9; i++) {
+            ctx.fillStyle = Math.floor((i + 20) / 2) % 2 ? "#c6463a" : "#e7e2d6";
+            ctx.fillRect(x + i, y - 8 + Math.round(Math.abs(i) / 9), 1, 1);
+          }
+          ctx.fillStyle = "#e0b440";
+          ctx.fillRect(x - 1, y + 4, 3, 2);
+          break;
+        }
+      }
+    }
+    // ------------------------------------------------------------------ fog
+    buildFog() {
+      const c = document.createElement("canvas");
+      c.width = 128;
+      c.height = 64;
+      const ctx = c.getContext("2d");
+      const g2 = ctx.createRadialGradient(64, 32, 4, 64, 32, 60);
+      g2.addColorStop(0, "rgba(150,170,190,1)");
+      g2.addColorStop(1, "rgba(150,170,190,0)");
+      ctx.fillStyle = g2;
+      ctx.save();
+      ctx.scale(1, 0.5);
+      ctx.beginPath();
+      ctx.arc(64, 64, 64, 0, Math.PI * 2);
+      ctx.restore();
+      ctx.fillRect(0, 0, 128, 64);
+      return c;
+    }
+  };
+
+  // src/render/sprites.ts
+  var PAL_POL = {
+    hair: "#3a291e",
+    hairHi: "#5b4130",
+    skin: "#d8a585",
+    skinSh: "#b27e66",
+    mouth: "#8b5946",
+    jacket: "#262d42",
+    jacketSh: "#1a1f2e",
+    jacketHi: "#343d58",
+    shirt: "#e8ebee",
+    tie: "#6db2ea",
+    tieSh: "#3f86c2",
+    pants: "#1c2131",
+    pantsSh: "#141826",
+    shoe: "#0c0d10",
+    glass: "#0b0b0d",
+    lens: "#c3d3df",
+    belt: "#111420"
+  };
+  var PAL_INV = {
+    cap: "#1a2236",
+    capHi: "#26314c",
+    brim: "#10151f",
+    skin: "#c58f70",
+    skinSh: "#a6735a",
+    mouth: "#7e5040",
+    hair: "#2a211b",
+    jacket: "#1e2943",
+    jacketSh: "#141b2e",
+    jacketHi: "#2a3858",
+    stripe: "#8e979e",
+    pants: "#1a2030",
+    pantsSh: "#121722",
+    shoe: "#0c0d10",
+    torch: "#c9c9c4",
+    torchTip: "#fff4cc"
+  };
+  var BAG = { tie: "#5f4f33", neck: "#a48c60", body: "#c7af7d", shade: "#9a8457", dark: "#7e6c46", note: "#6f9c59", noteDk: "#4f7a40" };
+  var Pen = class {
+    constructor(ctx, x, y, mirror = false) {
+      this.ctx = ctx;
+      this.x = x;
+      this.y = y;
+      this.mirror = mirror;
+    }
+    r(dx, dy, w, h, c) {
+      if (w <= 0 || h <= 0) return;
+      const X = this.mirror ? this.x - dx - w : this.x + dx;
+      this.ctx.fillStyle = c;
+      this.ctx.fillRect(X, this.y + dy, w, h);
+    }
+    p(dx, dy, c) {
+      this.r(dx, dy, 1, 1, c);
+    }
+  };
+  function shadow(ctx, x, y, w = 11) {
+    ctx.fillStyle = "rgba(4,8,12,0.42)";
+    ctx.fillRect(x - (w >> 1), y - 1, w, 2);
+    ctx.fillRect(x - (w >> 1) + 1, y - 2, w - 2, 1);
+    ctx.fillRect(x - (w >> 1) + 1, y + 1, w - 2, 1);
+  }
+  function drawBag(ctx, x, y) {
+    const P = new Pen(ctx, x - 3, y);
+    P.r(2, 0, 2, 1, BAG.tie);
+    P.r(1, 1, 4, 1, BAG.neck);
+    P.p(2, 1, BAG.note);
+    P.p(3, 1, BAG.noteDk);
+    P.r(0, 2, 6, 4, BAG.body);
+    P.r(5, 2, 1, 4, BAG.shade);
+    P.r(0, 5, 6, 1, BAG.shade);
+    P.r(1, 6, 4, 1, BAG.dark);
+    P.p(1, 3, "#d6c194");
+  }
+  function drawShovel(ctx, x0, y0, x1, y1, bladeDown = true) {
+    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+    ctx.fillStyle = "#6a4a2c";
+    for (let i = 0; i <= n; i++) {
+      const t = n ? i / n : 0;
+      ctx.fillRect(Math.round(x0 + (x1 - x0) * t), Math.round(y0 + (y1 - y0) * t), 1, 1);
+    }
+    ctx.fillStyle = "#4a3420";
+    ctx.fillRect(Math.round(x0) - 1, Math.round(y0), 3, 1);
+    ctx.fillStyle = "#868e96";
+    if (bladeDown) {
+      ctx.fillRect(Math.round(x1) - 1, Math.round(y1), 3, 3);
+      ctx.fillStyle = "#b6bec6";
+      ctx.fillRect(Math.round(x1) - 1, Math.round(y1), 1, 2);
+    } else {
+      ctx.fillRect(Math.round(x1) - 1, Math.round(y1) - 1, 3, 2);
+      ctx.fillStyle = "#b6bec6";
+      ctx.fillRect(Math.round(x1) - 1, Math.round(y1) - 1, 3, 1);
+    }
+  }
+  function poseFor(o) {
+    const P = { legL: 0, legR: 0, armL: 0, armR: 0, bob: 0, crouch: 0, lean: 0, armsUp: false, handFace: false, flap: 0, armsOut: 0 };
+    const t = o.t;
+    const bags = o.bags || 0;
+    switch (o.anim) {
+      case "idle": {
+        P.bob = Math.sin(t * 2.2) > 0.75 ? 1 : 0;
+        const it = o.idleT || 0;
+        if (it > 3 && it % 6 < 0.7) P.handFace = true;
+        if (bags === 2) P.crouch = 1;
+        break;
+      }
+      case "walk": {
+        const f2 = bags === 2 ? 2.4 : 3;
+        const s = Math.sin(t * Math.PI * f2);
+        P.legL = s > 0.2 ? 1 : 0;
+        P.legR = s < -0.2 ? 1 : 0;
+        P.armL = Math.round(s);
+        P.armR = -Math.round(s);
+        P.bob = Math.abs(s) > 0.7 ? 1 : 0;
+        if (bags === 2) {
+          P.crouch = 1;
+          P.armL = 0;
+          P.armR = 0;
+        }
+        break;
+      }
+      case "run": {
+        const f2 = bags === 2 ? 3.6 : 4.8;
+        const s = Math.sin(t * Math.PI * f2);
+        P.legL = s > 0 ? Math.round(s * 2) : 0;
+        P.legR = s < 0 ? Math.round(-s * 2) : 0;
+        P.armL = Math.round(s * 2);
+        P.armR = -Math.round(s * 2);
+        P.bob = Math.abs(s) > 0.5 ? 1 : 0;
+        P.lean = 1;
+        P.flap = s > 0 ? 1 : -1;
+        if (bags === 2) {
+          P.armL = Math.round(s);
+          P.armR = -Math.round(s);
+        }
+        break;
+      }
+      case "dig": {
+        const c = t % 0.66 / 0.66;
+        P.crouch = c > 0.45 ? 2 : 0;
+        P.lean = c > 0.45 ? 1 : 0;
+        P.legL = c > 0.45 && c < 0.7 ? 1 : 0;
+        break;
+      }
+      case "cover": {
+        P.crouch = 1;
+        P.lean = 1;
+        break;
+      }
+      case "camo":
+      case "search": {
+        P.crouch = 4;
+        const s = Math.sin(t * 9);
+        P.armL = Math.round(s);
+        P.armR = -Math.round(s);
+        break;
+      }
+      case "deposit":
+      case "pickup": {
+        const k = Math.sin(Math.min(1, t / 0.4) * Math.PI);
+        P.crouch = Math.round(k * 3);
+        P.lean = 1;
+        break;
+      }
+      case "caught": {
+        P.armsUp = true;
+        P.bob = Math.floor(t * 12) % 2;
+        break;
+      }
+      case "investigate":
+        break;
+    }
+    if ((o.detected || 0) > 0) {
+      const d = o.detected;
+      P.bob = d > 0.35 ? -2 : P.bob;
+      P.armsOut = 1;
+    }
+    return P;
+  }
+  function drawPolitician(ctx, x, y, o) {
+    const C = PAL_POL;
+    const pose = poseFor(o);
+    const bags = o.bags || 0;
+    x = Math.round(x);
+    y = Math.round(y);
+    shadow(ctx, x, y, bags === 2 ? 15 : 11);
+    const side = o.dir === 2 || o.dir === 3;
+    const P = new Pen(ctx, x, y, o.dir === 3);
+    const legH = Math.max(2, 5 - Math.min(3, pose.crouch));
+    const by = -1 - legH - pose.crouch * 0 + (pose.bob > 0 ? 0 : 0);
+    const top = -1 - legH - 10 + pose.bob;
+    const hd = top - 9;
+    const lean = pose.lean;
+    if (side && bags === 2) {
+      P.mirror = o.dir === 3;
+      drawBagP(P, 3, top + 8 - pose.crouch * 0);
+    }
+    if (!side) {
+      const lx = -4, rx = 1;
+      P.r(lx, -1 - legH, 3, legH - pose.legL, C.pants);
+      P.r(lx, -1 - pose.legL, 3, 1, C.shoe);
+      P.r(rx, -1 - legH, 3, legH - pose.legR, C.pants);
+      P.r(rx, -1 - pose.legR, 3, 1, C.shoe);
+      P.r(lx + 2, -1 - legH, 1, legH - pose.legL, C.pantsSh);
+      P.r(rx + 2, -1 - legH, 1, legH - pose.legR, C.pantsSh);
+      P.r(-6, top, 12, 10, C.jacket);
+      P.r(4, top, 2, 10, C.jacketSh);
+      P.r(-6, top, 1, 9, C.jacketHi);
+      if (pose.flap) {
+        P.r(pose.flap > 0 ? -7 : 5, top + 8, 2, 2, C.jacket);
+      }
+      if (o.dir === 0) {
+        P.r(-2, top, 4, 8, C.shirt);
+        P.r(-3, top, 1, 5, C.jacketSh);
+        P.r(2, top, 1, 5, C.jacketSh);
+        P.r(-1, top, 2, 1, C.tieSh);
+        P.r(-1, top + 1, 2, 5, C.tie);
+        P.p(0, top + 1, C.tieSh);
+        P.p(-1, top + 6, C.tie);
+        P.r(-5, top + 9, 10, 1, C.belt);
+      } else {
+        P.r(-1, top + 3, 1, 7, C.jacketSh);
+        P.r(-2, top, 4, 1, C.shirt);
+      }
+      const out = pose.armsOut + (bags === 2 ? 1 : 0);
+      if (pose.armsUp) {
+        P.r(-8, hd - 5, 2, 9, C.jacket);
+        P.r(-8, hd - 7, 2, 2, C.skin);
+        P.r(6, hd - 5, 2, 9, C.jacket);
+        P.r(6, hd - 7, 2, 2, C.skin);
+      } else {
+        const ly = top + 1 + pose.armL, ry = top + 1 + pose.armR;
+        P.r(-8 - out, ly, 2, 7, C.jacket);
+        P.r(-8 - out, ly + 7, 2, 2, C.skin);
+        if (pose.handFace && o.dir === 0) {
+          P.r(5, top - 3, 2, 5, C.jacket);
+          P.r(1, hd + 4, 2, 2, C.skin);
+        } else {
+          P.r(6 + out, ry, 2, 7, C.jacketSh);
+          P.r(6 + out, ry + 7, 2, 2, C.skinSh);
+        }
+        if (bags >= 1) drawBagP(P, 7 + out, ry + 8);
+        if (bags >= 2) drawBagP(P, -7 - out, ly + 8);
+      }
+      const h = hd;
+      if (o.dir === 0) {
+        P.r(-3, h, 6, 1, C.hair);
+        P.r(-4, h + 1, 8, 2, C.hair);
+        P.r(-2, h + 1, 3, 1, C.hairHi);
+        P.p(-4, h + 3, C.hair);
+        P.p(3, h + 3, C.hair);
+        P.r(-3, h + 3, 6, 6, C.skin);
+        P.r(2, h + 3, 1, 6, C.skinSh);
+        P.r(-4, h + 4, 1, 2, C.skin);
+        P.r(3, h + 4, 1, 2, C.skinSh);
+        P.r(-3, h + 4, 3, 1, C.glass);
+        P.r(0, h + 4, 3, 1, C.glass);
+        P.p(-3, h + 5, C.glass);
+        P.p(-2, h + 5, C.lens);
+        P.p(-1, h + 5, C.glass);
+        P.p(0, h + 5, C.glass);
+        P.p(1, h + 5, C.lens);
+        P.p(2, h + 5, C.glass);
+        P.p(-2, h + 4, "#3a3f46");
+        P.p(1, h + 4, "#3a3f46");
+        P.r(-1, h + 7, 2, 1, C.mouth);
+        P.r(-2, h + 8, 4, 1, C.skinSh);
+      } else {
+        P.r(-3, h, 6, 1, C.hair);
+        P.r(-4, h + 1, 8, 6, C.hair);
+        P.r(-2, h + 1, 3, 1, C.hairHi);
+        P.p(-4, h + 4, C.glass);
+        P.p(3, h + 4, C.glass);
+        P.p(-4, h + 5, C.skinSh);
+        P.p(3, h + 5, C.skinSh);
+        P.r(-2, h + 7, 4, 2, C.skinSh);
+      }
+    } else {
+      const lx = lean;
+      const s1 = pose.legL - pose.legR;
+      P.r(-1 + s1, -1 - legH, 3, legH, C.pantsSh);
+      P.r(-1 + s1 - 1, -1, 4, 1, C.shoe);
+      P.r(-1 - s1, -1 - legH, 3, legH, C.pants);
+      P.r(-1 - s1 - 1, -1, 4, 1, C.shoe);
+      P.r(-4 - lx, top, 8, 10, C.jacket);
+      P.r(2 - lx, top, 2, 10, C.jacketSh);
+      if (pose.flap) P.r(3 - lx, top + 7 + (pose.flap > 0 ? 0 : 1), 2, 2, C.jacket);
+      P.r(-4 - lx, top, 2, 1, C.shirt);
+      P.r(-4 - lx, top + 1, 1, 3, C.shirt);
+      P.r(-5 - lx, top + 1, 1, 6, C.tie);
+      P.r(-4 - lx, top + 9, 8, 1, C.belt);
+      if (pose.armsUp) {
+        P.r(-2 - lx, hd - 6, 2, 9, C.jacket);
+        P.r(-2 - lx, hd - 8, 2, 2, C.skin);
+      } else {
+        const ax = -1 - lx - pose.armL;
+        const ay = top + 1;
+        if (o.anim === "dig" || o.anim === "cover") {
+          P.r(-3 - lx, ay, 2, 5, C.jacketHi);
+        } else {
+          P.r(ax, ay, 2, 7, C.jacketHi);
+          P.r(ax, ay + 7, 2, 2, C.skin);
+          if (bags >= 1) drawBagP(P, ax + 1, ay + 8);
+        }
+      }
+      const h = hd;
+      const hx = -lx;
+      P.r(-3 + hx, h, 6, 1, C.hair);
+      P.r(-4 + hx, h + 1, 8, 2, C.hair);
+      P.r(-1 + hx, h + 3, 5, 4, C.hair);
+      P.r(-4 + hx, h + 3, 3, 6, C.skin);
+      P.r(-1 + hx, h + 7, 3, 2, C.skinSh);
+      P.p(-5 + hx, h + 5, C.skin);
+      P.r(-4 + hx, h + 4, 3, 1, C.glass);
+      P.p(-4 + hx, h + 5, C.glass);
+      P.p(-3 + hx, h + 5, C.lens);
+      P.p(-2 + hx, h + 5, C.glass);
+      P.r(-1 + hx, h + 4, 2, 1, C.glass);
+      P.p(1 + hx, h + 5, C.skinSh);
+      P.p(-4 + hx, h + 7, C.mouth);
+      P.r(-2 + hx, h + 1, 2, 1, C.hairHi);
+    }
+    const fx = o.dir === 2 ? -1 : o.dir === 3 ? 1 : 0;
+    const fy = o.dir === 0 ? 1 : o.dir === 1 ? -1 : 0;
+    if (o.anim === "dig") {
+      const c = o.t % 0.66 / 0.66;
+      if (side) {
+        if (c > 0.45) drawShovel(ctx, x + fx * 1, y + top + 2, x + fx * 9, y - 2);
+        else drawShovel(ctx, x - fx * 1, y + top - 1, x + fx * 8, y + top + 6);
+      } else if (o.dir === 0) {
+        if (c > 0.45) drawShovel(ctx, x + 2, y + top + 3, x + 2, y + 1);
+        else drawShovel(ctx, x + 5, y + top - 2, x + 3, y + top + 7);
+      } else {
+        if (c <= 0.45) drawShovel(ctx, x + 4, y + top + 2, x + 6, y + hd - 4, false);
+      }
+    } else if (o.anim === "cover") {
+      const s = Math.round(Math.sin(o.t * 7) * 4);
+      if (side) drawShovel(ctx, x + fx * 0, y + top + 3, x + fx * 9 + s * 0.5, y + 0);
+      else if (o.dir === 0) drawShovel(ctx, x + 1, y + top + 4, x + s, y + 3);
+      else drawShovel(ctx, x + 1, y + top + 4, x + s, y + top - 2, false);
+    } else if ((o.anim === "deposit" || o.anim === "pickup") && o.dir !== 1) {
+      const k = Math.min(1, o.t / 0.4);
+      if (o.anim === "deposit") drawBag(ctx, x + fx * 7, y - 6 + Math.round(k * 4) + fy * 3);
+    }
+  }
+  function drawBagP(P, dx, dy) {
+    const X = P.mirror ? P.x - dx : P.x + dx;
+    drawBag(P.ctx, X, P.y + dy);
+  }
+  function drawInvestigator(ctx, x, y, o) {
+    const C = PAL_INV;
+    const pose = poseFor(o);
+    x = Math.round(x);
+    y = Math.round(y);
+    shadow(ctx, x, y, 11);
+    const side = o.dir === 2 || o.dir === 3;
+    const P = new Pen(ctx, x, y, o.dir === 3);
+    const legH = Math.max(2, 5 - Math.min(3, pose.crouch));
+    const top = -1 - legH - 10 + pose.bob;
+    const hd = top - 8;
+    if (!side) {
+      P.r(-4, -1 - legH, 3, legH - pose.legL, C.pants);
+      P.r(-4, -1 - pose.legL, 3, 1, C.shoe);
+      P.r(1, -1 - legH, 3, legH - pose.legR, C.pants);
+      P.r(1, -1 - pose.legR, 3, 1, C.shoe);
+      P.r(-6, top, 12, 10, C.jacket);
+      P.r(4, top, 2, 10, C.jacketSh);
+      P.r(-6, top + 5, 12, 1, C.stripe);
+      if (o.dir === 0) {
+        P.r(-1, top, 2, 4, C.jacketSh);
+        P.p(-4, top + 2, "#c9a24a");
+      }
+      const ly = top + 1 + pose.armL, ry = top + 1 + pose.armR;
+      P.r(-8, ly, 2, 7, C.jacket);
+      P.r(-8, ly + 7, 2, 2, C.skin);
+      P.r(6, ry, 2, 7, C.jacketSh);
+      P.r(6, ry + 7, 2, 2, C.skinSh);
+      P.r(-8, ly + 4, 2, 1, C.stripe);
+      P.r(6, ry + 4, 2, 1, C.stripe);
+      const h = hd;
+      if (o.dir === 0) {
+        P.r(-4, h - 1, 8, 3, C.cap);
+        P.r(-2, h - 1, 3, 1, C.capHi);
+        P.r(-4, h + 2, 8, 1, C.brim);
+        P.r(-3, h + 3, 6, 5, C.skin);
+        P.r(2, h + 3, 1, 5, C.skinSh);
+        P.p(-4, h + 4, C.skin);
+        P.p(3, h + 4, C.skinSh);
+        P.p(-2, h + 4, "#20160f");
+        P.p(1, h + 4, "#20160f");
+        P.r(-1, h + 6, 2, 1, C.mouth);
+      } else {
+        P.r(-4, h - 1, 8, 4, C.cap);
+        P.r(-2, h - 1, 3, 1, C.capHi);
+        P.r(-4, h + 3, 8, 3, C.hair);
+        P.r(-2, h + 6, 4, 2, C.skinSh);
+        P.p(-4, h + 4, C.skinSh);
+        P.p(3, h + 4, C.skinSh);
+      }
+    } else {
+      const s1 = pose.legL - pose.legR;
+      P.r(-1 + s1, -1 - legH, 3, legH, C.pantsSh);
+      P.r(-2 + s1, -1, 4, 1, C.shoe);
+      P.r(-1 - s1, -1 - legH, 3, legH, C.pants);
+      P.r(-2 - s1, -1, 4, 1, C.shoe);
+      P.r(-4, top, 8, 10, C.jacket);
+      P.r(2, top, 2, 10, C.jacketSh);
+      P.r(-4, top + 5, 8, 1, C.stripe);
+      const ax = -1 - pose.armL;
+      P.r(ax, top + 1, 2, 7, C.jacketHi);
+      P.r(ax, top + 8, 2, 2, C.skin);
+      const h = hd;
+      P.r(-4, h - 1, 8, 3, C.cap);
+      P.r(-6, h + 2, 4, 1, C.brim);
+      P.r(-4, h + 2, 8, 1, C.brim);
+      P.r(-4, h + 3, 4, 5, C.skin);
+      P.r(0, h + 3, 4, 4, C.hair);
+      P.p(-5, h + 5, C.skin);
+      P.p(-3, h + 4, "#20160f");
+      P.p(-4, h + 6, C.mouth);
+      P.r(-1, h + 7, 3, 1, C.skinSh);
+    }
+    if (o.lookA !== void 0) {
+      const hx = x + (side ? o.dir === 2 ? -2 : 2 : 6), hy = y + top + 7;
+      const ca = Math.cos(o.lookA), sa = Math.sin(o.lookA);
+      ctx.fillStyle = C.torch;
+      ctx.fillRect(Math.round(hx + ca * 2), Math.round(hy + sa * 2), 1, 1);
+      ctx.fillRect(Math.round(hx + ca * 3), Math.round(hy + sa * 3), 1, 1);
+      ctx.fillStyle = C.torchTip;
+      ctx.fillRect(Math.round(hx + ca * 4), Math.round(hy + sa * 4), 1, 1);
+    }
+    if (o.anim === "search") {
+      const s = Math.round(Math.sin(o.t * 9) * 2);
+      ctx.fillStyle = "#7d858c";
+      ctx.fillRect(x - 2 + s, y + 1, 3, 2);
+    }
+  }
+  function drawPortrait(c) {
+    const ctx = c.getContext("2d");
+    const C = PAL_POL;
+    c.width = 32;
+    c.height = 32;
+    ctx.fillStyle = "#121a26";
+    ctx.fillRect(0, 0, 32, 32);
+    ctx.fillStyle = "#18263a";
+    ctx.fillRect(0, 0, 32, 14);
+    const P = new Pen(ctx, 16, 0);
+    P.r(-14, 25, 28, 7, C.jacket);
+    P.r(-14, 25, 4, 7, C.jacketHi);
+    P.r(9, 25, 5, 7, C.jacketSh);
+    P.r(-4, 24, 8, 8, C.shirt);
+    P.r(-5, 25, 2, 7, C.jacketSh);
+    P.r(3, 25, 2, 7, C.jacketSh);
+    P.r(-1, 24, 2, 2, C.tieSh);
+    P.r(-1, 26, 3, 6, C.tie);
+    P.r(1, 27, 1, 5, C.tieSh);
+    P.r(-3, 21, 6, 3, C.skinSh);
+    P.r(-7, 6, 14, 15, C.skin);
+    P.r(-6, 21, 12, 1, C.skin);
+    P.r(4, 7, 3, 14, C.skinSh);
+    P.r(-8, 11, 1, 4, C.skin);
+    P.r(7, 11, 1, 4, C.skinSh);
+    P.r(-7, 2, 14, 4, C.hair);
+    P.r(-8, 4, 16, 4, C.hair);
+    P.r(-8, 8, 2, 3, C.hair);
+    P.r(6, 8, 2, 3, C.hair);
+    P.r(-5, 3, 7, 1, C.hairHi);
+    P.r(-3, 2, 4, 1, C.hairHi);
+    P.r(-7, 6, 5, 2, C.hair);
+    P.r(-2, 6, 2, 1, C.hair);
+    P.r(-6, 9, 4, 1, "#2b1f17");
+    P.r(1, 9, 4, 1, "#2b1f17");
+    P.r(-7, 10, 6, 1, C.glass);
+    P.r(0, 10, 6, 1, C.glass);
+    P.r(-7, 13, 6, 1, C.glass);
+    P.r(0, 13, 6, 1, C.glass);
+    P.r(-7, 11, 1, 2, C.glass);
+    P.r(-2, 11, 1, 2, C.glass);
+    P.r(0, 11, 1, 2, C.glass);
+    P.r(5, 11, 1, 2, C.glass);
+    P.r(-1, 11, 1, 1, C.glass);
+    P.r(-6, 11, 4, 2, "#a7c1d6");
+    P.r(1, 11, 4, 2, "#a7c1d6");
+    P.p(-5, 12, "#2a1d15");
+    P.p(2, 12, "#2a1d15");
+    P.p(-6, 11, "#e6f0f7");
+    P.p(1, 11, "#e6f0f7");
+    P.r(-1, 14, 2, 3, C.skinSh);
+    P.r(-3, 18, 6, 1, C.mouth);
+    P.r(-5, 20, 10, 1, C.skinSh);
+  }
+
+  // src/render/lighting.ts
+  var Lighting = class {
+    constructor() {
+      this.c = document.createElement("canvas");
+      this.c.width = VIEW_W;
+      this.c.height = VIEW_H;
+      this.ctx = this.c.getContext("2d");
+      this.vignette = document.createElement("canvas");
+      this.vignette.width = VIEW_W;
+      this.vignette.height = VIEW_H;
+      const v = this.vignette.getContext("2d");
+      const g2 = v.createRadialGradient(VIEW_W / 2, VIEW_H / 2, VIEW_H * 0.35, VIEW_W / 2, VIEW_H / 2, VIEW_W * 0.62);
+      g2.addColorStop(0, "rgba(0,0,0,0)");
+      g2.addColorStop(1, "rgba(2,4,10,0.55)");
+      v.fillStyle = g2;
+      v.fillRect(0, 0, VIEW_W, VIEW_H);
+    }
+    conePath(ctx, L) {
+      ctx.beginPath();
+      ctx.moveTo(L.x, L.y);
+      for (let i = 0; i < CONE_RAYS; i++) {
+        const a = L.a - L.half + 2 * L.half * i / (CONE_RAYS - 1);
+        ctx.lineTo(L.x + Math.cos(a) * L.dists[i], L.y + Math.sin(a) * L.dists[i]);
+      }
+      ctx.closePath();
+    }
+    render(main, lights, darkness, alarm) {
+      const ctx = this.ctx;
+      ctx.globalCompositeOperation = "source-over";
+      ctx.clearRect(0, 0, VIEW_W, VIEW_H);
+      ctx.fillStyle = `rgba(4,9,24,${darkness})`;
+      ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+      ctx.globalCompositeOperation = "destination-out";
+      for (const L of lights) {
+        if (L.k === "cone") {
+          const g2 = ctx.createRadialGradient(L.x, L.y, 2, L.x, L.y, L.range);
+          g2.addColorStop(0, "rgba(0,0,0,0.95)");
+          g2.addColorStop(0.6, "rgba(0,0,0,0.75)");
+          g2.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = g2;
+          this.conePath(ctx, L);
+          ctx.fill();
+        } else {
+          const g2 = ctx.createRadialGradient(L.x, L.y, 0, L.x, L.y, L.r);
+          g2.addColorStop(0, `rgba(0,0,0,${L.cut})`);
+          g2.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = g2;
+          ctx.fillRect(L.x - L.r, L.y - L.r, L.r * 2, L.r * 2);
+        }
+      }
+      main.drawImage(this.c, 0, 0);
+      main.save();
+      main.globalCompositeOperation = "lighter";
+      for (const L of lights) {
+        if (L.k === "cone" && L.warm > 0) {
+          const g2 = main.createRadialGradient(L.x, L.y, 2, L.x, L.y, L.range);
+          g2.addColorStop(0, `rgba(255,214,150,${0.2 * L.warm})`);
+          g2.addColorStop(0.5, `rgba(255,190,110,${0.1 * L.warm})`);
+          g2.addColorStop(1, "rgba(255,170,90,0)");
+          main.fillStyle = g2;
+          this.conePath(main, L);
+          main.fill();
+        } else if (L.k === "radial" && L.color) {
+          const g2 = main.createRadialGradient(L.x, L.y, 0, L.x, L.y, L.r);
+          g2.addColorStop(0, L.color);
+          g2.addColorStop(1, "rgba(0,0,0,0)");
+          main.globalAlpha = L.glow ?? 1;
+          main.fillStyle = g2;
+          main.fillRect(L.x - L.r, L.y - L.r, L.r * 2, L.r * 2);
+          main.globalAlpha = 1;
+        }
+      }
+      main.restore();
+      main.drawImage(this.vignette, 0, 0);
+      if (alarm > 0) {
+        main.fillStyle = `rgba(150,30,25,${0.1 * alarm})`;
+        main.fillRect(0, 0, VIEW_W, 3);
+        main.fillRect(0, VIEW_H - 3, VIEW_W, 3);
+        main.fillRect(0, 0, 3, VIEW_H);
+        main.fillRect(VIEW_W - 3, 0, 3, VIEW_H);
+      }
+    }
+  };
+
+  // src/render/renderer.ts
+  function dirFromAngle(a) {
+    const c = Math.cos(a), s = Math.sin(a);
+    if (Math.abs(c) > Math.abs(s)) return c < 0 ? 2 : 3;
+    return s < 0 ? 1 : 0;
+  }
+  var Renderer = class {
+    constructor(canvas2) {
+      this.canvas = canvas2;
+      this.lighting = new Lighting();
+      this.fogs = [];
+      canvas2.width = VIEW_W;
+      canvas2.height = VIEW_H;
+      this.ctx = canvas2.getContext("2d");
+      this.ctx.imageSmoothingEnabled = false;
+      for (let i = 0; i < 14; i++) this.fogs.push({ x: hash2(i, 1, 9) * 1344, y: hash2(i, 2, 9) * 864, s: 1.5 + hash2(i, 3, 9) * 2, v: 2 + hash2(i, 4, 9) * 4 });
+    }
+    render(g2) {
+      const ctx = this.ctx;
+      const cx = Math.round(g2.camX), cy = Math.round(g2.camY);
+      const env = g2.env;
+      const L = g2.level;
+      const t = g2.clock;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(env.ground, cx, cy, VIEW_W, VIEW_H, 0, 0, VIEW_W, VIEW_H);
+      const onScreen = (x, y, m = 60) => x > cx - m && x < cx + VIEW_W + m && y > cy - m && y < cy + VIEW_H + m;
+      for (const h of g2.dig.holes) if (onScreen(h.x, h.y)) env.drawHole(ctx, h, h.x - cx, h.y - cy, t);
+      const items = [];
+      const p = g2.player;
+      const people = [{ x: p.x, y: p.y }, ...g2.investigators.map((i) => ({ x: i.x, y: i.y }))];
+      for (const o of L.obstacles) {
+        const sy = o.shape === "circle" ? o.y : o.y;
+        if (!onScreen(o.x, sy, 70)) continue;
+        if (o.kind === "tree") {
+          let alpha = 1;
+          for (const q of people) {
+            if (q.y < o.y - 1 && q.y > o.y - 44 && Math.abs(q.x - o.x) < 15) {
+              alpha = 0.42;
+              break;
+            }
+          }
+          items.push({ y: o.y, d: () => env.drawTree(ctx, o, o.x - cx, o.y - cy, alpha) });
+        } else if (o.kind === "rock") items.push({ y: o.sortY, d: () => env.drawRock(ctx, o, o.x - cx, o.y - cy) });
+        else if (o.kind === "log") items.push({ y: o.sortY, d: () => env.drawLog(ctx, o, o.x - cx, o.y - cy) });
+        else if (o.kind === "van") items.push({ y: o.sortY, d: () => env.drawVan(ctx, o.x - cx, o.y - cy, g2.money.van, g2.nearVan, t) });
+        else if (o.kind === "car") items.push({ y: o.sortY, d: () => env.drawCar(ctx, o.x - cx, o.y - cy) });
+      }
+      for (const b of L.bushes) {
+        if (!onScreen(b.x, b.y, 30)) continue;
+        let inside = false;
+        for (const q of people) if (Math.hypot(q.x - b.x, q.y - b.y) < b.r) inside = true;
+        items.push({ y: inside ? b.y + 30 : b.y + b.r * 0.4, d: () => env.drawBush(ctx, b, b.x - cx, b.y - cy, inside ? 0.82 : 1) });
+      }
+      items.push({
+        y: p.y,
+        d: () => {
+          drawPolitician(ctx, p.x - cx, p.y - cy, {
+            dir: p.dir,
+            anim: p.anim,
+            t: p.anim === "walk" || p.anim === "run" ? p.animT : p.animT,
+            bags: g2.money.carried,
+            detected: p.detectedT,
+            idleT: p.idleT
+          });
+          this.tallGrassFront(g2, p.x, p.y, cx, cy);
+        }
+      });
+      for (const inv of g2.investigators) {
+        if (!onScreen(inv.x, inv.y)) continue;
+        items.push({
+          y: inv.y,
+          d: () => {
+            const dir = inv.moving ? dirFromAngle(inv.moveA) : dirFromAngle(inv.lookA);
+            const anim = inv.state === "SEARCH" && inv.excavating ? "search" : inv.moving ? inv.state === "CHASE" ? "run" : "walk" : "idle";
+            drawInvestigator(ctx, inv.x - cx, inv.y - cy, { dir, anim, t: inv.walkT, lookA: inv.lookA });
+            this.tallGrassFront(g2, inv.x, inv.y, cx, cy);
+          }
+        });
+      }
+      items.sort((a, b) => a.y - b.y);
+      for (const it of items) it.d();
+      for (const q of g2.particles) {
+        ctx.globalAlpha = Math.min(1, q.life / q.max * 2);
+        ctx.fillStyle = q.color;
+        ctx.fillRect(Math.round(q.x - cx), Math.round(q.y - cy - q.z), 1, 1);
+      }
+      ctx.globalAlpha = 1;
+      for (const f2 of this.fogs) {
+        const fx = (f2.x + t * f2.v) % 1500 - 80 - cx, fy = f2.y - cy;
+        if (fx < -260 || fx > VIEW_W + 60 || fy < -120 || fy > VIEW_H + 60) continue;
+        ctx.globalAlpha = 0.05;
+        ctx.drawImage(env.fog, Math.round(fx), Math.round(fy), Math.round(128 * f2.s), Math.round(64 * f2.s));
+      }
+      ctx.globalAlpha = 1;
+      const lights = [];
+      lights.push({ k: "radial", x: p.x - cx, y: p.y - cy - 8, r: 58, cut: 0.6 });
+      const v = L.van;
+      lights.push({ k: "radial", x: v.doorX - cx, y: v.y + 50 - cy, r: 34, cut: 0.85, color: "rgba(255,190,120,0.30)" });
+      lights.push({ k: "radial", x: v.x + 2 - cx, y: v.y + 50 - cy, r: 16, cut: 0.4, color: "rgba(230,50,30,0.55)", glow: 0.8 });
+      lights.push({ k: "radial", x: v.x + 34 - cx, y: v.y + 50 - cy, r: 16, cut: 0.4, color: "rgba(230,50,30,0.55)", glow: 0.8 });
+      lights.push({ k: "radial", x: v.x + 18 - cx, y: v.y + 70 - cy, r: 26, cut: 0.15, color: "rgba(200,40,30,0.22)", glow: 0.7 });
+      if (g2.carCone) lights.push({ k: "cone", x: L.car.x - cx, y: L.car.y + 13 - cy, a: Math.PI, half: 0.35, range: 120, dists: g2.carCone, warm: 0.7 });
+      for (const inv of g2.investigators) {
+        if (!onScreen(inv.x, inv.y, 140)) continue;
+        lights.push({ k: "cone", x: inv.x - cx, y: inv.y - cy - 2, a: inv.lookA, half: inv.half, range: inv.range, dists: inv.cone, warm: 1 });
+        lights.push({ k: "radial", x: inv.x - cx, y: inv.y - cy - 6, r: 20, cut: 0.45 });
+      }
+      for (const h of g2.dig.holes) {
+        if (h.state === "EXCAVATED" && onScreen(h.x, h.y)) lights.push({ k: "radial", x: h.x - cx, y: h.y - cy, r: 12, cut: 0.25 });
+      }
+      const alarm = g2.investigators.some((i) => i.state === "CHASE") ? 0.6 + Math.sin(t * 6) * 0.4 : 0;
+      this.lighting.render(ctx, lights, 0.5, alarm);
+      this.markers(g2, cx, cy);
+    }
+    tallGrassFront(g2, x, y, cx, cy) {
+      if (g2.level.terrainAt(x, y) !== T.TALL) return;
+      const ctx = this.ctx;
+      const bx = Math.round(x - cx), by = Math.round(y - cy);
+      for (let i = -6; i <= 6; i++) {
+        const h = 2 + Math.floor(hash2(Math.floor(x) + i, 3, 2) * 4);
+        ctx.fillStyle = hash2(Math.floor(x) + i, 5, 2) > 0.5 ? "#36532f" : "#2a4426";
+        ctx.fillRect(bx + i, by + 1 - h, 1, h);
+      }
+    }
+    markers(g2, cx, cy) {
+      const ctx = this.ctx;
+      const t = g2.clock;
+      for (const h of g2.dig.holes) {
+        if (h.state !== "COVERED" && h.state !== "CAMO") continue;
+        const x = Math.round(h.x - cx), y = Math.round(h.y - cy - 9);
+        if (x < -5 || y < -5 || x > VIEW_W + 5 || y > VIEW_H + 5) continue;
+        ctx.globalAlpha = 0.55;
+        ctx.fillStyle = h.bags > 0 ? "#e4c27a" : "#8b929a";
+        ctx.fillRect(x, y - 1, 1, 1);
+        ctx.fillRect(x - 1, y, 3, 1);
+        ctx.fillRect(x, y + 1, 1, 1);
+        ctx.globalAlpha = 1;
+      }
+      const p = g2.player;
+      if (g2.actionProgress >= 0) {
+        const x = Math.round(p.x - cx - 10), y = Math.round(p.y - cy - 33);
+        ctx.fillStyle = "rgba(8,12,18,0.85)";
+        ctx.fillRect(x - 1, y - 1, 22, 4);
+        ctx.fillStyle = g2.actionColor;
+        ctx.fillRect(x, y, Math.round(20 * g2.actionProgress), 2);
+      }
+      for (const inv of g2.investigators) {
+        const ic = inv.icon;
+        if (!ic) continue;
+        const pop = inv.alertT > 0 ? Math.round(inv.alertT * 4) : 0;
+        const x = Math.round(inv.x - cx), y = Math.round(inv.y - cy - 34 - pop);
+        if (x < -5 || x > VIEW_W + 5 || y < -10 || y > VIEW_H) continue;
+        ctx.fillStyle = "rgba(8,10,14,0.8)";
+        ctx.fillRect(x - 2, y - 1, 5, 8);
+        ctx.fillStyle = ic === "!" ? "#e05a46" : "#e2b85c";
+        if (ic === "!") {
+          ctx.fillRect(x, y, 1, 4);
+          ctx.fillRect(x, y + 5, 1, 1);
+        } else {
+          ctx.fillRect(x - 1, y, 3, 1);
+          ctx.fillRect(x + 1, y + 1, 1, 1);
+          ctx.fillRect(x, y + 2, 1, 2);
+          ctx.fillRect(x, y + 5, 1, 1);
+        }
+      }
+      for (const inv of g2.investigators) {
+        if (inv.state !== "CHASE") continue;
+        const sx = inv.x - cx, sy = inv.y - cy;
+        if (sx >= 0 && sx <= VIEW_W && sy >= 0 && sy <= VIEW_H) continue;
+        const ex = Math.max(6, Math.min(VIEW_W - 6, sx)), ey = Math.max(6, Math.min(VIEW_H - 6, sy));
+        ctx.fillStyle = `rgba(224,90,70,${0.6 + Math.sin(t * 8) * 0.3})`;
+        ctx.fillRect(Math.round(ex) - 2, Math.round(ey) - 2, 4, 4);
+      }
+    }
+  };
+
+  // src/state.ts
+  var SCREENS = { menu: "scrStart", howto: "scrHow", paused: "scrPause", results: "scrResults" };
+  var GameStateManager = class {
+    constructor() {
+      this.state = "menu";
+      this.howtoReturn = "menu";
+      this.onChange = null;
+    }
+    set(s) {
+      const prev = this.state;
+      if (s === "howto") this.howtoReturn = prev === "howto" ? this.howtoReturn : prev;
+      this.state = s;
+      for (const [k, id] of Object.entries(SCREENS)) document.getElementById(id).classList.toggle("on", k === s);
+      this.onChange?.(s, prev);
+    }
+    backFromHowto() {
+      this.set(this.howtoReturn);
+    }
+    get simulating() {
+      return this.state === "playing";
+    }
+  };
+
+  // src/results.ts
+  var $ = (id) => document.getElementById(id);
+  function verdict(r) {
+    const ratio = r.final / TOTAL_MONEY;
+    if (r.final === 0) return "\xC9rt\xE9kel\xE9s: a portf\xF3li\xF3 teljes eg\xE9sz\xE9ben hat\xF3s\xE1gi kezel\xE9sbe vagy a furgonba ker\xFClt.";
+    if (ratio >= 0.85) return "\xC9rt\xE9kel\xE9s: kiemelked\u0151 talajszint alatti allok\xE1ci\xF3. A k\xF6nyvvizsg\xE1l\xF3 nem tal\xE1lt \xE1s\xF3t.";
+    if (ratio >= 0.55) return "\xC9rt\xE9kel\xE9s: kiegyens\xFAlyozott portf\xF3li\xF3, m\xE9rs\xE9kelt hat\xF3s\xE1gi kitetts\xE9ggel.";
+    if (ratio >= 0.3) return "\xC9rt\xE9kel\xE9s: konzervat\xEDv strat\xE9gia. A furgon likvidit\xE1sa tov\xE1bbra is jelent\u0151s.";
+    return "\xC9rt\xE9kel\xE9s: a diverzifik\xE1ci\xF3 korai szakaszban maradt.";
+  }
+  function showResults(r, best) {
+    const row = (k, v, neg = false, small = false) => `<div class="${small ? "small" : ""}"><span>${k}</span><span class="mono ${neg && v > 0 ? "neg" : ""}">${neg && v > 0 ? "\u2212" : ""}${fmtFt(v)}</span></div>`;
+    $("rep").innerHTML = row("El\xE9rhet\u0151 vagyon", TOTAL_MONEY) + row("El\xE1sott vagyon", r.deposited) + row("Felt\xE1rt vagyon (hat\xF3s\xE1g)", r.discovered, true) + (r.exposedLeft > 0 ? row("Fedetlen g\xF6d\xF6rben hagyva", r.exposedLeft, true) : "") + row("Sz\xE1ll\xEDt\xE1s k\xF6zben elkobozva", r.confCarried, false, true) + row("A furgonban maradt", r.van, false, true) + (r.carriedEnd > 0 ? row("K\xE9zben maradt a z\xE1r\xE1s pillanat\xE1ban", r.carriedEnd, false, true) : "") + `<div class="small"><span>Lez\xE1rt elrejt\xE9si helysz\xEDnek</span><span class="mono">${r.sites} db${r.decoys ? ` (+${r.decoys} \xFCres)` : ""}</span></div><div class="small"><span>Hat\xF3s\xE1gi feltart\xF3ztat\xE1sok</span><span class="mono">${r.caught} alkalom</span></div>`;
+    $("repFinal").textContent = fmtFt(r.final);
+    $("verdict").textContent = verdict(r) + (best > 0 ? `  \xB7  Legjobb eredm\xE9ny: ${fmtFt(best)}` : "");
+    $("resMissions").innerHTML = r.missions.map((v) => {
+      const cls = v.done ? "done" : v.failed ? "failed" : "";
+      return `<div class="mi ${cls}"><span class="box"></span><span class="t">${v.text}</span></div>`;
+    }).join("");
+    const d = /* @__PURE__ */ new Date();
+    $("resDate").textContent = `KELT: ${d.getFullYear()}. ${String(d.getMonth() + 1).padStart(2, "0")}. ${String(d.getDate()).padStart(2, "0")}.`;
+    $("resStamp").textContent = r.final >= TOTAL_MONEY * 0.5 ? "J\xD3V\xC1HAGYVA" : "LEZ\xC1RVA";
+  }
+
+  // src/game.ts
+  var Game = class {
+    constructor(canvas2, hud2, audio2, input2) {
+      this.hud = hud2;
+      this.audio = audio2;
+      this.input = input2;
+      this.level = new LevelManager();
+      this.coll = new CollisionSystem(this.level);
+      this.det = new DetectionSystem(this.level, this.coll);
+      this.paths = new Pathfinder(this.level);
+      this.env = new EnvironmentArt(this.level);
+      this.states = new GameStateManager();
+      this.investigators = [];
+      this.particles = [];
+      this.remaining = SESSION_TIME;
+      this.elapsed = 0;
+      this.clock = 0;
+      this.phaseIdx = 0;
+      this.spawned = 0;
+      this.camX = 0;
+      this.camY = 0;
+      this.nearVan = false;
+      this.actionProgress = -1;
+      this.actionColor = "#d6b468";
+      this.prompt = null;
+      this.exposure = 0;
+      this.chasing = false;
+      this.carCone = new Float32Array(CONE_RAYS);
+      this.rnd = mulberry32(Date.now() & 65535);
+      this.needRelease = false;
+      // each step (dig → cover → camo) needs a fresh SPACE press
+      this.denyT = 0;
+      this.denyText = "";
+      this.sfxT = 0;
+      this.lastAudit = 0;
+      this.lastReport = null;
+      this.renderer = new Renderer(canvas2);
+      this.det.cone(this.level.car.x, this.level.car.y + 13, Math.PI, 0.35, 120, this.carCone);
+      this.reset();
+      hud2.attach(this);
+    }
+    reset() {
+      const L = this.level;
+      this.player = new PlayerController(L.playerSpawn.x, L.playerSpawn.y, this.coll, L);
+      this.player.onStep = (t, run) => this.audio.step(t, run);
+      this.money = new MoneySystem();
+      this.dig = new DiggingSystem(L, this.coll);
+      this.missions = new MissionSystem();
+      this.investigators = [];
+      this.particles = [];
+      this.remaining = SESSION_TIME;
+      this.elapsed = 0;
+      this.phaseIdx = 0;
+      this.spawned = 0;
+      this.exposure = 0;
+      this.chasing = false;
+      this.prompt = null;
+      this.camX = clamp(this.player.x - VIEW_W / 2, 0, WORLD_W - VIEW_W);
+      this.camY = clamp(this.player.y - VIEW_H / 2, 0, WORLD_H - VIEW_H);
+      this.hud.reset();
+    }
+    start() {
+      this.reset();
+      this.input.clear();
+      this.states.set("playing");
+      this.hud.show(true);
+      this.audio.intensity = 0;
+      this.audio.setMusic(true);
+      this.hud.note("Vagyon\xE1trendez\xE9s folyamatban.", "");
+    }
+    // ======================================================================= frame
+    update(dt) {
+      this.clock += dt;
+      this.audio.tickAmbience(dt);
+      if (this.states.simulating) this.simulate(dt);
+      else if (this.states.state === "menu" || this.states.state === "howto") {
+        const t = this.clock * 0.04;
+        this.camX = clamp(180 + (Math.sin(t) * 0.5 + 0.5) * 520, 0, WORLD_W - VIEW_W);
+        this.camY = clamp(300 + Math.sin(t * 0.7) * 120, 0, WORLD_H - VIEW_H);
+        this.player.anim = "idle";
+        this.player.animT += dt;
+        this.player.idleT += dt;
+      }
+      this.updateParticles(dt);
+      this.renderer.render(this);
+      if (this.states.state !== "menu" && this.states.state !== "howto") this.hud.update(this);
+    }
+    simulate(dt) {
+      this.remaining -= dt;
+      this.elapsed += dt;
+      let ph = 0;
+      for (let i = 0; i < PHASE_START.length; i++) if (this.elapsed >= PHASE_START[i]) ph = i;
+      if (ph !== this.phaseIdx) {
+        this.phaseIdx = ph;
+        this.audio.intensity = ph;
+        this.audio.vehicle();
+        if (ph === 1) this.hud.note("Hat\xF3s\xE1gi aktivit\xE1s: FOKOZOTT. \xDAjabb nyomoz\xF3 \xE9rkezett.", "warn");
+        if (ph === 2) this.hud.note("RAZZIA. A keres\xE9s intenzit\xE1sa n\xF6vekedett.", "bad");
+      }
+      while (this.spawned < SPAWN_SCHEDULE.length && this.elapsed >= SPAWN_SCHEDULE[this.spawned]) this.spawnInvestigator();
+      this.player.update(dt, this.input, this.money.carried);
+      this.interact(dt);
+      for (const h of this.dig.holes) h.notice = Math.max(0, h.notice - 0.04 * dt);
+      const ctx = this.aiContext();
+      for (const inv of this.investigators) inv.update(dt, ctx);
+      this.chasing = this.investigators.some((i) => i.state === "CHASE");
+      let ex = 0;
+      for (const inv of this.investigators) ex = Math.max(ex, inv.state === "CHASE" ? 1 : inv.awareness);
+      this.exposure = this.exposure + (ex - this.exposure) * Math.min(1, dt * 6);
+      this.updateVisibility();
+      const p = this.player;
+      const tx = clamp(p.x - VIEW_W / 2 + p.fx * 22, 0, WORLD_W - VIEW_W);
+      const ty = clamp(p.y - 12 - VIEW_H / 2 + p.fy * 14, 0, WORLD_H - VIEW_H);
+      const k = Math.min(1, dt * 4.5);
+      this.camX += (tx - this.camX) * k;
+      this.camY += (ty - this.camY) * k;
+      if (this.clock - this.lastAudit > 1) {
+        this.lastAudit = this.clock;
+        if (!this.money.audit(this.dig.holes)) console.error("[MILLI\xC1RD\xC1S\xD3] money audit failed");
+      }
+      if (this.remaining <= 0) this.finish();
+    }
+    spawnInvestigator() {
+      const L = this.level;
+      const i = this.spawned++;
+      const route = L.routes[i % L.routes.length];
+      const inv = new Investigator(i, L.policeSpawn.x + i * 6, L.policeSpawn.y + i % 2 * 8, route, this.rnd);
+      inv.lookA = Math.PI;
+      this.investigators.push(inv);
+      this.audio.click();
+      if (i === 0) this.hud.note("Egy nyomoz\xF3 \xE9rkezett az erdei \xFAtra.", "warn");
+    }
+    updateVisibility() {
+      const p = this.player;
+      const cx = this.camX, cy = this.camY;
+      for (const inv of this.investigators) {
+        const onScreen = inv.x > cx - 8 && inv.x < cx + VIEW_W + 8 && inv.y > cy - 8 && inv.y < cy + VIEW_H + 8;
+        const d = dist(inv.x, inv.y, p.x, p.y);
+        inv.visibleToPlayer = onScreen || inv.state === "CHASE" || d < 200 && this.det.lineOfSight(p.x, p.y, inv.x, inv.y) > 0.2;
+        if (inv.visibleToPlayer) {
+          inv.seenAt = this.clock;
+          inv.seenX = inv.x;
+          inv.seenY = inv.y;
+        }
+      }
+    }
+    // ======================================================================= interaction
+    interact(dt) {
+      const p = this.player, m = this.money, D = this.dig, L = this.level;
+      const now = this.elapsed;
+      this.actionProgress = -1;
+      this.prompt = null;
+      if (this.denyT > 0) this.denyT -= dt;
+      const busy = p.stunT > 0 || p.lockT > 0;
+      this.nearVan = dist(p.x, p.y, L.van.doorX, L.van.doorY) < INTERACT_VAN_DIST;
+      const hole = D.nearest(p.x, p.y, INTERACT_HOLE_DIST);
+      const blockedByInv = (h) => !!h && !!h.claimedBy && h.claimedBy.state === "SEARCH" && h.claimedBy.excavating;
+      if (!busy && this.input.pressed("KeyE")) {
+        if (this.nearVan && m.carried < 2 && m.van > 0) {
+          m.takeFromVan();
+          p.lock("pickup", PICKUP_TIME);
+          this.audio.pickup();
+          if (m.van === 0) this.hud.note("A furgon ki\xFCr\xFClt. Likvidit\xE1s: nulla.", "warn");
+        } else if (hole && D.canDeposit(hole) && m.carried > 0 && !blockedByInv(hole)) {
+          const n = Math.min(m.carried, HOLE_CAPACITY - hole.bags);
+          m.deposit(hole, n);
+          hole.state = "FILLED";
+          hole.touched = now;
+          this.face(hole.x, hole.y);
+          p.lock("deposit", DEPOSIT_TIME);
+          this.audio.deposit();
+          this.hud.note("Vagyon\xE1trendez\xE9s folyamatban. Betemet\xE9s: SPACE", "", 1);
+        } else {
+          this.deny(this.nearVan ? m.van === 0 ? "A furgon \xFCres." : "Teherb\xEDr\xE1s el\xE9rve (2/2)." : m.carried === 0 ? "Nincs cipelt p\xE9nz." : hole ? "Ez a g\xF6d\xF6r nem fogad t\xF6bb zs\xE1kot." : "El\u0151bb \xE1sson g\xF6dr\xF6t.");
+        }
+      }
+      let acting = false;
+      if (!this.input.isDown("Space") || this.input.pressed("Space")) this.needRelease = false;
+      if (!busy && this.input.isDown("Space") && !p.moving && !this.needRelease) {
+        let h = hole;
+        if (!h) {
+          const cands = [p.digPoint(), { x: p.x, y: p.y + 4 }, { x: p.x - 8, y: p.y + 3 }, { x: p.x + 8, y: p.y + 3 }, { x: p.x, y: p.y + 10 }];
+          let reason = null;
+          for (const c of cands) {
+            const r = D.canDigAt(c.x, c.y);
+            if (!r) {
+              h = D.create(c.x, c.y, now);
+              reason = null;
+              break;
+            }
+            if (!reason) reason = r;
+          }
+          if (!h && reason && this.input.pressed("Space")) this.deny(reason);
+        }
+        if (h && blockedByInv(h)) {
+          if (this.input.pressed("Space")) this.deny("A helysz\xEDnt a hat\xF3s\xE1g vizsg\xE1lja.");
+        } else if (h && h.state === "OPEN" && h.bags === 0 && m.carried > 0) {
+          if (this.input.pressed("Space")) this.deny("El\u0151bb helyezze el a p\xE9nzt: E");
+        } else if (h && h.state !== "CAMO" && h.state !== "EXCAVATED") {
+          const act2 = D.spaceAction(h);
+          p.action = act2;
+          acting = true;
+          this.face(h.x, h.y);
+          const ev = D.work(h, dt, now);
+          if (ev) this.needRelease = true;
+          this.actionProgress = act2 === "dig" ? h.dig : act2 === "cover" ? h.cover : h.camo;
+          this.actionColor = act2 === "dig" ? "#c8803a" : act2 === "cover" ? "#d6b468" : "#8fbf6f";
+          this.actionFx(act2, h, dt);
+          if (ev === "covered") {
+            this.missions.onCovered(h);
+            if (h.bags > 0) this.hud.note(`${fmtMillio(h.bags, BAG_VALUE)} forint talajszint al\xE1 ker\xFClt.`, "good", 0.5);
+            else this.hud.note("\xDCres g\xF6d\xF6r betemetve. Megt\xE9veszt\u0151 vagyonelem.", "", 0.5);
+          } else if (ev === "camo") {
+            this.missions.onCamo(h);
+            if (h.bags > 0) this.hud.note("A vagyon f\xF6ldrajzi diverzifik\xE1ci\xF3ja sikeres.", "good");
+            else this.hud.note("Felsz\xEDn helyre\xE1ll\xEDtva.");
+            this.audio.leaves();
+          } else if (ev === "dug") {
+            this.audio.soil();
+            if (m.carried > 0) this.hud.note("G\xF6d\xF6r k\xE9sz. P\xE9nz elhelyez\xE9se: E", "", 1);
+          }
+        }
+      }
+      if (!acting && !p.moving) p.action = null;
+      if (this.denyT > 0) this.prompt = { key: "", text: this.denyText, deny: true };
+      else if (!busy && !acting) {
+        if (this.nearVan) {
+          if (m.van > 0 && m.carried < 2) this.prompt = { key: "E", text: `P\xE9nz felv\xE9tele \xB7 ${m.carried}/2` };
+          else if (m.van === 0) this.prompt = { key: "", text: "A furgon \xFCres." };
+          else this.prompt = { key: "", text: "Teherb\xEDr\xE1s el\xE9rve \xB7 2/2" };
+        } else if (hole) {
+          if (blockedByInv(hole)) this.prompt = { key: "", text: "Hat\xF3s\xE1gi vizsg\xE1lat alatt" };
+          else if (D.canDeposit(hole) && m.carried > 0) this.prompt = { key: "E", text: hole.bags > 0 ? "\xDAjabb zs\xE1k \xB7 SPACE: betemet\xE9s" : "P\xE9nz elhelyez\xE9se" };
+          else if (hole.state === "DIGGING") this.prompt = { key: "SPACE", text: "\xC1s\xE1s folytat\xE1sa" };
+          else if (hole.state === "OPEN" || hole.state === "FILLED") this.prompt = { key: "SPACE", text: hole.bags > 0 ? `Betemet\xE9s \xB7 ${hole.bags} zs\xE1k` : "Betemet\xE9s (\xFCres csali)" };
+          else if (hole.state === "COVERED") this.prompt = { key: "SPACE", text: "\xC1lc\xE1z\xE1s" };
+          else if (hole.state === "CAMO") this.prompt = { key: "", text: hole.bags > 0 ? "Elrejtett vagyonelem" : "Megt\xE9veszt\u0151 vagyonelem" };
+        } else if (!p.moving && p.idleT > 0.25) {
+          const ok = [p.digPoint(), { x: p.x, y: p.y + 4 }, { x: p.x - 8, y: p.y + 3 }, { x: p.x + 8, y: p.y + 3 }, { x: p.x, y: p.y + 10 }].some((c) => !D.canDigAt(c.x, c.y));
+          if (ok) this.prompt = { key: "SPACE", text: "\xC1s\xE1s" };
+        }
+      }
+    }
+    face(x, y) {
+      const p = this.player;
+      const dx = x - p.x, dy = y - p.y;
+      const l = Math.hypot(dx, dy) || 1;
+      p.fx = dx / l;
+      p.fy = dy / l;
+      if (Math.abs(dx) > Math.abs(dy)) p.dir = dx < 0 ? 2 : 3;
+      else p.dir = dy < 0 ? 1 : 0;
+    }
+    deny(text) {
+      this.denyText = text;
+      this.denyT = 1.2;
+      this.audio.denied();
+    }
+    actionFx(act2, h, dt) {
+      this.sfxT -= dt;
+      if (this.sfxT > 0) return;
+      if (act2 === "dig") {
+        this.sfxT = 0.33;
+        this.audio.shovel();
+        for (let i = 0; i < 4; i++) this.particle(h.x, h.y, ["#5a4029", "#3b2a1c", "#6e5038"][i % 3], 22, 30);
+      } else if (act2 === "cover") {
+        this.sfxT = 0.45;
+        this.audio.soil();
+        for (let i = 0; i < 3; i++) this.particle(h.x + 5, h.y, ["#4a3524", "#5e4430"][i % 2], 16, 18);
+      } else {
+        this.sfxT = 0.4;
+        this.audio.leaves();
+        for (let i = 0; i < 3; i++) this.particle(h.x, h.y - 4, ["#2c4428", "#5a3d24", "#3a5a32"][i % 3], 12, 14);
+      }
+    }
+    particle(x, y, color, spread, up) {
+      if (this.particles.length > 120) return;
+      this.particles.push({
+        x,
+        y,
+        vx: (this.rnd() - 0.5) * spread,
+        vy: (this.rnd() - 0.5) * spread * 0.4,
+        z: 2,
+        vz: up * (0.5 + this.rnd() * 0.5),
+        life: 0.7,
+        max: 0.7,
+        color
+      });
+    }
+    updateParticles(dt) {
+      for (const q of this.particles) {
+        q.x += q.vx * dt;
+        q.y += q.vy * dt;
+        q.z += q.vz * dt;
+        q.vz -= 120 * dt;
+        if (q.z < 0) {
+          q.z = 0;
+          q.vz = 0;
+          q.vx *= 0.5;
+          q.vy *= 0.5;
+        }
+        q.life -= dt;
+      }
+      this.particles = this.particles.filter((q) => q.life > 0);
+    }
+    // ======================================================================= AI hooks
+    aiContext() {
+      const p = this.player;
+      const acting = p.action !== null && this.input.isDown("Space");
+      return {
+        now: this.elapsed,
+        phase: PHASES[this.phaseIdx],
+        phaseIdx: this.phaseIdx,
+        player: p,
+        playerBags: this.money.carried,
+        playerActing: acting,
+        playerHole: acting ? this.dig.nearest(p.x, p.y, INTERACT_HOLE_DIST) : null,
+        level: this.level,
+        coll: this.coll,
+        det: this.det,
+        paths: this.paths,
+        dig: this.dig,
+        rnd: this.rnd,
+        investigators: this.investigators,
+        onChase: (inv) => {
+          this.audio.whistle();
+          this.player.detectedT = 0.55;
+          this.hud.note("V\xE1ratlan hat\xF3s\xE1gi \xE9rdekl\u0151d\xE9s.", "bad", 6);
+          const radius = this.phaseIdx === 2 ? 320 : 200;
+          for (const o of this.investigators) {
+            if (o === inv || o.state === "CHASE" || o.state === "SEARCH") continue;
+            if (dist(o.x, o.y, inv.x, inv.y) < radius) {
+              o.target = { ...inv.lastSeen };
+              o.state = "SUSPICIOUS";
+              o.path = null;
+              o.alertT = 0.6;
+            }
+          }
+        },
+        onCatch: () => {
+          const n = this.money.confiscateCarried();
+          this.missions.onCaught();
+          this.remaining -= CATCH_PENALTY;
+          this.elapsed += CATCH_PENALTY;
+          this.player.stunT = 1.3;
+          this.player.animT = 0;
+          this.player.action = null;
+          this.audio.caught();
+          this.hud.penalty();
+          this.hud.note("A befektet\xE9s likvidit\xE1sa cs\xF6kkent.", "bad", 0.5);
+          this.hud.note(`Elkobozva: ${fmtFt(n * BAG_VALUE)} \xB7 id\u0151vesztes\xE9g: ${CATCH_PENALTY} mp`, "bad", 0.5);
+          for (const o of this.investigators) if (o.state === "CHASE") {
+            o.ignoreT = 3;
+            o.awareness = 0;
+          }
+        },
+        onExcavated: (_inv, h, bags) => {
+          if (bags > 0) {
+            this.money.confiscateHole(h);
+            this.audio.confiscated();
+            this.hud.note("A portf\xF3li\xF3 egy r\xE9sze felsz\xEDnre ker\xFClt.", "bad", 0.5);
+            this.hud.note(`A hat\xF3s\xE1g \xFAj vagyonelemet azonos\xEDtott: \u2212${fmtFt(bags * BAG_VALUE)}`, "bad", 0.5);
+          } else {
+            this.hud.note("A hat\xF3s\xE1g \xFCres g\xF6dr\xF6t dokument\xE1lt.", "", 1);
+          }
+        },
+        onHoleNoticed: (_inv, h) => {
+          if (h.bags > 0 || h.state !== "CAMO") this.hud.note("Kitetts\xE9gi kock\xE1zat n\xF6vekedett.", "warn", 6);
+        },
+        onStep: (inv) => {
+          const d = dist(inv.x, inv.y, this.player.x, this.player.y);
+          if (d < 190) this.audio.invStep(1 - d / 190);
+        }
+      };
+    }
+    // ======================================================================= end
+    finish() {
+      this.remaining = 0;
+      const holes = this.dig.holes;
+      const m = this.money;
+      const hidden = m.hiddenBags(holes);
+      const views = this.missions.views(hidden);
+      const r = {
+        deposited: m.deposited * BAG_VALUE,
+        discovered: m.confiscatedBuried * BAG_VALUE,
+        exposedLeft: m.exposedBags(holes) * BAG_VALUE,
+        confCarried: m.confiscatedCarried * BAG_VALUE,
+        van: m.van * BAG_VALUE,
+        carriedEnd: m.carried * BAG_VALUE,
+        final: hidden * BAG_VALUE,
+        sites: holes.filter((h) => (h.state === "COVERED" || h.state === "CAMO") && h.bags > 0).length,
+        decoys: holes.filter((h) => (h.state === "COVERED" || h.state === "CAMO") && h.bags === 0).length,
+        caught: m.caught,
+        missions: views
+      };
+      if (r.final !== r.deposited - r.discovered - r.exposedLeft) console.error("[MILLI\xC1RD\xC1S\xD3] report does not reconcile", r);
+      if (m.deposited + m.confiscatedCarried + m.van + m.carried !== TOTAL_BAGS) console.error("[MILLI\xC1RD\xC1S\xD3] bag count mismatch");
+      let best = 0;
+      try {
+        best = Number(localStorage.getItem("milliardaso-best") || 0);
+        if (r.final > best) {
+          best = r.final;
+          localStorage.setItem("milliardaso-best", String(best));
+        }
+      } catch {
+      }
+      this.lastReport = r;
+      showResults(r, best);
+      this.states.set("results");
+      this.hud.show(false);
+      this.audio.setMusic(false);
+      this.audio.end();
+    }
+    /** test hook */
+    debugTerrain() {
+      return { T };
+    }
+  };
+
+  // src/minimap.ts
+  var S = 8;
+  var MW = WORLD_W / S;
+  var MH = WORLD_H / S;
+  var Minimap = class {
+    constructor(canvas2, g2) {
+      this.canvas = canvas2;
+      canvas2.width = MW;
+      canvas2.height = MH;
+      this.ctx = canvas2.getContext("2d");
+      this.base = document.createElement("canvas");
+      this.base.width = MW;
+      this.base.height = MH;
+      const b = this.base.getContext("2d");
+      const L = g2.level;
+      const col = { [T.FLOOR]: "#15201a", [T.GRASS]: "#253a22", [T.TALL]: "#21351f", [T.ROAD]: "#56442f", [T.TRAIL]: "#4d4934" };
+      for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) {
+        b.fillStyle = col[L.terrainAt(x * S + 4, y * S + 4)];
+        b.fillRect(x, y, 1, 1);
+      }
+      for (const o of L.obstacles) {
+        if (o.kind === "tree") {
+          b.fillStyle = "rgba(6,12,9,0.75)";
+          b.fillRect(Math.floor(o.x / S), Math.floor(o.y / S), 1, 1);
+        } else if (o.kind === "rock") {
+          b.fillStyle = "#4a515c";
+          b.fillRect(Math.floor(o.x / S), Math.floor(o.y / S), 2, 1);
+        } else if (o.kind === "log") {
+          b.fillStyle = "#4a3523";
+          b.fillRect(Math.floor(o.x / S), Math.floor(o.y / S), Math.max(1, Math.round(o.w / S)), Math.max(1, Math.round(o.h / S)));
+        } else if (o.kind === "car") {
+          b.fillStyle = "#5a616c";
+          b.fillRect(Math.floor(o.x / S), Math.floor(o.y / S), 5, 3);
+        }
+      }
+      b.save();
+      b.beginPath();
+      b.rect(0, 0, MW, MH);
+      b.arc(L.van.doorX / S, L.van.doorY / S, L.remoteMin / S, 0, Math.PI * 2, true);
+      b.clip("evenodd");
+      b.fillStyle = "rgba(201,164,92,0.13)";
+      b.fillRect(0, 0, MW, MH);
+      b.strokeStyle = "rgba(201,164,92,0.22)";
+      for (let i = -MH; i < MW; i += 4) {
+        b.beginPath();
+        b.moveTo(i, MH);
+        b.lineTo(i + MH, 0);
+        b.stroke();
+      }
+      b.restore();
+      b.strokeStyle = "rgba(214,180,110,0.55)";
+      b.setLineDash([2, 2]);
+      b.beginPath();
+      b.arc(L.van.doorX / S, L.van.doorY / S, L.remoteMin / S, 0, Math.PI * 2);
+      b.stroke();
+      b.setLineDash([]);
+    }
+    render(g2) {
+      const ctx = this.ctx;
+      const t = g2.clock;
+      ctx.clearRect(0, 0, MW, MH);
+      ctx.drawImage(this.base, 0, 0);
+      const L = g2.level;
+      ctx.fillStyle = "#e9edf0";
+      ctx.fillRect(Math.round(L.van.x / S), Math.round(L.van.y / S), 5, 7);
+      ctx.fillStyle = "#d23a2b";
+      ctx.fillRect(Math.round(L.van.x / S), Math.round(L.van.y / S) + 6, 1, 1);
+      ctx.fillRect(Math.round(L.van.x / S) + 4, Math.round(L.van.y / S) + 6, 1, 1);
+      ctx.strokeStyle = "rgba(230,225,210,0.22)";
+      ctx.strokeRect(Math.round(g2.camX / S) + 0.5, Math.round(g2.camY / S) + 0.5, Math.round(VIEW_W / S), Math.round(VIEW_H / S));
+      for (const h of g2.dig.holes) {
+        const x2 = Math.round(h.x / S), y2 = Math.round(h.y / S);
+        if (h.state === "EXCAVATED") {
+          ctx.fillStyle = "#d0483a";
+          ctx.fillRect(x2 - 1, y2 - 1, 1, 1);
+          ctx.fillRect(x2 + 1, y2 - 1, 1, 1);
+          ctx.fillRect(x2, y2, 1, 1);
+          ctx.fillRect(x2 - 1, y2 + 1, 1, 1);
+          ctx.fillRect(x2 + 1, y2 + 1, 1, 1);
+          continue;
+        }
+        let c = "#7a7f86";
+        if (h.state === "DIGGING" || h.state === "OPEN") c = "#c8803a";
+        else if (h.state === "FILLED") c = Math.floor(t * 4) % 2 ? "#f0b84a" : "#c8803a";
+        else if (h.bags > 0) c = h.state === "CAMO" ? "#93c272" : "#d6b468";
+        ctx.fillStyle = c;
+        ctx.fillRect(x2 - 1, y2 - 1, 2, 2);
+      }
+      for (const inv of g2.investigators) {
+        if (inv.state === "SUSPICIOUS" || inv.state === "INVESTIGATE" || inv.state === "SEARCH") {
+          const tgt = inv.hole || inv.target;
+          if (!tgt) continue;
+          const r = 4 + (Math.sin(t * 4 + inv.id) + 1) * 1.2;
+          ctx.strokeStyle = "rgba(226,184,92,0.85)";
+          ctx.beginPath();
+          ctx.arc(tgt.x / S, tgt.y / S, r, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (inv.state === "CHASE") {
+          const r = 5 + (Math.sin(t * 8) + 1) * 1.5;
+          ctx.strokeStyle = "rgba(224,90,70,0.9)";
+          ctx.beginPath();
+          ctx.arc(inv.x / S, inv.y / S, r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+      for (const inv of g2.investigators) {
+        const age = t - inv.seenAt;
+        if (!(inv.visibleToPlayer || age < 4)) continue;
+        const px = inv.visibleToPlayer ? inv.x : inv.seenX, py = inv.visibleToPlayer ? inv.y : inv.seenY;
+        const x2 = Math.round(px / S), y2 = Math.round(py / S);
+        ctx.globalAlpha = inv.visibleToPlayer ? 1 : Math.max(0, 1 - age / 4) * 0.7;
+        if (inv.visibleToPlayer) {
+          ctx.fillStyle = "rgba(255,214,150,0.35)";
+          ctx.beginPath();
+          ctx.moveTo(px / S, py / S);
+          ctx.arc(px / S, py / S, inv.range / S, inv.lookA - inv.half, inv.lookA + inv.half);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.fillStyle = "#e05a46";
+        ctx.fillRect(x2 - 1, y2 - 1, 3, 3);
+        ctx.globalAlpha = 1;
+      }
+      const p = g2.player;
+      const a = Math.atan2(p.fy, p.fx);
+      const x = p.x / S, y = p.y / S;
+      ctx.fillStyle = "#f3e2b5";
+      ctx.strokeStyle = "#0b0f14";
+      ctx.beginPath();
+      ctx.moveTo(x + Math.cos(a) * 4, y + Math.sin(a) * 4);
+      ctx.lineTo(x + Math.cos(a + 2.5) * 3, y + Math.sin(a + 2.5) * 3);
+      ctx.lineTo(x + Math.cos(a - 2.5) * 3, y + Math.sin(a - 2.5) * 3);
+      ctx.closePath();
+      ctx.stroke();
+      ctx.fill();
+    }
+  };
+
+  // src/touch.ts
+  var TouchControls = class {
+    constructor(stage2, input2, isPlaying) {
+      this.stage = stage2;
+      this.input = input2;
+      this.isPlaying = isPlaying;
+      this.enabled = false;
+      this.stickId = null;
+      this.ox = 0;
+      this.oy = 0;
+      this.root = document.getElementById("touch");
+      this.base = document.getElementById("stickBase");
+      this.knob = document.getElementById("stickKnob");
+      const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+      if (coarse || "ontouchstart" in window) this.enable();
+      window.addEventListener("touchstart", () => this.enable(), { once: true, passive: true });
+      this.root.querySelectorAll("[data-key]").forEach((b) => {
+        const code = b.dataset.key;
+        const down = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          b.classList.add("down");
+          this.input.setVirtual(code, true);
+        };
+        const up = (e) => {
+          e.preventDefault();
+          b.classList.remove("down");
+          this.input.setVirtual(code, false);
+        };
+        b.addEventListener("touchstart", down, { passive: false });
+        b.addEventListener("touchend", up, { passive: false });
+        b.addEventListener("touchcancel", up, { passive: false });
+      });
+      const zone = document.getElementById("stickZone");
+      zone.addEventListener("touchstart", (e) => {
+        if (!this.isPlaying()) return;
+        e.preventDefault();
+        const t = e.changedTouches[0];
+        this.stickId = t.identifier;
+        const r = this.stage.getBoundingClientRect();
+        this.ox = t.clientX - r.left;
+        this.oy = t.clientY - r.top;
+        this.base.style.left = this.ox + "px";
+        this.base.style.top = this.oy + "px";
+        this.base.classList.add("on");
+        this.moveKnob(0, 0);
+        this.input.stick.active = true;
+      }, { passive: false });
+      zone.addEventListener("touchmove", (e) => {
+        for (const t of Array.from(e.changedTouches)) {
+          if (t.identifier !== this.stickId) continue;
+          e.preventDefault();
+          const r = this.stage.getBoundingClientRect();
+          const R = this.radius();
+          let dx = t.clientX - r.left - this.ox, dy = t.clientY - r.top - this.oy;
+          const d = Math.hypot(dx, dy);
+          if (d > R) {
+            dx = dx / d * R;
+            dy = dy / d * R;
+          }
+          this.moveKnob(dx, dy);
+          this.input.stick.x = dx / R;
+          this.input.stick.y = dy / R;
+        }
+      }, { passive: false });
+      const end = (e) => {
+        for (const t of Array.from(e.changedTouches)) {
+          if (t.identifier !== this.stickId) continue;
+          this.stickId = null;
+          this.base.classList.remove("on");
+          this.input.stick.active = false;
+          this.input.stick.x = 0;
+          this.input.stick.y = 0;
+        }
+      };
+      zone.addEventListener("touchend", end);
+      zone.addEventListener("touchcancel", end);
+      window.addEventListener("resize", () => this.checkOrientation());
+      window.addEventListener("orientationchange", () => setTimeout(() => this.checkOrientation(), 200));
+    }
+    radius() {
+      return this.stage.getBoundingClientRect().width * 0.05;
+    }
+    moveKnob(dx, dy) {
+      this.knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    }
+    enable() {
+      if (this.enabled) return;
+      this.enabled = true;
+      document.body.classList.add("touch");
+      this.checkOrientation();
+    }
+    checkOrientation() {
+      if (!this.enabled) return;
+      const portrait = window.innerHeight > window.innerWidth;
+      document.body.classList.toggle("portrait", portrait);
+    }
+    /** Release everything (pause, screen change). */
+    reset() {
+      this.root.querySelectorAll(".down").forEach((b) => b.classList.remove("down"));
+      this.stickId = null;
+      this.base.classList.remove("on");
+    }
+  };
+  function touchify(text) {
+    if (!document.body.classList.contains("touch")) return text;
+    return text.replace(/SPACE/g, "\xC1S\xD3").replace(/(^|[\s:·(])E(?=$|[\s·)])/g, "$1P\xC9NZ");
+  }
+
+  // src/hud.ts
+  var $2 = (id) => document.getElementById(id);
+  var HUD = class {
+    constructor() {
+      this.root = $2("hud");
+      this.hidden = $2("hidden");
+      this.pending = $2("pending");
+      this.riskSeg = $2("risk");
+      this.riskPct = $2("riskPct");
+      this.authSeg = $2("auth");
+      this.authLbl = $2("authLbl");
+      this.phaseLbl = $2("phaseLbl");
+      this.time = $2("time");
+      this.timerBox = $2("timer");
+      this.pen = $2("pen");
+      this.stam = $2("stam");
+      this.slots = $2("slots");
+      this.carried = $2("carried");
+      this.vanLeft = $2("vanLeft");
+      this.feed = $2("feed");
+      this.prompt = $2("prompt");
+      this.pframe = $2("pframe");
+      this.mMain = $2("mMain");
+      this.mSide = $2("mSide");
+      this.minimap = null;
+      this.last = {};
+      this.recent = /* @__PURE__ */ new Map();
+      drawPortrait($2("pcanvas"));
+      for (let i = 0; i < 10; i++) this.riskSeg.appendChild(document.createElement("i"));
+      for (let i = 0; i < 9; i++) this.authSeg.appendChild(document.createElement("i"));
+    }
+    attach(g2) {
+      this.minimap = new Minimap($2("minimap"), g2);
+    }
+    show(on) {
+      this.root.classList.toggle("on", on);
+    }
+    set(key, v, fn) {
+      if (this.last[key] === v) return;
+      this.last[key] = v;
+      fn();
+    }
+    reset() {
+      this.last = {};
+      this.feed.innerHTML = "";
+      this.recent.clear();
+    }
+    update(g2) {
+      const hiddenBags = g2.money.hiddenBags(g2.dig.holes);
+      this.set("hidden", hiddenBags, () => {
+        const prev = this.last["hiddenPrev"] ?? 0;
+        this.hidden.textContent = fmtFt(hiddenBags * BAG_VALUE);
+        this.hidden.classList.remove("bump", "loss");
+        void this.hidden.offsetWidth;
+        if (hiddenBags > prev) this.hidden.classList.add("bump");
+        else if (hiddenBags < prev) this.hidden.classList.add("loss");
+        this.last["hiddenPrev"] = hiddenBags;
+      });
+      const pend = g2.money.exposedBags(g2.dig.holes);
+      this.set("pend", pend, () => {
+        this.pending.textContent = pend > 0 ? touchify(`+ ${fmtFt(pend * BAG_VALUE)} fedetlen g\xF6d\xF6rben`) : "";
+      });
+      const risk = Math.round(g2.exposure * 100);
+      this.set("risk", risk, () => {
+        this.riskPct.textContent = risk + "%";
+        const n = Math.round(risk / 10);
+        [...this.riskSeg.children].forEach((el, i) => {
+          el.classList.toggle("on", i < n);
+          el.classList.toggle("hi", i >= 7);
+        });
+      });
+      this.set("chase", g2.chasing, () => this.pframe.classList.toggle("alarm", g2.chasing));
+      const active = g2.investigators.length;
+      this.set("auth", g2.phaseIdx * 10 + active, () => {
+        const n = (g2.phaseIdx + 1) * 3;
+        [...this.authSeg.children].forEach((el, i) => el.classList.toggle("on", i < n));
+        this.authLbl.textContent = PHASES[g2.phaseIdx].name;
+        this.phaseLbl.textContent = `HAT\xD3S\xC1GI JELENL\xC9T: ${active} NYOMOZ\xD3`;
+      });
+      const tt = fmtTime(g2.remaining);
+      this.set("time", tt, () => {
+        this.time.textContent = tt;
+        this.timerBox.classList.toggle("low", g2.remaining <= 30);
+      });
+      const st = Math.round(g2.player.stamina * 100);
+      this.set("stam", st + (g2.player.exhausted ? "x" : ""), () => {
+        this.stam.firstElementChild.style.width = st + "%";
+        this.stam.classList.toggle("ex", g2.player.exhausted);
+      });
+      this.set("carried", g2.money.carried, () => {
+        [...this.slots.children].forEach((el, i) => el.classList.toggle("on", i < g2.money.carried));
+        this.carried.textContent = fmtFt(g2.money.carried * BAG_VALUE);
+      });
+      this.set("van", g2.money.van, () => {
+        this.vanLeft.textContent = `${g2.money.van} zs\xE1k`;
+      });
+      const views = g2.missions.views(hiddenBags);
+      const sig = views.map((v) => `${v.done}${v.failed}${v.progress}`).join("|");
+      this.set("missions", sig, () => {
+        this.mMain.innerHTML = this.missionHTML(views[0]);
+        this.mSide.innerHTML = views.slice(1).map((v) => this.missionHTML(v)).join("");
+      });
+      for (const v of g2.missions.newlyDone(views)) {
+        this.note(v.id === "main" ? "F\u0151k\xFCldet\xE9s teljes\xEDtve. A teljes vagyon talajszint alatt." : `Mell\xE9kk\xFCldet\xE9s teljes\xEDtve: ${v.text.replace("!", ".")}`, "good");
+        setTimeout(() => {
+          const el = document.querySelector(`.mi[data-id="${v.id}"]`);
+          el?.classList.add("flash");
+        }, 30);
+        g2.audio.notify();
+      }
+      this.minimap?.render(g2);
+      this.updatePrompt(g2);
+    }
+    missionHTML(v) {
+      const cls = v.done ? "done" : v.failed ? "failed" : "";
+      return `<div class="mi ${cls}" data-id="${v.id}"><span class="box"></span><span><span class="t">${v.text}</span><span class="p mono">${v.progress}</span></span></div>`;
+    }
+    updatePrompt(g2) {
+      const pr = g2.prompt;
+      const key = pr ? pr.key + pr.text + (pr.deny ? "d" : "") : "";
+      this.set("prompt", key, () => {
+        this.prompt.classList.toggle("on", !!pr);
+        this.prompt.classList.toggle("deny", !!pr?.deny);
+        if (pr) {
+          this.prompt.querySelector(".k").textContent = touchify(pr.key);
+          this.prompt.querySelector(".t").textContent = touchify(pr.text);
+        }
+      });
+      if (pr) {
+        const sx = (g2.player.x - Math.round(g2.camX)) / VIEW_W * 100;
+        const sy = (g2.player.y - Math.round(g2.camY) - 38) / VIEW_H * 100;
+        this.prompt.style.left = sx + "%";
+        this.prompt.style.top = sy + "%";
+      }
+    }
+    note(text, kind = "", cooldown = 2.5) {
+      const now = performance.now() / 1e3;
+      const last2 = this.recent.get(text);
+      if (last2 !== void 0 && now - last2 < cooldown) return;
+      this.recent.set(text, now);
+      const el = document.createElement("div");
+      el.className = "note " + kind;
+      el.textContent = touchify(text);
+      this.feed.appendChild(el);
+      while (this.feed.children.length > 3) this.feed.firstElementChild.remove();
+      setTimeout(() => el.classList.add("out"), 3200);
+      setTimeout(() => el.remove(), 3900);
+    }
+    penalty() {
+      this.pen.classList.remove("show");
+      void this.pen.offsetWidth;
+      this.pen.classList.add("show");
+    }
+  };
+
+  // src/audio.ts
+  var AudioManager = class {
+    constructor() {
+      this.ctx = null;
+      this.muted = false;
+      this.seqStep = 0;
+      this.nextNote = 0;
+      this.timer = null;
+      this.intensity = 0;
+      // 0..2 (phase)
+      this.playing = false;
+      this.ambT = 0;
+    }
+    init() {
+      if (this.ctx) {
+        if (this.ctx.state === "suspended") this.ctx.resume();
+        return;
+      }
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      const ctx = new AC();
+      this.ctx = ctx;
+      this.master = ctx.createGain();
+      this.master.gain.value = this.muted ? 0 : 0.9;
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -18;
+      comp.ratio.value = 3;
+      this.master.connect(comp);
+      comp.connect(ctx.destination);
+      this.sfx = ctx.createGain();
+      this.sfx.gain.value = 0.8;
+      this.sfx.connect(this.master);
+      this.music = ctx.createGain();
+      this.music.gain.value = 0;
+      this.music.connect(this.master);
+      this.amb = ctx.createGain();
+      this.amb.gain.value = 0.5;
+      this.amb.connect(this.master);
+      const len = ctx.sampleRate * 2;
+      this.noise = ctx.createBuffer(1, len, ctx.sampleRate);
+      const d = this.noise.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      this.startAmbience();
+      this.timer = window.setInterval(() => this.schedule(), 25);
+    }
+    setMuted(m) {
+      this.muted = m;
+      if (this.ctx) this.master.gain.setTargetAtTime(m ? 0 : 0.9, this.ctx.currentTime, 0.05);
+    }
+    setMusic(on) {
+      this.playing = on;
+      if (!this.ctx) return;
+      this.music.gain.setTargetAtTime(on ? 0.55 : 0, this.ctx.currentTime, 0.4);
+      if (on && this.nextNote < this.ctx.currentTime) {
+        this.nextNote = this.ctx.currentTime + 0.05;
+      }
+    }
+    // ------------------------------------------------------------------ primitives
+    nz(dur, freq, q, gain, type = "bandpass", when = 0, dest) {
+      if (!this.ctx) return;
+      const ctx = this.ctx, t = ctx.currentTime + when;
+      const src = ctx.createBufferSource();
+      src.buffer = this.noise;
+      src.playbackRate.value = 0.8 + Math.random() * 0.4;
+      const f2 = ctx.createBiquadFilter();
+      f2.type = type;
+      f2.frequency.value = freq;
+      f2.Q.value = q;
+      const g2 = ctx.createGain();
+      g2.gain.setValueAtTime(0, t);
+      g2.gain.linearRampToValueAtTime(gain, t + Math.min(0.01, dur * 0.2));
+      g2.gain.exponentialRampToValueAtTime(1e-4, t + dur);
+      src.connect(f2);
+      f2.connect(g2);
+      g2.connect(dest || this.sfx);
+      src.start(t, Math.random() * 1.5);
+      src.stop(t + dur + 0.05);
+    }
+    tone(freq, dur, gain, type = "sine", when = 0, dest, slideTo) {
+      if (!this.ctx) return;
+      const ctx = this.ctx, t = ctx.currentTime + when;
+      const o = ctx.createOscillator();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t);
+      if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+      const g2 = ctx.createGain();
+      g2.gain.setValueAtTime(0, t);
+      g2.gain.linearRampToValueAtTime(gain, t + 5e-3);
+      g2.gain.exponentialRampToValueAtTime(1e-4, t + dur);
+      o.connect(g2);
+      g2.connect(dest || this.sfx);
+      o.start(t);
+      o.stop(t + dur + 0.05);
+    }
+    // ------------------------------------------------------------------ foley
+    step(terrain, run) {
+      const v = run ? 0.16 : 0.11;
+      if (terrain === 3) {
+        this.nz(0.12, 380, 1.2, v * 1.3, "lowpass");
+        this.nz(0.05, 900, 3, v * 0.4, "bandpass", 0.03);
+      } else if (terrain === 2 || terrain === 1) {
+        this.nz(0.09, 2600, 0.9, v * 0.8);
+        this.nz(0.06, 5200, 1, v * 0.3, "highpass", 0.02);
+      } else {
+        this.nz(0.08, 1500, 1.1, v);
+        this.nz(0.03, 3400, 2, v * 0.35, "bandpass", 0.02);
+      }
+    }
+    invStep(vol) {
+      this.nz(0.07, 1300, 1.2, 0.05 * vol);
+    }
+    shovel() {
+      this.nz(0.09, 2200, 4, 0.22, "bandpass");
+      this.nz(0.18, 260, 1, 0.25, "lowpass", 0.03);
+      this.tone(1450, 0.05, 0.03, "triangle");
+    }
+    soil() {
+      this.nz(0.35, 500, 0.8, 0.16, "lowpass");
+      this.nz(0.25, 1800, 1, 0.05, "bandpass", 0.1);
+    }
+    leaves() {
+      this.nz(0.3, 3800, 0.7, 0.08, "bandpass");
+    }
+    pickup() {
+      this.nz(0.12, 700, 1, 0.22, "lowpass");
+      this.nz(0.16, 3e3, 1, 0.06, "bandpass", 0.04);
+    }
+    deposit() {
+      this.tone(90, 0.18, 0.22, "sine", 0, void 0, 55);
+      this.nz(0.18, 600, 1, 0.18, "lowpass", 0.01);
+    }
+    click() {
+      this.tone(2400, 0.015, 0.1, "square");
+      this.tone(1200, 0.02, 0.06, "square", 0.06);
+    }
+    whistle() {
+      if (!this.ctx) return;
+      for (const w of [0, 0.32]) {
+        const ctx = this.ctx, t = ctx.currentTime + w;
+        const o = ctx.createOscillator();
+        o.type = "sine";
+        o.frequency.value = 2650;
+        const lfo = ctx.createOscillator();
+        lfo.frequency.value = 32;
+        const lg = ctx.createGain();
+        lg.gain.value = 70;
+        lfo.connect(lg);
+        lg.connect(o.frequency);
+        const g2 = ctx.createGain();
+        g2.gain.setValueAtTime(0, t);
+        g2.gain.linearRampToValueAtTime(0.09, t + 0.02);
+        g2.gain.setValueAtTime(0.09, t + 0.2);
+        g2.gain.exponentialRampToValueAtTime(1e-4, t + 0.26);
+        o.connect(g2);
+        g2.connect(this.sfx);
+        o.start(t);
+        lfo.start(t);
+        o.stop(t + 0.3);
+        lfo.stop(t + 0.3);
+      }
+    }
+    vehicle() {
+      if (!this.ctx) return;
+      const ctx = this.ctx, t = ctx.currentTime;
+      const src = ctx.createBufferSource();
+      src.buffer = this.noise;
+      src.loop = true;
+      const f2 = ctx.createBiquadFilter();
+      f2.type = "lowpass";
+      f2.frequency.value = 160;
+      const g2 = ctx.createGain();
+      g2.gain.setValueAtTime(0, t);
+      g2.gain.linearRampToValueAtTime(0.25, t + 1.5);
+      g2.gain.linearRampToValueAtTime(1e-4, t + 4.5);
+      src.connect(f2);
+      f2.connect(g2);
+      g2.connect(this.amb);
+      src.start(t);
+      src.stop(t + 4.6);
+      this.tone(48, 4, 0.06, "sawtooth", 0, this.amb, 42);
+      this.tone(1e3, 0.03, 0.03, "square", 4.2);
+      this.nz(0.12, 400, 1, 0.12, "lowpass", 4.25, this.amb);
+    }
+    caught() {
+      this.tone(180, 0.35, 0.12, "triangle", 0, void 0, 120);
+      this.nz(0.2, 800, 1, 0.1, "lowpass");
+    }
+    confiscated() {
+      this.tone(330, 0.25, 0.06, "triangle");
+      this.tone(247, 0.4, 0.06, "triangle", 0.18);
+    }
+    notify() {
+      this.tone(1320, 0.06, 0.035, "sine");
+      this.tone(1760, 0.08, 0.025, "sine", 0.07);
+    }
+    ui() {
+      this.tone(900, 0.03, 0.05, "square");
+    }
+    denied() {
+      this.tone(220, 0.08, 0.05, "square");
+    }
+    end() {
+      this.tone(392, 0.5, 0.07, "triangle");
+      this.tone(294, 0.8, 0.07, "triangle", 0.35);
+      this.tone(196, 1.2, 0.06, "triangle", 0.8);
+    }
+    // ------------------------------------------------------------------ ambience
+    startAmbience() {
+      if (!this.ctx) return;
+      const ctx = this.ctx;
+      const src = ctx.createBufferSource();
+      src.buffer = this.noise;
+      src.loop = true;
+      const f2 = ctx.createBiquadFilter();
+      f2.type = "lowpass";
+      f2.frequency.value = 420;
+      const g2 = ctx.createGain();
+      g2.gain.value = 0.05;
+      const lfo = ctx.createOscillator();
+      lfo.frequency.value = 0.07;
+      const lg = ctx.createGain();
+      lg.gain.value = 180;
+      lfo.connect(lg);
+      lg.connect(f2.frequency);
+      src.connect(f2);
+      f2.connect(g2);
+      g2.connect(this.amb);
+      src.start();
+      lfo.start();
+    }
+    tickAmbience(dt) {
+      if (!this.ctx) return;
+      this.ambT -= dt;
+      if (this.ambT > 0) return;
+      this.ambT = 4 + Math.random() * 9;
+      const r = Math.random();
+      if (r < 0.3) {
+        this.tone(520, 0.35, 0.02, "sine", 0, this.amb, 470);
+        this.tone(540, 0.5, 0.016, "sine", 0.55, this.amb, 480);
+      } else if (r < 0.6) {
+        this.nz(0.04, 2500, 3, 0.05, "bandpass", 0, this.amb);
+      } else if (r < 0.8) {
+        this.tone(1900 + Math.random() * 600, 0.06, 0.025, "sine", 0, this.amb, 1200);
+      } else {
+        this.nz(2.5, 200, 0.7, 0.03, "lowpass", 0, this.amb);
+      }
+    }
+    // ------------------------------------------------------------------ music
+    schedule() {
+      if (!this.ctx || !this.playing) return;
+      const ctx = this.ctx;
+      const bpm = [92, 100, 112][this.intensity] || 92;
+      const stepDur = 60 / bpm / 4;
+      while (this.nextNote < ctx.currentTime + 0.12) {
+        this.playStep(this.seqStep, this.nextNote - ctx.currentTime);
+        this.nextNote += stepDur;
+        this.seqStep = (this.seqStep + 1) % 64;
+      }
+    }
+    playStep(s, w) {
+      const i = this.intensity;
+      const m = this.music;
+      const st = s % 16;
+      if (st === 0 || st === 8 || i >= 1 && st === 11 || i >= 2 && st === 14) this.tone(110, 0.22, 0.32, "sine", w, m, 42);
+      if (st % 4 === 2 || i >= 1 && st % 2 === 1 && Math.random() < 0.35) this.nz(0.03, 8e3, 1, i >= 2 ? 0.05 : 0.035, "highpass", w, m);
+      if ((st === 4 || st === 12) && i >= 1) this.nz(0.05, 1800, 6, 0.06, "bandpass", w, m);
+      const bass = [45, 0, 45, 0, 0, 45, 0, 48, 45, 0, 45, 0, 43, 0, 0, 40];
+      const bar = Math.floor(s / 16);
+      const n = bass[st];
+      if (n) {
+        const shift = bar === 3 ? -2 : 0;
+        const f2 = 440 * Math.pow(2, (n + shift - 69) / 12);
+        this.tone(f2, 0.16, 0.12, "triangle", w, m);
+        this.tone(f2 * 2, 0.06, 0.03, "square", w, m);
+      }
+      if (st === 6 && (bar === 1 || bar === 3)) this.tone(bar === 1 ? 1046.5 : 987.8, 0.4, 0.035, "sine", w, m);
+      if (i >= 2 && st % 2 === 0) this.tone(1760, 0.04, 0.015, "square", w, m);
+    }
+  };
+
+  // src/input.ts
+  var BLOCK = /* @__PURE__ */ new Set(["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Tab"]);
+  var Input = class {
+    constructor() {
+      this.down = /* @__PURE__ */ new Set();
+      this.pressedThisFrame = /* @__PURE__ */ new Set();
+      this.onAnyKey = null;
+      this.virt = /* @__PURE__ */ new Set();
+      this.stick = { x: 0, y: 0, active: false };
+      window.addEventListener("keydown", (e) => {
+        if (BLOCK.has(e.code)) e.preventDefault();
+        if (!this.down.has(e.code)) this.pressedThisFrame.add(e.code);
+        this.down.add(e.code);
+        if (this.onAnyKey && !e.repeat) this.onAnyKey(e.code);
+      });
+      window.addEventListener("keyup", (e) => {
+        this.down.delete(e.code);
+      });
+      window.addEventListener("blur", () => this.down.clear());
+    }
+    /** Touch buttons feed the same key codes as the keyboard. */
+    setVirtual(code, down) {
+      if (down && !this.virt.has(code)) this.pressedThisFrame.add(code);
+      if (down) this.virt.add(code);
+      else this.virt.delete(code);
+    }
+    isDown(...codes) {
+      for (const c of codes) if (this.down.has(c) || this.virt.has(c)) return true;
+      return false;
+    }
+    pressed(...codes) {
+      for (const c of codes) if (this.pressedThisFrame.has(c)) return true;
+      return false;
+    }
+    axis() {
+      if (this.stick.active && Math.hypot(this.stick.x, this.stick.y) > 0.22) return { x: this.stick.x, y: this.stick.y };
+      let x = 0, y = 0;
+      if (this.isDown("KeyA", "ArrowLeft")) x -= 1;
+      if (this.isDown("KeyD", "ArrowRight")) x += 1;
+      if (this.isDown("KeyW", "ArrowUp")) y -= 1;
+      if (this.isDown("KeyS", "ArrowDown")) y += 1;
+      return { x, y };
+    }
+    endFrame() {
+      this.pressedThisFrame.clear();
+    }
+    clear() {
+      this.down.clear();
+      this.virt.clear();
+      this.stick.active = false;
+      this.stick.x = 0;
+      this.stick.y = 0;
+      this.pressedThisFrame.clear();
+    }
+  };
+
+  // src/main.ts
+  var stage = document.getElementById("stage");
+  var canvas = document.getElementById("game");
+  function fit() {
+    const w = window.innerWidth, h = window.innerHeight;
+    const s = Math.min(w / 960, h / 540);
+    stage.style.width = `${960 * s}px`;
+    stage.style.height = `${540 * s}px`;
+    stage.style.setProperty("--u", `${s}px`);
+    stage.style.setProperty("--su", `${s}px`);
+  }
+  window.addEventListener("resize", fit);
+  fit();
+  var input = new Input();
+  var audio = new AudioManager();
+  var hud = new HUD();
+  var game = new Game(canvas, hud, audio, input);
+  window.__game = game;
+  var touch = new TouchControls(stage, input, () => game.states.state === "playing");
+  game.states.onChange = (s) => {
+    document.body.classList.toggle("playing", s === "playing");
+    if (s !== "playing") {
+      touch.reset();
+      input.clear();
+    }
+  };
+  document.getElementById("tpause").addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    pause();
+  }, { passive: false });
+  document.getElementById("tpause").addEventListener("click", () => pause());
+  window.addEventListener("resize", () => {
+    if (document.body.classList.contains("portrait")) pause();
+  });
+  function syncMuteLabels() {
+    const t = audio.muted ? "HANG: KI" : "HANG: BE";
+    document.querySelectorAll(".ml").forEach((el) => el.textContent = t);
+    document.getElementById("mute").textContent = `M \u2014 ${t}`;
+  }
+  function bestLine() {
+    let best = 0;
+    try {
+      best = Number(localStorage.getItem("milliardaso-best") || 0);
+    } catch {
+    }
+    document.getElementById("bestLine").textContent = best > 0 ? `Eddigi legjobb meg\u0151rz\xF6tt vagyon: ${fmtFt(best)}` : "";
+  }
+  bestLine();
+  function act(a) {
+    audio.init();
+    audio.ui();
+    switch (a) {
+      case "start":
+      case "restart":
+        if (touch.enabled && !document.fullscreenElement) {
+          try {
+            document.documentElement.requestFullscreen?.({ navigationUI: "hide" })?.catch?.(() => {
+            });
+          } catch {
+          }
+        }
+        game.start();
+        break;
+      case "howto":
+        game.states.set("howto");
+        break;
+      case "back":
+        game.states.backFromHowto();
+        break;
+      case "resume":
+        resume();
+        break;
+      case "menu":
+        game.reset();
+        game.hud.show(false);
+        audio.setMusic(false);
+        game.states.set("menu");
+        bestLine();
+        break;
+      case "mute":
+        audio.setMuted(!audio.muted);
+        syncMuteLabels();
+        break;
+    }
+  }
+  function pause() {
+    if (game.states.state !== "playing") return;
+    document.getElementById("pauseTime").textContent = fmtTime(game.remaining);
+    game.states.set("paused");
+    audio.setMusic(false);
+    input.clear();
+  }
+  function resume() {
+    if (game.states.state !== "paused") return;
+    game.states.set("playing");
+    audio.setMusic(true);
+    input.clear();
+  }
+  document.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", (e) => {
+    e.preventDefault();
+    act(b.dataset.act);
+    b.blur();
+  }));
+  document.getElementById("mute").addEventListener("click", () => act("mute"));
+  input.onAnyKey = (code) => {
+    const s = game.states.state;
+    if (code === "KeyM") {
+      act("mute");
+      return;
+    }
+    if (s === "playing") {
+      if (code === "Escape" || code === "KeyP") pause();
+      return;
+    }
+    if (s === "paused") {
+      if (code === "Escape" || code === "KeyP") resume();
+      else if (code === "KeyR") act("restart");
+      else if (code === "KeyH") act("howto");
+      else if (code === "KeyQ") act("menu");
+      return;
+    }
+    if (s === "menu") {
+      if (code === "Enter" || code === "Space") act("start");
+      else if (code === "KeyH") act("howto");
+      return;
+    }
+    if (s === "howto") {
+      if (code === "Escape" || code === "Backspace") act("back");
+      else if (code === "Enter") act("start");
+      return;
+    }
+    if (s === "results") {
+      if (code === "Enter" || code === "KeyR") act("restart");
+      else if (code === "KeyQ" || code === "Escape") act("menu");
+    }
+  };
+  window.addEventListener("blur", () => pause());
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) pause();
+  });
+  var last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1e3);
+    last = now;
+    game.update(dt);
+    input.endFrame();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+</script>
+</body>
+</html>
