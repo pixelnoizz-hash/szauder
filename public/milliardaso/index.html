@@ -314,7 +314,7 @@ body.touch .keyonly{display:none}
       <button class="btn" data-act="mute"><span class="ml">HANG: BE</span> <small>M</small></button>
     </div>
     <div class="best" id="bestLine"></div>
-    <div class="foot">Fiktív szatíra. Kitalált szereplők, kitalált erdő, valódi forint-elválasztók. · v1.3</div>
+    <div class="foot">Fiktív szatíra. Kitalált szereplők, kitalált erdő, valódi forint-elválasztók. · v1.4</div>
   </div>
 
   <!-- how to play -->
@@ -428,9 +428,9 @@ body.touch .keyonly{display:none}
     recoverThreshold: 0.3
   };
   var PHASES = [
-    { name: "ALACSONY", patrol: 36, suspicious: 50, chase: 84, range: 100, half: 0.42, notice: 1.45, investigate: 2.8, search: 3.2, probe: 0.22, sweepEvery: 0 },
-    { name: "FOKOZOTT", patrol: 40, suspicious: 56, chase: 88, range: 108, half: 0.46, notice: 1.85, investigate: 2.4, search: 2.8, probe: 0.32, sweepEvery: 22 },
-    { name: "RAZZIA", patrol: 47, suspicious: 64, chase: 94, range: 118, half: 0.5, notice: 2.4, investigate: 1.9, search: 2.2, probe: 0.48, sweepEvery: 11 }
+    { name: "ALACSONY", patrol: 36, suspicious: 50, chase: 84, range: 100, half: 0.42, notice: 1.45, investigate: 2.8, search: 3.2, probe: 0.12, sweepEvery: 0 },
+    { name: "FOKOZOTT", patrol: 40, suspicious: 56, chase: 88, range: 108, half: 0.46, notice: 1.85, investigate: 2.4, search: 2.8, probe: 0.18, sweepEvery: 26 },
+    { name: "RAZZIA", patrol: 47, suspicious: 64, chase: 94, range: 118, half: 0.5, notice: 2.4, investigate: 1.9, search: 2.2, probe: 0.28, sweepEvery: 14 }
   ];
   var PHASE_START = [0, 60, 120];
   var SPAWN_SCHEDULE = [5, 60, 120, 127];
@@ -550,6 +550,8 @@ body.touch .keyonly{display:none}
     // "legtávolabbi erdőrész": farther than this from the van
     constructor(seed = 1956) {
       this.terrain = new Uint8Array(CW * CH);
+      this.canopy = new Uint8Array(CW * CH);
+      // 1 where tree crowns and trunks crowd the line of sight
       this.blocked = new Uint8Array(MAP_W * MAP_H);
       this.cost = new Float32Array(MAP_W * MAP_H);
       this.obstacles = [];
@@ -567,6 +569,15 @@ body.touch .keyonly{display:none}
       this.generateTerrain();
       this.placeObjects(seed);
       this.buildNavGrid();
+      for (const o of this.obstacles) {
+        if (o.kind !== "tree") continue;
+        const R = 11;
+        for (let cy = Math.floor((o.y - R) / CELL); cy <= Math.floor((o.y + R) / CELL); cy++)
+          for (let cx = Math.floor((o.x - R) / CELL); cx <= Math.floor((o.x + R) / CELL); cx++) {
+            if (cx < 0 || cy < 0 || cx >= CW || cy >= CH) continue;
+            if (Math.hypot(cx * CELL + 2 - o.x, cy * CELL + 2 - o.y) < R) this.canopy[cy * CW + cx] = 1;
+          }
+      }
       for (let i = 0; i < MAP_W * MAP_H; i++) this.bushGrid.push([]);
       for (const b of this.bushes) {
         const tx0 = Math.max(0, Math.floor((b.x - b.r) / TILE)), tx1 = Math.min(MAP_W - 1, Math.floor((b.x + b.r) / TILE));
@@ -601,6 +612,11 @@ body.touch .keyonly{display:none}
       const cx = Math.floor(x / CELL), cy = Math.floor(y / CELL);
       if (cx < 0 || cy < 0 || cx >= CW || cy >= CH) return T.FLOOR;
       return this.terrain[cy * CW + cx];
+    }
+    canopyAt(x, y) {
+      const cx = Math.floor(x / CELL), cy = Math.floor(y / CELL);
+      if (cx < 0 || cy < 0 || cx >= CW || cy >= CH) return 0;
+      return this.canopy[cy * CW + cx];
     }
     isDiggable(x, y) {
       const t = this.terrainAt(x, y);
@@ -905,6 +921,7 @@ body.touch .keyonly{display:none}
         if (this.coll.blocksSight(px, py)) return { dist: d, attn, blocked: true };
         const t = this.level.terrainAt(px, py);
         if (t === T.FLOOR) attn += 45e-4 * STEP;
+        if (this.level.canopyAt(px, py)) attn += 0.012 * STEP;
         if (this.level.bushAt(px, py)) attn += 0.045 * STEP;
         if (attn >= 1) return { dist: d, attn: 1, blocked: true };
       }
@@ -1278,6 +1295,7 @@ body.touch .keyonly{display:none}
         claimedBy: null,
         remote: this.level.isRemote(x, y),
         tall: this.level.terrainAt(x, y) === T.TALL,
+        floor: this.level.terrainAt(x, y) === T.FLOOR,
         everCamo: false
       };
       this.holes.push(h);
@@ -1326,6 +1344,12 @@ body.touch .keyonly{display:none}
     canDeposit(h) {
       return !!h && (h.state === "OPEN" || h.state === "FILLED") && h.bags < HOLE_CAPACITY;
     }
+    /** How far away a site can be made out at night, as a share of the flashlight's range. */
+    sightShare(h) {
+      if (h.state === "CAMO") return 0.28;
+      if (h.state === "COVERED") return 0.55;
+      return 1;
+    }
     /** How suspicious a site looks (before distance/cone factors). */
     suspicion(h, now) {
       let s = 0;
@@ -1338,16 +1362,17 @@ body.touch .keyonly{display:none}
           s = 1;
           break;
         case "COVERED":
-          s = 0.45;
+          s = 0.35;
           break;
         case "CAMO":
-          s = 0.1;
+          s = 0.05;
           break;
         default:
           return 0;
       }
       if (now - h.touched < 15) s *= 1.25;
-      if (h.tall) s *= 0.6;
+      if (h.tall) s *= 0.45;
+      else if (h.floor) s *= 0.7;
       return s;
     }
   };
@@ -1631,10 +1656,10 @@ body.touch .keyonly{display:none}
     startSweep(ctx) {
       const cands = ctx.dig.holes.filter((h) => h.state !== "EXCAVATED" && !h.claimedBy);
       let p;
-      if (cands.length && ctx.rnd() < 0.65) {
+      if (cands.length && ctx.rnd() < 0.4) {
         cands.sort((a2, b) => b.touched - a2.touched);
         const h = cands[Math.floor(Math.pow(ctx.rnd(), 2) * cands.length)];
-        const a = ctx.rnd() * Math.PI * 2, r = 15 + ctx.rnd() * 40;
+        const a = ctx.rnd() * Math.PI * 2, r = 35 + ctx.rnd() * 45;
         p = ctx.level.snapWalkable(h.x + Math.cos(a) * r, h.y + Math.sin(a) * r);
       } else p = ctx.level.randomOpenPoint(ctx.rnd);
       this.target = p;
@@ -1646,12 +1671,13 @@ body.touch .keyonly{display:none}
     probe(dt, ctx) {
       for (const h of ctx.dig.holes) {
         if (h.state === "EXCAVATED" || h.claimedBy) continue;
-        if (dist(h.x, h.y, this.x, this.y) > 46) continue;
+        if (dist(h.x, h.y, this.x, this.y) > 36) continue;
         let rate = 0;
         if (h.state === "CAMO") rate = ctx.phase.probe;
-        else if (h.state === "COVERED") rate = 0.8;
-        else rate = 1.6;
-        if (h.tall) rate *= 0.7;
+        else if (h.state === "COVERED") rate = 0.45;
+        else rate = 1.4;
+        if (h.tall) rate *= 0.6;
+        else if (h.floor) rate *= 0.8;
         if (ctx.rnd() < rate * dt) {
           this.claim(h, ctx);
           this.timer = Math.min(this.timer, ctx.phase.investigate * 0.5);
@@ -1722,16 +1748,17 @@ body.touch .keyonly{display:none}
       for (const h of ctx.dig.holes) {
         if (h.state === "EXCAVATED") continue;
         const hd = dist(h.x, h.y, this.x, this.y);
-        if (hd > this.range) continue;
+        const reach = this.range * ctx.dig.sightShare(h);
+        if (hd > reach) continue;
         const s = ctx.dig.suspicion(h, ctx.now);
         if (s <= 0) continue;
         const hang = Math.atan2(h.y - this.y, h.x - this.x);
         const hin = Math.abs(angleDiff(this.lookA, hang)) <= this.half;
-        if (!hin && hd > 28) continue;
+        if (!hin && hd > 18) continue;
         const hlos = ctx.det.lineOfSight(this.x, this.y, h.x, h.y);
         if (hlos <= 0) continue;
-        let v = hin ? s * (1 - hd / this.range * 0.55) * hlos : 0;
-        if (hd < 28) v = Math.max(v, s * 1.2 * hlos);
+        let v = hin ? s * (1 - hd / reach * 0.6) * hlos : 0;
+        if (hd < 18) v = Math.max(v, s * 1.1 * hlos);
         h.notice = Math.min(1.2, h.notice + v * P.notice * 1.6 * dt);
         if (h.notice >= 1 && !h.claimedBy) {
           const free = this.state === "PATROL" || this.state === "RETURN" || this.state === "ENTER" || this.state === "SUSPICIOUS" && !this.hole || this.state === "INVESTIGATE" && !this.hole;
@@ -3014,7 +3041,7 @@ body.touch .keyonly{display:none}
           let alpha = 1;
           for (const q of people) {
             if (q.y < o.y - 1 && q.y > o.y - 44 && Math.abs(q.x - o.x) < 15) {
-              alpha = 0.42;
+              alpha = 0.62;
               break;
             }
           }
