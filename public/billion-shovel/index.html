@@ -143,10 +143,10 @@ html,body{width:100%;height:100%;background:#05070b;overflow:hidden;touch-action
 #touch{position:absolute;inset:0;display:none;pointer-events:none}
 body.touch.playing #touch{display:block}
 #stickZone{position:absolute;left:0;top:18%;width:45%;bottom:0;pointer-events:auto}
-#stickBase{position:absolute;width:calc(var(--su)*96);height:calc(var(--su)*96);margin:calc(var(--su)*-48) 0 0 calc(var(--su)*-48);border-radius:50%;
-  border:1px solid rgba(214,180,104,.35);background:rgba(10,14,20,.35);opacity:0;transition:opacity .15s}
+#stickBase{position:absolute;pointer-events:none;width:calc(var(--su)*128);height:calc(var(--su)*128);margin:calc(var(--su)*-64) 0 0 calc(var(--su)*-64);border-radius:50%;
+  border:1px solid rgba(214,180,104,.35);background:rgba(10,14,20,.35);opacity:.32;transition:opacity .15s}
 #stickBase.on{opacity:1}
-#stickKnob{position:absolute;left:50%;top:50%;width:calc(var(--su)*42);height:calc(var(--su)*42);border-radius:50%;background:rgba(214,180,104,.35);border:1px solid var(--gold);transform:translate(-50%,-50%)}
+#stickKnob{position:absolute;left:50%;top:50%;width:calc(var(--su)*52);height:calc(var(--su)*52);border-radius:50%;background:rgba(214,180,104,.35);border:1px solid var(--gold);transform:translate(-50%,-50%)}
 .tbtns{position:absolute;right:calc(var(--su)*22);bottom:calc(var(--su)*20);width:calc(var(--su)*210);height:calc(var(--su)*170)}
 .tb{pointer-events:auto;position:absolute;border-radius:50%;border:1px solid var(--gold-dim);background:rgba(10,14,20,.62);color:var(--ink);
   font:inherit;font-weight:700;letter-spacing:.1em;font-size:calc(var(--su)*11);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(var(--su)*3)}
@@ -452,10 +452,11 @@ a.btn{text-decoration:none}
 (() => {
   // src/config.ts
   var VIEW_W = 480;
-  function setViewW(w) {
-    VIEW_W = w;
-  }
   var VIEW_H = 270;
+  function setView(w, h) {
+    VIEW_W = w;
+    VIEW_H = h;
+  }
   var TILE = 16;
   var MAP_W = 84;
   var MAP_H = 54;
@@ -1342,7 +1343,7 @@ a.btn{text-decoration:none}
     "start.title": "MILLI\xC1RD\xC1S\xD3",
     "start.sub": "VAGYONELREJT\u0150 2D ARCADE J\xC1T\xC9K",
     "start.tag": "A p\xE9nz nem v\xE9sz el, csak f\xF6ld al\xE1 ker\xFCl.",
-    "start.foot": "Fikt\xEDv szat\xEDra. Kital\xE1lt szerepl\u0151k, kital\xE1lt erd\u0151, val\xF3di forint-elv\xE1laszt\xF3k. \xB7 v1.6.1",
+    "start.foot": "Fikt\xEDv szat\xEDra. Kital\xE1lt szerepl\u0151k, kital\xE1lt erd\u0151, val\xF3di forint-elv\xE1laszt\xF3k. \xB7 v1.7",
     "start.best": "Eddigi legjobb meg\u0151rz\xF6tt vagyon: {amt}",
     "btn.start": "\xDAJ MENET",
     "btn.howto": "HOGYAN J\xC1TSSZ",
@@ -1482,7 +1483,7 @@ a.btn{text-decoration:none}
     "start.title": "BILLION SHOVEL",
     "start.sub": "A 2D ARCADE GAME OF ASSET CONCEALMENT",
     "start.tag": "Money never disappears. It just goes underground.",
-    "start.foot": "Fictional satire. Invented characters, invented forest, real thousand separators. \xB7 v1.6.1",
+    "start.foot": "Fictional satire. Invented characters, invented forest, real thousand separators. \xB7 v1.7",
     "start.best": "Best protected assets so far: {amt}",
     "btn.start": "NEW RUN",
     "btn.howto": "HOW TO PLAY",
@@ -3338,7 +3339,7 @@ a.btn{text-decoration:none}
       ctx.closePath();
     }
     render(main, lights, darkness, alarm) {
-      if (this.w !== VIEW_W) this.resize();
+      if (this.w !== VIEW_W || this.c.height !== VIEW_H) this.resize();
       const ctx = this.ctx;
       ctx.globalCompositeOperation = "source-over";
       ctx.clearRect(0, 0, VIEW_W, VIEW_H);
@@ -3414,8 +3415,9 @@ a.btn{text-decoration:none}
       for (let i = 0; i < 14; i++) this.fogs.push({ x: hash2(i, 1, 9) * 1344, y: hash2(i, 2, 9) * 864, s: 1.5 + hash2(i, 3, 9) * 2, v: 2 + hash2(i, 4, 9) * 4 });
     }
     render(g2) {
-      if (this.canvas.width !== VIEW_W) {
+      if (this.canvas.width !== VIEW_W || this.canvas.height !== VIEW_H) {
         this.canvas.width = VIEW_W;
+        this.canvas.height = VIEW_H;
         this.ctx.imageSmoothingEnabled = false;
       }
       const ctx = this.ctx;
@@ -3453,9 +3455,20 @@ a.btn{text-decoration:none}
         for (const q of people) if (Math.hypot(q.x - b.x, q.y - b.y) < b.r) inside = true;
         items.push({ y: inside ? b.y + 30 : b.y + b.r * 0.4, d: () => env.drawBush(ctx, b, b.x - cx, b.y - cy, inside ? 0.82 : 1) });
       }
+      const assist = document.body.classList.contains("touch");
       items.push({
         y: p.y,
         d: () => {
+          if (assist) {
+            ctx.save();
+            ctx.globalAlpha = 0.55 + 0.15 * Math.sin(t2 * 3);
+            ctx.strokeStyle = "#d6b468";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.ellipse(Math.round(p.x - cx) + 0.5, Math.round(p.y - cy) + 0.5, 8, 3.5, 0, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+          }
           drawPolitician(ctx, p.x - cx, p.y - cy, {
             dir: p.dir,
             anim: p.anim,
@@ -3495,7 +3508,7 @@ a.btn{text-decoration:none}
       }
       ctx.globalAlpha = 1;
       const lights = [];
-      lights.push({ k: "radial", x: p.x - cx, y: p.y - cy - 8, r: 58, cut: 0.6 });
+      lights.push({ k: "radial", x: p.x - cx, y: p.y - cy - 8, r: assist ? 64 : 58, cut: assist ? 0.75 : 0.6, color: assist ? "rgba(255,214,150,0.10)" : void 0 });
       const v = L.van;
       lights.push({ k: "radial", x: v.doorX - cx, y: v.y + 50 - cy, r: 34, cut: 0.85, color: "rgba(255,190,120,0.30)" });
       lights.push({ k: "radial", x: v.x + 2 - cx, y: v.y + 50 - cy, r: 16, cut: 0.4, color: "rgba(230,50,30,0.55)", glow: 0.8 });
@@ -4239,6 +4252,10 @@ a.btn{text-decoration:none}
           let dx = p.x - this.ox, dy = p.y - this.oy;
           const d = Math.hypot(dx, dy);
           if (d > R) {
+            this.ox = p.x - dx / d * R;
+            this.oy = p.y - dy / d * R;
+            this.base.style.left = this.ox + "px";
+            this.base.style.top = this.oy + "px";
             dx = dx / d * R;
             dy = dy / d * R;
           }
@@ -4255,15 +4272,27 @@ a.btn{text-decoration:none}
           this.input.stick.active = false;
           this.input.stick.x = 0;
           this.input.stick.y = 0;
+          this.rest();
         }
       };
       zone.addEventListener("touchend", end);
       zone.addEventListener("touchcancel", end);
-      window.addEventListener("resize", () => this.checkOrientation());
+      window.addEventListener("resize", () => {
+        this.checkOrientation();
+        if (this.stickId === null) setTimeout(() => this.rest(), 50);
+      });
       window.addEventListener("orientationchange", () => setTimeout(() => this.checkOrientation(), 200));
     }
+    /** Knob travel: 52 stage units (the base ring is 128 units wide). */
     radius() {
-      return this.stage.offsetWidth * 0.05;
+      return this.stage.offsetHeight / 540 * 52;
+    }
+    /** Idle hint: a faint stick waits bottom-left, so first-time players know where to put the thumb. */
+    rest() {
+      this.base.style.left = this.stage.offsetWidth * 0.13 + "px";
+      this.base.style.top = this.stage.offsetHeight * 0.74 + "px";
+      this.base.classList.remove("on");
+      this.moveKnob(0, 0);
     }
     /** Client (screen) coordinates → unrotated stage coordinates, also when the stage is turned 90°. */
     toStage(cx, cy) {
@@ -4281,6 +4310,7 @@ a.btn{text-decoration:none}
       this.enabled = true;
       document.body.classList.add("touch");
       this.checkOrientation();
+      requestAnimationFrame(() => this.rest());
       this.onEnable?.();
     }
     checkOrientation() {
@@ -4292,7 +4322,7 @@ a.btn{text-decoration:none}
     reset() {
       this.root.querySelectorAll(".down").forEach((b) => b.classList.remove("down"));
       this.stickId = null;
-      this.base.classList.remove("on");
+      this.rest();
     }
   };
   function touchify(text) {
@@ -4772,7 +4802,7 @@ a.btn{text-decoration:none}
       return false;
     }
     axis() {
-      if (this.stick.active && Math.hypot(this.stick.x, this.stick.y) > 0.22) return { x: this.stick.x, y: this.stick.y };
+      if (this.stick.active && Math.hypot(this.stick.x, this.stick.y) > 0.16) return { x: this.stick.x, y: this.stick.y };
       let x = 0, y = 0;
       if (this.isDown("KeyA", "ArrowLeft")) x -= 1;
       if (this.isDown("KeyD", "ArrowRight")) x += 1;
@@ -4940,7 +4970,8 @@ a.btn{text-decoration:none}
     if (rotate) [w, h] = [h, w];
     document.body.classList.toggle("rotated", rotate);
     const vw = Math.max(480, Math.min(640, Math.round(270 * w / h / 2) * 2));
-    setViewW(vw);
+    const vh = document.body.classList.contains("touch") ? 208 : 270;
+    setView(Math.round(vw * vh / 270 / 2) * 2, vh);
     const s = Math.min(w / (vw * 2), h / 540);
     stage.style.width = `${vw * 2 * s}px`;
     stage.style.height = `${540 * s}px`;
