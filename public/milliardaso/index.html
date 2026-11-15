@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <title>MILLIÁRDÁSÓ</title>
+<script>window.__FORCE_LANG="hu"</script>
 <meta name="description" content="Egy öltönyös férfi, egy erdő, egy ásó, kilenc milliárd forint, három perc. Böngészős arcade-szatíra, telefonon is.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="MILLIÁRDÁSÓ — vagyonelrejtő 2D arcade játék">
@@ -1341,7 +1342,7 @@ a.btn{text-decoration:none}
     "start.title": "MILLI\xC1RD\xC1S\xD3",
     "start.sub": "VAGYONELREJT\u0150 2D ARCADE J\xC1T\xC9K",
     "start.tag": "A p\xE9nz nem v\xE9sz el, csak f\xF6ld al\xE1 ker\xFCl.",
-    "start.foot": "Fikt\xEDv szat\xEDra. Kital\xE1lt szerepl\u0151k, kital\xE1lt erd\u0151, val\xF3di forint-elv\xE1laszt\xF3k. \xB7 v1.6",
+    "start.foot": "Fikt\xEDv szat\xEDra. Kital\xE1lt szerepl\u0151k, kital\xE1lt erd\u0151, val\xF3di forint-elv\xE1laszt\xF3k. \xB7 v1.6.1",
     "start.best": "Eddigi legjobb meg\u0151rz\xF6tt vagyon: {amt}",
     "btn.start": "\xDAJ MENET",
     "btn.howto": "HOGYAN J\xC1TSSZ",
@@ -1481,7 +1482,7 @@ a.btn{text-decoration:none}
     "start.title": "BILLION SHOVEL",
     "start.sub": "A 2D ARCADE GAME OF ASSET CONCEALMENT",
     "start.tag": "Money never disappears. It just goes underground.",
-    "start.foot": "Fictional satire. Invented characters, invented forest, real thousand separators. \xB7 v1.6",
+    "start.foot": "Fictional satire. Invented characters, invented forest, real thousand separators. \xB7 v1.6.1",
     "start.best": "Best protected assets so far: {amt}",
     "btn.start": "NEW RUN",
     "btn.howto": "HOW TO PLAY",
@@ -1604,8 +1605,7 @@ a.btn{text-decoration:none}
     const forced = window.__FORCE_LANG;
     if (forced === "hu" || forced === "en") return forced;
     try {
-      const saved = localStorage.getItem("milliardaso-lang");
-      if (saved === "hu" || saved === "en") return saved;
+      localStorage.removeItem("milliardaso-lang");
     } catch {
     }
     const langs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || "en"];
@@ -1613,12 +1613,7 @@ a.btn{text-decoration:none}
   }
   function setLang(l, remember = false) {
     LANG = l;
-    if (remember) {
-      try {
-        localStorage.setItem("milliardaso-lang", l);
-      } catch {
-      }
-    }
+    void remember;
     document.documentElement.lang = l;
     document.title = t("doc.title");
     document.querySelectorAll("[data-i18n]").forEach((el) => {
