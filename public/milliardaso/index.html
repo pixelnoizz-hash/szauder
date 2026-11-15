@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <title>MILLIÁRDÁSÓ</title>
-<meta name="description" content="Egy öltönyös férfi, egy erdő, egy ásó, hat és fél milliárd forint, három perc. Böngészős arcade-szatíra, telefonon is.">
+<meta name="description" content="Egy öltönyös férfi, egy erdő, egy ásó, kilenc milliárd forint, három perc. Böngészős arcade-szatíra, telefonon is.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="MILLIÁRDÁSÓ — vagyonelrejtő 2D arcade játék">
 <meta property="og:description" content="A pénz nem vész el, csak föld alá kerül. Játszd a böngészőben, telefonon is.">
@@ -20,7 +20,7 @@
 <meta name="twitter:image" content="https://www.davidarielszauder.com/milliardaso/og.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap&subset=latin-ext" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Libre+Caslon+Text:wght@700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap&subset=latin-ext" rel="stylesheet">
 <style>
 :root{
   --gold:#d6b468; --gold-dim:rgba(214,180,104,.38); --ink:#f1ead8; --muted:#a9a393; --faint:#6f7680;
@@ -79,6 +79,9 @@ html,body{width:100%;height:100%;background:#05070b;overflow:hidden;touch-action
 .frow svg{width:calc(var(--u)*17);height:calc(var(--u)*17)}
 .frow .lbl{white-space:nowrap}
 .frow .val{white-space:nowrap;font-size:calc(var(--u)*15);font-weight:600;color:var(--ink)}
+.frow .fxl{font-size:calc(var(--u)*9.5);color:#9fb39a;letter-spacing:.02em;margin-top:calc(var(--u)*-3);text-align:right}
+.frow .fxl:empty{display:none}
+.fxt{text-align:right;color:#b9c9ab;font-size:calc(var(--u)*12);margin-top:calc(var(--u)*5)}
 .frow .pend{font-size:calc(var(--u)*9.5);color:var(--amber);letter-spacing:.04em;margin-top:calc(var(--u)*-3)}
 .frow .pend:empty{display:none}
 .frow .val.bump{animation:bump .5s}
@@ -170,6 +173,40 @@ body.touch .note{white-space:normal;text-align:center}
 body.touch .touchonly{display:block}
 body.touch .keyonly{display:none}
 
+/* ---------------- press briefing ---------------- */
+#scrFacts{background:radial-gradient(ellipse at 50% 50%,rgba(10,9,8,.86),rgba(2,3,5,.97) 75%);overflow:hidden}
+#fxHead{position:absolute;top:calc(var(--u)*18);left:0;right:0;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:calc(var(--u)*10);letter-spacing:.32em;color:#c9a45c;opacity:.85}
+#fxDesk{position:absolute;inset:0}
+.clip{position:absolute;width:calc(var(--u)*390);padding:calc(var(--u)*14) calc(var(--u)*18) calc(var(--u)*16);
+  background:linear-gradient(180deg,#efe9d8,#e3dcc8);color:#15120e;border-radius:1px;
+  box-shadow:0 calc(var(--u)*10) calc(var(--u)*28) rgba(0,0,0,.65), inset 0 0 0 1px rgba(0,0,0,.06);
+  transform:translate(-50%,-50%) rotate(var(--r)) scale(1.18);opacity:0;
+  transition:transform .22s cubic-bezier(.2,.9,.3,1.2),opacity .18s,left .5s ease,top .5s ease,filter .5s}
+.clip.in{transform:translate(-50%,-50%) rotate(var(--r)) scale(1);opacity:1}
+.clip.old{transform:translate(-50%,-50%) rotate(var(--r)) scale(.62);filter:brightness(.42) saturate(.6)}
+.clip.gone{opacity:0;transition:opacity .4s}
+.clip .src{font-family:"IBM Plex Mono",monospace;font-size:calc(var(--u)*9);letter-spacing:.12em;color:#8a2a1e;
+  border-bottom:1px solid rgba(0,0,0,.18);padding-bottom:calc(var(--u)*6);margin-bottom:calc(var(--u)*8)}
+.clip .hl{font-family:"Libre Caslon Text",Georgia,"Times New Roman",serif;font-weight:700;font-size:calc(var(--u)*23);line-height:1.18}
+.clip mark{background:linear-gradient(180deg,transparent 52%,rgba(242,205,70,.9) 52%);color:inherit;padding:0 .05em}
+#fxBig{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:calc(var(--u)*12);pointer-events:none}
+#fxBig .amt{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:calc(var(--u)*58);color:#fff;letter-spacing:.01em;animation:amtIn .5s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes amtIn{from{transform:scale(1.25);opacity:0}to{transform:none;opacity:1}}
+#fxBig .fxs{font-family:"IBM Plex Mono",monospace;font-size:calc(var(--u)*17);color:#b9c9ab}
+#fxBig .stampx{margin-top:calc(var(--u)*14);border:calc(var(--u)*3) solid rgba(198,70,58,.9);color:rgba(214,80,64,.95);font-weight:700;letter-spacing:.2em;
+  font-size:calc(var(--u)*18);padding:calc(var(--u)*6) calc(var(--u)*16);transform:rotate(-4deg);animation:stampIn .35s .5s both cubic-bezier(.2,.9,.3,1.4)}
+@keyframes stampIn{from{transform:rotate(-4deg) scale(2.2);opacity:0}to{transform:rotate(-4deg) scale(1);opacity:1}}
+#fxBig .legal{max-width:calc(var(--u)*620);font-size:calc(var(--u)*18);line-height:1.45;color:#e9e2cf;animation:fadeUp .6s both}
+#fxBig .sat{max-width:calc(var(--u)*620);font-size:calc(var(--u)*15);font-style:italic;color:#c9a45c;animation:fadeUp .6s .9s both}
+#fxBig .srcs{position:absolute;bottom:calc(var(--u)*22);left:calc(var(--u)*40);right:calc(var(--u)*40);font-family:"IBM Plex Mono",monospace;font-size:calc(var(--u)*8.5);color:#7d8590;letter-spacing:.04em;animation:fadeUp .6s 1.4s both}
+#fxBig .ttl{font-family:"Cinzel",Georgia,serif;font-weight:900;font-size:calc(var(--u)*84);background:linear-gradient(180deg,#f6e7bf 0%,#d9b86f 55%,#9c7b3c 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:amtIn .7s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(calc(var(--u)*8))}to{opacity:1;transform:none}}
+#fxFlash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#fxFlash.go{animation:flash .22s ease-out}
+@keyframes flash{0%{opacity:.35}100%{opacity:0}}
+.fxskip{position:absolute;right:calc(var(--u)*18);bottom:calc(var(--u)*16);font-size:calc(var(--u)*10)!important;padding:calc(var(--u)*6) calc(var(--u)*12)!important}
+
 /* ---------------- screens ---------------- */
 .screen{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;
   background:radial-gradient(ellipse at 50% 45%, rgba(5,8,14,.35), rgba(3,5,9,.86) 70%)}
@@ -231,44 +268,45 @@ body.touch .keyonly{display:none}
     <div id="portrait">
       <div class="frame" id="pframe"><canvas id="pcanvas"></canvas></div>
       <div class="who">
-        <div class="name">VAGYONKEZELŐ</div>
-        <div class="role">Megbízott portfóliókezelő</div>
+        <div class="name" data-i18n="who.name">VAGYONKEZELŐ</div>
+        <div class="role" data-i18n="who.role">Megbízott portfóliókezelő</div>
         <div class="phase" id="phaseLbl">HATÓSÁGI JELENLÉT: ALACSONY</div>
       </div>
     </div>
 
     <div id="missions">
       <div class="panel">
-        <h3><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="6" cy="6" r="5"/><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="6" r=".6" fill="currentColor"/></svg>FŐKÜLDETÉS</h3>
+        <h3><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="6" cy="6" r="5"/><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="6" r=".6" fill="currentColor"/></svg><span data-i18n="m.main">FŐKÜLDETÉS</span></h3>
         <div id="mMain"></div>
       </div>
       <div class="panel">
-        <h3><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 .8l1.5 3.2 3.5.4-2.6 2.4.7 3.5L6 8.6 2.9 10.3l.7-3.5L1 4.4l3.5-.4z"/></svg>MELLÉKKÜLDETÉSEK</h3>
+        <h3><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 .8l1.5 3.2 3.5.4-2.6 2.4.7 3.5L6 8.6 2.9 10.3l.7-3.5L1 4.4l3.5-.4z"/></svg><span data-i18n="m.side">MELLÉKKÜLDETÉSEK</span></h3>
         <div id="mSide"></div>
       </div>
     </div>
 
     <div id="mapwrap" class="panel">
       <canvas id="minimap"></canvas>
-      <div class="leg">TÉRKÉP</div>
-      <div class="n">É ↑</div>
+      <div class="leg" data-i18n="map.leg">TÉRKÉP</div>
+      <div class="n" data-i18n="map.n">É ↑</div>
     </div>
 
     <div id="finance" class="panel">
       <div class="frow">
         <svg viewBox="0 0 18 18"><rect x="1.5" y="5" width="13" height="8" rx="1" fill="#5f8d4c"/><rect x="3.5" y="3" width="13" height="8" rx="1" fill="#7fae6a" stroke="#2f4a26" stroke-width=".8"/><circle cx="10" cy="7" r="1.8" fill="#c7e0b4"/></svg>
-        <span class="lbl" style="color:#ddd5c2;font-size:calc(var(--u)*10.5)">ELREJTETT VAGYON</span>
+        <span class="lbl" style="color:#ddd5c2;font-size:calc(var(--u)*10.5)" data-i18n="fin.hidden">ELREJTETT VAGYON</span>
         <span class="val mono" id="hidden">0 Ft</span>
+        <span></span><span class="fxl mono" id="hiddenFx" style="grid-column:2 / 4"></span>
         <span></span><span class="pend" id="pending" style="grid-column:2 / 4"></span>
       </div>
       <div class="frow">
         <svg viewBox="0 0 18 18" fill="none" stroke="#cfc6b0" stroke-width="1.3"><path d="M1.5 9s3-5 7.5-5 7.5 5 7.5 5-3 5-7.5 5-7.5-5-7.5-5z"/><circle cx="9" cy="9" r="2.2" fill="#cfc6b0"/></svg>
-        <div class="stack"><span class="lbl" style="color:#ddd5c2">KITETTSÉGI KOCKÁZAT</span><div class="seg risk" id="risk"></div></div>
+        <div class="stack"><span class="lbl" style="color:#ddd5c2" data-i18n="fin.risk">KITETTSÉGI KOCKÁZAT</span><div class="seg risk" id="risk"></div></div>
         <span class="pct mono" id="riskPct">0%</span>
       </div>
       <div class="frow">
         <svg viewBox="0 0 18 18" fill="none" stroke="#cfc6b0" stroke-width="1.2"><path d="M3 7.5h12l-1-3.5H4z" fill="#cfc6b0"/><path d="M4.5 7.5v1.5a4.5 4.5 0 009 0V7.5"/><rect x="7.5" y="4.6" width="3" height="1.4" fill="#0b0f14" stroke="none"/></svg>
-        <div class="stack"><span class="lbl" style="color:#ddd5c2">HATÓSÁGI AKTIVITÁS</span><div class="seg auth" id="auth"></div></div>
+        <div class="stack"><span class="lbl" style="color:#ddd5c2" data-i18n="fin.auth">HATÓSÁGI AKTIVITÁS</span><div class="seg auth" id="auth"></div></div>
         <span class="pct" id="authLbl" style="color:var(--red);font-size:calc(var(--u)*11);letter-spacing:.06em">ALACSONY</span>
       </div>
     </div>
@@ -276,23 +314,23 @@ body.touch .keyonly{display:none}
     <div id="timer" class="panel">
       <div class="top">
         <svg viewBox="0 0 18 18" fill="none" stroke="#cfc6b0" stroke-width="1.3"><circle cx="9" cy="10" r="6.3"/><path d="M9 10V6.5M7 1.8h4M9 1.8v1.9M14.2 4.2l1 1"/></svg>
-        <span class="lbl" style="color:#ddd5c2;line-height:1.15">HÁTRALÉVŐ IDŐ</span>
+        <span class="lbl" style="color:#ddd5c2;line-height:1.15" data-i18n="timer.lbl">HÁTRALÉVŐ IDŐ</span>
       </div>
       <div class="digits" id="time">03:00</div>
-      <div class="pen" id="pen">−10 mp</div>
+      <div class="pen" id="pen" data-i18n="timer.pen">−10 mp</div>
     </div>
 
     <div id="status" class="panel">
-      <div class="srow"><span class="lbl">ÁLLÓKÉPESSÉG</span><div class="bar" id="stam"><b></b></div><span></span></div>
-      <div class="srow"><span class="lbl">CIPELT PÉNZ</span>
+      <div class="srow"><span class="lbl" data-i18n="st.stam">ÁLLÓKÉPESSÉG</span><div class="bar" id="stam"><b></b></div><span></span></div>
+      <div class="srow"><span class="lbl" data-i18n="st.carried">CIPELT PÉNZ</span>
         <div class="slots" id="slots">
           <i><svg viewBox="0 0 10 10"><path d="M4 1h2l-.5 1.5h-1z" fill="#8a7444"/><path d="M2 4c0-1.2 1.4-1.7 3-1.7S8 2.8 8 4l.6 4.5H1.4z" fill="#c7af7d"/><rect x="4" y="2.4" width="2" height="1.2" fill="#6f9c59"/></svg></i>
           <i><svg viewBox="0 0 10 10"><path d="M4 1h2l-.5 1.5h-1z" fill="#8a7444"/><path d="M2 4c0-1.2 1.4-1.7 3-1.7S8 2.8 8 4l.6 4.5H1.4z" fill="#c7af7d"/><rect x="4" y="2.4" width="2" height="1.2" fill="#6f9c59"/></svg></i>
         </div>
         <span class="v mono" id="carried">0 Ft</span>
       </div>
-      <div class="srow"><span class="lbl">FURGONBAN</span><span class="v mono" id="vanLeft">26 zsák</span><span></span></div>
-      <div class="hint"><span>ESC — szünet</span><button id="mute">M — HANG: BE</button></div>
+      <div class="srow"><span class="lbl" data-i18n="st.van">FURGONBAN</span><span class="v mono" id="vanLeft">36 zsák</span><span></span></div>
+      <div class="hint"><span data-i18n="st.esc">ESC — szünet</span><button id="mute">M — HANG: BE</button></div>
     </div>
 
     <div id="feed"></div>
@@ -303,83 +341,80 @@ body.touch .keyonly{display:none}
     <div id="stickZone"></div>
     <div id="stickBase"><div id="stickKnob"></div></div>
     <div class="tbtns">
-      <button class="tb big" data-key="Space"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 3l6 6M18 6l-8.5 8.5"/><path d="M9.5 14.5l-5 1-1 5 5-1 1-5z" fill="currentColor" fill-opacity=".25"/></svg>ÁSÓ</button>
-      <button class="tb mid" data-key="KeyE"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9.5 3h5l-1 3h-3z"/><path d="M6 10c0-2.5 2.6-4 6-4s6 1.5 6 4l1.5 10h-15z" fill="currentColor" fill-opacity=".25"/></svg>PÉNZ</button>
-      <button class="tb sm" data-key="ShiftLeft">FUTÁS</button>
+      <button class="tb big" data-key="Space"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 3l6 6M18 6l-8.5 8.5"/><path d="M9.5 14.5l-5 1-1 5 5-1 1-5z" fill="currentColor" fill-opacity=".25"/></svg><span data-i18n="touch.dig">ÁSÓ</span></button>
+      <button class="tb mid" data-key="KeyE"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9.5 3h5l-1 3h-3z"/><path d="M6 10c0-2.5 2.6-4 6-4s6 1.5 6 4l1.5 10h-15z" fill="currentColor" fill-opacity=".25"/></svg><span data-i18n="touch.cash">PÉNZ</span></button>
+      <button class="tb sm" data-key="ShiftLeft"><span data-i18n="touch.run">FUTÁS</span></button>
     </div>
     <button id="tpause">II</button>
   </div>
 
+  <!-- press briefing intro -->
+  <div class="screen" id="scrFacts">
+    <div id="fxHead"></div>
+    <div id="fxDesk"></div>
+    <div id="fxBig"></div>
+    <div id="fxFlash"></div>
+    <button class="btn fxskip" data-act="skip"><span data-i18n="btn.skip">TOVÁBB ▸</span></button>
+  </div>
+
   <!-- start -->
   <div class="screen on" id="scrStart">
-    <div class="title">MILLIÁRDÁSÓ</div>
+    <div class="title" data-i18n="start.title">MILLIÁRDÁSÓ</div>
     <div class="orn">
       <div class="ln"></div>
       <svg viewBox="0 0 120 24"><g transform="translate(18,4)"><rect x="0" y="4" width="22" height="12" rx="1" fill="#5f8d4c" stroke="#2c4422"/><rect x="4" y="1" width="22" height="12" rx="1" fill="#7fae6a" stroke="#2c4422"/><circle cx="15" cy="7" r="3" fill="#c7e0b4"/></g><g transform="translate(52,4)"><rect x="0" y="4" width="22" height="12" rx="1" fill="#5f8d4c" stroke="#2c4422"/><rect x="4" y="1" width="22" height="12" rx="1" fill="#7fae6a" stroke="#2c4422"/><circle cx="15" cy="7" r="3" fill="#c7e0b4"/></g><path d="M84 12h24" stroke="#8a6a44" stroke-width="2.4"/><path d="M106 6l10 6-10 6z" fill="#b6bec6" stroke="#5c646c"/></svg>
       <div class="ln r"></div>
     </div>
-    <div class="sub">VAGYONELREJTŐ 2D ARCADE JÁTÉK</div>
-    <div class="tag">A pénz nem vész el, csak föld alá kerül.</div>
+    <div class="sub" data-i18n="start.sub">VAGYONELREJTŐ 2D ARCADE JÁTÉK</div>
+    <div class="tag" data-i18n="start.tag">A pénz nem vész el, csak föld alá kerül.</div>
     <div class="menu" id="menuStart">
-      <button class="btn primary" data-act="start">ÚJ MENET <small>ENTER</small></button>
-      <button class="btn" data-act="howto">HOGYAN JÁTSSZ <small>H</small></button>
+      <button class="btn primary" data-act="start"><span data-i18n="btn.start">ÚJ MENET</span> <small>ENTER</small></button>
+      <button class="btn" data-act="howto"><span data-i18n="btn.howto">HOGYAN JÁTSSZ</span> <small>H</small></button>
+      <button class="btn" data-act="facts"><span data-i18n="btn.facts">A TÉNYEK</span> <small>F</small></button>
       <button class="btn" data-act="mute"><span class="ml">HANG: BE</span> <small>M</small></button>
+      <button class="btn" data-act="lang"><span data-i18n="lang.btn">ENGLISH</span> <small>L</small></button>
     </div>
     <div class="best" id="bestLine"></div>
-    <div class="foot">Fiktív szatíra. Kitalált szereplők, kitalált erdő, valódi forint-elválasztók. · v1.4</div>
+    <div class="foot" data-i18n="start.foot"></div>
   </div>
 
   <!-- how to play -->
   <div class="screen" id="scrHow">
     <div class="doc">
-      <div class="stamp">BELSŐ HASZNÁLATRA</div>
-      <h2>ELJÁRÁSRENDI ÚTMUTATÓ</h2>
-      <div class="meta"><span>IKTATÓSZÁM: MÁ-2026/180</span><span>MELLÉKLET: 1 DB ÁSÓ</span></div>
+      <div class="stamp" data-i18n="how.stamp">BELSŐ HASZNÁLATRA</div>
+      <h2 data-i18n="how.title">ELJÁRÁSRENDI ÚTMUTATÓ</h2>
+      <div class="meta"><span data-i18n="how.meta1"></span><span data-i18n="how.meta2"></span></div>
       <div class="cols">
         <div>
-          <h4>VEZÉRLÉS</h4>
-          <div class="keys">
-            <div><b>W A S D / ←↑↓→</b><span>Mozgás</span></div>
-            <div><b>SHIFT</b><span>Sprint (állóképesség)</span></div>
-            <div><b>E</b><span>Pénz felvétele / elhelyezése</span></div>
-            <div><b>SPACE (tartva)</b><span>Ásás · betemetés · álcázás</span></div>
-            <div><b>ESC</b><span>Szünet</span></div>
-            <div><b>M</b><span>Hang ki / be</span></div>
-          </div>
-          <p class="touchonly">Telefonon: bal hüvelykujj — mozgás; ÁSÓ (nyomva tartva) — ásás, betemetés, álcázás; PÉNZ — felvétel, elhelyezés; FUTÁS — sprint (nyomva tartva).</p>
-          <h4 style="margin-top:calc(var(--u)*14)">KOCKÁZATKEZELÉS</h4>
-          <p>A nyomozók zseblámpával pásztáznak. A fénykúpba lépve nő a kitettség; pénzzel a kézben üldözés jár. Lebukáskor a cipelt pénz elvész, és 10 mp időveszteség terheli a menetet.</p>
-          <p>A nyitott gödör feltűnő, a betemetett kevésbé, az álcázott alig. A sűrű aljnövényzet és a magas fű takar.</p>
+          <h4 data-i18n="how.controls">VEZÉRLÉS</h4>
+          <div class="keys" data-i18n-html="how.keys"></div>
+          <p class="touchonly" data-i18n="how.touch">Telefonon: bal hüvelykujj — mozgás; ÁSÓ (nyomva tartva) — ásás, betemetés, álcázás; PÉNZ — felvétel, elhelyezés; FUTÁS — sprint (nyomva tartva).</p>
+          <h4 style="margin-top:calc(var(--u)*14)" data-i18n="how.risk">KOCKÁZATKEZELÉS</h4>
+          <p data-i18n="how.risk1">A nyomozók zseblámpával pásztáznak. A fénykúpba lépve nő a kitettség; pénzzel a kézben üldözés jár. Lebukáskor a cipelt pénz elvész, és 10 mp időveszteség terheli a menetet.</p>
+          <p data-i18n="how.risk2">A nyitott gödör feltűnő, a betemetett kevésbé, az álcázott alig. A sűrű aljnövényzet és a magas fű takar.</p>
         </div>
         <div>
-          <h4>ELJÁRÁSREND</h4>
-          <ol>
-            <li>A furgonból vegyen fel egy vagy két zsákot (E). Két zsák lassít.</li>
-            <li>Válasszon helyszínt. A furgon közelében gyors, de látható; az erdő mélyén biztonságosabb, de messzebb van.</li>
-            <li>Ásson gödröt (SPACE, 2 mp).</li>
-            <li>Helyezze el a pénzt (E), legfeljebb két zsákot gödrönként.</li>
-            <li>Temesse be (SPACE, 1,5 mp). Csak a betemetett pénz számít elrejtettnek.</li>
-            <li>Álcázza a felszínt (SPACE, 2 mp).</li>
-            <li>Ismételje 180 másodpercen át.</li>
-          </ol>
-          <p>Üres gödör is betemethető. A hatóság ezt is ugyanolyan alapossággal dokumentálja.</p>
+          <h4 data-i18n="how.proc">ELJÁRÁSREND</h4>
+          <ol data-i18n-html="how.list"></ol>
+          <p data-i18n-html="how.note"></p>
         </div>
       </div>
-      <div class="acts"><button class="btn" data-act="back">VISSZA <small>ESC</small></button><button class="btn primary" data-act="start">ÚJ MENET <small>ENTER</small></button></div>
+      <div class="acts"><button class="btn" data-act="back"><span data-i18n="btn.back">VISSZA</span> <small>ESC</small></button><button class="btn primary" data-act="start"><span data-i18n="btn.start">ÚJ MENET</span> <small>ENTER</small></button></div>
     </div>
   </div>
 
   <!-- pause -->
   <div class="screen" id="scrPause">
     <div class="doc" style="width:calc(var(--u)*330)">
-      <h2>ELJÁRÁS FELFÜGGESZTVE</h2>
-      <div class="meta"><span>A VAGYON NYUGALMI ÁLLAPOTBAN</span><span id="pauseTime">03:00</span></div>
+      <h2 data-i18n="pause.title">ELJÁRÁS FELFÜGGESZTVE</h2>
+      <div class="meta"><span data-i18n="pause.meta">A VAGYON NYUGALMI ÁLLAPOTBAN</span><span id="pauseTime">03:00</span></div>
       <div class="menu" style="width:100%;margin-top:calc(var(--u)*14)">
-        <button class="btn primary" data-act="resume">FOLYTATÁS <small>ESC</small></button>
-        <button class="btn" data-act="restart">ÚJRAKEZDÉS <small>R</small></button>
-        <button class="btn" data-act="howto">HOGYAN JÁTSSZ <small>H</small></button>
+        <button class="btn primary" data-act="resume"><span data-i18n="btn.resume">FOLYTATÁS</span> <small>ESC</small></button>
+        <button class="btn" data-act="restart"><span data-i18n="btn.restart">ÚJRAKEZDÉS</span> <small>R</small></button>
+        <button class="btn" data-act="howto"><span data-i18n="btn.howto">HOGYAN JÁTSSZ</span> <small>H</small></button>
         <button class="btn" data-act="mute"><span class="ml">HANG: BE</span> <small>M</small></button>
-        <button class="btn" data-act="menu">FŐMENÜ <small>Q</small></button>
+        <button class="btn" data-act="lang"><span data-i18n="lang.btn">ENGLISH</span> <small>L</small></button>
+        <button class="btn" data-act="menu"><span data-i18n="btn.menu">FŐMENÜ</span> <small>Q</small></button>
       </div>
     </div>
   </div>
@@ -388,17 +423,18 @@ body.touch .keyonly{display:none}
   <div class="screen" id="scrResults">
     <div class="doc" style="width:calc(var(--u)*560)">
       <div class="stamp" id="resStamp">LEZÁRVA</div>
-      <h2>VAGYONKEZELÉSI JELENTÉS</h2>
-      <div class="meta"><span>IDŐSZAK: 180 MÁSODPERC</span><span id="resDate"></span></div>
+      <h2 data-i18n="res.title">VAGYONKEZELÉSI JELENTÉS</h2>
+      <div class="meta"><span data-i18n="res.period">IDŐSZAK: 180 MÁSODPERC</span><span id="resDate"></span></div>
       <div class="rep" id="rep"></div>
-      <div class="total"><span>MEGŐRZÖTT VAGYON</span><span id="repFinal">0 Ft</span></div>
+      <div class="total"><span data-i18n="res.total">MEGŐRZÖTT VAGYON</span><span id="repFinal">0 Ft</span></div>
+      <div class="fxt mono" id="repFx"></div>
       <div class="verdict" id="verdict"></div>
       <div class="rmis" id="resMissions"></div>
-      <div class="acts"><button class="btn" data-act="menu">FŐMENÜ <small>Q</small></button><button class="btn primary" data-act="restart">ÚJRAKEZDÉS <small>ENTER</small></button></div>
+      <div class="acts"><button class="btn" data-act="menu"><span data-i18n="btn.menu">FŐMENÜ</span> <small>Q</small></button><button class="btn primary" data-act="restart"><span data-i18n="btn.restart">ÚJRAKEZDÉS</span> <small>ENTER</small></button></div>
     </div>
   </div>
 </div>
-<div id="rotate"><div class="ph"></div><b>MILLIÁRDÁSÓ</b><span>Fordítsd el a telefont fekvő helyzetbe. A vagyonkezelés széles képernyőt igényel.</span></div>
+<div id="rotate"><div class="ph"></div><b>MILLIÁRDÁSÓ</b><span data-i18n="rotate">Fordítsd el a telefont fekvő helyzetbe. A vagyonkezelés széles képernyőt igényel.</span></div>
 <script>
 (() => {
   // src/config.ts
@@ -413,7 +449,8 @@ body.touch .keyonly{display:none}
   var WORLD_W = MAP_W * TILE;
   var WORLD_H = MAP_H * TILE;
   var SESSION_TIME = 180;
-  var TOTAL_BAGS = 26;
+  var TOTAL_BAGS = 36;
+  var FX = { EUR: 363, USD: 325 };
   var BAG_VALUE = 25e7;
   var TOTAL_MONEY = TOTAL_BAGS * BAG_VALUE;
   var DIG_TIME = 2;
@@ -449,11 +486,11 @@ body.touch .keyonly{display:none}
 
   // src/util.ts
   var clamp = (v, a, b) => v < a ? a : v > b ? b : v;
-  var lerp = (a, b, t) => a + (b - a) * t;
+  var lerp = (a, b, t2) => a + (b - a) * t2;
   var dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
   var smoothstep = (a, b, x) => {
-    const t = clamp((x - a) / (b - a), 0, 1);
-    return t * t * (3 - 2 * t);
+    const t2 = clamp((x - a) / (b - a), 0, 1);
+    return t2 * t2 * (3 - 2 * t2);
   };
   function angleDiff(a, b) {
     let d = b - a;
@@ -470,10 +507,10 @@ body.touch .keyonly{display:none}
     let a = seed >>> 0;
     return () => {
       a = a + 1831565813 >>> 0;
-      let t = a;
-      t = Math.imul(t ^ t >>> 15, t | 1);
-      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      let t2 = a;
+      t2 = Math.imul(t2 ^ t2 >>> 15, t2 | 1);
+      t2 ^= t2 + Math.imul(t2 ^ t2 >>> 7, t2 | 61);
+      return ((t2 ^ t2 >>> 14) >>> 0) / 4294967296;
     };
   }
   function hash2(x, y, seed = 0) {
@@ -496,9 +533,9 @@ body.touch .keyonly{display:none}
   function distToSegment(px, py, ax, ay, bx, by) {
     const dx = bx - ax, dy = by - ay;
     const l2 = dx * dx + dy * dy;
-    let t = l2 ? ((px - ax) * dx + (py - ay) * dy) / l2 : 0;
-    t = clamp(t, 0, 1);
-    return Math.hypot(px - (ax + dx * t), py - (ay + dy * t));
+    let t2 = l2 ? ((px - ax) * dx + (py - ay) * dy) / l2 : 0;
+    t2 = clamp(t2, 0, 1);
+    return Math.hypot(px - (ax + dx * t2), py - (ay + dy * t2));
   }
   function distToPolyline(px, py, pts) {
     let m = Infinity;
@@ -508,10 +545,6 @@ body.touch .keyonly{display:none}
     }
     return m;
   }
-  function fmtFt(n) {
-    const s = Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\xA0");
-    return s + "\xA0Ft";
-  }
   function fmtNum(n) {
     return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\xA0");
   }
@@ -519,10 +552,6 @@ body.touch .keyonly{display:none}
     const s = Math.max(0, Math.ceil(sec));
     const m = Math.floor(s / 60);
     return `${String(m).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
-  }
-  function fmtMillio(bags, bagValue) {
-    const m = bags * bagValue / 1e6;
-    return m >= 1e3 ? `${(m / 1e3).toString().replace(".", ",")} milli\xE1rd` : `${m} milli\xF3`;
   }
 
   // src/level.ts
@@ -631,8 +660,8 @@ body.touch .keyonly{display:none}
       return this.canopy[cy * CW + cx];
     }
     isDiggable(x, y) {
-      const t = this.terrainAt(x, y);
-      return t !== T.ROAD;
+      const t2 = this.terrainAt(x, y);
+      return t2 !== T.ROAD;
     }
     inVanZone(x, y) {
       const v = this.van;
@@ -859,11 +888,11 @@ body.touch .keyonly{display:none}
                   e.x = cx + ddx / d * r;
                   e.y = cy + ddy / d * r;
                 } else {
-                  const l = e.x - o.x, rr = o.x + o.w - e.x, t = e.y - o.y, b = o.y + o.h - e.y;
-                  const m = Math.min(l, rr, t, b);
+                  const l = e.x - o.x, rr = o.x + o.w - e.x, t2 = e.y - o.y, b = o.y + o.h - e.y;
+                  const m = Math.min(l, rr, t2, b);
                   if (m === l) e.x = o.x - r;
                   else if (m === rr) e.x = o.x + o.w + r;
-                  else if (m === t) e.y = o.y - r;
+                  else if (m === t2) e.y = o.y - r;
                   else e.y = o.y + o.h + r;
                 }
                 hit = moved = true;
@@ -931,8 +960,8 @@ body.touch .keyonly{display:none}
       for (let d = STEP; d <= max; d += STEP) {
         const px = x + dx * d, py = y + dy * d;
         if (this.coll.blocksSight(px, py)) return { dist: d, attn, blocked: true };
-        const t = this.level.terrainAt(px, py);
-        if (t === T.FLOOR) attn += 45e-4 * STEP;
+        const t2 = this.level.terrainAt(px, py);
+        if (t2 === T.FLOOR) attn += 45e-4 * STEP;
         if (this.level.canopyAt(px, py)) attn += 0.012 * STEP;
         if (this.level.bushAt(px, py)) attn += 0.045 * STEP;
         if (attn >= 1) return { dist: d, attn: 1, blocked: true };
@@ -957,10 +986,10 @@ body.touch .keyonly{display:none}
     /** How well a point is concealed by its surroundings (1 = fully exposed). */
     concealment(x, y) {
       if (this.level.bushAt(x, y)) return 0.35;
-      const t = this.level.terrainAt(x, y);
-      if (t === T.TALL) return 0.55;
-      if (t === T.FLOOR) return 0.85;
-      if (t === T.ROAD) return 1.1;
+      const t2 = this.level.terrainAt(x, y);
+      if (t2 === T.TALL) return 0.55;
+      if (t2 === T.FLOOR) return 0.85;
+      if (t2 === T.ROAD) return 1.1;
       return 1;
     }
   };
@@ -1020,10 +1049,10 @@ body.touch .keyonly{display:none}
       const L = this.level;
       const start = L.snapWalkable(sx, sy), goal = L.snapWalkable(gx, gy);
       const s = Math.floor(start.y / TILE) * MAP_W + Math.floor(start.x / TILE);
-      const t = Math.floor(goal.y / TILE) * MAP_W + Math.floor(goal.x / TILE);
+      const t2 = Math.floor(goal.y / TILE) * MAP_W + Math.floor(goal.x / TILE);
       curStamp++;
       const heap = new Heap(f);
-      const gxT = t % MAP_W, gyT = t / MAP_W | 0;
+      const gxT = t2 % MAP_W, gyT = t2 / MAP_W | 0;
       const h = (n) => {
         const dx = Math.abs(n % MAP_W - gxT), dy = Math.abs((n / MAP_W | 0) - gyT);
         return dx + dy + (Math.SQRT2 - 2) * Math.min(dx, dy);
@@ -1038,7 +1067,7 @@ body.touch .keyonly{display:none}
         const n = heap.pop();
         if (closed[n] === curStamp) continue;
         closed[n] = curStamp;
-        if (n === t) {
+        if (n === t2) {
           found = true;
           break;
         }
@@ -1063,7 +1092,7 @@ body.touch .keyonly{display:none}
       }
       if (!found) return null;
       const out = [];
-      for (let n = t; n !== -1; n = from[n]) out.push({ x: n % MAP_W * TILE + 8, y: (n / MAP_W | 0) * TILE + 8 });
+      for (let n = t2; n !== -1; n = from[n]) out.push({ x: n % MAP_W * TILE + 8, y: (n / MAP_W | 0) * TILE + 8 });
       out.reverse();
       out[out.length - 1] = { x: gx, y: gy };
       return this.smooth(out);
@@ -1160,10 +1189,10 @@ body.touch .keyonly{display:none}
         if (bags === 1) sp *= PLAYER.bag1Mul;
         if (bags === 2) sp *= PLAYER.bag2Mul;
         if (this.sprinting) sp *= bags === 2 ? PLAYER.bag2SprintMul : PLAYER.sprintMul;
-        const t = this.level.terrainAt(this.x, this.y);
+        const t2 = this.level.terrainAt(this.x, this.y);
         if (this.level.bushAt(this.x, this.y)) sp *= 0.62;
-        else if (t === T.TALL) sp *= 0.9;
-        else if (t === T.ROAD) sp *= 0.94;
+        else if (t2 === T.TALL) sp *= 0.9;
+        else if (t2 === T.ROAD) sp *= 0.94;
         this.speed = sp;
         this.x += nx * sp * dt;
         this.y += ny * sp * dt;
@@ -1180,7 +1209,7 @@ body.touch .keyonly{display:none}
         this.stepT -= dt;
         if (this.stepT <= 0) {
           this.stepT = this.sprinting ? 0.22 : bags === 2 ? 0.42 : 0.34;
-          this.onStep?.(t, this.sprinting);
+          this.onStep?.(t2, this.sprinting);
         }
         this.action = null;
         this.idleT = 0;
@@ -1196,9 +1225,9 @@ body.touch .keyonly{display:none}
       if (this.sprinting) return;
       this.stamina = Math.min(1, this.stamina + (walking ? PLAYER.regenWalk : PLAYER.regenIdle) * dt);
     }
-    lock(anim, t) {
+    lock(anim, t2) {
       this.lockAnim = anim;
-      this.lockT = t;
+      this.lockT = t2;
       this.animT = 0;
     }
     /** Point in front of the player's feet where a new hole goes. */
@@ -1265,6 +1294,349 @@ body.touch .keyonly{display:none}
     }
   };
 
+  // src/i18n.ts
+  var LANG = "hu";
+  var HU = {
+    "doc.title": "MILLI\xC1RD\xC1S\xD3",
+    "who.name": "VAGYONKEZEL\u0150",
+    "who.role": "Megb\xEDzott portf\xF3li\xF3kezel\u0151",
+    "who.phase": "HAT\xD3S\xC1GI JELENL\xC9T: {n} NYOMOZ\xD3",
+    "m.main": "F\u0150K\xDCLDET\xC9S",
+    "m.side": "MELL\xC9KK\xDCLDET\xC9SEK",
+    "map.leg": "T\xC9RK\xC9P",
+    "map.n": "\xC9 \u2191",
+    "fin.hidden": "ELREJTETT VAGYON",
+    "fin.risk": "KITETTS\xC9GI KOCK\xC1ZAT",
+    "fin.auth": "HAT\xD3S\xC1GI AKTIVIT\xC1S",
+    "timer.lbl": "H\xC1TRAL\xC9V\u0150 ID\u0150",
+    "timer.pen": "\u221210 mp",
+    "st.stam": "\xC1LL\xD3K\xC9PESS\xC9G",
+    "st.carried": "CIPELT P\xC9NZ",
+    "st.van": "FURGONBAN",
+    "st.esc": "ESC \u2014 sz\xFCnet",
+    "van.bags": "{n} zs\xE1k",
+    "pend": "+ {amt} fedetlen g\xF6d\xF6rben",
+    "touch.dig": "\xC1S\xD3",
+    "touch.cash": "P\xC9NZ",
+    "touch.run": "FUT\xC1S",
+    "phase.0": "ALACSONY",
+    "phase.1": "FOKOZOTT",
+    "phase.2": "RAZZIA",
+    "sound.on": "HANG: BE",
+    "sound.off": "HANG: KI",
+    "lang.btn": "ENGLISH",
+    "start.title": "MILLI\xC1RD\xC1S\xD3",
+    "start.sub": "VAGYONELREJT\u0150 2D ARCADE J\xC1T\xC9K",
+    "start.tag": "A p\xE9nz nem v\xE9sz el, csak f\xF6ld al\xE1 ker\xFCl.",
+    "start.foot": "Fikt\xEDv szat\xEDra. Kital\xE1lt szerepl\u0151k, kital\xE1lt erd\u0151, val\xF3di forint-elv\xE1laszt\xF3k. \xB7 v1.5",
+    "start.best": "Eddigi legjobb meg\u0151rz\xF6tt vagyon: {amt}",
+    "btn.start": "\xDAJ MENET",
+    "btn.howto": "HOGYAN J\xC1TSSZ",
+    "btn.facts": "A T\xC9NYEK",
+    "btn.back": "VISSZA",
+    "btn.resume": "FOLYTAT\xC1S",
+    "btn.restart": "\xDAJRAKEZD\xC9S",
+    "btn.menu": "F\u0150MEN\xDC",
+    "btn.skip": "TOV\xC1BB \u25B8",
+    "how.stamp": "BELS\u0150 HASZN\xC1LATRA",
+    "how.title": "ELJ\xC1R\xC1SRENDI \xDATMUTAT\xD3",
+    "how.meta1": "IKTAT\xD3SZ\xC1M: M\xC1-2026/180",
+    "how.meta2": "MELL\xC9KLET: 1 DB \xC1S\xD3",
+    "how.controls": "VEZ\xC9RL\xC9S",
+    "how.keys": "<div><b>W A S D / \u2190\u2191\u2193\u2192</b><span>Mozg\xE1s</span></div><div><b>SHIFT</b><span>Sprint (\xE1ll\xF3k\xE9pess\xE9g)</span></div><div><b>E</b><span>P\xE9nz felv\xE9tele / elhelyez\xE9se</span></div><div><b>SPACE (tartva)</b><span>\xC1s\xE1s \xB7 betemet\xE9s \xB7 \xE1lc\xE1z\xE1s</span></div><div><b>ESC</b><span>Sz\xFCnet</span></div><div><b>M</b><span>Hang ki / be</span></div>",
+    "how.touch": "Telefonon: bal h\xFCvelykujj \u2014 mozg\xE1s; \xC1S\xD3 (nyomva tartva) \u2014 \xE1s\xE1s, betemet\xE9s, \xE1lc\xE1z\xE1s; P\xC9NZ \u2014 felv\xE9tel, elhelyez\xE9s; FUT\xC1S \u2014 sprint (nyomva tartva).",
+    "how.risk": "KOCK\xC1ZATKEZEL\xC9S",
+    "how.risk1": "A nyomoz\xF3k zsebl\xE1mp\xE1val p\xE1szt\xE1znak. A f\xE9nyk\xFApba l\xE9pve n\u0151 a kitetts\xE9g; p\xE9nzzel a k\xE9zben \xFCld\xF6z\xE9s j\xE1r. Lebuk\xE1skor a cipelt p\xE9nz elv\xE9sz, \xE9s 10 mp id\u0151vesztes\xE9g terheli a menetet.",
+    "how.risk2": "A nyitott g\xF6d\xF6r felt\u0171n\u0151, a betemetett kev\xE9sb\xE9, az \xE1lc\xE1zott alig. A s\u0171r\u0171 aljn\xF6v\xE9nyzet \xE9s a magas f\u0171 takar.",
+    "how.proc": "ELJ\xC1R\xC1SREND",
+    "how.list": "<li>A furgonban 36 zs\xE1k, zs\xE1konk\xE9nt 250 milli\xF3 forint. Egyszerre egy vagy k\xE9t zs\xE1kot vehet fel (E). K\xE9t zs\xE1k lass\xEDt.</li><li>V\xE1lasszon helysz\xEDnt. A furgon k\xF6zel\xE9ben gyors, de l\xE1that\xF3; az erd\u0151 m\xE9ly\xE9n biztons\xE1gosabb, de messzebb van.</li><li>\xC1sson g\xF6dr\xF6t (SPACE, 2 mp).</li><li>Helyezze el a p\xE9nzt (E), legfeljebb k\xE9t zs\xE1kot g\xF6dr\xF6nk\xE9nt.</li><li>Temesse be (SPACE, 1,5 mp). Csak a betemetett p\xE9nz sz\xE1m\xEDt elrejtettnek.</li><li>\xC1lc\xE1zza a felsz\xEDnt (SPACE, 2 mp).</li><li>Ism\xE9telje 180 m\xE1sodpercen \xE1t.</li>",
+    "how.note": "\xDCres g\xF6d\xF6r is betemethet\u0151. A hat\xF3s\xE1g ezt is ugyanolyan alaposs\xE1ggal dokument\xE1lja. \xC1tv\xE1lt\xE1s: 1 \u20AC \u2248 {eur} Ft, 1 $ \u2248 {usd} Ft (2026. november eleje).",
+    "pause.title": "ELJ\xC1R\xC1S FELF\xDCGGESZTVE",
+    "pause.meta": "A VAGYON NYUGALMI \xC1LLAPOTBAN",
+    "res.title": "VAGYONKEZEL\xC9SI JELENT\xC9S",
+    "res.period": "ID\u0150SZAK: 180 M\xC1SODPERC",
+    "res.total": "MEG\u0150RZ\xD6TT VAGYON",
+    "res.date": "KELT: {d}",
+    "res.available": "El\xE9rhet\u0151 vagyon",
+    "res.buried": "El\xE1sott vagyon",
+    "res.found": "Felt\xE1rt vagyon (hat\xF3s\xE1g)",
+    "res.exposed": "Fedetlen g\xF6d\xF6rben hagyva",
+    "res.transit": "Sz\xE1ll\xEDt\xE1s k\xF6zben elkobozva",
+    "res.van": "A furgonban maradt",
+    "res.hand": "K\xE9zben maradt a z\xE1r\xE1s pillanat\xE1ban",
+    "res.sites": "Lez\xE1rt elrejt\xE9si helysz\xEDnek",
+    "res.sitesV": "{n} db{e}",
+    "res.sitesE": " (+{n} \xFCres)",
+    "res.caught": "Hat\xF3s\xE1gi feltart\xF3ztat\xE1sok",
+    "res.caughtV": "{n} alkalom",
+    "res.best": "Legjobb eredm\xE9ny: {amt}",
+    "stamp.ok": "J\xD3V\xC1HAGYVA",
+    "stamp.closed": "LEZ\xC1RVA",
+    "v.zero": "\xC9rt\xE9kel\xE9s: a portf\xF3li\xF3 teljes eg\xE9sz\xE9ben hat\xF3s\xE1gi kezel\xE9sbe vagy a furgonba ker\xFClt.",
+    "v.top": "\xC9rt\xE9kel\xE9s: kiemelked\u0151 talajszint alatti allok\xE1ci\xF3. A k\xF6nyvvizsg\xE1l\xF3 nem tal\xE1lt \xE1s\xF3t.",
+    "v.good": "\xC9rt\xE9kel\xE9s: kiegyens\xFAlyozott portf\xF3li\xF3, m\xE9rs\xE9kelt hat\xF3s\xE1gi kitetts\xE9ggel.",
+    "v.mid": "\xC9rt\xE9kel\xE9s: konzervat\xEDv strat\xE9gia. A furgon likvidit\xE1sa tov\xE1bbra is jelent\u0151s.",
+    "v.low": "\xC9rt\xE9kel\xE9s: a diverzifik\xE1ci\xF3 korai szakaszban maradt.",
+    "mis.main": "Rejtsd el a 9 milli\xE1rd forintot, miel\u0151tt lej\xE1r az id\u0151!",
+    "mis.camo": "T\xFCntess el 3 friss f\xF6ldkupacot!",
+    "mis.clean": "\xC1ss el egymilli\xE1rdot lebuk\xE1s n\xE9lk\xFCl!",
+    "mis.remote": "Rejts el p\xE9nzt az erd\u0151 legt\xE1volabbi r\xE9sz\xE9n!",
+    "mis.mainP": "{a} / 9\xA0000 M Ft",
+    "mis.caught": "lebuk\xE1s",
+    "mis.bags": "{n}/4 zs\xE1k",
+    "mis.done": "k\xE9sz",
+    "mis.zone": "jel\xF6lt z\xF3na",
+    "mis.doneMain": "F\u0151k\xFCldet\xE9s teljes\xEDtve. A teljes vagyon talajszint alatt.",
+    "mis.doneSide": "Mell\xE9kk\xFCldet\xE9s teljes\xEDtve: {t}",
+    "n.start": "Vagyon\xE1trendez\xE9s folyamatban.",
+    "n.deposit": "Vagyon\xE1trendez\xE9s folyamatban. Betemet\xE9s: SPACE",
+    "n.dug": "G\xF6d\xF6r k\xE9sz. P\xE9nz elhelyez\xE9se: E",
+    "n.covered": "{m} forint talajszint al\xE1 ker\xFClt.",
+    "n.coveredEmpty": "\xDCres g\xF6d\xF6r betemetve. Megt\xE9veszt\u0151 vagyonelem.",
+    "n.camo": "A vagyon f\xF6ldrajzi diverzifik\xE1ci\xF3ja sikeres.",
+    "n.camoEmpty": "Felsz\xEDn helyre\xE1ll\xEDtva.",
+    "n.vanEmpty": "A furgon ki\xFCr\xFClt. Likvidit\xE1s: nulla.",
+    "n.phase1": "Hat\xF3s\xE1gi aktivit\xE1s: FOKOZOTT. \xDAjabb nyomoz\xF3 \xE9rkezett.",
+    "n.phase2": "RAZZIA. A keres\xE9s intenzit\xE1sa n\xF6vekedett.",
+    "n.arrived": "Egy nyomoz\xF3 \xE9rkezett az erdei \xFAtra.",
+    "n.chase": "V\xE1ratlan hat\xF3s\xE1gi \xE9rdekl\u0151d\xE9s.",
+    "n.caught": "A befektet\xE9s likvidit\xE1sa cs\xF6kkent.",
+    "n.caught2": "Elkobozva: {amt} \xB7 id\u0151vesztes\xE9g: {s} mp",
+    "n.found": "A portf\xF3li\xF3 egy r\xE9sze felsz\xEDnre ker\xFClt.",
+    "n.found2": "A hat\xF3s\xE1g \xFAj vagyonelemet azonos\xEDtott: \u2212{amt}",
+    "n.emptyFound": "A hat\xF3s\xE1g \xFCres g\xF6dr\xF6t dokument\xE1lt.",
+    "n.risk": "Kitetts\xE9gi kock\xE1zat n\xF6vekedett.",
+    "p.pick": "P\xE9nz felv\xE9tele \xB7 {n}/2",
+    "p.vanEmpty": "A furgon \xFCres.",
+    "p.full": "Teherb\xEDr\xE1s el\xE9rve \xB7 2/2",
+    "p.inspect": "Hat\xF3s\xE1gi vizsg\xE1lat alatt",
+    "p.place": "P\xE9nz elhelyez\xE9se",
+    "p.placeMore": "\xDAjabb zs\xE1k \xB7 SPACE: betemet\xE9s",
+    "p.digOn": "\xC1s\xE1s folytat\xE1sa",
+    "p.bury": "Betemet\xE9s \xB7 {n} zs\xE1k",
+    "p.buryEmpty": "Betemet\xE9s (\xFCres csali)",
+    "p.camo": "\xC1lc\xE1z\xE1s",
+    "p.hidden": "Elrejtett vagyonelem",
+    "p.decoy": "Megt\xE9veszt\u0151 vagyonelem",
+    "p.dig": "\xC1s\xE1s",
+    "d.road": "A k\xF6vezetlen \xFAt nem \xE1shat\xF3.",
+    "d.van": "T\xFAl k\xF6zel a j\xE1rm\u0171h\xF6z.",
+    "d.root": "Gy\xF6k\xE9rzet. Kiss\xE9 arr\xE9bb.",
+    "d.near": "T\xFAl k\xF6zel egy m\xE1sik g\xF6d\xF6rh\xF6z.",
+    "d.vanEmpty": "A furgon \xFCres.",
+    "d.full": "Teherb\xEDr\xE1s el\xE9rve (2/2).",
+    "d.noCash": "Nincs cipelt p\xE9nz.",
+    "d.holeFull": "Ez a g\xF6d\xF6r nem fogad t\xF6bb zs\xE1kot.",
+    "d.digFirst": "El\u0151bb \xE1sson g\xF6dr\xF6t.",
+    "d.inspect": "A helysz\xEDnt a hat\xF3s\xE1g vizsg\xE1lja.",
+    "d.placeFirst": "El\u0151bb helyezze el a p\xE9nzt: E",
+    "rotate": "Ford\xEDtsd el a telefont fekv\u0151 helyzetbe. A vagyonkezel\xE9s sz\xE9les k\xE9perny\u0151t ig\xE9nyel.",
+    "unit.mil": "milli\xF3",
+    "unit.bil": "milli\xE1rd"
+  };
+  var EN = {
+    "doc.title": "BILLION SHOVEL",
+    "who.name": "ASSET MANAGER",
+    "who.role": "Authorised portfolio manager",
+    "who.phase": "AUTHORITY PRESENCE: {n} INVESTIGATOR{s}",
+    "m.main": "MAIN OBJECTIVE",
+    "m.side": "SECONDARY OBJECTIVES",
+    "map.leg": "MAP",
+    "map.n": "N \u2191",
+    "fin.hidden": "HIDDEN ASSETS",
+    "fin.risk": "EXPOSURE RISK",
+    "fin.auth": "AUTHORITY ACTIVITY",
+    "timer.lbl": "TIME REMAINING",
+    "timer.pen": "\u221210 s",
+    "st.stam": "STAMINA",
+    "st.carried": "CASH CARRIED",
+    "st.van": "IN THE VAN",
+    "st.esc": "ESC \u2014 pause",
+    "van.bags": "{n} bags",
+    "pend": "+ {amt} in uncovered pits",
+    "touch.dig": "DIG",
+    "touch.cash": "CASH",
+    "touch.run": "SPRINT",
+    "phase.0": "LOW",
+    "phase.1": "ELEVATED",
+    "phase.2": "RAID",
+    "sound.on": "SOUND: ON",
+    "sound.off": "SOUND: OFF",
+    "lang.btn": "MAGYAR",
+    "start.title": "BILLION SHOVEL",
+    "start.sub": "A 2D ARCADE GAME OF ASSET CONCEALMENT",
+    "start.tag": "Money never disappears. It just goes underground.",
+    "start.foot": "Fictional satire. Invented characters, invented forest, real thousand separators. \xB7 v1.5",
+    "start.best": "Best protected assets so far: {amt}",
+    "btn.start": "NEW RUN",
+    "btn.howto": "HOW TO PLAY",
+    "btn.facts": "THE FACTS",
+    "btn.back": "BACK",
+    "btn.resume": "RESUME",
+    "btn.restart": "RESTART",
+    "btn.menu": "MAIN MENU",
+    "btn.skip": "SKIP \u25B8",
+    "how.stamp": "INTERNAL USE ONLY",
+    "how.title": "PROCEDURAL GUIDELINES",
+    "how.meta1": "FILE NO. BS-2026/180",
+    "how.meta2": "ENCLOSURE: 1 SHOVEL",
+    "how.controls": "CONTROLS",
+    "how.keys": "<div><b>W A S D / \u2190\u2191\u2193\u2192</b><span>Move</span></div><div><b>SHIFT</b><span>Sprint (stamina)</span></div><div><b>E</b><span>Pick up / place cash</span></div><div><b>SPACE (hold)</b><span>Dig \xB7 bury \xB7 camouflage</span></div><div><b>ESC</b><span>Pause</span></div><div><b>M</b><span>Sound on / off</span></div>",
+    "how.touch": "On a phone: left thumb \u2014 move; DIG (hold) \u2014 dig, bury, camouflage; CASH \u2014 pick up, place; SPRINT \u2014 sprint (hold).",
+    "how.risk": "RISK MANAGEMENT",
+    "how.risk1": "Investigators sweep the forest with flashlights. Entering a beam raises your exposure; carrying cash in plain sight triggers a chase. If caught, the cash you carry is confiscated and the session loses 10 seconds.",
+    "how.risk2": "An open pit is conspicuous, a covered one less so, a camouflaged one barely. Dense undergrowth and tall grass provide cover.",
+    "how.proc": "PROCEDURE",
+    "how.list": "<li>The van holds 36 bags of 250 million forints each. Pick up one or two at a time (E). Two bags slow you down.</li><li>Choose a site. Close to the van is quick but exposed; deep in the forest is safer but further away.</li><li>Dig a pit (SPACE, 2 s).</li><li>Place the cash (E), at most two bags per pit.</li><li>Bury it (SPACE, 1.5 s). Only buried cash counts as hidden.</li><li>Camouflage the surface (SPACE, 2 s).</li><li>Repeat for 180 seconds.</li>",
+    "how.note": "Empty pits can be buried too. The authorities document them with equal thoroughness. Conversion: \u20AC1 \u2248 {eur} HUF, $1 \u2248 {usd} HUF (early November 2026).",
+    "pause.title": "PROCEEDINGS SUSPENDED",
+    "pause.meta": "ASSETS AT REST",
+    "res.title": "ASSET MANAGEMENT REPORT",
+    "res.period": "PERIOD: 180 SECONDS",
+    "res.total": "PROTECTED ASSETS",
+    "res.date": "DATED: {d}",
+    "res.available": "Available assets",
+    "res.buried": "Buried assets",
+    "res.found": "Uncovered by the authorities",
+    "res.exposed": "Left in uncovered pits",
+    "res.transit": "Confiscated in transit",
+    "res.van": "Left in the van",
+    "res.hand": "In hand at closing",
+    "res.sites": "Closed concealment sites",
+    "res.sitesV": "{n}{e}",
+    "res.sitesE": " (+{n} empty)",
+    "res.caught": "Interceptions by the authorities",
+    "res.caughtV": "{n}\xD7",
+    "res.best": "Best result: {amt}",
+    "stamp.ok": "APPROVED",
+    "stamp.closed": "CLOSED",
+    "v.zero": "Assessment: the entire portfolio ended up with the authorities or in the van.",
+    "v.top": "Assessment: outstanding below-ground allocation. The auditor found no shovel.",
+    "v.good": "Assessment: balanced portfolio with moderate regulatory exposure.",
+    "v.mid": "Assessment: conservative strategy. Liquidity in the van remains significant.",
+    "v.low": "Assessment: diversification remained at an early stage.",
+    "mis.main": "Hide the 9 billion forints before time runs out!",
+    "mis.camo": "Make 3 fresh mounds disappear!",
+    "mis.clean": "Bury one billion without getting caught!",
+    "mis.remote": "Hide cash in the most remote part of the forest!",
+    "mis.mainP": "{a} / 9,000 M HUF",
+    "mis.caught": "caught",
+    "mis.bags": "{n}/4 bags",
+    "mis.done": "done",
+    "mis.zone": "marked zone",
+    "mis.doneMain": "Main objective complete. All assets are below ground level.",
+    "mis.doneSide": "Secondary objective complete: {t}",
+    "n.start": "Asset reallocation in progress.",
+    "n.deposit": "Asset reallocation in progress. Bury: SPACE",
+    "n.dug": "Pit ready. Place the cash: E",
+    "n.covered": "{m} forints moved below ground level.",
+    "n.coveredEmpty": "Empty pit buried. Decoy asset.",
+    "n.camo": "Geographic diversification of assets successful.",
+    "n.camoEmpty": "Surface restored.",
+    "n.vanEmpty": "The van is empty. Liquidity: zero.",
+    "n.phase1": "Authority activity: ELEVATED. Another investigator has arrived.",
+    "n.phase2": "RAID. Search intensity has increased.",
+    "n.arrived": "An investigator has arrived on the forest road.",
+    "n.chase": "Unexpected interest from the authorities.",
+    "n.caught": "Liquidity of the investment has decreased.",
+    "n.caught2": "Confiscated: {amt} \xB7 time lost: {s} s",
+    "n.found": "Part of the portfolio has surfaced.",
+    "n.found2": "The authorities identified a new asset: \u2212{amt}",
+    "n.emptyFound": "The authorities documented an empty pit.",
+    "n.risk": "Exposure risk has increased.",
+    "p.pick": "Pick up cash \xB7 {n}/2",
+    "p.vanEmpty": "The van is empty.",
+    "p.full": "Capacity reached \xB7 2/2",
+    "p.inspect": "Under official investigation",
+    "p.place": "Place cash",
+    "p.placeMore": "Another bag \xB7 SPACE: bury",
+    "p.digOn": "Keep digging",
+    "p.bury": "Bury \xB7 {n} bag{s}",
+    "p.buryEmpty": "Bury (empty decoy)",
+    "p.camo": "Camouflage",
+    "p.hidden": "Hidden asset",
+    "p.decoy": "Decoy asset",
+    "p.dig": "Dig",
+    "d.road": "The dirt road cannot be dug.",
+    "d.van": "Too close to the vehicle.",
+    "d.root": "Roots. Move a little.",
+    "d.near": "Too close to another pit.",
+    "d.vanEmpty": "The van is empty.",
+    "d.full": "Capacity reached (2/2).",
+    "d.noCash": "No cash in hand.",
+    "d.holeFull": "This pit takes no more bags.",
+    "d.digFirst": "Dig a pit first.",
+    "d.inspect": "The site is under official investigation.",
+    "d.placeFirst": "Place the cash first: E",
+    "rotate": "Turn your phone sideways. Asset management requires a wide screen.",
+    "unit.mil": "million",
+    "unit.bil": "billion"
+  };
+  var DICTS = { hu: HU, en: EN };
+  function t(key, vars = {}) {
+    let s = DICTS[LANG][key] ?? HU[key] ?? key;
+    for (const [k, v] of Object.entries(vars)) s = s.split(`{${k}}`).join(String(v));
+    return s;
+  }
+  function detectLang() {
+    try {
+      const q = new URLSearchParams(location.search).get("lang");
+      if (q === "hu" || q === "en") return q;
+    } catch {
+    }
+    const forced = window.__FORCE_LANG;
+    if (forced === "hu" || forced === "en") return forced;
+    try {
+      const saved = localStorage.getItem("milliardaso-lang");
+      if (saved === "hu" || saved === "en") return saved;
+    } catch {
+    }
+    const langs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || "en"];
+    return langs[0] && langs[0].toLowerCase().startsWith("hu") ? "hu" : "en";
+  }
+  function setLang(l, remember = false) {
+    LANG = l;
+    if (remember) {
+      try {
+        localStorage.setItem("milliardaso-lang", l);
+      } catch {
+      }
+    }
+    document.documentElement.lang = l;
+    document.title = t("doc.title");
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      el.textContent = t(el.dataset.i18n);
+    });
+    document.querySelectorAll("[data-i18n-html]").forEach((el) => {
+      el.innerHTML = t(el.dataset.i18nHtml, { eur: FX.EUR, usd: FX.USD });
+    });
+    document.body.classList.toggle("lang-en", l === "en");
+    document.body.classList.toggle("lang-hu", l === "hu");
+  }
+  var group = (n, sep) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep);
+  function money(huf) {
+    return LANG === "en" ? `${group(huf, ",")}\xA0HUF` : `${group(huf, "\xA0")}\xA0Ft`;
+  }
+  function short(v) {
+    const dec = LANG === "en" ? "." : ",";
+    if (v >= 1e6) return (v / 1e6).toFixed(v >= 1e8 ? 0 : 1).replace(".", dec) + "\xA0M";
+    if (v >= 1e3) return Math.round(v / 1e3) + "\xA0k";
+    return String(Math.round(v));
+  }
+  function fx(huf) {
+    if (huf <= 0) return "";
+    const e = huf / FX.EUR, d = huf / FX.USD;
+    return LANG === "en" ? `\u2248 \u20AC${short(e)} \xB7 $${short(d)}` : `\u2248 ${short(e)} \u20AC \xB7 ${short(d)} $`;
+  }
+  function bagsWords(bags) {
+    const m = bags * BAG_VALUE / 1e6;
+    if (m >= 1e3) {
+      const b = (m / 1e3).toString().replace(".", LANG === "en" ? "." : ",");
+      return `${b} ${t("unit.bil")}`;
+    }
+    return `${m} ${t("unit.mil")}`;
+  }
+
   // src/digging.ts
   var nextId = 1;
   var DiggingSystem = class {
@@ -1286,10 +1658,10 @@ body.touch .keyonly{display:none}
       return best;
     }
     canDigAt(x, y) {
-      if (!this.level.isDiggable(x, y)) return "A k\xF6vezetlen \xFAt nem \xE1shat\xF3.";
-      if (this.level.inVanZone(x, y)) return "T\xFAl k\xF6zel a j\xE1rm\u0171h\xF6z.";
-      if (this.coll.nearSolid(x, y, 3)) return "Gy\xF6k\xE9rzet. Kiss\xE9 arr\xE9bb.";
-      for (const h of this.holes) if (Math.hypot(h.x - x, h.y - y) < 15) return "T\xFAl k\xF6zel egy m\xE1sik g\xF6d\xF6rh\xF6z.";
+      if (!this.level.isDiggable(x, y)) return t("d.road");
+      if (this.level.inVanZone(x, y)) return t("d.van");
+      if (this.coll.nearSolid(x, y, 3)) return t("d.root");
+      for (const h of this.holes) if (Math.hypot(h.x - x, h.y - y) < 15) return t("d.near");
       return null;
     }
     create(x, y, now) {
@@ -1813,29 +2185,29 @@ body.touch .keyonly{display:none}
       return [
         {
           id: "main",
-          text: "Rejtsd el a 6,5 milli\xE1rd forintot, miel\u0151tt lej\xE1r az id\u0151!",
-          progress: `${fmtNum(hiddenBags * BAG_VALUE / 1e6)} / 6\xA0500 M Ft`,
+          text: t("mis.main"),
+          progress: t("mis.mainP", { a: LANG === "en" ? (hiddenBags * BAG_VALUE / 1e6).toLocaleString("en-US") : fmtNum(hiddenBags * BAG_VALUE / 1e6) }),
           done: hiddenBags >= TOTAL_BAGS,
           failed: false
         },
         {
           id: "camo",
-          text: "T\xFCntess el 3 friss f\xF6ldkupacot!",
+          text: t("mis.camo"),
           progress: `${Math.min(3, this.camoCount)}/3`,
           done: this.camoCount >= 3,
           failed: false
         },
         {
           id: "clean",
-          text: "\xC1ss el egymilli\xE1rdot lebuk\xE1s n\xE9lk\xFCl!",
-          progress: cleanDone ? "4/4" : this.caught ? "lebuk\xE1s" : `${this.hiddenCleanBags}/4 zs\xE1k`,
+          text: t("mis.clean"),
+          progress: cleanDone ? "4/4" : this.caught ? t("mis.caught") : t("mis.bags", { n: this.hiddenCleanBags }),
           done: cleanDone,
           failed: !cleanDone && this.caught
         },
         {
           id: "remote",
-          text: "Rejts el p\xE9nzt az erd\u0151 legt\xE1volabbi r\xE9sz\xE9n!",
-          progress: this.remoteDone ? "k\xE9sz" : "jel\xF6lt z\xF3na",
+          text: t("mis.remote"),
+          progress: this.remoteDone ? t("mis.done") : t("mis.zone"),
           done: this.remoteDone,
           failed: false
         }
@@ -1891,12 +2263,12 @@ body.touch .keyonly{display:none}
         for (let x = 0; x < WORLD_W; x++) {
           const jx = (hash2(x >> 1, y >> 1, 41) - 0.5) * 6, jy = (hash2(x >> 1, y >> 1, 43) - 0.5) * 6;
           const sx = Math.min(WORLD_W - 1, Math.max(0, x + jx)), sy = Math.min(WORLD_H - 1, Math.max(0, y + jy));
-          const t = L.terrain[Math.floor(sy / CELL) * CW + Math.floor(sx / CELL)];
-          const pal = GROUND[t];
+          const t2 = L.terrain[Math.floor(sy / CELL) * CW + Math.floor(sx / CELL)];
+          const pal = GROUND[t2];
           const n = valueNoise(x / 9, y / 9, 5) * 0.55 + hash2(x, y, 7) * 0.45;
           let idx = n < 0.3 ? 3 : n < 0.5 ? 0 : n < 0.68 ? 1 : n < 0.86 ? 2 : 4;
           let [r, g2, b] = pal[idx];
-          if (t === T.ROAD) {
+          if (t2 === T.ROAD) {
             const dr = distToPolyline(x, y, road);
             const rut = Math.abs(dr - 6);
             if (rut < 1.6) {
@@ -1920,7 +2292,7 @@ body.touch .keyonly{display:none}
                 b = 160;
               }
             }
-          } else if (t === T.FLOOR) {
+          } else if (t2 === T.FLOOR) {
             const h = hash2(x, y, 11);
             if (h > 0.985) {
               r = 74;
@@ -1931,7 +2303,7 @@ body.touch .keyonly{display:none}
               g2 = 44;
               b = 30;
             }
-          } else if (t === T.GRASS || t === T.TALL) {
+          } else if (t2 === T.GRASS || t2 === T.TALL) {
             const h = hash2(x, y, 13);
             if (h > 0.992) {
               r = 70;
@@ -2002,9 +2374,9 @@ body.touch .keyonly{display:none}
         if (conifer) {
           const top = 4, base = ay - 9;
           if (y < top || y > base) return -1;
-          const t = (y - top) / (base - top);
+          const t2 = (y - top) / (base - top);
           const tier = (y - top) % 9 / 9;
-          const hw = 2 + t * 13 * (0.65 + tier * 0.35);
+          const hw = 2 + t2 * 13 * (0.65 + tier * 0.35);
           const dx = Math.abs(x - ax);
           return dx < hw ? hw - dx : -1;
         }
@@ -2188,7 +2560,7 @@ body.touch .keyonly{display:none}
     }
     // ------------------------------------------------------------------ vehicles
     /** White delivery van, rear doors open toward the viewer, cargo visible. */
-    drawVan(ctx, sx, sy, bags, highlight, t) {
+    drawVan(ctx, sx, sy, bags, highlight, t2) {
       const x = Math.round(sx), y = Math.round(sy);
       ctx.fillStyle = "rgba(3,6,10,0.45)";
       ctx.fillRect(x - 1, y + 4, 40, 58);
@@ -2260,7 +2632,7 @@ body.touch .keyonly{display:none}
       ctx.fillStyle = "#e8d38a";
       ctx.fillRect(x + 15, ry + 12, 6, 1);
       if (highlight) {
-        const a = 0.35 + Math.sin(t * 5) * 0.15;
+        const a = 0.35 + Math.sin(t2 * 5) * 0.15;
         ctx.strokeStyle = `rgba(232,205,140,${a})`;
         ctx.strokeRect(x + 4.5, ry + 0.5, 27, 12);
       }
@@ -2298,7 +2670,7 @@ body.touch .keyonly{display:none}
       ctx.fillRect(x + 21, y + 9, 4, 2);
     }
     // ------------------------------------------------------------------ burial sites
-    drawHole(ctx, h, sx, sy, t) {
+    drawHole(ctx, h, sx, sy, t2) {
       const x = Math.round(sx), y = Math.round(sy);
       const dirt = "#4b3524", dirtHi = "#654832", dirtDk = "#33241a", pit = "#0f0a07";
       const fresh = "#3f2d1f";
@@ -2508,8 +2880,8 @@ body.touch .keyonly{display:none}
     const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
     ctx.fillStyle = "#6a4a2c";
     for (let i = 0; i <= n; i++) {
-      const t = n ? i / n : 0;
-      ctx.fillRect(Math.round(x0 + (x1 - x0) * t), Math.round(y0 + (y1 - y0) * t), 1, 1);
+      const t2 = n ? i / n : 0;
+      ctx.fillRect(Math.round(x0 + (x1 - x0) * t2), Math.round(y0 + (y1 - y0) * t2), 1, 1);
     }
     ctx.fillStyle = "#4a3420";
     ctx.fillRect(Math.round(x0) - 1, Math.round(y0), 3, 1);
@@ -2526,11 +2898,11 @@ body.touch .keyonly{display:none}
   }
   function poseFor(o) {
     const P = { legL: 0, legR: 0, armL: 0, armR: 0, bob: 0, crouch: 0, lean: 0, armsUp: false, handFace: false, flap: 0, armsOut: 0 };
-    const t = o.t;
+    const t2 = o.t;
     const bags = o.bags || 0;
     switch (o.anim) {
       case "idle": {
-        P.bob = Math.sin(t * 2.2) > 0.75 ? 1 : 0;
+        P.bob = Math.sin(t2 * 2.2) > 0.75 ? 1 : 0;
         const it = o.idleT || 0;
         if (it > 3 && it % 6 < 0.7) P.handFace = true;
         if (bags === 2) P.crouch = 1;
@@ -2538,7 +2910,7 @@ body.touch .keyonly{display:none}
       }
       case "walk": {
         const f2 = bags === 2 ? 2.4 : 3;
-        const s = Math.sin(t * Math.PI * f2);
+        const s = Math.sin(t2 * Math.PI * f2);
         P.legL = s > 0.2 ? 1 : 0;
         P.legR = s < -0.2 ? 1 : 0;
         P.armL = Math.round(s);
@@ -2553,7 +2925,7 @@ body.touch .keyonly{display:none}
       }
       case "run": {
         const f2 = bags === 2 ? 3.6 : 4.8;
-        const s = Math.sin(t * Math.PI * f2);
+        const s = Math.sin(t2 * Math.PI * f2);
         P.legL = s > 0 ? Math.round(s * 2) : 0;
         P.legR = s < 0 ? Math.round(-s * 2) : 0;
         P.armL = Math.round(s * 2);
@@ -2568,7 +2940,7 @@ body.touch .keyonly{display:none}
         break;
       }
       case "dig": {
-        const c = t % 0.66 / 0.66;
+        const c = t2 % 0.66 / 0.66;
         P.crouch = c > 0.45 ? 2 : 0;
         P.lean = c > 0.45 ? 1 : 0;
         P.legL = c > 0.45 && c < 0.7 ? 1 : 0;
@@ -2582,21 +2954,21 @@ body.touch .keyonly{display:none}
       case "camo":
       case "search": {
         P.crouch = 4;
-        const s = Math.sin(t * 9);
+        const s = Math.sin(t2 * 9);
         P.armL = Math.round(s);
         P.armR = -Math.round(s);
         break;
       }
       case "deposit":
       case "pickup": {
-        const k = Math.sin(Math.min(1, t / 0.4) * Math.PI);
+        const k = Math.sin(Math.min(1, t2 / 0.4) * Math.PI);
         P.crouch = Math.round(k * 3);
         P.lean = 1;
         break;
       }
       case "caught": {
         P.armsUp = true;
-        P.bob = Math.floor(t * 12) % 2;
+        P.bob = Math.floor(t2 * 12) % 2;
         break;
       }
       case "investigate":
@@ -2752,13 +3124,13 @@ body.touch .keyonly{display:none}
       P.p(-4 + hx, h + 7, C.mouth);
       P.r(-2 + hx, h + 1, 2, 1, C.hairHi);
     }
-    const fx = o.dir === 2 ? -1 : o.dir === 3 ? 1 : 0;
+    const fx2 = o.dir === 2 ? -1 : o.dir === 3 ? 1 : 0;
     const fy = o.dir === 0 ? 1 : o.dir === 1 ? -1 : 0;
     if (o.anim === "dig") {
       const c = o.t % 0.66 / 0.66;
       if (side) {
-        if (c > 0.45) drawShovel(ctx, x + fx * 1, y + top + 2, x + fx * 9, y - 2);
-        else drawShovel(ctx, x - fx * 1, y + top - 1, x + fx * 8, y + top + 6);
+        if (c > 0.45) drawShovel(ctx, x + fx2 * 1, y + top + 2, x + fx2 * 9, y - 2);
+        else drawShovel(ctx, x - fx2 * 1, y + top - 1, x + fx2 * 8, y + top + 6);
       } else if (o.dir === 0) {
         if (c > 0.45) drawShovel(ctx, x + 2, y + top + 3, x + 2, y + 1);
         else drawShovel(ctx, x + 5, y + top - 2, x + 3, y + top + 7);
@@ -2767,12 +3139,12 @@ body.touch .keyonly{display:none}
       }
     } else if (o.anim === "cover") {
       const s = Math.round(Math.sin(o.t * 7) * 4);
-      if (side) drawShovel(ctx, x + fx * 0, y + top + 3, x + fx * 9 + s * 0.5, y + 0);
+      if (side) drawShovel(ctx, x + fx2 * 0, y + top + 3, x + fx2 * 9 + s * 0.5, y + 0);
       else if (o.dir === 0) drawShovel(ctx, x + 1, y + top + 4, x + s, y + 3);
       else drawShovel(ctx, x + 1, y + top + 4, x + s, y + top - 2, false);
     } else if ((o.anim === "deposit" || o.anim === "pickup") && o.dir !== 1) {
       const k = Math.min(1, o.t / 0.4);
-      if (o.anim === "deposit") drawBag(ctx, x + fx * 7, y - 6 + Math.round(k * 4) + fy * 3);
+      if (o.anim === "deposit") drawBag(ctx, x + fx2 * 7, y - 6 + Math.round(k * 4) + fy * 3);
     }
   }
   function drawBagP(P, dx, dy) {
@@ -3038,11 +3410,11 @@ body.touch .keyonly{display:none}
       const cx = Math.round(g2.camX), cy = Math.round(g2.camY);
       const env = g2.env;
       const L = g2.level;
-      const t = g2.clock;
+      const t2 = g2.clock;
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(env.ground, cx, cy, VIEW_W, VIEW_H, 0, 0, VIEW_W, VIEW_H);
       const onScreen = (x, y, m = 60) => x > cx - m && x < cx + VIEW_W + m && y > cy - m && y < cy + VIEW_H + m;
-      for (const h of g2.dig.holes) if (onScreen(h.x, h.y)) env.drawHole(ctx, h, h.x - cx, h.y - cy, t);
+      for (const h of g2.dig.holes) if (onScreen(h.x, h.y)) env.drawHole(ctx, h, h.x - cx, h.y - cy, t2);
       const items = [];
       const p = g2.player;
       const people = [{ x: p.x, y: p.y }, ...g2.investigators.map((i) => ({ x: i.x, y: i.y }))];
@@ -3060,7 +3432,7 @@ body.touch .keyonly{display:none}
           items.push({ y: o.y, d: () => env.drawTree(ctx, o, o.x - cx, o.y - cy, alpha) });
         } else if (o.kind === "rock") items.push({ y: o.sortY, d: () => env.drawRock(ctx, o, o.x - cx, o.y - cy) });
         else if (o.kind === "log") items.push({ y: o.sortY, d: () => env.drawLog(ctx, o, o.x - cx, o.y - cy) });
-        else if (o.kind === "van") items.push({ y: o.sortY, d: () => env.drawVan(ctx, o.x - cx, o.y - cy, g2.money.van, g2.nearVan, t) });
+        else if (o.kind === "van") items.push({ y: o.sortY, d: () => env.drawVan(ctx, o.x - cx, o.y - cy, g2.money.van, g2.nearVan, t2) });
         else if (o.kind === "car") items.push({ y: o.sortY, d: () => env.drawCar(ctx, o.x - cx, o.y - cy) });
       }
       for (const b of L.bushes) {
@@ -3104,10 +3476,10 @@ body.touch .keyonly{display:none}
       }
       ctx.globalAlpha = 1;
       for (const f2 of this.fogs) {
-        const fx = (f2.x + t * f2.v) % 1500 - 80 - cx, fy = f2.y - cy;
-        if (fx < -260 || fx > VIEW_W + 60 || fy < -120 || fy > VIEW_H + 60) continue;
+        const fx2 = (f2.x + t2 * f2.v) % 1500 - 80 - cx, fy = f2.y - cy;
+        if (fx2 < -260 || fx2 > VIEW_W + 60 || fy < -120 || fy > VIEW_H + 60) continue;
         ctx.globalAlpha = 0.05;
-        ctx.drawImage(env.fog, Math.round(fx), Math.round(fy), Math.round(128 * f2.s), Math.round(64 * f2.s));
+        ctx.drawImage(env.fog, Math.round(fx2), Math.round(fy), Math.round(128 * f2.s), Math.round(64 * f2.s));
       }
       ctx.globalAlpha = 1;
       const lights = [];
@@ -3126,7 +3498,7 @@ body.touch .keyonly{display:none}
       for (const h of g2.dig.holes) {
         if (h.state === "EXCAVATED" && onScreen(h.x, h.y)) lights.push({ k: "radial", x: h.x - cx, y: h.y - cy, r: 12, cut: 0.25 });
       }
-      const alarm = g2.investigators.some((i) => i.state === "CHASE") ? 0.6 + Math.sin(t * 6) * 0.4 : 0;
+      const alarm = g2.investigators.some((i) => i.state === "CHASE") ? 0.6 + Math.sin(t2 * 6) * 0.4 : 0;
       this.lighting.render(ctx, lights, 0.5, alarm);
       this.markers(g2, cx, cy);
     }
@@ -3142,7 +3514,7 @@ body.touch .keyonly{display:none}
     }
     markers(g2, cx, cy) {
       const ctx = this.ctx;
-      const t = g2.clock;
+      const t2 = g2.clock;
       for (const h of g2.dig.holes) {
         if (h.state !== "COVERED" && h.state !== "CAMO") continue;
         const x = Math.round(h.x - cx), y = Math.round(h.y - cy - 9);
@@ -3186,14 +3558,14 @@ body.touch .keyonly{display:none}
         const sx = inv.x - cx, sy = inv.y - cy;
         if (sx >= 0 && sx <= VIEW_W && sy >= 0 && sy <= VIEW_H) continue;
         const ex = Math.max(6, Math.min(VIEW_W - 6, sx)), ey = Math.max(6, Math.min(VIEW_H - 6, sy));
-        ctx.fillStyle = `rgba(224,90,70,${0.6 + Math.sin(t * 8) * 0.3})`;
+        ctx.fillStyle = `rgba(224,90,70,${0.6 + Math.sin(t2 * 8) * 0.3})`;
         ctx.fillRect(Math.round(ex) - 2, Math.round(ey) - 2, 4, 4);
       }
     }
   };
 
   // src/state.ts
-  var SCREENS = { menu: "scrStart", howto: "scrHow", paused: "scrPause", results: "scrResults" };
+  var SCREENS = { menu: "scrStart", howto: "scrHow", facts: "scrFacts", paused: "scrPause", results: "scrResults" };
   var GameStateManager = class {
     constructor() {
       this.state = "menu";
@@ -3219,24 +3591,26 @@ body.touch .keyonly{display:none}
   var $ = (id) => document.getElementById(id);
   function verdict(r) {
     const ratio = r.final / TOTAL_MONEY;
-    if (r.final === 0) return "\xC9rt\xE9kel\xE9s: a portf\xF3li\xF3 teljes eg\xE9sz\xE9ben hat\xF3s\xE1gi kezel\xE9sbe vagy a furgonba ker\xFClt.";
-    if (ratio >= 0.85) return "\xC9rt\xE9kel\xE9s: kiemelked\u0151 talajszint alatti allok\xE1ci\xF3. A k\xF6nyvvizsg\xE1l\xF3 nem tal\xE1lt \xE1s\xF3t.";
-    if (ratio >= 0.55) return "\xC9rt\xE9kel\xE9s: kiegyens\xFAlyozott portf\xF3li\xF3, m\xE9rs\xE9kelt hat\xF3s\xE1gi kitetts\xE9ggel.";
-    if (ratio >= 0.3) return "\xC9rt\xE9kel\xE9s: konzervat\xEDv strat\xE9gia. A furgon likvidit\xE1sa tov\xE1bbra is jelent\u0151s.";
-    return "\xC9rt\xE9kel\xE9s: a diverzifik\xE1ci\xF3 korai szakaszban maradt.";
+    if (r.final === 0) return t("v.zero");
+    if (ratio >= 0.85) return t("v.top");
+    if (ratio >= 0.55) return t("v.good");
+    if (ratio >= 0.3) return t("v.mid");
+    return t("v.low");
   }
   function showResults(r, best) {
-    const row = (k, v, neg = false, small = false) => `<div class="${small ? "small" : ""}"><span>${k}</span><span class="mono ${neg && v > 0 ? "neg" : ""}">${neg && v > 0 ? "\u2212" : ""}${fmtFt(v)}</span></div>`;
-    $("rep").innerHTML = row("El\xE9rhet\u0151 vagyon", TOTAL_MONEY) + row("El\xE1sott vagyon", r.deposited) + row("Felt\xE1rt vagyon (hat\xF3s\xE1g)", r.discovered, true) + (r.exposedLeft > 0 ? row("Fedetlen g\xF6d\xF6rben hagyva", r.exposedLeft, true) : "") + row("Sz\xE1ll\xEDt\xE1s k\xF6zben elkobozva", r.confCarried, false, true) + row("A furgonban maradt", r.van, false, true) + (r.carriedEnd > 0 ? row("K\xE9zben maradt a z\xE1r\xE1s pillanat\xE1ban", r.carriedEnd, false, true) : "") + `<div class="small"><span>Lez\xE1rt elrejt\xE9si helysz\xEDnek</span><span class="mono">${r.sites} db${r.decoys ? ` (+${r.decoys} \xFCres)` : ""}</span></div><div class="small"><span>Hat\xF3s\xE1gi feltart\xF3ztat\xE1sok</span><span class="mono">${r.caught} alkalom</span></div>`;
-    $("repFinal").textContent = fmtFt(r.final);
-    $("verdict").textContent = verdict(r) + (best > 0 ? `  \xB7  Legjobb eredm\xE9ny: ${fmtFt(best)}` : "");
+    const row = (k, v, neg = false, small = false) => `<div class="${small ? "small" : ""}"><span>${t(k)}</span><span class="mono ${neg && v > 0 ? "neg" : ""}">${neg && v > 0 ? "\u2212" : ""}${money(v)}</span></div>`;
+    $("rep").innerHTML = row("res.available", TOTAL_MONEY) + row("res.buried", r.deposited) + row("res.found", r.discovered, true) + (r.exposedLeft > 0 ? row("res.exposed", r.exposedLeft, true) : "") + row("res.transit", r.confCarried, false, true) + row("res.van", r.van, false, true) + (r.carriedEnd > 0 ? row("res.hand", r.carriedEnd, false, true) : "") + `<div class="small"><span>${t("res.sites")}</span><span class="mono">${t("res.sitesV", { n: r.sites, e: r.decoys ? t("res.sitesE", { n: r.decoys }) : "" })}</span></div><div class="small"><span>${t("res.caught")}</span><span class="mono">${t("res.caughtV", { n: r.caught })}</span></div>`;
+    $("repFinal").textContent = money(r.final);
+    $("repFx").textContent = fx(r.final);
+    $("verdict").textContent = verdict(r) + (best > 0 ? "  \xB7  " + t("res.best", { amt: money(best) }) : "");
     $("resMissions").innerHTML = r.missions.map((v) => {
       const cls = v.done ? "done" : v.failed ? "failed" : "";
       return `<div class="mi ${cls}"><span class="box"></span><span class="t">${v.text}</span></div>`;
     }).join("");
     const d = /* @__PURE__ */ new Date();
-    $("resDate").textContent = `KELT: ${d.getFullYear()}. ${String(d.getMonth() + 1).padStart(2, "0")}. ${String(d.getDate()).padStart(2, "0")}.`;
-    $("resStamp").textContent = r.final >= TOTAL_MONEY * 0.5 ? "J\xD3V\xC1HAGYVA" : "LEZ\xC1RVA";
+    const ds = LANG === "en" ? d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }).toUpperCase() : `${d.getFullYear()}. ${String(d.getMonth() + 1).padStart(2, "0")}. ${String(d.getDate()).padStart(2, "0")}.`;
+    $("resDate").textContent = t("res.date", { d: ds });
+    $("resStamp").textContent = r.final >= TOTAL_MONEY * 0.5 ? t("stamp.ok") : t("stamp.closed");
   }
 
   // src/game.ts
@@ -3283,7 +3657,7 @@ body.touch .keyonly{display:none}
     reset() {
       const L = this.level;
       this.player = new PlayerController(L.playerSpawn.x, L.playerSpawn.y, this.coll, L);
-      this.player.onStep = (t, run) => this.audio.step(t, run);
+      this.player.onStep = (t2, run) => this.audio.step(t2, run);
       this.money = new MoneySystem();
       this.dig = new DiggingSystem(L, this.coll);
       this.missions = new MissionSystem();
@@ -3307,24 +3681,24 @@ body.touch .keyonly{display:none}
       this.hud.show(true);
       this.audio.intensity = 0;
       this.audio.setMusic(true);
-      this.hud.note("Vagyon\xE1trendez\xE9s folyamatban.", "");
+      this.hud.note(t("n.start"), "");
     }
     // ======================================================================= frame
     update(dt) {
       this.clock += dt;
       this.audio.tickAmbience(dt);
       if (this.states.simulating) this.simulate(dt);
-      else if (this.states.state === "menu" || this.states.state === "howto") {
-        const t = this.clock * 0.04;
-        this.camX = clamp(180 + (Math.sin(t) * 0.5 + 0.5) * 520, 0, WORLD_W - VIEW_W);
-        this.camY = clamp(300 + Math.sin(t * 0.7) * 120, 0, WORLD_H - VIEW_H);
+      else if (this.states.state === "menu" || this.states.state === "howto" || this.states.state === "facts") {
+        const t2 = this.clock * 0.04;
+        this.camX = clamp(180 + (Math.sin(t2) * 0.5 + 0.5) * 520, 0, WORLD_W - VIEW_W);
+        this.camY = clamp(300 + Math.sin(t2 * 0.7) * 120, 0, WORLD_H - VIEW_H);
         this.player.anim = "idle";
         this.player.animT += dt;
         this.player.idleT += dt;
       }
       this.updateParticles(dt);
       this.renderer.render(this);
-      if (this.states.state !== "menu" && this.states.state !== "howto") this.hud.update(this);
+      if (this.states.state !== "menu" && this.states.state !== "howto" && this.states.state !== "facts") this.hud.update(this);
     }
     simulate(dt) {
       this.remaining -= dt;
@@ -3335,8 +3709,8 @@ body.touch .keyonly{display:none}
         this.phaseIdx = ph;
         this.audio.intensity = ph;
         this.audio.vehicle();
-        if (ph === 1) this.hud.note("Hat\xF3s\xE1gi aktivit\xE1s: FOKOZOTT. \xDAjabb nyomoz\xF3 \xE9rkezett.", "warn");
-        if (ph === 2) this.hud.note("RAZZIA. A keres\xE9s intenzit\xE1sa n\xF6vekedett.", "bad");
+        if (ph === 1) this.hud.note(t("n.phase1"), "warn");
+        if (ph === 2) this.hud.note(t("n.phase2"), "bad");
       }
       while (this.spawned < SPAWN_SCHEDULE.length && this.elapsed >= SPAWN_SCHEDULE[this.spawned]) this.spawnInvestigator();
       this.player.update(dt, this.input, this.money.carried);
@@ -3369,7 +3743,7 @@ body.touch .keyonly{display:none}
       inv.lookA = Math.PI;
       this.investigators.push(inv);
       this.audio.click();
-      if (i === 0) this.hud.note("Egy nyomoz\xF3 \xE9rkezett az erdei \xFAtra.", "warn");
+      if (i === 0) this.hud.note(t("n.arrived"), "warn");
     }
     updateVisibility() {
       const p = this.player;
@@ -3401,7 +3775,7 @@ body.touch .keyonly{display:none}
           m.takeFromVan();
           p.lock("pickup", PICKUP_TIME);
           this.audio.pickup();
-          if (m.van === 0) this.hud.note("A furgon ki\xFCr\xFClt. Likvidit\xE1s: nulla.", "warn");
+          if (m.van === 0) this.hud.note(t("n.vanEmpty"), "warn");
         } else if (hole && D.canDeposit(hole) && m.carried > 0 && !blockedByInv(hole)) {
           const n = Math.min(m.carried, HOLE_CAPACITY - hole.bags);
           m.deposit(hole, n);
@@ -3410,9 +3784,9 @@ body.touch .keyonly{display:none}
           this.face(hole.x, hole.y);
           p.lock("deposit", DEPOSIT_TIME);
           this.audio.deposit();
-          this.hud.note("Vagyon\xE1trendez\xE9s folyamatban. Betemet\xE9s: SPACE", "", 1);
+          this.hud.note(t("n.deposit"), "", 1);
         } else {
-          this.deny(this.nearVan ? m.van === 0 ? "A furgon \xFCres." : "Teherb\xEDr\xE1s el\xE9rve (2/2)." : m.carried === 0 ? "Nincs cipelt p\xE9nz." : hole ? "Ez a g\xF6d\xF6r nem fogad t\xF6bb zs\xE1kot." : "El\u0151bb \xE1sson g\xF6dr\xF6t.");
+          this.deny(this.nearVan ? m.van === 0 ? t("d.vanEmpty") : t("d.full") : m.carried === 0 ? t("d.noCash") : hole ? t("d.holeFull") : t("d.digFirst"));
         }
       }
       let acting = false;
@@ -3434,9 +3808,9 @@ body.touch .keyonly{display:none}
           if (!h && reason && this.input.pressed("Space")) this.deny(reason);
         }
         if (h && blockedByInv(h)) {
-          if (this.input.pressed("Space")) this.deny("A helysz\xEDnt a hat\xF3s\xE1g vizsg\xE1lja.");
+          if (this.input.pressed("Space")) this.deny(t("d.inspect"));
         } else if (h && h.state === "OPEN" && h.bags === 0 && m.carried > 0) {
-          if (this.input.pressed("Space")) this.deny("El\u0151bb helyezze el a p\xE9nzt: E");
+          if (this.input.pressed("Space")) this.deny(t("d.placeFirst"));
         } else if (h && h.state !== "CAMO" && h.state !== "EXCAVATED") {
           const act2 = D.spaceAction(h);
           p.action = act2;
@@ -3449,16 +3823,16 @@ body.touch .keyonly{display:none}
           this.actionFx(act2, h, dt);
           if (ev === "covered") {
             this.missions.onCovered(h);
-            if (h.bags > 0) this.hud.note(`${fmtMillio(h.bags, BAG_VALUE)} forint talajszint al\xE1 ker\xFClt.`, "good", 0.5);
-            else this.hud.note("\xDCres g\xF6d\xF6r betemetve. Megt\xE9veszt\u0151 vagyonelem.", "", 0.5);
+            if (h.bags > 0) this.hud.note(t("n.covered", { m: bagsWords(h.bags) }), "good", 0.5);
+            else this.hud.note(t("n.coveredEmpty"), "", 0.5);
           } else if (ev === "camo") {
             this.missions.onCamo(h);
-            if (h.bags > 0) this.hud.note("A vagyon f\xF6ldrajzi diverzifik\xE1ci\xF3ja sikeres.", "good");
-            else this.hud.note("Felsz\xEDn helyre\xE1ll\xEDtva.");
+            if (h.bags > 0) this.hud.note(t("n.camo"), "good");
+            else this.hud.note(t("n.camoEmpty"));
             this.audio.leaves();
           } else if (ev === "dug") {
             this.audio.soil();
-            if (m.carried > 0) this.hud.note("G\xF6d\xF6r k\xE9sz. P\xE9nz elhelyez\xE9se: E", "", 1);
+            if (m.carried > 0) this.hud.note(t("n.dug"), "", 1);
           }
         }
       }
@@ -3466,19 +3840,19 @@ body.touch .keyonly{display:none}
       if (this.denyT > 0) this.prompt = { key: "", text: this.denyText, deny: true };
       else if (!busy && !acting) {
         if (this.nearVan) {
-          if (m.van > 0 && m.carried < 2) this.prompt = { key: "E", text: `P\xE9nz felv\xE9tele \xB7 ${m.carried}/2` };
-          else if (m.van === 0) this.prompt = { key: "", text: "A furgon \xFCres." };
-          else this.prompt = { key: "", text: "Teherb\xEDr\xE1s el\xE9rve \xB7 2/2" };
+          if (m.van > 0 && m.carried < 2) this.prompt = { key: "E", text: t("p.pick", { n: m.carried }) };
+          else if (m.van === 0) this.prompt = { key: "", text: t("p.vanEmpty") };
+          else this.prompt = { key: "", text: t("p.full") };
         } else if (hole) {
-          if (blockedByInv(hole)) this.prompt = { key: "", text: "Hat\xF3s\xE1gi vizsg\xE1lat alatt" };
-          else if (D.canDeposit(hole) && m.carried > 0) this.prompt = { key: "E", text: hole.bags > 0 ? "\xDAjabb zs\xE1k \xB7 SPACE: betemet\xE9s" : "P\xE9nz elhelyez\xE9se" };
-          else if (hole.state === "DIGGING") this.prompt = { key: "SPACE", text: "\xC1s\xE1s folytat\xE1sa" };
-          else if (hole.state === "OPEN" || hole.state === "FILLED") this.prompt = { key: "SPACE", text: hole.bags > 0 ? `Betemet\xE9s \xB7 ${hole.bags} zs\xE1k` : "Betemet\xE9s (\xFCres csali)" };
-          else if (hole.state === "COVERED") this.prompt = { key: "SPACE", text: "\xC1lc\xE1z\xE1s" };
-          else if (hole.state === "CAMO") this.prompt = { key: "", text: hole.bags > 0 ? "Elrejtett vagyonelem" : "Megt\xE9veszt\u0151 vagyonelem" };
+          if (blockedByInv(hole)) this.prompt = { key: "", text: t("p.inspect") };
+          else if (D.canDeposit(hole) && m.carried > 0) this.prompt = { key: "E", text: hole.bags > 0 ? t("p.placeMore") : t("p.place") };
+          else if (hole.state === "DIGGING") this.prompt = { key: "SPACE", text: t("p.digOn") };
+          else if (hole.state === "OPEN" || hole.state === "FILLED") this.prompt = { key: "SPACE", text: hole.bags > 0 ? t("p.bury", { n: hole.bags, s: hole.bags > 1 ? "s" : "" }) : t("p.buryEmpty") };
+          else if (hole.state === "COVERED") this.prompt = { key: "SPACE", text: t("p.camo") };
+          else if (hole.state === "CAMO") this.prompt = { key: "", text: hole.bags > 0 ? t("p.hidden") : t("p.decoy") };
         } else if (!p.moving && p.idleT > 0.25) {
           const ok = [p.digPoint(), { x: p.x, y: p.y + 4 }, { x: p.x - 8, y: p.y + 3 }, { x: p.x + 8, y: p.y + 3 }, { x: p.x, y: p.y + 10 }].some((c) => !D.canDigAt(c.x, c.y));
-          if (ok) this.prompt = { key: "SPACE", text: "\xC1s\xE1s" };
+          if (ok) this.prompt = { key: "SPACE", text: t("p.dig") };
         }
       }
     }
@@ -3565,7 +3939,7 @@ body.touch .keyonly{display:none}
         onChase: (inv) => {
           this.audio.whistle();
           this.player.detectedT = 0.55;
-          this.hud.note("V\xE1ratlan hat\xF3s\xE1gi \xE9rdekl\u0151d\xE9s.", "bad", 6);
+          this.hud.note(t("n.chase"), "bad", 6);
           const radius = this.phaseIdx === 2 ? 320 : 200;
           for (const o of this.investigators) {
             if (o === inv || o.state === "CHASE" || o.state === "SEARCH") continue;
@@ -3587,8 +3961,8 @@ body.touch .keyonly{display:none}
           this.player.action = null;
           this.audio.caught();
           this.hud.penalty();
-          this.hud.note("A befektet\xE9s likvidit\xE1sa cs\xF6kkent.", "bad", 0.5);
-          this.hud.note(`Elkobozva: ${fmtFt(n * BAG_VALUE)} \xB7 id\u0151vesztes\xE9g: ${CATCH_PENALTY} mp`, "bad", 0.5);
+          this.hud.note(t("n.caught"), "bad", 0.5);
+          this.hud.note(t("n.caught2", { amt: money(n * BAG_VALUE), s: CATCH_PENALTY }), "bad", 0.5);
           for (const o of this.investigators) if (o.state === "CHASE") {
             o.ignoreT = 3;
             o.awareness = 0;
@@ -3598,14 +3972,14 @@ body.touch .keyonly{display:none}
           if (bags > 0) {
             this.money.confiscateHole(h);
             this.audio.confiscated();
-            this.hud.note("A portf\xF3li\xF3 egy r\xE9sze felsz\xEDnre ker\xFClt.", "bad", 0.5);
-            this.hud.note(`A hat\xF3s\xE1g \xFAj vagyonelemet azonos\xEDtott: \u2212${fmtFt(bags * BAG_VALUE)}`, "bad", 0.5);
+            this.hud.note(t("n.found"), "bad", 0.5);
+            this.hud.note(t("n.found2", { amt: money(bags * BAG_VALUE) }), "bad", 0.5);
           } else {
-            this.hud.note("A hat\xF3s\xE1g \xFCres g\xF6dr\xF6t dokument\xE1lt.", "", 1);
+            this.hud.note(t("n.emptyFound"), "", 1);
           }
         },
         onHoleNoticed: (_inv, h) => {
-          if (h.bags > 0 || h.state !== "CAMO") this.hud.note("Kitetts\xE9gi kock\xE1zat n\xF6vekedett.", "warn", 6);
+          if (h.bags > 0 || h.state !== "CAMO") this.hud.note(t("n.risk"), "warn", 6);
         },
         onStep: (inv) => {
           const d = dist(inv.x, inv.y, this.player.x, this.player.y);
@@ -3637,10 +4011,10 @@ body.touch .keyonly{display:none}
       if (m.deposited + m.confiscatedCarried + m.van + m.carried !== TOTAL_BAGS) console.error("[MILLI\xC1RD\xC1S\xD3] bag count mismatch");
       let best = 0;
       try {
-        best = Number(localStorage.getItem("milliardaso-best") || 0);
+        best = Number(localStorage.getItem("milliardaso-best-9") || 0);
         if (r.final > best) {
           best = r.final;
-          localStorage.setItem("milliardaso-best", String(best));
+          localStorage.setItem("milliardaso-best-9", String(best));
         }
       } catch {
       }
@@ -3716,7 +4090,7 @@ body.touch .keyonly{display:none}
     }
     render(g2) {
       const ctx = this.ctx;
-      const t = g2.clock;
+      const t2 = g2.clock;
       ctx.clearRect(0, 0, MW, MH);
       ctx.drawImage(this.base, 0, 0);
       const L = g2.level;
@@ -3740,7 +4114,7 @@ body.touch .keyonly{display:none}
         }
         let c = "#7a7f86";
         if (h.state === "DIGGING" || h.state === "OPEN") c = "#c8803a";
-        else if (h.state === "FILLED") c = Math.floor(t * 4) % 2 ? "#f0b84a" : "#c8803a";
+        else if (h.state === "FILLED") c = Math.floor(t2 * 4) % 2 ? "#f0b84a" : "#c8803a";
         else if (h.bags > 0) c = h.state === "CAMO" ? "#93c272" : "#d6b468";
         ctx.fillStyle = c;
         ctx.fillRect(x2 - 1, y2 - 1, 2, 2);
@@ -3749,13 +4123,13 @@ body.touch .keyonly{display:none}
         if (inv.state === "SUSPICIOUS" || inv.state === "INVESTIGATE" || inv.state === "SEARCH") {
           const tgt = inv.hole || inv.target;
           if (!tgt) continue;
-          const r = 4 + (Math.sin(t * 4 + inv.id) + 1) * 1.2;
+          const r = 4 + (Math.sin(t2 * 4 + inv.id) + 1) * 1.2;
           ctx.strokeStyle = "rgba(226,184,92,0.85)";
           ctx.beginPath();
           ctx.arc(tgt.x / S, tgt.y / S, r, 0, Math.PI * 2);
           ctx.stroke();
         } else if (inv.state === "CHASE") {
-          const r = 5 + (Math.sin(t * 8) + 1) * 1.5;
+          const r = 5 + (Math.sin(t2 * 8) + 1) * 1.5;
           ctx.strokeStyle = "rgba(224,90,70,0.9)";
           ctx.beginPath();
           ctx.arc(inv.x / S, inv.y / S, r, 0, Math.PI * 2);
@@ -3763,7 +4137,7 @@ body.touch .keyonly{display:none}
         }
       }
       for (const inv of g2.investigators) {
-        const age = t - inv.seenAt;
+        const age = t2 - inv.seenAt;
         if (!(inv.visibleToPlayer || age < 4)) continue;
         const px = inv.visibleToPlayer ? inv.x : inv.seenX, py = inv.visibleToPlayer ? inv.y : inv.seenY;
         const x2 = Math.round(px / S), y2 = Math.round(py / S);
@@ -3833,9 +4207,9 @@ body.touch .keyonly{display:none}
       zone.addEventListener("touchstart", (e) => {
         if (!this.isPlaying()) return;
         e.preventDefault();
-        const t = e.changedTouches[0];
-        this.stickId = t.identifier;
-        const p = this.toStage(t.clientX, t.clientY);
+        const t2 = e.changedTouches[0];
+        this.stickId = t2.identifier;
+        const p = this.toStage(t2.clientX, t2.clientY);
         this.ox = p.x;
         this.oy = p.y;
         this.base.style.left = this.ox + "px";
@@ -3845,11 +4219,11 @@ body.touch .keyonly{display:none}
         this.input.stick.active = true;
       }, { passive: false });
       zone.addEventListener("touchmove", (e) => {
-        for (const t of Array.from(e.changedTouches)) {
-          if (t.identifier !== this.stickId) continue;
+        for (const t2 of Array.from(e.changedTouches)) {
+          if (t2.identifier !== this.stickId) continue;
           e.preventDefault();
           const R = this.radius();
-          const p = this.toStage(t.clientX, t.clientY);
+          const p = this.toStage(t2.clientX, t2.clientY);
           let dx = p.x - this.ox, dy = p.y - this.oy;
           const d = Math.hypot(dx, dy);
           if (d > R) {
@@ -3862,8 +4236,8 @@ body.touch .keyonly{display:none}
         }
       }, { passive: false });
       const end = (e) => {
-        for (const t of Array.from(e.changedTouches)) {
-          if (t.identifier !== this.stickId) continue;
+        for (const t2 of Array.from(e.changedTouches)) {
+          if (t2.identifier !== this.stickId) continue;
           this.stickId = null;
           this.base.classList.remove("on");
           this.input.stick.active = false;
@@ -3911,7 +4285,7 @@ body.touch .keyonly{display:none}
   };
   function touchify(text) {
     if (!document.body.classList.contains("touch")) return text;
-    return text.replace(/SPACE/g, "\xC1S\xD3").replace(/(^|[\s:·(])E(?=$|[\s·)])/g, "$1P\xC9NZ");
+    return text.replace(/SPACE/g, t("touch.dig")).replace(/(^|[\s:·(])E(?=$|[\s·)])/g, "$1" + t("touch.cash"));
   }
 
   // src/hud.ts
@@ -3921,6 +4295,7 @@ body.touch .keyonly{display:none}
       this.root = $2("hud");
       this.hidden = $2("hidden");
       this.pending = $2("pending");
+      this.hiddenFx = $2("hiddenFx");
       this.riskSeg = $2("risk");
       this.riskPct = $2("riskPct");
       this.authSeg = $2("auth");
@@ -3965,7 +4340,8 @@ body.touch .keyonly{display:none}
       const hiddenBags = g2.money.hiddenBags(g2.dig.holes);
       this.set("hidden", hiddenBags, () => {
         const prev = this.last["hiddenPrev"] ?? 0;
-        this.hidden.textContent = fmtFt(hiddenBags * BAG_VALUE);
+        this.hidden.textContent = money(hiddenBags * BAG_VALUE);
+        this.hiddenFx.textContent = fx(hiddenBags * BAG_VALUE);
         this.hidden.classList.remove("bump", "loss");
         void this.hidden.offsetWidth;
         if (hiddenBags > prev) this.hidden.classList.add("bump");
@@ -3974,7 +4350,7 @@ body.touch .keyonly{display:none}
       });
       const pend = g2.money.exposedBags(g2.dig.holes);
       this.set("pend", pend, () => {
-        this.pending.textContent = pend > 0 ? touchify(`+ ${fmtFt(pend * BAG_VALUE)} fedetlen g\xF6d\xF6rben`) : "";
+        this.pending.textContent = pend > 0 ? touchify(t("pend", { amt: money(pend * BAG_VALUE) })) : "";
       });
       const risk = Math.round(g2.exposure * 100);
       this.set("risk", risk, () => {
@@ -3990,8 +4366,8 @@ body.touch .keyonly{display:none}
       this.set("auth", g2.phaseIdx * 10 + active, () => {
         const n = (g2.phaseIdx + 1) * 3;
         [...this.authSeg.children].forEach((el, i) => el.classList.toggle("on", i < n));
-        this.authLbl.textContent = PHASES[g2.phaseIdx].name;
-        this.phaseLbl.textContent = `HAT\xD3S\xC1GI JELENL\xC9T: ${active} NYOMOZ\xD3`;
+        this.authLbl.textContent = t("phase." + g2.phaseIdx);
+        this.phaseLbl.textContent = t("who.phase", { n: active, s: active === 1 ? "" : "S" });
       });
       const tt = fmtTime(g2.remaining);
       this.set("time", tt, () => {
@@ -4005,10 +4381,10 @@ body.touch .keyonly{display:none}
       });
       this.set("carried", g2.money.carried, () => {
         [...this.slots.children].forEach((el, i) => el.classList.toggle("on", i < g2.money.carried));
-        this.carried.textContent = fmtFt(g2.money.carried * BAG_VALUE);
+        this.carried.textContent = money(g2.money.carried * BAG_VALUE);
       });
       this.set("van", g2.money.van, () => {
-        this.vanLeft.textContent = `${g2.money.van} zs\xE1k`;
+        this.vanLeft.textContent = t("van.bags", { n: g2.money.van });
       });
       const views = g2.missions.views(hiddenBags);
       const sig = views.map((v) => `${v.done}${v.failed}${v.progress}`).join("|");
@@ -4017,7 +4393,7 @@ body.touch .keyonly{display:none}
         this.mSide.innerHTML = views.slice(1).map((v) => this.missionHTML(v)).join("");
       });
       for (const v of g2.missions.newlyDone(views)) {
-        this.note(v.id === "main" ? "F\u0151k\xFCldet\xE9s teljes\xEDtve. A teljes vagyon talajszint alatt." : `Mell\xE9kk\xFCldet\xE9s teljes\xEDtve: ${v.text.replace("!", ".")}`, "good");
+        this.note(v.id === "main" ? t("mis.doneMain") : t("mis.doneSide", { t: v.text.replace("!", ".") }), "good");
         setTimeout(() => {
           const el = document.querySelector(`.mi[data-id="${v.id}"]`);
           el?.classList.add("flash");
@@ -4129,7 +4505,7 @@ body.touch .keyonly{display:none}
     // ------------------------------------------------------------------ primitives
     nz(dur, freq, q, gain, type = "bandpass", when = 0, dest) {
       if (!this.ctx) return;
-      const ctx = this.ctx, t = ctx.currentTime + when;
+      const ctx = this.ctx, t2 = ctx.currentTime + when;
       const src = ctx.createBufferSource();
       src.buffer = this.noise;
       src.playbackRate.value = 0.8 + Math.random() * 0.4;
@@ -4138,30 +4514,30 @@ body.touch .keyonly{display:none}
       f2.frequency.value = freq;
       f2.Q.value = q;
       const g2 = ctx.createGain();
-      g2.gain.setValueAtTime(0, t);
-      g2.gain.linearRampToValueAtTime(gain, t + Math.min(0.01, dur * 0.2));
-      g2.gain.exponentialRampToValueAtTime(1e-4, t + dur);
+      g2.gain.setValueAtTime(0, t2);
+      g2.gain.linearRampToValueAtTime(gain, t2 + Math.min(0.01, dur * 0.2));
+      g2.gain.exponentialRampToValueAtTime(1e-4, t2 + dur);
       src.connect(f2);
       f2.connect(g2);
       g2.connect(dest || this.sfx);
-      src.start(t, Math.random() * 1.5);
-      src.stop(t + dur + 0.05);
+      src.start(t2, Math.random() * 1.5);
+      src.stop(t2 + dur + 0.05);
     }
     tone(freq, dur, gain, type = "sine", when = 0, dest, slideTo) {
       if (!this.ctx) return;
-      const ctx = this.ctx, t = ctx.currentTime + when;
+      const ctx = this.ctx, t2 = ctx.currentTime + when;
       const o = ctx.createOscillator();
       o.type = type;
-      o.frequency.setValueAtTime(freq, t);
-      if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+      o.frequency.setValueAtTime(freq, t2);
+      if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t2 + dur);
       const g2 = ctx.createGain();
-      g2.gain.setValueAtTime(0, t);
-      g2.gain.linearRampToValueAtTime(gain, t + 5e-3);
-      g2.gain.exponentialRampToValueAtTime(1e-4, t + dur);
+      g2.gain.setValueAtTime(0, t2);
+      g2.gain.linearRampToValueAtTime(gain, t2 + 5e-3);
+      g2.gain.exponentialRampToValueAtTime(1e-4, t2 + dur);
       o.connect(g2);
       g2.connect(dest || this.sfx);
-      o.start(t);
-      o.stop(t + dur + 0.05);
+      o.start(t2);
+      o.stop(t2 + dur + 0.05);
     }
     // ------------------------------------------------------------------ foley
     step(terrain, run) {
@@ -4207,7 +4583,7 @@ body.touch .keyonly{display:none}
     whistle() {
       if (!this.ctx) return;
       for (const w of [0, 0.32]) {
-        const ctx = this.ctx, t = ctx.currentTime + w;
+        const ctx = this.ctx, t2 = ctx.currentTime + w;
         const o = ctx.createOscillator();
         o.type = "sine";
         o.frequency.value = 2650;
@@ -4218,21 +4594,21 @@ body.touch .keyonly{display:none}
         lfo.connect(lg);
         lg.connect(o.frequency);
         const g2 = ctx.createGain();
-        g2.gain.setValueAtTime(0, t);
-        g2.gain.linearRampToValueAtTime(0.09, t + 0.02);
-        g2.gain.setValueAtTime(0.09, t + 0.2);
-        g2.gain.exponentialRampToValueAtTime(1e-4, t + 0.26);
+        g2.gain.setValueAtTime(0, t2);
+        g2.gain.linearRampToValueAtTime(0.09, t2 + 0.02);
+        g2.gain.setValueAtTime(0.09, t2 + 0.2);
+        g2.gain.exponentialRampToValueAtTime(1e-4, t2 + 0.26);
         o.connect(g2);
         g2.connect(this.sfx);
-        o.start(t);
-        lfo.start(t);
-        o.stop(t + 0.3);
-        lfo.stop(t + 0.3);
+        o.start(t2);
+        lfo.start(t2);
+        o.stop(t2 + 0.3);
+        lfo.stop(t2 + 0.3);
       }
     }
     vehicle() {
       if (!this.ctx) return;
-      const ctx = this.ctx, t = ctx.currentTime;
+      const ctx = this.ctx, t2 = ctx.currentTime;
       const src = ctx.createBufferSource();
       src.buffer = this.noise;
       src.loop = true;
@@ -4240,14 +4616,14 @@ body.touch .keyonly{display:none}
       f2.type = "lowpass";
       f2.frequency.value = 160;
       const g2 = ctx.createGain();
-      g2.gain.setValueAtTime(0, t);
-      g2.gain.linearRampToValueAtTime(0.25, t + 1.5);
-      g2.gain.linearRampToValueAtTime(1e-4, t + 4.5);
+      g2.gain.setValueAtTime(0, t2);
+      g2.gain.linearRampToValueAtTime(0.25, t2 + 1.5);
+      g2.gain.linearRampToValueAtTime(1e-4, t2 + 4.5);
       src.connect(f2);
       f2.connect(g2);
       g2.connect(this.amb);
-      src.start(t);
-      src.stop(t + 4.6);
+      src.start(t2);
+      src.stop(t2 + 4.6);
       this.tone(48, 4, 0.06, "sawtooth", 0, this.amb, 42);
       this.tone(1e3, 0.03, 0.03, "square", 4.2);
       this.nz(0.12, 400, 1, 0.12, "lowpass", 4.25, this.amb);
@@ -4405,6 +4781,144 @@ body.touch .keyonly{display:none}
     }
   };
 
+  // src/facts.ts
+  var CARDS = {
+    en: [
+      { src: "TELEX ENGLISH \xB7 28 SEP 2026", text: "Former Orb\xE1n-era minister detained on suspicion of corruption", quote: true, mark: "detained" },
+      { src: "TELEX ENGLISH \xB7 30 SEP 2026", text: "Prosecutors allege 11 billion forints in unlawful benefits from contractors, 2015\u20132018", mark: "11 billion forints" },
+      { src: "444 (translated) \xB7 28 OCT 2026", text: "Court: he hid 9 billion forints somewhere \u2014 investigators found only empty safes", mark: "empty safes" },
+      { src: "EUOBSERVER \xB7 29 OCT 2026", text: "Former minister kept \u20AC25m in cash at home.", quote: true, mark: "\u20AC25m in cash" },
+      { src: "EUOBSERVER, citing 444 \xB7 29 OCT 2026", text: "450,000 banknotes of 20,000 forints would weigh around 450 kg", mark: "450 kg" },
+      { src: "444 \xB7 11 NOV 2026", text: "A search dog alerted at the lock of the safe", mark: "search dog" },
+      { src: "ASSET RECOVERY OFFICE, via 444 \xB7 11 NOV 2026", text: "Efforts to trace the money have not yet led to results", mark: "not yet" }
+    ],
+    hu: [
+      { src: "TELEX \xB7 2026. SZEPT. 28.", text: "Korrupci\xF3 gyan\xFAj\xE1val \u0151rizetbe vett\xE9k az Orb\xE1n-korm\xE1ny volt miniszter\xE9t", mark: "\u0151rizetbe vett\xE9k" },
+      { src: "444 \xB7 2026. SZEPT. 22.", text: "Az \xFCgy\xE9szs\xE9g szerint 2015\u20132018 k\xF6z\xF6tt t\xF6bb mint 11 milli\xE1rd forint jogtalan el\u0151nyt vett \xE1t", mark: "11 milli\xE1rd forint" },
+      { src: "444 \xB7 2026. OKT. 28.", text: "B\xEDr\xF3s\xE1g: valahol elrejtett 9 milli\xE1rd forintot, a h\xE1z\xE1ban m\xE1r csak \xFCres p\xE1nc\xE9lszekr\xE9nyek voltak", mark: "\xFCres p\xE1nc\xE9lszekr\xE9nyek" },
+      { src: "EUOBSERVER \xB7 2026. OKT. 29.", text: "A volt miniszter mintegy 25 milli\xF3 eur\xF3nyi k\xE9szp\xE9nzt tartott otthon", mark: "25 milli\xF3 eur\xF3nyi" },
+      { src: "444 sz\xE1m\xEDt\xE1sa (EUobserver) \xB7 2026. OKT. 29.", text: "450 000 darab h\xFAszezres bankjegy nagyj\xE1b\xF3l 450 kil\xF3t nyomna", mark: "450 kil\xF3t" },
+      { src: "444 \xB7 2026. NOV. 11.", text: "A keres\u0151kutya a p\xE1nc\xE9lszekr\xE9ny z\xE1rszerkezet\xE9n\xE9l jelzett", mark: "keres\u0151kutya" },
+      { src: "NVVH, a 444 nyom\xE1n \xB7 2026. NOV. 11.", text: "A p\xE9nz felkutat\xE1s\xE1ra tett int\xE9zked\xE9sek eddig nem vezettek eredm\xE9nyre", mark: "nem vezettek eredm\xE9nyre" }
+    ]
+  };
+  var FINAL = {
+    en: {
+      head: "PRESS BRIEFING \xB7 AS REPORTED",
+      amount: "9,000,000,000 HUF",
+      fx: `\u2248 \u20AC${(9e9 / FX.EUR / 1e6).toFixed(1)} million \xB7 \u2248 $${(9e9 / FX.USD / 1e6).toFixed(1)} million`,
+      stamp: "LOCATION: UNKNOWN",
+      legal: "He denies all charges. The proceedings are ongoing; everyone is presumed innocent until a final verdict.",
+      satire: "What follows is satire. The forest, the van and the shovel are invented.",
+      sources: `Sources: Telex English, 444, EUobserver, OCCRP \xB7 Conversion at \u20AC1 \u2248 ${FX.EUR} HUF, $1 \u2248 ${FX.USD} HUF (early November 2026)`,
+      title: "BILLION SHOVEL"
+    },
+    hu: {
+      head: "SAJT\xD3\xD6SSZEFOGLAL\xD3 \xB7 AHOGY MEG\xCDRT\xC1K",
+      amount: "9 000 000 000 Ft",
+      fx: `\u2248 ${(9e9 / FX.EUR / 1e6).toFixed(1).replace(".", ",")} milli\xF3 \u20AC \xB7 \u2248 ${(9e9 / FX.USD / 1e6).toFixed(1).replace(".", ",")} milli\xF3 $`,
+      stamp: "HOLL\xC9T: ISMERETLEN",
+      legal: "Tagadja a v\xE1dakat. Az elj\xE1r\xE1s folyamatban van, joger\u0151s \xEDt\xE9letig mindenkit megillet az \xE1rtatlans\xE1g v\xE9lelme.",
+      satire: "Ami k\xF6vetkezik, szat\xEDra. Az erd\u0151, a furgon \xE9s az \xE1s\xF3 kital\xE1lt.",
+      sources: `Forr\xE1sok: Telex, 444, EUobserver, OCCRP \xB7 \xC1tv\xE1lt\xE1s: 1 \u20AC \u2248 ${FX.EUR} Ft, 1 $ \u2248 ${FX.USD} Ft (2026. november eleje)`,
+      title: "MILLI\xC1RD\xC1S\xD3"
+    }
+  };
+  var SLOTS = [[17, 24, -5], [80, 22, 4], [15, 74, 3], [83, 72, -4], [50, 13, 2], [34, 86, -2], [67, 87, 3]];
+  function esc(s) {
+    return s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+  }
+  var FactsIntro = class {
+    constructor() {
+      this.root = document.getElementById("scrFacts");
+      this.desk = document.getElementById("fxDesk");
+      this.big = document.getElementById("fxBig");
+      this.head = document.getElementById("fxHead");
+      this.flash = document.getElementById("fxFlash");
+      this.timers = [];
+      this.done = null;
+      this.running = false;
+      this.onSnap = null;
+      this.onThud = null;
+    }
+    play(onDone) {
+      this.stopTimers();
+      this.running = true;
+      this.done = onDone;
+      const lang = LANG;
+      const cards = CARDS[lang], F = FINAL[lang];
+      this.desk.innerHTML = "";
+      this.big.innerHTML = "";
+      this.big.className = "";
+      this.head.textContent = F.head;
+      const at = (ms, fn) => this.timers.push(window.setTimeout(fn, ms));
+      let t2 = 500;
+      const els = [];
+      cards.forEach((c, i) => {
+        at(t2, () => {
+          const prev = els[els.length - 1];
+          if (prev) {
+            const [x, y, r2] = SLOTS[(els.length - 1) % SLOTS.length];
+            prev.style.left = x + "%";
+            prev.style.top = y + "%";
+            prev.style.setProperty("--r", r2 + "deg");
+            prev.classList.add("old");
+          }
+          const el = document.createElement("div");
+          el.className = "clip";
+          const r = (i % 2 ? 1.5 : -1.5) + (Math.random() - 0.5) * 2;
+          el.style.setProperty("--r", r + "deg");
+          el.style.left = "50%";
+          el.style.top = "50%";
+          let txt = esc(c.text);
+          if (c.mark) txt = txt.replace(esc(c.mark), `<mark>${esc(c.mark)}</mark>`);
+          el.innerHTML = `<div class="src">${esc(c.src)}</div><div class="hl">${c.quote ? "\u201C" : ""}${txt}${c.quote ? "\u201D" : ""}</div>`;
+          this.desk.appendChild(el);
+          els.push(el);
+          requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("in")));
+          this.pop();
+        });
+        t2 += i === 0 ? 2100 : 1750;
+      });
+      at(t2, () => {
+        els.forEach((e) => e.classList.add("gone"));
+        this.big.className = "on";
+        this.big.innerHTML = `<div class="amt">${F.amount}</div><div class="fxs">${F.fx}</div><div class="stampx">${F.stamp}</div>`;
+        this.pop(true);
+      });
+      t2 += 3400;
+      at(t2, () => {
+        this.big.innerHTML = `<div class="legal">${F.legal}</div><div class="sat">${F.satire}</div><div class="srcs">${F.sources}</div>`;
+      });
+      t2 += 4600;
+      at(t2, () => {
+        this.big.innerHTML = `<div class="ttl">${F.title}</div>`;
+        this.pop(true);
+      });
+      t2 += 1700;
+      at(t2, () => this.finish());
+    }
+    pop(big = false) {
+      this.flash.classList.remove("go");
+      void this.flash.offsetWidth;
+      this.flash.classList.add("go");
+      if (big) this.onThud?.();
+      else this.onSnap?.();
+    }
+    stopTimers() {
+      this.timers.forEach((id) => clearTimeout(id));
+      this.timers = [];
+    }
+    finish() {
+      if (!this.running) return;
+      this.running = false;
+      this.stopTimers();
+      const d = this.done;
+      this.done = null;
+      d?.();
+    }
+  };
+
   // src/main.ts
   var stage = document.getElementById("stage");
   var canvas = document.getElementById("game");
@@ -4447,19 +4961,45 @@ body.touch .keyonly{display:none}
   document.getElementById("tpause").addEventListener("click", () => pause());
   window.addEventListener("orientationchange", () => setTimeout(fit, 250));
   function syncMuteLabels() {
-    const t = audio.muted ? "HANG: KI" : "HANG: BE";
-    document.querySelectorAll(".ml").forEach((el) => el.textContent = t);
-    document.getElementById("mute").textContent = `M \u2014 ${t}`;
+    const s = audio.muted ? t("sound.off") : t("sound.on");
+    document.querySelectorAll(".ml").forEach((el) => el.textContent = s);
+    document.getElementById("mute").textContent = `M \u2014 ${s}`;
   }
   function bestLine() {
     let best = 0;
     try {
-      best = Number(localStorage.getItem("milliardaso-best") || 0);
+      best = Number(localStorage.getItem("milliardaso-best-9") || 0);
     } catch {
     }
-    document.getElementById("bestLine").textContent = best > 0 ? `Eddigi legjobb meg\u0151rz\xF6tt vagyon: ${fmtFt(best)}` : "";
+    document.getElementById("bestLine").textContent = best > 0 ? t("start.best", { amt: money(best) }) : "";
   }
-  bestLine();
+  function applyLang(l, remember) {
+    setLang(l, remember);
+    syncMuteLabels();
+    bestLine();
+  }
+  applyLang(detectLang(), false);
+  var facts = new FactsIntro();
+  facts.onSnap = () => audio.click();
+  facts.onThud = () => audio.deposit();
+  function playFacts() {
+    game.states.set("facts");
+    facts.play(() => {
+      if (game.states.state === "facts") game.states.set("menu");
+    });
+  }
+  var seenFacts = false;
+  try {
+    seenFacts = sessionStorage.getItem("milliardaso-facts") === "1";
+  } catch {
+  }
+  if (LANG === "en" && !seenFacts) {
+    try {
+      sessionStorage.setItem("milliardaso-facts", "1");
+    } catch {
+    }
+    playFacts();
+  }
   function act(a) {
     audio.init();
     audio.ui();
@@ -4494,6 +5034,16 @@ body.touch .keyonly{display:none}
       case "mute":
         audio.setMuted(!audio.muted);
         syncMuteLabels();
+        break;
+      case "facts":
+        playFacts();
+        break;
+      case "skip":
+        facts.finish();
+        break;
+      case "lang":
+        applyLang(LANG === "en" ? "hu" : "en", true);
+        game.hud.reset();
         break;
     }
   }
@@ -4531,11 +5081,21 @@ body.touch .keyonly{display:none}
       else if (code === "KeyR") act("restart");
       else if (code === "KeyH") act("howto");
       else if (code === "KeyQ") act("menu");
+      else if (code === "KeyL") act("lang");
+      return;
+    }
+    if (s === "facts") {
+      act("skip");
+      return;
+    }
+    if (code === "KeyL" && (s === "menu" || s === "howto")) {
+      act("lang");
       return;
     }
     if (s === "menu") {
       if (code === "Enter" || code === "Space") act("start");
       else if (code === "KeyH") act("howto");
+      else if (code === "KeyF") act("facts");
       return;
     }
     if (s === "howto") {
