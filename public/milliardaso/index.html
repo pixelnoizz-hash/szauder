@@ -220,10 +220,20 @@ body.touch .keyonly{display:none}
 .orn svg{height:calc(var(--u)*22);width:auto}
 .sub{letter-spacing:.42em;font-size:calc(var(--u)*11);color:#cfc6b0;font-weight:500}
 .tag{margin-top:calc(var(--u)*16);font-style:italic;color:var(--muted);font-size:calc(var(--u)*14);letter-spacing:.02em}
-.menu{margin-top:calc(var(--u)*30);display:flex;flex-direction:column;gap:calc(var(--u)*8);width:calc(var(--u)*240)}
+.menu{margin-top:calc(var(--u)*30);display:flex;flex-direction:column;gap:calc(var(--u)*8);width:calc(var(--u)*270)}
+.menu .btn{white-space:nowrap}
 .btn{pointer-events:auto;cursor:pointer;background:rgba(10,14,20,.85);border:1px solid var(--gold-dim);color:var(--ink);font:inherit;font-weight:600;
   font-size:calc(var(--u)*12);letter-spacing:.16em;padding:calc(var(--u)*9) calc(var(--u)*14);text-align:left;display:flex;justify-content:space-between;align-items:center;border-radius:2px;transition:all .12s}
-.touch .btn small{display:none}
+.supportLink.off{display:none!important}
+a.btn{text-decoration:none}
+.btn.support{border-color:rgba(214,180,104,.55)}
+.btn.support .cup{display:flex;align-items:center;gap:calc(var(--u)*4);color:#c9a45c}
+.btn.support .cup svg,.supline svg{width:calc(var(--u)*13);height:calc(var(--u)*13)}
+.supline{pointer-events:auto;display:flex;align-items:center;gap:calc(var(--u)*7);margin-top:calc(var(--u)*10);padding:calc(var(--u)*7) calc(var(--u)*10);
+  border:1px dashed rgba(214,180,104,.4);color:#d9cfb6;font-size:calc(var(--u)*10.5);text-decoration:none;border-radius:2px}
+.supline b{margin-left:auto;color:var(--gold);letter-spacing:.06em}
+.supline:hover{border-color:var(--gold);background:rgba(214,180,104,.08)}
+.touch .btn small:not(.cup){display:none}
 .btn small{margin-left:calc(var(--u)*10);font-family:"IBM Plex Mono",monospace;font-weight:500;color:var(--faint);letter-spacing:.04em;font-size:calc(var(--u)*9)}
 .btn:hover,.btn.sel{border-color:var(--gold);background:rgba(214,180,104,.10);color:#fff}
 .btn.primary{border-color:var(--gold);background:linear-gradient(180deg,rgba(214,180,104,.20),rgba(214,180,104,.07))}
@@ -371,6 +381,7 @@ body.touch .keyonly{display:none}
       <button class="btn primary" data-act="start"><span data-i18n="btn.start">ÚJ MENET</span> <small>ENTER</small></button>
       <button class="btn" data-act="howto"><span data-i18n="btn.howto">HOGYAN JÁTSSZ</span> <small>H</small></button>
       <button class="btn" data-act="facts"><span data-i18n="btn.facts">A TÉNYEK</span> <small>F</small></button>
+      <a class="btn support supportLink" target="_blank" rel="noopener" href="#"><span data-i18n="btn.support">TÁMOGASD A JÁTÉKOT</span> <small class="cup"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2.5 5.5h9v4a3.5 3.5 0 01-3.5 3.5h-2a3.5 3.5 0 01-3.5-3.5z"/><path d="M11.5 6.5h1a2 2 0 010 4h-1.3"/><path d="M6.2 7.6c.6-.7 1.6-.3 1.6.5 0 .9-1.6 1.8-1.6 1.8s-1.6-.9-1.6-1.8c0-.8 1-1.2 1.6-.5z" fill="currentColor" stroke="none"/></svg>Ko-fi</small></a>
       <button class="btn" data-act="mute"><span class="ml">HANG: BE</span> <small>M</small></button>
       <button class="btn" data-act="lang"><span data-i18n="lang.btn">ENGLISH</span> <small>L</small></button>
     </div>
@@ -430,6 +441,7 @@ body.touch .keyonly{display:none}
       <div class="fxt mono" id="repFx"></div>
       <div class="verdict" id="verdict"></div>
       <div class="rmis" id="resMissions"></div>
+      <a class="supline supportLink" target="_blank" rel="noopener" href="#"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2.5 5.5h9v4a3.5 3.5 0 01-3.5 3.5h-2a3.5 3.5 0 01-3.5-3.5z"/><path d="M11.5 6.5h1a2 2 0 010 4h-1.3"/><path d="M6.2 7.6c.6-.7 1.6-.3 1.6.5 0 .9-1.6 1.8-1.6 1.8s-1.6-.9-1.6-1.8c0-.8 1-1.2 1.6-.5z" fill="currentColor" stroke="none"/></svg><span data-i18n="res.support">Tetszett? Egy kávéval támogathatod a következő játékot.</span> <b>Ko-fi ↗</b></a>
       <div class="acts"><button class="btn" data-act="menu"><span data-i18n="btn.menu">FŐMENÜ</span> <small>Q</small></button><button class="btn primary" data-act="restart"><span data-i18n="btn.restart">ÚJRAKEZDÉS</span> <small>ENTER</small></button></div>
     </div>
   </div>
@@ -450,6 +462,7 @@ body.touch .keyonly{display:none}
   var WORLD_H = MAP_H * TILE;
   var SESSION_TIME = 180;
   var TOTAL_BAGS = 36;
+  var SUPPORT_URL = "https://ko-fi.com/davidszauder";
   var FX = { EUR: 363, USD: 325 };
   var BAG_VALUE = 25e7;
   var TOTAL_MONEY = TOTAL_BAGS * BAG_VALUE;
@@ -1328,12 +1341,14 @@ body.touch .keyonly{display:none}
     "start.title": "MILLI\xC1RD\xC1S\xD3",
     "start.sub": "VAGYONELREJT\u0150 2D ARCADE J\xC1T\xC9K",
     "start.tag": "A p\xE9nz nem v\xE9sz el, csak f\xF6ld al\xE1 ker\xFCl.",
-    "start.foot": "Fikt\xEDv szat\xEDra. Kital\xE1lt szerepl\u0151k, kital\xE1lt erd\u0151, val\xF3di forint-elv\xE1laszt\xF3k. \xB7 v1.5",
+    "start.foot": "Fikt\xEDv szat\xEDra. Kital\xE1lt szerepl\u0151k, kital\xE1lt erd\u0151, val\xF3di forint-elv\xE1laszt\xF3k. \xB7 v1.6",
     "start.best": "Eddigi legjobb meg\u0151rz\xF6tt vagyon: {amt}",
     "btn.start": "\xDAJ MENET",
     "btn.howto": "HOGYAN J\xC1TSSZ",
     "btn.facts": "A T\xC9NYEK",
     "btn.back": "VISSZA",
+    "btn.support": "T\xC1MOGASD A J\xC1T\xC9KOT",
+    "res.support": "Tetszett? Egy k\xE1v\xE9val t\xE1mogathatod a k\xF6vetkez\u0151 j\xE1t\xE9kot.",
     "btn.resume": "FOLYTAT\xC1S",
     "btn.restart": "\xDAJRAKEZD\xC9S",
     "btn.menu": "F\u0150MEN\xDC",
@@ -1466,12 +1481,14 @@ body.touch .keyonly{display:none}
     "start.title": "BILLION SHOVEL",
     "start.sub": "A 2D ARCADE GAME OF ASSET CONCEALMENT",
     "start.tag": "Money never disappears. It just goes underground.",
-    "start.foot": "Fictional satire. Invented characters, invented forest, real thousand separators. \xB7 v1.5",
+    "start.foot": "Fictional satire. Invented characters, invented forest, real thousand separators. \xB7 v1.6",
     "start.best": "Best protected assets so far: {amt}",
     "btn.start": "NEW RUN",
     "btn.howto": "HOW TO PLAY",
     "btn.facts": "THE FACTS",
     "btn.back": "BACK",
+    "btn.support": "SUPPORT THE GAME",
+    "res.support": "Enjoyed it? Buy the next game a coffee.",
     "btn.resume": "RESUME",
     "btn.restart": "RESTART",
     "btn.menu": "MAIN MENU",
@@ -4979,6 +4996,13 @@ body.touch .keyonly{display:none}
     bestLine();
   }
   applyLang(detectLang(), false);
+  var supportUrl = window.__SUPPORT_URL || SUPPORT_URL;
+  document.querySelectorAll(".supportLink").forEach((a) => {
+    if (supportUrl) {
+      a.href = supportUrl;
+      a.addEventListener("click", () => audio.ui());
+    } else a.classList.add("off");
+  });
   var facts = new FactsIntro();
   facts.onSnap = () => audio.click();
   facts.onThud = () => audio.deposit();
