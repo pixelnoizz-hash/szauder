@@ -110,3 +110,7 @@
 /memyself     /archive#me-myself-and-ai  301
 /news2/       /           301
 /news2        /           301
+
+# Orbit short link
+/orbit   /works/orbit  301
+/orbit/  /works/orbit  301

@@ -1,0 +1,106 @@
+---
+import Base from '../../layouts/Base.astro';
+import poster from '../../assets/orbit/poster.jpg';
+
+const embedSrc = 'https://www.davidarielszauder.com/embed/orbit';
+const embedCode = `<iframe src="${embedSrc}" title="Orbit — Barabás Lőrinc × David Szauder" style="width:100%;max-width:420px;aspect-ratio:9/16;border:0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>`;
+---
+
+<Base title="Orbit — Barabás Lőrinc × David Szauder"
+      description="Orbit: a film by David Szauder to music from Barabás Lőrinc's solo album Orbit (2026). Sound and image orbit one another, constantly reshaping each other."
+      ogImage={poster}>
+  <article class="wrap orbit">
+    <div class="ob-grid">
+      <figure class="ob-film rv">
+        <span class="aperture">
+          <video id="v" controls playsinline preload="metadata" poster={poster.src}
+                 aria-label="Orbit — film by David Szauder to music by Barabás Lőrinc"></video>
+        </span>
+      </figure>
+
+      <div class="ob-text rv">
+        <span class="tag">Film — music video</span>
+        <h1>Orbit</h1>
+        <p class="ob-credit">Barabás Lőrinc × David Szauder</p>
+
+        <p class="ob-lead">Orbit is a continuously evolving process that folds back into itself. With no
+          clear beginning or end, each transformation gives rise to another state, while something of
+          the previous one remains.</p>
+        <p class="ob-lead">Sound and image orbit one another, constantly reshaping each other.
+          Repetition is not a return to the same place, but a continuous shift.</p>
+
+        <dl class="mini">
+          <div><dt>Music</dt><dd>Barabás Lőrinc — <em>Orbit</em></dd></div>
+          <div><dt>Film</dt><dd>David Szauder</dd></div>
+          <div><dt>Length</dt><dd>4:28</dd></div>
+          <div><dt>Year</dt><dd>2026</dd></div>
+        </dl>
+
+        <section class="ob-album">
+          <h2>The album</h2>
+          <p><em>Orbit</em> is the new solo album by Hungarian trumpeter, pianist, and composer Barabás
+            (Lőrinc Barabás). Released on November 6, 2026, the album features ten cinematic and
+            atmospheric compositions.</p>
+          <p>Blending neoclassical piano, ambient, contemporary jazz, and electronic music, <em>Orbit</em> explores movement, repetition, and stillness. Minimalist melodies, layered synthesizers,
+            electronic rhythms, and expressive trumpet create an intimate yet expansive sound.</p>
+          <p>Co-produced by three-time Grammy-winning producer Marc Urselli, the album offers a deeply
+            personal musical journey.</p>
+        </section>
+
+        <section class="ob-embed">
+          <h2>Embed</h2>
+          <p>Copy this code to show the film on any website.</p>
+          <textarea id="embed-code" readonly rows="5" spellcheck="false">{embedCode}</textarea>
+          <button type="button" class="read ob-copy" id="embed-copy">Copy embed code</button>
+        </section>
+      </div>
+    </div>
+  </article>
+</Base>
+
+<script is:inline src="/vendor/hls.light.min.js"></script>
+<script is:inline src="/media/orbit/player.js"></script>
+<script is:inline>
+  (function () {
+    var btn = document.getElementById('embed-copy');
+    var ta = document.getElementById('embed-code');
+    if (!btn || !ta) return;
+    btn.addEventListener('click', function () {
+      var done = function () { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy embed code'; }, 1800); };
+      if (navigator.clipboard) { navigator.clipboard.writeText(ta.value).then(done, function () { ta.select(); document.execCommand('copy'); done(); }); }
+      else { ta.select(); document.execCommand('copy'); done(); }
+    });
+  })();
+</script>
+
+<style is:global>
+.orbit{padding-top:clamp(110px,15vh,180px);padding-bottom:clamp(60px,9vw,120px)}
+.ob-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(28px,5vw,88px);align-items:start}
+.ob-film{margin:0;position:sticky;top:clamp(90px,12vh,120px)}
+.ob-film .aperture{aspect-ratio:9/16;max-height:82vh;margin:0 auto;display:block;background:#000}
+.ob-film video{display:block;width:100%;height:100%;object-fit:contain;background:#000}
+.orbit .tag{display:block;margin-bottom:14px}
+.orbit h1{font-family:var(--serif);font-size:clamp(3rem,8vw,6.4rem);line-height:.95;margin:0;font-weight:400;letter-spacing:.01em}
+.ob-credit{font-family:var(--mono);font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ember);margin:16px 0 clamp(26px,3.4vw,40px)}
+.ob-lead{color:var(--bone);font-family:var(--serif);font-size:clamp(1.2rem,1.9vw,1.5rem);line-height:1.45;max-width:36ch;margin:0 0 1em}
+.orbit .mini{margin:clamp(28px,3.6vw,44px) 0;border-top:1px solid var(--hair)}
+.orbit .mini div{display:grid;grid-template-columns:clamp(70px,8vw,100px) minmax(0,1fr);gap:18px;
+  padding:12px 0;border-bottom:1px solid var(--hair)}
+.orbit .mini dt{font-family:var(--mono);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust)}
+.orbit .mini dd{margin:0;font-size:.94rem;line-height:1.5}
+.orbit .read{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--bone);border-bottom:1px solid var(--ember);padding-bottom:3px;transition:color .25s}
+.orbit .read:hover{color:var(--dust)}
+.ob-album,.ob-embed{border-top:1px solid var(--hair);padding-top:clamp(22px,2.6vw,32px);margin-top:clamp(28px,3.6vw,44px)}
+.ob-album h2,.ob-embed h2{font-family:var(--mono);font-size:.62rem;letter-spacing:.17em;text-transform:uppercase;color:var(--dust);font-weight:400;margin:0 0 18px}
+.ob-album p{color:var(--dust);line-height:1.75;max-width:56ch;margin:0 0 1em}
+.ob-embed p{color:var(--dust);margin:0 0 12px;font-size:.92rem}
+.ob-embed textarea{width:100%;box-sizing:border-box;background:var(--box);color:var(--bone);border:1px solid var(--hair);
+  font-family:var(--mono);font-size:.68rem;line-height:1.6;padding:12px 14px;resize:none}
+.ob-copy{background:none;border:0;border-bottom:1px solid var(--ember);cursor:pointer;padding:0 0 3px}
+@media (max-width:900px){
+  .ob-grid{grid-template-columns:1fr}
+  .ob-film{position:static}
+  .ob-film .aperture{max-height:none;width:min(100%,460px)}
+}
+</style>

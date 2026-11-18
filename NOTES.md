@@ -85,3 +85,16 @@ productions are where they end up. Do not cut this field.
 `src/pages/index.astro` — the press@ / talks@ / agency contact rows.
 `src/content/works/babel.md` — images are cropped from TED stage photographs;
 replace with the real stills.
+
+## Orbit (/works/orbit, Nov 2026)
+
+Film by David Szauder to Barabás Lőrinc's album *Orbit* (released 6 Nov 2026), full
+4:28 cut (Premiere export "Sequence 01_7"). Not in the Works menu on purpose — reached
+by direct link; `/orbit` 301s to it.
+
+- Video is HLS in `public/media/orbit/` (1080×1920 + 720×1280, 4 s segments), because
+  Cloudflare static assets cap single files at 25 MiB. Played natively on Safari/iOS,
+  via self-hosted `public/vendor/hls.light.min.js` elsewhere. Shared logic: `media/orbit/player.js`.
+- Embeddable anywhere: `/embed/orbit` is a bare full-bleed player (noindex). The work page
+  shows the iframe code with a copy button. Do not add X-Frame-Options / frame-ancestors
+  headers for `/embed/*` or `/media/*`, or the embed breaks.
