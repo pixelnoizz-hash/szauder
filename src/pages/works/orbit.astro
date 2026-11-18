@@ -53,6 +53,16 @@ const embedCode = `<iframe src="${embedSrc}" title="Orbit — Barabás Lőrinc �
           <textarea id="embed-code" readonly rows="5" spellcheck="false">{embedCode}</textarea>
           <button type="button" class="read ob-copy" id="embed-copy">Copy embed code</button>
         </section>
+
+        <section class="ob-links">
+          <h2>Links</h2>
+          <ul>
+            <li><a class="read" href="https://open.spotify.com/album/6uQo31CQLUPCTfKobSg9a0"
+                   target="_blank" rel="noopener">Orbit — album on Spotify &nearr;</a></li>
+            <li><a class="read" href="https://www.barabaslorinc.com/bio-1"
+                   target="_blank" rel="noopener">Barabás Lőrinc — bio &nearr;</a></li>
+          </ul>
+        </section>
       </div>
     </div>
   </article>
@@ -91,8 +101,10 @@ const embedCode = `<iframe src="${embedSrc}" title="Orbit — Barabás Lőrinc �
 .orbit .read{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;
   text-transform:uppercase;color:var(--bone);border-bottom:1px solid var(--ember);padding-bottom:3px;transition:color .25s}
 .orbit .read:hover{color:var(--dust)}
-.ob-album,.ob-embed{border-top:1px solid var(--hair);padding-top:clamp(22px,2.6vw,32px);margin-top:clamp(28px,3.6vw,44px)}
-.ob-album h2,.ob-embed h2{font-family:var(--mono);font-size:.62rem;letter-spacing:.17em;text-transform:uppercase;color:var(--dust);font-weight:400;margin:0 0 18px}
+.ob-links ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ob-links .read{margin-top:0}
+.ob-album,.ob-embed,.ob-links{border-top:1px solid var(--hair);padding-top:clamp(22px,2.6vw,32px);margin-top:clamp(28px,3.6vw,44px)}
+.ob-album h2,.ob-embed h2,.ob-links h2{font-family:var(--mono);font-size:.62rem;letter-spacing:.17em;text-transform:uppercase;color:var(--dust);font-weight:400;margin:0 0 18px}
 .ob-album p{color:var(--dust);line-height:1.75;max-width:56ch;margin:0 0 1em}
 .ob-embed p{color:var(--dust);margin:0 0 12px;font-size:.92rem}
 .ob-embed textarea{width:100%;box-sizing:border-box;background:var(--box);color:var(--bone);border:1px solid var(--hair);
