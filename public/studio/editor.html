@@ -822,6 +822,30 @@ body.focusView main { grid-template-columns: minmax(0,1fr); }
 body.focusView #focusCtl { display: inline-flex; }
 body.focusView .stage:hover #focusCtl { opacity: .55; }
 body.focusView #focusCtl:hover, body.focusView #focusCtl:focus-within { opacity: 1; }
+/* Object Library */
+.libPane { display: flex; flex-direction: column; min-height: 0; flex: 0 1 auto; max-height: 34%; border-bottom: 1px solid var(--line); }
+.libPane .sectionbar { border-bottom: 0; }
+.libList { overflow: auto; padding: 0 10px 10px; display: grid; gap: 6px; }
+.libEmpty { color: var(--mute); font-size: .9rem; margin: 0 4px 6px; }
+.libCard { display: grid; grid-template-columns: 52px minmax(0,1fr) auto; gap: 8px; align-items: center; padding: 5px; border: 1px solid var(--line); border-radius: 6px; }
+.libCard.active { outline: 2px solid var(--accent); }
+.libCard img { width: 52px; height: 52px; object-fit: contain; background: repeating-conic-gradient(#e7e8e1 0 25%, #fff 0 50%) 50% / 12px 12px; border-radius: 4px; }
+.libCard .meta { min-width: 0; }
+.libCard .meta b { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.libCard .meta small { color: var(--mute); font: .78rem var(--mono); }
+.libCard .acts { display: flex; flex-direction: column; gap: 3px; }
+.libCard .acts button { min-height: 24px; padding: 1px 8px; font-size: .82rem; }
+.objectOnly { display: none !important; }
+body.objectMode .objectOnly { display: inline-flex !important; }
+body.objectMode .pageOnly { display: none !important; }
+body.objectMode .pagebar { background: #fff3ec; }
+[data-theme="dark"] body.objectMode .pagebar, body.objectMode[data-theme="dark"] .pagebar { background: #3a2a22; }
+body.objectMode .stage { box-shadow: inset 0 0 0 3px var(--accent); }
+.objTag { font: 600 .78rem var(--mono); letter-spacing: 1px; color: var(--accent); align-items: center; }
+.pagebar input.objField { width: 150px; min-height: 28px; padding: 2px 6px; }
+#objVersion { font: .82rem var(--mono); color: var(--mute); align-items: center; }
+.instanceNote { font-size: .88rem; color: var(--mute); margin: 2px 0 8px; }
+#objectDialog .field { margin-bottom: 8px; }
 #focusToggle[aria-pressed="true"] { background: var(--active, #e4e8d9); }
 .coreLink { font: .85rem var(--mono); color: var(--mute); text-decoration: none; padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; }
 .coreLink:hover { color: var(--ink); }
@@ -846,8 +870,8 @@ body.focusView #focusCtl:hover, body.focusView #focusCtl:focus-within { opacity:
 <div id="cloudItems" hidden><div class="divider"></div><button id="driveSave">Save to Google Drive</button><button id="driveCopy">Save as new Drive copy</button><button id="driveReload">Reload from Google Drive…</button><button id="driveOpen">Open from CORE…</button></div></div>
 <div id="exportMenu" class="menu" hidden><button id="exportPreview">Preview &amp; settings…</button><div class="divider"></div><button id="clean">Clean JPEG</button><button id="annotated">Annotated JPEG</button><button id="promptFile">prompt.txt</button><div class="divider"></div><button id="pack">Complete project ZIP</button></div>
 <main><div class="work"><div class="bar workbar"><input id="name" class="name" value="Untitled composition" aria-label="Project name" title="Rename project"><button id="annotations" class="push switch" data-icon="annotations" aria-pressed="true" title="Show or hide annotations">Annotations</button><div class="bar viewctl"><button id="minus" class="icon quiet" data-icon="minus" title="Zoom out"></button><span id="zoom">100%</span><button id="plus" class="icon quiet" data-icon="plus" title="Zoom in"></button><button id="fit" class="quiet" data-icon="fit" title="Fit composition (Shift+F)"><span class="fitlabel">Fit</span></button><button id="focusToggle" class="quiet" data-icon="expand" aria-pressed="false" title="Full screen · canvas only (F)">Full screen</button></div></div>
-<div class="pagebar bar"><select id="pagePicker" aria-label="Current page"></select><button id="addPage" title="Add a page">+ Page</button><button id="dupPage" title="Duplicate this page with its layers, annotations and prompt">Duplicate page</button>
-<button id="renamePage">Rename page</button><button id="reuseImage">Place original…</button><span role="status" id="folderStatus">Browser draft only</span></div>
+<div class="pagebar bar"><select id="pagePicker" class="pageOnly" aria-label="Current page"></select><button id="addPage" class="pageOnly" title="Add a page">+ Page</button><button id="dupPage" class="pageOnly" title="Duplicate this page with its layers, annotations and prompt">Duplicate page</button>
+<button id="renamePage" class="pageOnly">Rename page</button><span class="objectOnly objTag">OBJECT EDITOR</span><input id="objName" class="objectOnly objField" aria-label="Object name" title="Object name"><input id="objCategory" class="objectOnly objField" list="objCategories" aria-label="Object category" title="Category"><span id="objVersion" class="objectOnly"></span><button id="objSave" class="objectOnly primary" title="Save this state as a new version in the Library. Pages keep the version they were placed with.">Save object</button><button id="objDone" class="objectOnly" title="Back to the page">Done</button><button id="objDelete" class="objectOnly quiet" title="Remove from the Library. Placed copies stay on their pages.">Delete</button><button id="reuseImage">Place original…</button><span role="status" id="folderStatus">Browser draft only</span></div>
 <div class="stage" id="stage"><canvas id="canvas" tabindex="0" aria-label="Composition canvas"></canvas><div class="tools" id="canvasTools" aria-label="Canvas tools"><button data-tool="select" data-icon="select" class="icon" title="Select (V)"></button><button data-tool="pan" data-icon="pan" class="icon" title="Pan (H or hold Space)"></button><div class="divider"></div><button data-tool="arrow" data-icon="arrow" class="icon" title="Draw arrow (A)"></button><button data-tool="text" data-icon="text" class="icon" title="Add text (T)"></button><button data-tool="frame" data-icon="frame" class="icon" title="Edit export frame (Shift+F to fit)"></button><div class="divider"></div><button id="importTool" data-icon="image" class="icon" title="Import images"></button></div>
 <div id="focusCtl"><button id="focusFit" data-icon="fit" title="Fit composition (Shift+F)">Fit</button><button id="focusExit" data-icon="collapse" title="Exit full screen (F / Esc)">Exit</button></div>
 <textarea id="boxEditor" aria-label="Edit text box on canvas" spellcheck="true" hidden></textarea>
@@ -855,8 +879,8 @@ body.focusView #focusCtl:hover, body.focusView #focusCtl:focus-within { opacity:
 <div id="empty" class="empty"><span class="glyph" data-icon="image"></span><strong>Drop images here</strong><small>or choose files to start composing</small><button id="importEmpty" class="accent" data-icon="plus">Import images</button></div></div>
 <div class="foot bar"><span id="frameRead" class="frameRead"></span><span id="hint" class="toolhint push">Space to pan · Scroll to zoom</span></div>
 <section class="prompt" id="promptDock"><div id="split" class="split" role="separator" aria-label="Resize prompt panel" aria-orientation="horizontal" tabindex="0" title="Drag or use arrow keys to resize"></div><div class="bar"><label for="prompt" class="heading">PROMPT</label><button id="genPrompt" class="small primary" title="Build a short prompt from the base image, objects, annotations and your instructions">Generate prompt</button><button id="promptHistoryBtn" class="small quiet" aria-expanded="false" title="Earlier versions of this page's prompt">History</button><button id="promptPackage" class="small quiet" title="Download the numbered images and the prompt for Nano Banana">Images + prompt ↓</button><button id="copy" class="push quiet" data-icon="copy">Copy</button></div><div class="promptCols"><label class="instr"><span class="heading">MY INSTRUCTIONS</span><textarea id="promptInstructions" spellcheck="true" placeholder="Your own words for this page. They go into the prompt unchanged." aria-label="My instructions"></textarea></label><textarea id="prompt" spellcheck="false" placeholder="Write your generation prompt, or press Generate prompt…" aria-label="PROMPT"></textarea></div><div id="promptHistory" class="historyMenu" role="menu" hidden></div></section></div>
-<aside><section class="layerpane"><div class="sectionbar bar"><h2 class="heading">LAYERS</h2><span class="count" id="count">0</span><button class="push icon quiet" data-icon="plus" id="importLayers" title="Import images"></button></div><div id="layers" class="layerlist"></div></section><section class="propPane"><div class="bar sectionbar"><h2 class="heading">PROPERTIES</h2></div><div class="inspector" id="inspector"></div></section></aside></main>
-<dialog id="pageDialog" class="cropDlg"><label class="field">Page name<input id="pageNameInput"></label><div class="bar exportActions"><button id="pageCancel">Cancel</button><button class="primary" id="pageApply">Apply</button></div></dialog>
+<aside><section class="libPane" id="libPane"><div class="sectionbar bar"><h2 class="heading">LIBRARY</h2><span class="count" id="libCount">0</span><button class="push small" id="newObject" title="Add an object to this project's Library">+ Object</button></div><div id="libList" class="libList"></div></section><section class="layerpane"><div class="sectionbar bar"><h2 class="heading">LAYERS</h2><span class="count" id="count">0</span><button class="push icon quiet" data-icon="plus" id="importLayers" title="Import images"></button></div><div id="layers" class="layerlist"></div></section><section class="propPane"><div class="bar sectionbar"><h2 class="heading">PROPERTIES</h2></div><div class="inspector" id="inspector"></div></section></aside></main>
+<dialog id="objectDialog" class="cropDlg"><h2 class="heading">NEW LIBRARY OBJECT</h2><label class="field">Name<input id="objNewName"></label><label class="field">Category<input id="objNewCategory" list="objCategories" placeholder="e.g. Character, Furniture, Machine"></label><label class="field">Image<select id="objNewSource"></select></label><p class="dim" id="objNewHint"></p><div class="bar exportActions"><button id="objNewCancel">Cancel</button><button class="primary" id="objNewApply">Create object</button></div></dialog><datalist id="objCategories"><option value="Character"><option value="Furniture"><option value="Machine"><option value="Set piece"><option value="Architecture"><option value="Prop"><option value="Costume"><option value="Other"></datalist><dialog id="objDoneDialog" class="cropDlg"><h2 class="heading">UNSAVED OBJECT CHANGES</h2><p>This object changed since its last saved version. Pages only use saved versions. Your working state is kept either way.</p><div class="bar exportActions"><button id="objDoneStay">Keep editing</button><button id="objDoneLeave">Back without saving</button><button class="primary" id="objDoneSave">Save version &amp; back</button></div></dialog><dialog id="pageDialog" class="cropDlg"><label class="field">Page name<input id="pageNameInput"></label><div class="bar exportActions"><button id="pageCancel">Cancel</button><button class="primary" id="pageApply">Apply</button></div></dialog>
 <dialog id="originalDialog" class="cropDlg"><label class="field">Project original<select id="originalPicker"></select></label><div class="bar exportActions"><button id="originalCancel">Cancel</button><button class="primary" id="originalApply">Place on page</button></div></dialog>
 <dialog id="cropDialog" class="cropDlg"><h2 class="heading">CROP IMAGE</h2><p>Drag to draw a crop. Drag a handle to resize or drag inside to move. Shift-drag starts a new crop.</p><canvas id="cropCanvas"></canvas><div class="bar"><button id="cropReset">Reset crop</button><button id="cropCancel" class="push">Cancel</button><button class="primary" id="cropApply">Apply crop</button></div></dialog>
 <dialog id="exportDialog" class="cropDlg" aria-labelledby="exportTitle">
@@ -872,7 +896,7 @@ body.focusView #focusCtl:hover, body.focusView #focusCtl:focus-within { opacity:
 <div class="bar exportActions"><span class="dim" id="previewSize"></span><button class="primary push" id="downloadPreview">Download JPEG</button></div>
 </dialog>
 <dialog id="newDialog" class="cropDlg"><h2>Start a new project?</h2><p>This replaces the current local draft. Save a project ZIP to keep a copy.</p><div class="bar"><button id="newCancel">Cancel</button><button id="newSave">Save ZIP first</button><button class="primary" id="newConfirm">New project</button></div></dialog>
-<input hidden type="file" id="files" accept="image/*" multiple><input hidden type="file" id="projectFile" accept=".zip,application/zip"><div hidden id="toast" class="toast" role="status"></div>
+<input hidden type="file" id="files" accept="image/*" multiple><input hidden type="file" id="objectFile" accept="image/*"><input hidden type="file" id="projectFile" accept=".zip,application/zip"><div hidden id="toast" class="toast" role="status"></div>
 <script>
 'use strict';
 
@@ -1013,9 +1037,18 @@ function initProjectIdentity(p) {
   }
   return p;
 }
-const blank = () => initProjectIdentity(singlePage());
+// Object Library (data version 2). Objects live beside the pages; a page holds independent
+// image layers that point at one saved, immutable object version (objectRef).
+function ensureLibrary(p) {
+  if (p.objects === undefined) p.objects = [];
+  if (p.editingObjectId === undefined) p.editingObjectId = null;
+  p.dataVersion = 2;
+  return p;
+}
+const blank = () => ensureLibrary(initProjectIdentity(singlePage()));
+// The scene being edited lives on the project root; every other scene is stored on its page or object.
 function allScenes(p) {
-  return p.pages.map(page => page.id === p.activePageId ? p : page.scene);
+  return [...p.pages.map(page => page.scene || p), ...(p.objects || []).map(o => o.scene || p)];
 }
 let project = blank(),
   assets = new Map(),
@@ -2149,6 +2182,15 @@ function inspectorUI() {
   label.value = l.name;
   label.onchange = () => edit(() => l.name = label.value.trim() || l.type);
   field(g, l.type === 'image' ? 'Object name · used in the prompt' : 'Layer name', label, true);
+  if (l.type === 'image' && l.objectRef) {
+    const o = objectById(l.objectRef.objectId),
+      v = o?.versions.find(x => x.id === l.objectRef.versionId),
+      latest = o?.versions.at(-1);
+    const note = document.createElement('p');
+    note.className = 'instanceNote wide';
+    note.textContent = o ? 'Library object: ' + o.name + ' · version ' + (v ? v.n : '?') + (latest && v && latest.n > v.n ? ' (Library has version ' + latest.n + ')' : '') : 'Placed from a Library object that was deleted. This copy keeps working.';
+    g.append(note);
+  }
   if (l.type === 'image') {
     const mode = document.createElement('select');
     for (const [v, s] of [['composition', 'Composition'], ['reference', 'Reference-only'], ['hidden', 'Hidden']]) mode.add(new Option(s, v));
@@ -2310,6 +2352,8 @@ function inspectorUI() {
   if (l.type === 'image') bar.append(button('Crop…', openCrop, {
     disabled: l.locked
   }));
+  if (l.type === 'image' && l.objectRef && objectById(l.objectRef.objectId)) bar.append(button('Open object', () => openObject(l.objectRef.objectId)));
+  if (l.type === 'image' && !project.editingObjectId) bar.append(button('Make Library object…', () => openObjectDialog(l.id)));
   bar.append(button('Raise', () => order(1), {
     disabled: l.locked || i === project.layers.length - 1
   }), button('Lower', () => order(-1), {
@@ -2509,7 +2553,7 @@ async function promptPackage() {
   }
   entries.push(['prompt.txt', new Blob([project.prompt], { type: 'text/plain;charset=utf-8' })]);
   const page = project.pages.find(p => p.id === project.activePageId);
-  download(await zip(entries), safeName() + ' - ' + clean(page?.name || 'page') + ' - nano-banana.zip');
+  download(await zip(entries), safeName() + ' - ' + clean(editingObject()?.name || page?.name || 'page') + ' - nano-banana.zip');
   const manual = project.prompt !== pa.lastGenerated;
   toast('Upload the images to Nano Banana in number order (01, 02 …), then paste the prompt.' + (plan.images.length > 10 ? ' More than 10 images: Gemini may not accept them all.' : '') + (manual ? ' Your prompt was edited by hand — check its image numbers.' : ''));
 }
@@ -2529,6 +2573,7 @@ $('promptInstructions').oninput = () => {
 };
 $('promptInstructions').onblur = () => finishTyping($('promptInstructions'));
 $('dupPage').onclick = () => {
+  if (project.editingObjectId) return;
   edit(() => {
     const index = project.pages.findIndex(p => p.id === project.activePageId),
       current = project.pages[index];
@@ -2548,6 +2593,295 @@ $('dupPage').onclick = () => {
   });
   fit();
   toast('Page duplicated');
+};
+
+// ---------- Object Library ----------
+const objectById = id => (project.objects || []).find(o => o.id === id) || null;
+const editingObject = () => project.editingObjectId ? objectById(project.editingObjectId) : null;
+const activePageRecord = () => project.pages.find(p => p.id === project.activePageId);
+function objectScene(o) {
+  return o.scene || project;
+}
+// Only visible Composition images form the object's picture; annotations stay in its editor.
+function objectContent(scene) {
+  return scene.layers.filter(l => l.type === 'image' && l.mode === 'composition' && l.visible && l.opacity > 0);
+}
+function contentKey(scene) {
+  const s = JSON.stringify(objectContent(scene).map(l => [l.assetId, l.x, l.y, l.w, l.h, l.angle, l.opacity, l.flipX, l.crop]));
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(36);
+}
+function objectDirty(o) {
+  const last = o.versions.at(-1);
+  return !last || last.key !== contentKey(objectScene(o));
+}
+// Render a saved version: a transparent PNG of the object's visible Composition images (max 4096 px).
+async function renderObject(scene) {
+  const layers = objectContent(scene),
+    b = boundsFor(layers);
+  if (!b) throw Error('The object needs a visible Composition image.');
+  // Keep the sharpest source pixels any layer offers, capped at 4096 px per side.
+  const density = Math.max(1, ...layers.map(l => l.crop.w / l.w));
+  const k = Math.min(density, 4096 / b.w, 4096 / b.h),
+    out = document.createElement('canvas');
+  out.width = Math.max(1, Math.round(b.w * k));
+  out.height = Math.max(1, Math.round(b.h * k));
+  const c = out.getContext('2d');
+  c.imageSmoothingQuality = 'high';
+  c.scale(k, k);
+  c.translate(-b.x, -b.y);
+  for (const l of layers) paintLayer(c, l);
+  const blob = await new Promise((res, rej) => out.toBlob(x => x ? res(x) : rej(Error('Could not render the object.')), 'image/png'));
+  out.width = out.height = 1;
+  return blob;
+}
+async function saveObjectVersion(o) {
+  const scene = objectScene(o),
+    blob = await renderObject(scene),
+    n = (o.versions.at(-1)?.n || 0) + 1,
+    id = uid(),
+    name = (o.name || 'Object') + ' v' + n + '.png';
+  const a = await decodeAsset({
+    id,
+    name,
+    type: 'image/png',
+    path: 'originals/' + id + '/' + name.replace(/[\\/\x00-\x1f]/g, '_')
+  }, blob);
+  edit(() => {
+    assets.set(id, a);
+    project.assets.push({ id, name: a.name, type: a.type, path: a.path });
+    o.versions.push({ id: uid(), n, createdAt: new Date().toISOString(), assetId: id, w: a.w, h: a.h, key: contentKey(scene) });
+    o.modifiedAt = new Date().toISOString();
+  });
+  return o.versions.at(-1);
+}
+function newObjectScene(a, from = null) {
+  const scene = sceneFrom(singlePage());
+  const l = {
+    ...base('image'),
+    name: from?.name || a.name,
+    assetId: a.id,
+    mode: 'composition',
+    flipX: from?.flipX || false,
+    crop: from ? { ...from.crop } : { x: 0, y: 0, w: a.w, h: a.h },
+    // Full source resolution: the object is edited at native size, not at its size on the page.
+    w: from ? from.crop.w : a.w,
+    h: from ? from.crop.h : a.h
+  };
+  l.x = l.w / 2;
+  l.y = l.h / 2;
+  scene.layers.push(l);
+  return scene;
+}
+async function createObject({ name, category, layerId, file }) {
+  let a,
+    from = null;
+  if (file) {
+    a = await decodeAsset(metaFor(file), file);
+  } else {
+    from = project.layers.find(l => l.id === layerId && l.type === 'image');
+    if (!from) throw Error('Select an image layer first.');
+    a = assets.get(from.assetId);
+  }
+  const now = new Date().toISOString(),
+    o = { id: uid(), name: name || from?.name || a.name.replace(/\.[^.]+$/, ''), category: category || 'Other', createdAt: now, modifiedAt: now, scene: null, versions: [] };
+  edit(() => {
+    if (file) {
+      assets.set(a.id, a);
+      project.assets.push({ id: a.id, name: a.name, type: a.type, path: a.path });
+    }
+    o.scene = newObjectScene(a, from);
+    project.objects.push(o);
+  });
+  await saveObjectVersion(o);
+  toast('“' + o.name + '” is in the Library');
+  return o;
+}
+// Edit mode swaps the object's scene onto the root, exactly like changing page.
+function enterObject(id) {
+  const o = objectById(id);
+  if (!o || o.id === project.editingObjectId) return;
+  if (project.editingObjectId) leaveObject();
+  activePageRecord().scene = sceneFrom(project);
+  Object.assign(project, o.scene);
+  o.scene = null;
+  project.editingObjectId = o.id;
+  selected = null;
+  tool = 'select';
+  gesture = null;
+  typing = null;
+  drawFrameNext = false;
+}
+function leaveObject() {
+  const o = editingObject();
+  if (!o) return;
+  const page = activePageRecord();
+  o.scene = sceneFrom(project);
+  Object.assign(project, page.scene);
+  page.scene = null;
+  project.editingObjectId = null;
+  selected = null;
+  tool = 'select';
+  gesture = null;
+  typing = null;
+  drawFrameNext = false;
+}
+function openObject(id) {
+  edit(() => enterObject(id));
+  fit();
+}
+function closeObject() {
+  edit(leaveObject);
+  fit();
+}
+function placeObject(id) {
+  const o = objectById(id),
+    v = o?.versions.at(-1);
+  if (!o || project.editingObjectId) return;
+  if (!v) {
+    toast('Save the object once before placing it.');
+    return;
+  }
+  const a = assets.get(v.assetId);
+  edit(() => {
+    const before = project.layers.length;
+    placeOriginal(a, null, project.layers.filter(l => l.objectRef?.objectId === id).length);
+    const l = project.layers[before];
+    l.name = o.name;
+    l.objectRef = { objectId: o.id, versionId: v.id };
+    tool = 'select';
+  });
+  toast('Placed “' + o.name + '” (version ' + v.n + ')');
+}
+function libraryUI() {
+  const list = $('libList'),
+    objects = project.objects || [];
+  $('libCount').textContent = objects.length;
+  list.replaceChildren();
+  if (!objects.length) {
+    const e = document.createElement('p');
+    e.className = 'libEmpty';
+    e.textContent = 'Reusable objects for this project: characters, furniture, machines, set pieces…';
+    list.append(e);
+    return;
+  }
+  const editing = !!project.editingObjectId;
+  for (const o of objects) {
+    const v = o.versions.at(-1),
+      card = document.createElement('div');
+    card.className = 'libCard' + (o.id === project.editingObjectId ? ' active' : '');
+    card.dataset.objectId = o.id;
+    const img = document.createElement('img');
+    img.alt = '';
+    if (v && assets.get(v.assetId)) img.src = assets.get(v.assetId).url;
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    const t = document.createElement('b');
+    t.textContent = o.name;
+    t.title = o.name;
+    const sub = document.createElement('small');
+    sub.textContent = o.category + ' · v' + (v?.n || 0);
+    meta.append(t, sub);
+    const acts = document.createElement('div');
+    acts.className = 'acts';
+    const place = button('Place', () => placeObject(o.id), { disabled: editing || !v });
+    place.title = editing ? 'Finish the object first' : 'Place a new independent copy on this page';
+    const open = button(o.id === project.editingObjectId ? 'Editing' : 'Edit', () => openObject(o.id), { disabled: o.id === project.editingObjectId });
+    acts.append(place, open);
+    card.append(img, meta, acts);
+    list.append(card);
+  }
+}
+function objectBarUI() {
+  const o = editingObject();
+  document.body.classList.toggle('objectMode', !!o);
+  if (!o) return;
+  if (document.activeElement !== $('objName')) $('objName').value = o.name;
+  if (document.activeElement !== $('objCategory')) $('objCategory').value = o.category;
+  const v = o.versions.at(-1);
+  $('objVersion').textContent = (v ? 'v' + v.n : 'not saved') + (objectDirty(o) ? ' · unsaved changes' : ' · saved');
+}
+$('objName').onchange = () => {
+  const o = editingObject();
+  if (o) edit(() => o.name = $('objName').value.trim() || o.name);
+};
+$('objCategory').onchange = () => {
+  const o = editingObject();
+  if (o) edit(() => o.category = $('objCategory').value.trim() || 'Other');
+};
+$('objSave').onclick = () => {
+  const o = editingObject();
+  if (o) run(async () => {
+    const v = await saveObjectVersion(o);
+    toast('Saved “' + o.name + '” as version ' + v.n + '. Placed copies keep their own version.');
+  }, 'Saving object…');
+};
+$('objDone').onclick = () => {
+  const o = editingObject();
+  if (!o) return;
+  if (objectDirty(o)) $('objDoneDialog').showModal();
+  else closeObject();
+};
+$('objDoneStay').onclick = () => $('objDoneDialog').close();
+$('objDoneLeave').onclick = () => {
+  $('objDoneDialog').close();
+  closeObject();
+};
+$('objDoneSave').onclick = () => {
+  $('objDoneDialog').close();
+  const o = editingObject();
+  if (o) run(async () => {
+    await saveObjectVersion(o);
+    closeObject();
+  }, 'Saving object…');
+};
+$('objDelete').onclick = () => {
+  const o = editingObject();
+  if (!o || !confirm('Remove “' + o.name + '” from the Library? Copies already placed on pages stay as they are.')) return;
+  edit(() => {
+    leaveObject();
+    project.objects.splice(project.objects.indexOf(o), 1);
+  });
+  fit();
+  toast('Object removed from the Library');
+};
+let objectSourceLayer = null;
+function openObjectDialog(layerId = null) {
+  if (project.editingObjectId) return;
+  const l = project.layers.find(x => x.id === (layerId || selected) && x.type === 'image');
+  objectSourceLayer = l?.id || null;
+  const src = $('objNewSource');
+  src.replaceChildren();
+  if (l) src.add(new Option('Selected image: ' + l.name, 'layer'));
+  src.add(new Option('Import a new image…', 'file'));
+  $('objNewName').value = l ? l.name.replace(/\.[^.]+$/, '') : '';
+  $('objNewCategory').value = '';
+  $('objNewHint').textContent = 'The object gets its own editor. Copies placed on pages stay independent.';
+  $('objectDialog').showModal();
+  $('objNewName').focus();
+}
+$('newObject').onclick = () => openObjectDialog();
+$('objNewCancel').onclick = () => $('objectDialog').close();
+$('objNewApply').onclick = () => {
+  const name = $('objNewName').value.trim(),
+    category = $('objNewCategory').value.trim();
+  $('objectDialog').close();
+  if ($('objNewSource').value === 'file') {
+    pendingObject = { name, category };
+    $('objectFile').click();
+  } else run(() => createObject({ name, category, layerId: objectSourceLayer }), 'Creating object…');
+};
+let pendingObject = null;
+$('objectFile').onchange = e => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  const info = pendingObject || {};
+  pendingObject = null;
+  if (f) run(() => createObject({ ...info, file: f }), 'Creating object…');
 };
 function annotationFields(g, l) {
   const ann = l.ann || { type: 'general', source: null, target: null, note: '' };
@@ -2590,7 +2924,7 @@ function syncPages() {
   $('reuseImage').disabled = !project.assets.length;
 }
 function activatePage(id) {
-  if (id === project.activePageId) return;
+  if (id === project.activePageId || project.editingObjectId) return;
   const prior = project.pages.find(page => page.id === project.activePageId);
   const next = project.pages.find(page => page.id === id);
   if (!prior || !next) return;
@@ -2684,6 +3018,8 @@ function sync() {
     callout: 'Click or drag to place the connector endpoint',
     frame: drawFrameNext ? 'Drag to draw a new export frame' : 'Drag frame or handles · Drag outside to draw'
   }[tool];
+  objectBarUI();
+  libraryUI();
   layersUI();
   inspectorUI();
   draw();
@@ -3328,6 +3664,7 @@ function validateScene(p) {
     if (l.type === 'image') {
       if (l.flipX === undefined) l.flipX = false;
       ok(typeof l.flipX === 'boolean');
+      if (l.objectRef !== undefined) ok(l.objectRef && typeof l.objectRef.objectId === 'string' && typeof l.objectRef.versionId === 'string');
       const r = l.crop;
       ok(ids.has(l.assetId) && ['composition', 'reference', 'hidden'].includes(l.mode) && r && finite(r.x, r.y, r.w, r.h) && r.x >= 0 && r.y >= 0 && r.w > 0 && r.h > 0);
     } else {
@@ -3361,7 +3698,7 @@ function validate(p) {
   for (const page of p.pages) {
     if (!page || typeof page.id !== 'string' || ids.has(page.id) || typeof page.name !== 'string') throw Error('Invalid page list.');
     ids.add(page.id);
-    if (page.id === p.activePageId) {
+    if (page.id === p.activePageId && !p.editingObjectId) {
       if (page.scene !== null) throw Error('Invalid active page.');
     } else {
       // Projects saved before the Prompt Assistant existed get an empty assistant record.
@@ -3374,6 +3711,27 @@ function validate(p) {
     }
   }
   if (!ids.has(p.activePageId)) throw Error('Missing active page.');
+  ensureLibrary(p);
+  if (!Array.isArray(p.objects) || p.editingObjectId !== null && typeof p.editingObjectId !== 'string') throw Error('Invalid object library.');
+  const assetIds = new Set(p.assets.map(a => a.id)),
+    objectIds = new Set();
+  for (const o of p.objects) {
+    if (!o || typeof o.id !== 'string' || objectIds.has(o.id) || typeof o.name !== 'string' || typeof o.category !== 'string' || !Array.isArray(o.versions)) throw Error('Invalid library object.');
+    objectIds.add(o.id);
+    for (const v of o.versions) {
+      if (!v || typeof v.id !== 'string' || !Number.isInteger(v.n) || !assetIds.has(v.assetId)) throw Error('Invalid object version.');
+    }
+    if (o.id === p.editingObjectId) {
+      if (o.scene !== null) throw Error('Invalid object being edited.');
+    } else {
+      if (!o.scene || pageKeys.some(k => !(k in o.scene))) throw Error('Missing object data.');
+      validateScene({
+        ...p,
+        ...sceneFrom(o.scene)
+      });
+    }
+  }
+  if (p.editingObjectId && !objectIds.has(p.editingObjectId)) throw Error('Missing object being edited.');
 }
 // Prepare the whole replacement before releasing the current editable project.
 async function install(p, getBlob) {
@@ -3580,7 +3938,7 @@ async function commitFolder(binding, snapshot, sources) {
       refs[meta.id] = name;
     }
     for (const page of snapshot.pages) {
-      const scene = page.id === snapshot.activePageId ? snapshot : page.scene;
+      const scene = page.scene || snapshot;
       const key = JSON.stringify([scene.layers, scene.annotations]);
       let memo = binding.thumbs.get(page.id);
       if (!memo || memo.key !== key) {
@@ -3928,7 +4286,7 @@ async function commitCloud(session, snapshot, sources) {
     originals[meta.id] = name;
   }
   for (const page of snapshot.pages) {
-    const scene = page.id === snapshot.activePageId ? snapshot : page.scene;
+    const scene = page.scene || snapshot;
     const key = JSON.stringify([scene.layers, scene.annotations]);
     let memo = session.thumbs.get(page.id);
     if (!memo || memo.key !== key) {
