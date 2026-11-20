@@ -808,20 +808,20 @@ body.focusView header, body.focusView .workbar, body.focusView .pagebar,
 body.focusView .foot, body.focusView #promptDock, body.focusView aside,
 body.focusView #canvasTools, body.focusView #imageToolbar, body.focusView .menu { display: none!important; }
 body.focusView main { grid-template-columns: minmax(0,1fr); }
-#focusExit {
+#focusCtl {
   display: none;
   position: absolute;
   top: 10px;
   right: 10px;
   z-index: 4;
+  gap: 6px;
   opacity: .0;
   transition: opacity .15s;
-  background: var(--paper);
-  border-color: var(--line);
 }
-body.focusView #focusExit { display: inline-flex; }
-body.focusView .stage:hover #focusExit { opacity: .55; }
-body.focusView #focusExit:hover, body.focusView #focusExit:focus-visible { opacity: 1; }
+#focusCtl button { background: var(--paper); border-color: var(--line); }
+body.focusView #focusCtl { display: inline-flex; }
+body.focusView .stage:hover #focusCtl { opacity: .55; }
+body.focusView #focusCtl:hover, body.focusView #focusCtl:focus-within { opacity: 1; }
 #focusToggle[aria-pressed="true"] { background: var(--active, #e4e8d9); }
 .coreLink { font: .85rem var(--mono); color: var(--mute); text-decoration: none; padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; }
 .coreLink:hover { color: var(--ink); }
@@ -849,7 +849,7 @@ body.focusView #focusExit:hover, body.focusView #focusExit:focus-visible { opaci
 <div class="pagebar bar"><select id="pagePicker" aria-label="Current page"></select><button id="addPage" title="Add a page">+ Page</button><button id="dupPage" title="Duplicate this page with its layers, annotations and prompt">Duplicate page</button>
 <button id="renamePage">Rename page</button><button id="reuseImage">Place original…</button><span role="status" id="folderStatus">Browser draft only</span></div>
 <div class="stage" id="stage"><canvas id="canvas" tabindex="0" aria-label="Composition canvas"></canvas><div class="tools" id="canvasTools" aria-label="Canvas tools"><button data-tool="select" data-icon="select" class="icon" title="Select (V)"></button><button data-tool="pan" data-icon="pan" class="icon" title="Pan (H or hold Space)"></button><div class="divider"></div><button data-tool="arrow" data-icon="arrow" class="icon" title="Draw arrow (A)"></button><button data-tool="text" data-icon="text" class="icon" title="Add text (T)"></button><button data-tool="frame" data-icon="frame" class="icon" title="Edit export frame (Shift+F to fit)"></button><div class="divider"></div><button id="importTool" data-icon="image" class="icon" title="Import images"></button></div>
-<button id="focusExit" data-icon="collapse" title="Exit full screen (F / Esc)">Exit</button>
+<div id="focusCtl"><button id="focusFit" data-icon="fit" title="Fit composition (Shift+F)">Fit</button><button id="focusExit" data-icon="collapse" title="Exit full screen (F / Esc)">Exit</button></div>
 <textarea id="boxEditor" aria-label="Edit text box on canvas" spellcheck="true" hidden></textarea>
 <div id="imageToolbar" class="imageToolbar" role="toolbar" aria-label="Selected image commands" hidden></div>
 <div id="empty" class="empty"><span class="glyph" data-icon="image"></span><strong>Drop images here</strong><small>or choose files to start composing</small><button id="importEmpty" class="accent" data-icon="plus">Import images</button></div></div>
@@ -4425,6 +4425,12 @@ $('focusExit').onclick = e => {
   setFocusView(false);
 };
 $('focusExit').onpointerdown = e => e.stopPropagation();
+$('focusFit').onclick = e => {
+  e.stopPropagation();
+  fit();
+  canvas.focus();
+};
+$('focusFit').onpointerdown = e => e.stopPropagation();
 document.addEventListener('fullscreenchange', () => {
   if (!document.fullscreenElement && focusView) setFocusView(false);
 });
