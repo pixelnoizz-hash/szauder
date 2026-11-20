@@ -808,20 +808,20 @@ body.focusView header, body.focusView .workbar, body.focusView .pagebar,
 body.focusView .foot, body.focusView #promptDock, body.focusView aside,
 body.focusView #canvasTools, body.focusView #imageToolbar, body.focusView .menu { display: none!important; }
 body.focusView main { grid-template-columns: minmax(0,1fr); }
-#focusExit {
+#focusCtl {
   display: none;
   position: absolute;
   top: 10px;
   right: 10px;
   z-index: 4;
+  gap: 6px;
   opacity: .0;
   transition: opacity .15s;
-  background: var(--paper);
-  border-color: var(--line);
 }
-body.focusView #focusExit { display: inline-flex; }
-body.focusView .stage:hover #focusExit { opacity: .55; }
-body.focusView #focusExit:hover, body.focusView #focusExit:focus-visible { opacity: 1; }
+#focusCtl button { background: var(--paper); border-color: var(--line); }
+body.focusView #focusCtl { display: inline-flex; }
+body.focusView .stage:hover #focusCtl { opacity: .55; }
+body.focusView #focusCtl:hover, body.focusView #focusCtl:focus-within { opacity: 1; }
 #focusToggle[aria-pressed="true"] { background: var(--active, #e4e8d9); }
 .coreLink { font: .85rem var(--mono); color: var(--mute); text-decoration: none; padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; }
 .coreLink:hover { color: var(--ink); }
@@ -845,11 +845,11 @@ body.focusView #focusExit:hover, body.focusView #focusExit:focus-visible { opaci
 <div class="divider"></div><button id="newProject">New project</button><button id="openProject">Open project ZIP…</button><button id="saveProject">Save project ZIP</button>
 <div id="cloudItems" hidden><div class="divider"></div><button id="driveSave">Save to Google Drive</button><button id="driveCopy">Save as new Drive copy</button><button id="driveReload">Reload from Google Drive…</button><button id="driveOpen">Open from CORE…</button></div></div>
 <div id="exportMenu" class="menu" hidden><button id="exportPreview">Preview &amp; settings…</button><div class="divider"></div><button id="clean">Clean JPEG</button><button id="annotated">Annotated JPEG</button><button id="promptFile">prompt.txt</button><div class="divider"></div><button id="pack">Complete project ZIP</button></div>
-<main><div class="work"><div class="bar workbar"><input id="name" class="name" value="Untitled composition" aria-label="Project name" title="Rename project"><button id="annotations" class="push switch" data-icon="annotations" aria-pressed="true" title="Show or hide annotations">Annotations</button><div class="bar viewctl"><button id="minus" class="icon quiet" data-icon="minus" title="Zoom out"></button><span id="zoom">100%</span><button id="plus" class="icon quiet" data-icon="plus" title="Zoom in"></button><button id="fit" class="quiet" data-icon="fit" title="Fit composition (F)"><span class="fitlabel">Fit</span></button><button id="focusToggle" class="icon quiet" data-icon="expand" aria-pressed="false" title="Focus view · canvas only (Tab)"></button></div></div>
+<main><div class="work"><div class="bar workbar"><input id="name" class="name" value="Untitled composition" aria-label="Project name" title="Rename project"><button id="annotations" class="push switch" data-icon="annotations" aria-pressed="true" title="Show or hide annotations">Annotations</button><div class="bar viewctl"><button id="minus" class="icon quiet" data-icon="minus" title="Zoom out"></button><span id="zoom">100%</span><button id="plus" class="icon quiet" data-icon="plus" title="Zoom in"></button><button id="fit" class="quiet" data-icon="fit" title="Fit composition (Shift+F)"><span class="fitlabel">Fit</span></button><button id="focusToggle" class="quiet" data-icon="expand" aria-pressed="false" title="Full screen · canvas only (F)">Full screen</button></div></div>
 <div class="pagebar bar"><select id="pagePicker" aria-label="Current page"></select><button id="addPage" title="Add a page">+ Page</button><button id="dupPage" title="Duplicate this page with its layers, annotations and prompt">Duplicate page</button>
 <button id="renamePage">Rename page</button><button id="reuseImage">Place original…</button><span role="status" id="folderStatus">Browser draft only</span></div>
-<div class="stage" id="stage"><canvas id="canvas" tabindex="0" aria-label="Composition canvas"></canvas><div class="tools" id="canvasTools" aria-label="Canvas tools"><button data-tool="select" data-icon="select" class="icon" title="Select (V)"></button><button data-tool="pan" data-icon="pan" class="icon" title="Pan (H or hold Space)"></button><div class="divider"></div><button data-tool="arrow" data-icon="arrow" class="icon" title="Draw arrow (A)"></button><button data-tool="text" data-icon="text" class="icon" title="Add text (T)"></button><button data-tool="frame" data-icon="frame" class="icon" title="Edit export frame (F to fit)"></button><div class="divider"></div><button id="importTool" data-icon="image" class="icon" title="Import images"></button></div>
-<button id="focusExit" data-icon="collapse" title="Exit focus view (Tab / Esc)">Exit</button>
+<div class="stage" id="stage"><canvas id="canvas" tabindex="0" aria-label="Composition canvas"></canvas><div class="tools" id="canvasTools" aria-label="Canvas tools"><button data-tool="select" data-icon="select" class="icon" title="Select (V)"></button><button data-tool="pan" data-icon="pan" class="icon" title="Pan (H or hold Space)"></button><div class="divider"></div><button data-tool="arrow" data-icon="arrow" class="icon" title="Draw arrow (A)"></button><button data-tool="text" data-icon="text" class="icon" title="Add text (T)"></button><button data-tool="frame" data-icon="frame" class="icon" title="Edit export frame (Shift+F to fit)"></button><div class="divider"></div><button id="importTool" data-icon="image" class="icon" title="Import images"></button></div>
+<div id="focusCtl"><button id="focusFit" data-icon="fit" title="Fit composition (Shift+F)">Fit</button><button id="focusExit" data-icon="collapse" title="Exit full screen (F / Esc)">Exit</button></div>
 <textarea id="boxEditor" aria-label="Edit text box on canvas" spellcheck="true" hidden></textarea>
 <div id="imageToolbar" class="imageToolbar" role="toolbar" aria-label="Selected image commands" hidden></div>
 <div id="empty" class="empty"><span class="glyph" data-icon="image"></span><strong>Drop images here</strong><small>or choose files to start composing</small><button id="importEmpty" class="accent" data-icon="plus">Import images</button></div></div>
@@ -932,6 +932,8 @@ const paths = {
   lock: 'M5 10h14v11H5z M8 10V7a4 4 0 0 1 8 0v3',
   unlock: 'M5 10h14v11H5z M8 10V7a4 4 0 0 1 8 0',
   annotations: 'M3 5h18v12h-9l-5 4v-4H3zM7 9h10m-10 4h7',
+  textBigger: 'M3 19 8 5l5 14M5 14h6 M17 7v8M13 11h8',
+  textSmaller: 'M3 19 8 5l5 14M5 14h6 M14 11h7',
   expand: 'M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5',
   collapse: 'M9 4v5H4 M15 4v5h5 M9 20v-5H4 M15 20v-5h5'
 };
@@ -1543,6 +1545,16 @@ const boxCommands = [{
   run: editTextOnCanvas,
   edits: true
 }, {
+  id: 'textSmaller',
+  label: 'Smaller text (Shift -)',
+  run: () => scaleText(1 / 1.25),
+  edits: true
+}, {
+  id: 'textBigger',
+  label: 'Larger text (Shift +)',
+  run: () => scaleText(1.25),
+  edits: true
+}, {
   id: 'callout',
   label: 'Add connector',
   run: placeConnector,
@@ -1698,23 +1710,39 @@ function base(type) {
     angle: 0
   };
 }
+// Scales the whole box (text, padding, border) so the layout of the note is kept.
+function scaleText(f) {
+  const l = layer();
+  if (l?.type !== 'text' || l.locked) return;
+  edit(() => {
+    l.size = clamp(Math.round(l.size * f * 10) / 10, 1, 4096);
+    l.w *= f;
+    l.h *= f;
+    l.box.padding = Math.round(l.box.padding * f * 10) / 10;
+    if (l.box.borderWidth) l.box.borderWidth = Math.max(.5, Math.round(l.box.borderWidth * f * 10) / 10);
+    fitTextBox(l, false);
+  });
+}
 function createText(p) {
+  // New boxes read at about 18 px on screen, whatever the zoom, so notes on large images stay legible.
+  const k = clamp(1 / view.z, .5, 200),
+    size = Math.round(18 * k);
   edit(() => {
     const l = {
       ...base('text'),
       x: p.x,
       y: p.y,
       text: 'Text',
-      size: 18,
+      size,
       color: '#252822',
-      w: 250,
-      h: 76,
+      w: 250 * k,
+      h: 76 * k,
       box: {
-        padding: 10,
+        padding: Math.round(10 * k),
         fill: true,
         background: '#fffbed',
         borderColor: '#6d705f',
-        borderWidth: 1
+        borderWidth: Math.max(1, Math.round(k))
       },
       connector: null
     };
@@ -2650,7 +2678,7 @@ function sync() {
   canvas.style.cursor = space || tool === 'pan' ? 'grab' : tool === 'select' ? 'default' : 'crosshair';
   $('hint').textContent = {
     select: 'Space to pan · Scroll to zoom',
-    pan: 'Drag to pan · F to fit',
+    pan: 'Drag to pan · Shift+F to fit',
     arrow: 'Drag from tail to tip',
     text: 'Click to place a text box',
     callout: 'Click or drag to place the connector endpoint',
@@ -4387,7 +4415,7 @@ function setFocusView(on) {
   if (on) {
     if (document.activeElement instanceof HTMLElement && document.activeElement !== canvas) document.activeElement.blur();
     canvas.focus();
-    toast('Focus view · Tab or Esc to exit');
+    toast('Full screen · press F or Esc to exit');
   } else $('focusToggle').focus();
   draw();
 }
@@ -4397,6 +4425,12 @@ $('focusExit').onclick = e => {
   setFocusView(false);
 };
 $('focusExit').onpointerdown = e => e.stopPropagation();
+$('focusFit').onclick = e => {
+  e.stopPropagation();
+  fit();
+  canvas.focus();
+};
+$('focusFit').onpointerdown = e => e.stopPropagation();
 document.addEventListener('fullscreenchange', () => {
   if (!document.fullscreenElement && focusView) setFocusView(false);
 });
@@ -4488,12 +4522,18 @@ window.addEventListener('keydown', e => {
     t: 'text'
   };
   if (keys[k]) setTool(keys[k]);
-  if (k === 'f') fit();
+  // F toggles full screen (canvas only); Shift+F fits the composition.
+  if (k === 'f') e.shiftKey ? fit() : setFocusView(!focusView);
   if (['backspace', 'delete'].includes(k)) {
     e.preventDefault();
     removeLayer();
   }
   const l = layer();
+  if (l?.type === 'text' && !l.locked && e.shiftKey && ['+', '=', '-', '_'].includes(e.key)) {
+    e.preventDefault();
+    scaleText(e.key === '-' || e.key === '_' ? 1 / 1.25 : 1.25);
+    return;
+  }
   if (l && !l.locked && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
     e.preventDefault();
     const d = e.shiftKey ? 10 : 1,
