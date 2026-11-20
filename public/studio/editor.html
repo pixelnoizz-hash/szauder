@@ -274,7 +274,7 @@ canvas#canvas {
   gap: 12px;
 }
 .prompt {
-  height: 168px;
+  height: 200px;
   min-height: 90px;
   max-height: 47vh;
   display: flex;
@@ -825,6 +825,19 @@ body.focusView #focusExit:hover, body.focusView #focusExit:focus-visible { opaci
 #focusToggle[aria-pressed="true"] { background: var(--active, #e4e8d9); }
 .coreLink { font: .85rem var(--mono); color: var(--mute); text-decoration: none; padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; }
 .coreLink:hover { color: var(--ink); }
+.prompt .bar button.small { min-height: 27px; padding: 3px 9px; font-size: .8rem; }
+.promptCols { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(150px, 30%) 1fr; gap: 10px; }
+.promptCols .instr { display: flex; flex-direction: column; gap: 4px; min-height: 0; }
+.promptCols .instr .heading { font-size: .7rem; color: var(--mute); }
+.promptCols textarea { width: 100%; height: 100%; }
+.promptCols .instr textarea { font-family: inherit; font-size: .9rem; }
+.historyMenu { position: absolute; z-index: 9; left: 17px; bottom: calc(100% - 44px); width: min(560px, 90%); max-height: 50vh; overflow: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 7px; box-shadow: 0 6px 20px #0005; padding: 6px; }
+.historyMenu button { display: grid; width: 100%; justify-content: stretch; text-align: left; border: 0; gap: 2px; padding: 7px 9px; white-space: normal; }
+.historyMenu small { font: .72rem var(--mono); color: var(--mute); }
+.historyMenu span { font: .8rem/1.4 var(--mono); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.historyMenu p { margin: 8px; color: var(--mute); font-size: .85rem; }
+.promptHint { font-size: .78rem; color: var(--mute); margin: 2px 0 0; }
+@media(max-width:650px) { .promptCols { grid-template-columns: 1fr; } .promptCols .instr { max-height: 70px; } }
 </style></head><body>
 <header class="bar"><a id="coreLink" class="coreLink" href="/studio/" title="Back to CORE projects" hidden>← CORE</a><div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>DAVID SZAUDER STUDIO <small>EDITOR</small></div><span id="status" class="status push" role="status">Local workspace</span><div class="bar"><button id="undo" data-icon="undo" class="icon quiet" title="Undo (⌘/Ctrl Z)"></button><button id="redo" data-icon="redo" class="icon quiet" title="Redo (⌘/Ctrl Shift Z)"></button></div><label class="uiSizeControl">Text size <select id="uiSize" aria-label="Interface text size"><option value="small">Small</option><option value="medium" selected>Medium</option><option value="bigger">Bigger</option></select></label><button id="themeToggle" class="icon quiet" type="button" aria-label="Dark mode" aria-pressed="true" title="Switch to light mode">◐</button><button id="projectMenuBtn" data-icon="folder" aria-expanded="false">Project</button><button class="primary" id="exportMenuBtn" data-icon="export" aria-expanded="false">Export</button></header>
 <div id="projectMenu" class="menu" hidden><button id="chooseFolder">Choose Project Folder…</button><button id="openFolder">Open Local Project…</button>
@@ -833,7 +846,7 @@ body.focusView #focusExit:hover, body.focusView #focusExit:focus-visible { opaci
 <div id="cloudItems" hidden><div class="divider"></div><button id="driveSave">Save to Google Drive</button><button id="driveCopy">Save as new Drive copy</button><button id="driveReload">Reload from Google Drive…</button><button id="driveOpen">Open from CORE…</button></div></div>
 <div id="exportMenu" class="menu" hidden><button id="exportPreview">Preview &amp; settings…</button><div class="divider"></div><button id="clean">Clean JPEG</button><button id="annotated">Annotated JPEG</button><button id="promptFile">prompt.txt</button><div class="divider"></div><button id="pack">Complete project ZIP</button></div>
 <main><div class="work"><div class="bar workbar"><input id="name" class="name" value="Untitled composition" aria-label="Project name" title="Rename project"><button id="annotations" class="push switch" data-icon="annotations" aria-pressed="true" title="Show or hide annotations">Annotations</button><div class="bar viewctl"><button id="minus" class="icon quiet" data-icon="minus" title="Zoom out"></button><span id="zoom">100%</span><button id="plus" class="icon quiet" data-icon="plus" title="Zoom in"></button><button id="fit" class="quiet" data-icon="fit" title="Fit composition (F)"><span class="fitlabel">Fit</span></button><button id="focusToggle" class="icon quiet" data-icon="expand" aria-pressed="false" title="Focus view · canvas only (Tab)"></button></div></div>
-<div class="pagebar bar"><select id="pagePicker" aria-label="Current page"></select><button id="addPage" title="Add a page">+ Page</button>
+<div class="pagebar bar"><select id="pagePicker" aria-label="Current page"></select><button id="addPage" title="Add a page">+ Page</button><button id="dupPage" title="Duplicate this page with its layers, annotations and prompt">Duplicate page</button>
 <button id="renamePage">Rename page</button><button id="reuseImage">Place original…</button><span role="status" id="folderStatus">Browser draft only</span></div>
 <div class="stage" id="stage"><canvas id="canvas" tabindex="0" aria-label="Composition canvas"></canvas><div class="tools" id="canvasTools" aria-label="Canvas tools"><button data-tool="select" data-icon="select" class="icon" title="Select (V)"></button><button data-tool="pan" data-icon="pan" class="icon" title="Pan (H or hold Space)"></button><div class="divider"></div><button data-tool="arrow" data-icon="arrow" class="icon" title="Draw arrow (A)"></button><button data-tool="text" data-icon="text" class="icon" title="Add text (T)"></button><button data-tool="frame" data-icon="frame" class="icon" title="Edit export frame (F to fit)"></button><div class="divider"></div><button id="importTool" data-icon="image" class="icon" title="Import images"></button></div>
 <button id="focusExit" data-icon="collapse" title="Exit focus view (Tab / Esc)">Exit</button>
@@ -841,7 +854,7 @@ body.focusView #focusExit:hover, body.focusView #focusExit:focus-visible { opaci
 <div id="imageToolbar" class="imageToolbar" role="toolbar" aria-label="Selected image commands" hidden></div>
 <div id="empty" class="empty"><span class="glyph" data-icon="image"></span><strong>Drop images here</strong><small>or choose files to start composing</small><button id="importEmpty" class="accent" data-icon="plus">Import images</button></div></div>
 <div class="foot bar"><span id="frameRead" class="frameRead"></span><span id="hint" class="toolhint push">Space to pan · Scroll to zoom</span></div>
-<section class="prompt" id="promptDock"><div id="split" class="split" role="separator" aria-label="Resize prompt panel" aria-orientation="horizontal" tabindex="0" title="Drag or use arrow keys to resize"></div><div class="bar"><label for="prompt" class="heading">PROMPT</label><button id="copy" class="push quiet" data-icon="copy">Copy</button></div><textarea id="prompt" spellcheck="false" placeholder="Write your generation prompt…" aria-label="PROMPT"></textarea></section></div>
+<section class="prompt" id="promptDock"><div id="split" class="split" role="separator" aria-label="Resize prompt panel" aria-orientation="horizontal" tabindex="0" title="Drag or use arrow keys to resize"></div><div class="bar"><label for="prompt" class="heading">PROMPT</label><button id="genPrompt" class="small primary" title="Build a short prompt from the base image, objects, annotations and your instructions">Generate prompt</button><button id="promptHistoryBtn" class="small quiet" aria-expanded="false" title="Earlier versions of this page's prompt">History</button><button id="promptPackage" class="small quiet" title="Download the numbered images and the prompt for Nano Banana">Images + prompt ↓</button><button id="copy" class="push quiet" data-icon="copy">Copy</button></div><div class="promptCols"><label class="instr"><span class="heading">MY INSTRUCTIONS</span><textarea id="promptInstructions" spellcheck="true" placeholder="Your own words for this page. They go into the prompt unchanged." aria-label="My instructions"></textarea></label><textarea id="prompt" spellcheck="false" placeholder="Write your generation prompt, or press Generate prompt…" aria-label="PROMPT"></textarea></div><div id="promptHistory" class="historyMenu" role="menu" hidden></div></section></div>
 <aside><section class="layerpane"><div class="sectionbar bar"><h2 class="heading">LAYERS</h2><span class="count" id="count">0</span><button class="push icon quiet" data-icon="plus" id="importLayers" title="Import images"></button></div><div id="layers" class="layerlist"></div></section><section class="propPane"><div class="bar sectionbar"><h2 class="heading">PROPERTIES</h2></div><div class="inspector" id="inspector"></div></section></aside></main>
 <dialog id="pageDialog" class="cropDlg"><label class="field">Page name<input id="pageNameInput"></label><div class="bar exportActions"><button id="pageCancel">Cancel</button><button class="primary" id="pageApply">Apply</button></div></dialog>
 <dialog id="originalDialog" class="cropDlg"><label class="field">Project original<select id="originalPicker"></select></label><div class="bar exportActions"><button id="originalCancel">Cancel</button><button class="primary" id="originalApply">Place on page</button></div></dialog>
@@ -969,9 +982,16 @@ const singlePage = () => ({
   layers: [],
   annotations: true,
   generationHistory: [],
+  promptAssistant: promptAssistantDefaults(),
   assets: []
 });
-const pageKeys = ['prompt', 'frame', 'exportSettings', 'layers', 'annotations', 'generationHistory'];
+// Prompt Assistant data is per page and kept apart from the prompt text itself:
+// instructions are the artist's own words, history holds earlier prompt versions.
+function promptAssistantDefaults() {
+  return { version: 1, instructions: '', lastGenerated: '', history: [] };
+}
+const annotationTypes = ['general', 'add', 'move', 'connect', 'modify', 'lighting', 'remove'];
+const pageKeys = ['prompt', 'frame', 'exportSettings', 'layers', 'annotations', 'generationHistory', 'promptAssistant'];
 const sceneFrom = p => Object.fromEntries(pageKeys.map(key => [key, p[key]]));
 function initProjectIdentity(p) {
   if (!p.projectId) {
@@ -2100,7 +2120,7 @@ function inspectorUI() {
   const label = document.createElement('input');
   label.value = l.name;
   label.onchange = () => edit(() => l.name = label.value.trim() || l.type);
-  field(g, 'Layer name', label, true);
+  field(g, l.type === 'image' ? 'Object name · used in the prompt' : 'Layer name', label, true);
   if (l.type === 'image') {
     const mode = document.createElement('select');
     for (const [v, s] of [['composition', 'Composition'], ['reference', 'Reference-only'], ['hidden', 'Hidden']]) mode.add(new Option(s, v));
@@ -2111,6 +2131,23 @@ function inspectorUI() {
       if (l.mode !== 'hidden') l.visible = true;
     });
     field(g, 'Image mode', mode, true);
+    if (l.mode === 'composition') {
+      const role = document.createElement('select');
+      const auto = baseLayer(project) === l && l.promptRole !== 'base';
+      role.add(new Option(auto ? 'Base image (automatic: lowest image)' : 'Base image', 'base'));
+      role.add(new Option('Object placed on the base', 'object'));
+      role.value = baseLayer(project) === l ? 'base' : 'object';
+      role.onchange = () => edit(() => {
+        for (const other of project.layers) if (other.type === 'image') delete other.promptRole;
+        if (role.value === 'base') l.promptRole = 'base';
+        else {
+          // Pick another base explicitly so this one stops being the automatic choice.
+          const next = project.layers.find(o => o !== l && o.type === 'image' && o.mode === 'composition' && o.visible);
+          if (next) next.promptRole = 'base';
+        }
+      });
+      field(g, 'In the prompt', role, true);
+    }
   }
   if (l.type === 'text') {
     const t = document.createElement('textarea');
@@ -2126,6 +2163,7 @@ function inspectorUI() {
     t.onblur = () => finishTyping(t);
     field(g, 'Annotation text', t, true);
   }
+  if (l.type !== 'image') annotationFields(g, l);
   numberField(g, l.type === 'arrow' ? 'Start X' : 'Center X', l.x, v => l.x = v);
   numberField(g, l.type === 'arrow' ? 'Start Y' : 'Center Y', l.y, v => l.y = v);
   if (l.type === 'arrow') {
@@ -2253,6 +2291,269 @@ function inspectorUI() {
   }));
   host.scrollTop = scroll;
 }
+// ---------- Prompt Assistant ----------
+// Deterministic: it only states what the artist placed, named and wrote. No image recognition,
+// no invented objects, materials or moods. Images are numbered in the order they are uploaded.
+function baseLayer(scene) {
+  const images = scene.layers.filter(l => l.type === 'image' && l.mode === 'composition' && l.visible);
+  return images.find(l => l.promptRole === 'base') || images[0] || null;
+}
+function promptPlan(scene) {
+  const base = baseLayer(scene);
+  const shown = scene.layers.filter(l => l.visible && l.mode !== 'hidden' && l.opacity > 0);
+  const objects = shown.filter(l => l.type === 'image' && l.mode === 'composition' && l !== base);
+  const refs = shown.filter(l => l.type === 'image' && l.mode === 'reference');
+  const notes = shown.filter(l => l.type !== 'image').sort((a, b) => a.y - b.y || a.x - b.x);
+  const images = [];
+  if (base) images.push({ kind: 'base', layer: base });
+  if (objects.length || notes.length) images.push({ kind: 'layout' });
+  for (const layer of objects) images.push({ kind: 'object', layer });
+  for (const layer of refs) images.push({ kind: 'reference', layer });
+  images.forEach((img, i) => img.n = i + 1);
+  return { base, objects, refs, notes, images, layoutN: images.find(i => i.kind === 'layout')?.n || null };
+}
+function placementOf(l, base) {
+  const b = boundsFor([base]),
+    box = boundsFor([l]);
+  if (!b || !box) return '';
+  const fx = (l.x - b.x) / b.w,
+    fy = (l.y - b.y) / b.h;
+  if (fx < 0 || fx > 1 || fy < 0 || fy > 1) return 'outside the base image';
+  const h = fx < 1 / 3 ? 'left' : fx > 2 / 3 ? 'right' : 'center',
+    v = fy < 1 / 3 ? 'top' : fy > 2 / 3 ? 'bottom' : 'middle';
+  const where = v === 'middle' ? (h === 'center' ? 'center' : h) : h === 'center' ? v + ' center' : v + ' ' + h;
+  const pct = Math.max(5, Math.round(Math.min(1, box.w / b.w) * 20) * 5);
+  return where + ', about ' + pct + '% of the image width';
+}
+const sentence = s => {
+  s = s.trim().replace(/\s+/g, ' ');
+  return s && !/[.!?:]$/.test(s) ? s + '.' : s;
+};
+function noteLine(l, scene, layoutN) {
+  const a = l.ann || { type: 'general', source: null, target: null, note: '' };
+  const text = (l.type === 'text' ? l.text : a.note).trim().replace(/\s+/g, ' ');
+  const name = id => {
+    const o = scene.layers.find(x => x.id === id);
+    return o ? 'the ' + o.name : '';
+  };
+  const src = name(a.source),
+    dst = name(a.target);
+  // A free arrow carries no meaning by itself.
+  if (!text && !src) return '';
+  const tail = text ? (src || dst ? ': ' + text : text) : '';
+  const pointer = l.type === 'text' && l.connector && layoutN ? ' (where the arrow points in Image ' + layoutN + ')' : '';
+  let line;
+  // Without a linked object the artist's own words are the instruction, unchanged.
+  if (!src && !dst && a.type !== 'lighting') return sentence(text.charAt(0).toUpperCase() + text.slice(1) + pointer);
+  switch (a.type) {
+    case 'add': line = 'Add ' + (src || '') + (dst ? ' next to ' + dst : '') + (src || dst ? tail : text); break;
+    case 'move': line = 'Move ' + (src || '') + (dst ? ' to ' + dst : '') + (src || dst ? tail : text); break;
+    case 'connect': line = 'Connect ' + (src || '') + (dst ? ' to ' + dst : '') + (src || dst ? tail : text); break;
+    case 'remove': line = 'Remove ' + (src || '') + (src ? tail : text); break;
+    case 'lighting': line = 'Lighting' + (src ? ' on ' + src : '') + ': ' + (text || 'adjust as marked'); break;
+    case 'modify': line = src ? 'Change ' + src + (text ? ': ' + text : '') : text; break;
+    default: line = src ? (text ? src.slice(4) + ': ' + text : '') : text;
+  }
+  if (!line.trim()) return '';
+  line = line.replace(/\s+/g, ' ').replace(' :', ':');
+  return sentence(line.charAt(0).toUpperCase() + line.slice(1) + pointer);
+}
+function buildPrompt(scene) {
+  const plan = promptPlan(scene),
+    { base, objects, refs, notes, layoutN } = plan;
+  const intro = [],
+    body = [],
+    end = [];
+  const n = l => plan.images.find(i => i.layer === l).n;
+  if (base) intro.push('Use Image 1 (' + base.name + ') as the base image.');
+  if (layoutN) intro.push('Image ' + layoutN + ' shows the intended layout' + (notes.length ? ' with notes and arrows.' : '.'));
+  for (const o of objects) intro.push('Image ' + n(o) + ' is the ' + o.name + '.');
+  for (const r of refs) intro.push('Image ' + n(r) + ' (' + r.name + ') is for reference only; do not place it in the image.');
+  if (objects.length && base && layoutN) {
+    body.push('Place ' + objects.map(o => 'the ' + o.name).join(', ').replace(/, ([^,]*)$/, ' and $1') + ' at the positions and approximate sizes shown in Image ' + layoutN + ':');
+    for (const o of objects) body.push('- ' + o.name + ': ' + placementOf(o, base) + '.');
+  }
+  for (const l of notes) {
+    const line = noteLine(l, scene, layoutN);
+    if (line) body.push(line);
+  }
+  const own = (scene.promptAssistant?.instructions || '').trim();
+  if (base && objects.length) end.push('Match the lighting and perspective of Image 1.');
+  if (base) end.push('Keep everything else in Image 1 unchanged.');
+  if (layoutN && notes.length) end.push('Do not show any arrows, boxes, labels or text from Image ' + layoutN + ' in the result.');
+  const text = [intro.join(' '), body.join('\n'), own, end.join(' ')].filter(Boolean).join('\n\n');
+  return { text, plan };
+}
+function generatePrompt() {
+  const { text, plan } = buildPrompt(project);
+  if (!text) {
+    toast('Add a base image, objects or notes first.');
+    return;
+  }
+  const pa = project.promptAssistant,
+    current = project.prompt;
+  const edited = current.trim() && current !== pa.lastGenerated;
+  edit(() => {
+    if (current.trim() && current !== text && current !== pa.history[0]?.text) {
+      pa.history.unshift({ at: new Date().toISOString(), text: current, source: edited ? 'artist' : 'generated', model: 'nano-banana' });
+      pa.history.length = Math.min(pa.history.length, 40);
+    }
+    project.prompt = text;
+    pa.lastGenerated = text;
+  });
+  toast((edited ? 'Your edited prompt is kept in History. ' : '') + 'Images: ' + plan.images.map(i => i.n + ' ' + imageLabel(i)).join(' · '));
+}
+function imageLabel(img) {
+  return img.kind === 'layout' ? 'layout' : img.layer.name;
+}
+function restorePrompt(entry) {
+  const pa = project.promptAssistant,
+    current = project.prompt;
+  edit(() => {
+    if (current.trim() && current !== entry.text && current !== pa.history[0]?.text) {
+      pa.history.unshift({ at: new Date().toISOString(), text: current, source: current === pa.lastGenerated ? 'generated' : 'artist', model: 'nano-banana' });
+      pa.history.length = Math.min(pa.history.length, 40);
+    }
+    project.prompt = entry.text;
+  });
+  closePromptHistory();
+  toast('Prompt restored. The previous text is in History.');
+}
+function closePromptHistory() {
+  $('promptHistory').hidden = true;
+  $('promptHistoryBtn').setAttribute('aria-expanded', 'false');
+}
+function openPromptHistory() {
+  const box = $('promptHistory'),
+    list = project.promptAssistant.history;
+  box.replaceChildren();
+  if (!list.length) box.append(Object.assign(document.createElement('p'), { textContent: 'No earlier versions yet. Every Generate keeps the previous prompt here.' }));
+  for (const entry of list) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    const meta = document.createElement('small');
+    meta.textContent = new Date(entry.at).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' · ' + (entry.source === 'artist' ? 'edited by hand' : 'generated');
+    const text = document.createElement('span');
+    text.textContent = entry.text;
+    b.append(meta, text);
+    b.title = 'Restore this version';
+    b.onclick = e => {
+      e.stopPropagation();
+      restorePrompt(entry);
+    };
+    box.append(b);
+  }
+  box.hidden = false;
+  $('promptHistoryBtn').setAttribute('aria-expanded', 'true');
+}
+function originalJPEG(l) {
+  const a = assets.get(l.assetId),
+    r = l.crop,
+    scale = Math.min(1, 4096 / Math.max(r.w, r.h));
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(r.w * scale));
+  c.height = Math.max(1, Math.round(r.h * scale));
+  const x = c.getContext('2d');
+  x.fillStyle = '#fff';
+  x.fillRect(0, 0, c.width, c.height);
+  if (l.flipX) {
+    x.translate(c.width, 0);
+    x.scale(-1, 1);
+  }
+  x.imageSmoothingQuality = 'high';
+  x.drawImage(a.image, r.x, r.y, r.w, r.h, 0, 0, c.width, c.height);
+  return new Promise((resolve, reject) => c.toBlob(b => b ? resolve(b) : reject(Error('JPEG encoding failed.')), 'image/jpeg', .95));
+}
+async function promptPackage() {
+  const { text, plan } = buildPrompt(project);
+  const pa = project.promptAssistant;
+  if (!project.prompt.trim()) generatePrompt();
+  else if (project.prompt === pa.lastGenerated && text !== pa.lastGenerated) {
+    // The page changed since the last Generate and the text was not edited by hand: refresh it.
+    generatePrompt();
+  }
+  if (!plan.images.length) throw Error('Nothing to package yet: add a base image first.');
+  const clean = s => s.replace(/[^\p{L}\p{N}_ -]+/gu, '_').trim().slice(0, 40) || 'image';
+  const entries = [];
+  for (const img of plan.images) {
+    const blob = img.kind === 'layout' ? await jpeg('annotated') : await originalJPEG(img.layer);
+    entries.push([String(img.n).padStart(2, '0') + '_' + (img.kind === 'layout' ? 'layout' : img.kind + '_' + clean(img.layer.name)) + '.jpg', blob]);
+  }
+  entries.push(['prompt.txt', new Blob([project.prompt], { type: 'text/plain;charset=utf-8' })]);
+  const page = project.pages.find(p => p.id === project.activePageId);
+  download(await zip(entries), safeName() + ' - ' + clean(page?.name || 'page') + ' - nano-banana.zip');
+  const manual = project.prompt !== pa.lastGenerated;
+  toast('Upload the images to Nano Banana in number order (01, 02 …), then paste the prompt.' + (plan.images.length > 10 ? ' More than 10 images: Gemini may not accept them all.' : '') + (manual ? ' Your prompt was edited by hand — check its image numbers.' : ''));
+}
+$('genPrompt').onclick = () => generatePrompt();
+$('promptPackage').onclick = () => run(promptPackage, 'Packing images…');
+$('promptHistoryBtn').onclick = e => {
+  e.stopPropagation();
+  if ($('promptHistory').hidden) openPromptHistory();
+  else closePromptHistory();
+};
+$('promptHistory').onclick = e => e.stopPropagation();
+document.addEventListener('click', closePromptHistory);
+$('promptInstructions').onfocus = () => beginTyping($('promptInstructions'));
+$('promptInstructions').oninput = () => {
+  project.promptAssistant.instructions = $('promptInstructions').value;
+  scheduleSave();
+};
+$('promptInstructions').onblur = () => finishTyping($('promptInstructions'));
+$('dupPage').onclick = () => {
+  edit(() => {
+    const index = project.pages.findIndex(p => p.id === project.activePageId),
+      current = project.pages[index];
+    const scene = clone(sceneFrom(project));
+    // Fresh layer IDs keep the two pages fully independent; references follow the new IDs.
+    const ids = new Map();
+    for (const l of scene.layers) {
+      const next = uid();
+      ids.set(l.id, next);
+      l.id = next;
+    }
+    for (const l of scene.layers) if (l.ann) l.ann = { ...l.ann, source: ids.get(l.ann.source) || null, target: ids.get(l.ann.target) || null };
+    if (scene.exportSettings.selectionId) scene.exportSettings.selectionId = ids.get(scene.exportSettings.selectionId) || null;
+    const id = uid();
+    project.pages.splice(index + 1, 0, { id, name: current.name + ' copy', scene });
+    activatePage(id);
+  });
+  fit();
+  toast('Page duplicated');
+};
+function annotationFields(g, l) {
+  const ann = l.ann || { type: 'general', source: null, target: null, note: '' };
+  const commit = change => edit(() => {
+    l.ann = { ...ann, ...change };
+  });
+  const type = document.createElement('select');
+  for (const t of annotationTypes) type.add(new Option(t[0].toUpperCase() + t.slice(1), t));
+  type.value = ann.type;
+  type.onchange = () => commit({ type: type.value });
+  field(g, 'Annotation type', type);
+  const objects = project.layers.filter(o => o.type === 'image');
+  const pick = (labelText, key) => {
+    const sel = document.createElement('select');
+    sel.add(new Option('—', ''));
+    for (const o of objects) sel.add(new Option(o.name, o.id));
+    sel.value = ann[key] && objects.some(o => o.id === ann[key]) ? ann[key] : '';
+    sel.onchange = () => commit({ [key]: sel.value || null });
+    field(g, labelText, sel);
+  };
+  pick('Object', 'source');
+  pick('Target object', 'target');
+  if (l.type === 'arrow') {
+    const note = document.createElement('input');
+    note.value = ann.note;
+    note.placeholder = 'e.g. connect to the pipe';
+    note.onchange = () => commit({ note: note.value.trim() });
+    field(g, 'Instruction', note, true);
+  }
+  const hint = document.createElement('p');
+  hint.className = 'promptHint wide';
+  hint.textContent = l.type === 'arrow' ? 'An arrow enters the prompt only with an object or an instruction.' : 'The box text enters the prompt as written.';
+  g.append(hint);
+}
 function syncPages() {
   const picker = $('pagePicker');
   picker.replaceChildren();
@@ -2338,6 +2639,7 @@ function sync() {
   }
   if (document.activeElement !== $('name')) $('name').value = project.name;
   if (document.activeElement !== $('prompt')) $('prompt').value = project.prompt;
+  if (document.activeElement !== $('promptInstructions')) $('promptInstructions').value = project.promptAssistant.instructions;
   $('annotations').setAttribute('aria-pressed', String(project.annotations));
   $('undo').disabled = !history.length;
   $('redo').disabled = !future.length;
@@ -2973,6 +3275,9 @@ function validateScene(p) {
     finite = (...xs) => xs.every(Number.isFinite);
   ok(p && p.format === 'ds-studio' && p.version === 1 && typeof p.prompt === 'string' && typeof p.name === 'string' && Array.isArray(p.layers) && Array.isArray(p.assets) && Array.isArray(p.generationHistory) && typeof p.annotations === 'boolean');
   if (p.exportSettings === undefined) p.exportSettings = exportDefaults('custom');
+  if (p.promptAssistant === undefined) p.promptAssistant = promptAssistantDefaults();
+  const pa = p.promptAssistant;
+  ok(pa && typeof pa.instructions === 'string' && typeof pa.lastGenerated === 'string' && Array.isArray(pa.history));
   const e = p.exportSettings;
   ok(e && Object.hasOwn(exportModes, e.mode) && Number.isInteger(e.padding) && e.padding >= 0 && e.padding <= 16384 && typeof e.annotationExtents === 'boolean' && Object.hasOwn(ratios, e.ratio) && (e.selectionId === null || typeof e.selectionId === 'string'));
   const f = p.frame;
@@ -2989,6 +3294,8 @@ function validateScene(p) {
   for (const l of p.layers) {
     ok(l && typeof l.id === 'string' && !layers.has(l.id) && typeof l.name === 'string' && typeof l.visible === 'boolean' && typeof l.locked === 'boolean' && finite(l.x, l.y, l.angle, l.opacity) && l.opacity >= 0 && l.opacity <= 1 && ['image', 'arrow', 'text'].includes(l.type));
     layers.add(l.id);
+    if (l.ann !== undefined) ok(l.ann && annotationTypes.includes(l.ann.type) && (l.ann.source === null || typeof l.ann.source === 'string') && (l.ann.target === null || typeof l.ann.target === 'string') && typeof l.ann.note === 'string');
+    if (l.promptRole !== undefined) ok(l.promptRole === 'base' || l.promptRole === null);
     if (l.type !== 'arrow') ok(finite(l.w, l.h) && l.w > 0 && l.h > 0);
     if (l.type === 'image') {
       if (l.flipX === undefined) l.flipX = false;
@@ -3029,6 +3336,8 @@ function validate(p) {
     if (page.id === p.activePageId) {
       if (page.scene !== null) throw Error('Invalid active page.');
     } else {
+      // Projects saved before the Prompt Assistant existed get an empty assistant record.
+      if (page.scene && !('promptAssistant' in page.scene)) page.scene.promptAssistant = promptAssistantDefaults();
       if (!page.scene || pageKeys.some(k => !(k in page.scene))) throw Error('Missing page data.');
       validateScene({
         ...p,
