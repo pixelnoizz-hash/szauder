@@ -98,3 +98,31 @@ by direct link; `/orbit` 301s to it.
 - Embeddable anywhere: `/embed/orbit` is a bare full-bleed player (noindex). The work page
   shows the iframe code with a copy button. Do not add X-Frame-Options / frame-ancestors
   headers for `/embed/*` or `/media/*`, or the embed breaks.
+
+## Private studio (/studio, Nov 2026)
+
+DAVID SZAUDER STUDIO — CORE (`/studio/`) and EDITOR (`/studio/editor.html`). Private: every
+`/studio/*` URL is behind Cloudflare Access (Zero Trust → Access → app "SZAUDER STUDIO",
+policy "Studio owner only", email one-time code). The same app also covers the apex domain
+and `*.david-szauder.workers.dev/studio`, so there is no unprotected back door.
+
+- Static files: `public/studio/index.html` (CORE) and `public/studio/editor.html` (EDITOR,
+  same single-file editor as the local HTML, plus a Google Drive adapter that only activates
+  on this site).
+- API: `worker/index.js`, runs only for `/studio/api/*` (`run_worker_first` in
+  `wrangler.jsonc`); the rest of the site is still plain static assets.
+  It re-verifies the Access JWT and allowed email, refuses cross-site writes, and talks to
+  Google Drive with the narrow `drive.file` scope (it only sees files it created).
+- Google Cloud project "Szauder Studio Core" (pixelnoizz account), OAuth client
+  "Szauder Studio website", redirect `https://www.davidarielszauder.com/studio/api/auth/callback`.
+  App is in Testing mode, so Google asks to reconnect about once a week until it is
+  published (needs a privacy-policy page on the site).
+- Secret `GOOGLE_CLIENT_SECRET` is a Worker secret set in the Cloudflare dashboard.
+  Never put it in this repo. The refresh token lives in KV namespace `szauder-studio`.
+- Drive layout: `STUDIO_EDITOR/projects/<projectId>/{project.json, originals/, previews/,
+  versions/, pages/, prompts/, generations/}` + `STUDIO_EDITOR/shared_assets/`. The root
+  folder is found by an appProperty, so it can be moved into the existing SZAUDER CORE folder.
+- Saving: originals and previews are named by SHA-256 and never overwritten; `project.json`
+  is written last with a revision check (409 on a newer save from another device). A copy
+  goes to `versions/` at most every 10 minutes. The browser draft (IndexedDB) stays as
+  offline fallback and syncs when the connection returns.

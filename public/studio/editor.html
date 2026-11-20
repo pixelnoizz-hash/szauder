@@ -1,0 +1,4280 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-ui-size="medium"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark light"><meta name="robots" content="noindex,nofollow"><title>David Szauder Studio — Editor</title>
+<style>
+
+* {
+  box-sizing: border-box;
+}
+:root {
+  --ink: #252822;
+  --mute: #70746c;
+  --line: #d6d8ce;
+  --paper: #fafaf6;
+  --accent: #ff683b;
+  --mono: "IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font: 112.5%/1.4 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+}
+body {
+  margin: 0;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+button,input,select,textarea {
+  font: inherit;
+  color: inherit;
+}
+button,select {
+  cursor: pointer;
+}
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 33px;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--paper);
+  white-space: nowrap;
+}
+button:hover {
+  background: #edeee6;
+}
+button:disabled {
+  opacity: .35;
+  cursor: default;
+}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible {
+  outline: 2px solid #c84723;
+  outline-offset: 2px;
+}
+button svg,.glyph svg {
+  width: 17px;
+  height: 17px;
+  display: block;
+  flex: none;
+}
+button.primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: white;
+}
+button.primary:hover {
+  background: #41473c;
+}
+button.accent {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #201a15;
+}
+button.icon {
+  width: 33px;
+  padding: 0;
+}
+.quiet {
+  border-color: transparent;
+  background: transparent;
+}
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.push {
+  margin-left: auto;
+}
+header {
+  min-height: 62px;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 20px;
+  gap: 14px!important;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 760;
+  font-size: 1rem;
+  letter-spacing: -.3px;
+}
+.mark {
+  width: 27px;
+  height: 27px;
+  background: var(--accent);
+  display: grid;
+  grid-template-columns: repeat(3,4px);
+  gap: 2px;
+  align-content: center;
+  justify-content: center;
+  transform: rotate(0deg);
+  border-radius: 4px;
+}
+.mark i {
+  height: 14px;
+  background: var(--ink);
+  transform: skew(-18deg);
+}
+.brand small {
+  font: .85rem var(--mono);
+  color: var(--mute);
+  padding-left: 12px;
+  margin-left: 4px;
+  border-left: 1px solid var(--line);
+  letter-spacing: 1px;
+}
+.status {
+  font: .8rem var(--mono);
+  color: #5b6358;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.status:before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #839076;
+}
+.status.warn:before {
+  background: var(--accent);
+}
+main {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 288px;
+}
+.work {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.workbar {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  min-height: 49px;
+  gap: 6px;
+}
+.name {
+  background: none;
+  border: 1px solid transparent;
+  min-width: 45px;
+  text-overflow: ellipsis;
+  width: 220px;
+  max-width: 48%;
+  padding: 3px 0;
+  font-size: 1.36rem;
+  font-weight: 620;
+  letter-spacing: -.6px;
+}
+.name:hover {
+  border-bottom-color: var(--line);
+}
+.viewctl {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+.viewctl span {
+  font: .85rem var(--mono);
+  min-width: 42px;
+  text-align: center;
+}
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 100px;
+  overflow: hidden;
+  background-color: #e5e7df;
+  background-image: radial-gradient(#bfc4b8 .8px,transparent .8px);
+  background-size: 14px 14px;
+}
+.stage.over {
+  outline: 3px dashed var(--accent);
+  outline-offset: -5px;
+}
+canvas#canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  outline: 0;
+}
+.tools {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid #c4c8bd;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px #20291a12;
+}
+.tools button {
+  border: 0;
+}
+.tools button.active {
+  color: white;
+  background: var(--ink);
+}
+.divider {
+  height: 1px;
+  background: var(--line);
+  margin: 2px;
+}
+.empty {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  text-align: center;
+  pointer-events: none;
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+}
+.empty strong {
+  font-size: clamp(1.2rem,2.3vw,2.28rem);
+  font-weight: 520;
+  letter-spacing: -1px;
+}
+.empty small {
+  color: var(--mute);
+  font-size: .9rem;
+}
+.empty .glyph {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+.empty button {
+  pointer-events: auto;
+  margin-top: 7px;
+}
+.foot {
+  padding: 6px 13px;
+  background: #eff0e9;
+  border-top: 1px solid var(--line);
+  font: .8rem var(--mono);
+  color: #5d6359;
+  gap: 12px;
+}
+.prompt {
+  height: 168px;
+  min-height: 90px;
+  max-height: 47vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 13px 17px 10px;
+  border-top: 1px solid var(--line);
+}
+.split {
+  position: absolute;
+  top: -4px;
+  height: 9px;
+  left: 0;
+  right: 0;
+  cursor: ns-resize;
+  touch-action: none;
+}
+.split:after {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 3px;
+  background: #c4c7bc;
+  margin: 3px auto;
+  border-radius: 2px;
+}
+.heading {
+  font: 600 .85rem var(--mono);
+  letter-spacing: 1.2px;
+  margin: 0;
+}
+.prompt .bar {
+  margin-bottom: 6px;
+}
+.prompt textarea {
+  flex: 1;
+  min-height: 0;
+  resize: none;
+  line-height: 1.55;
+  padding: 9px 10px;
+  background: #f3f4ed;
+  border-color: var(--line);
+  border-radius: 4px;
+  font: .95rem/1.55 var(--mono);
+}
+aside {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-left: 1px solid var(--line);
+  background: var(--paper);
+}
+.layerpane,.propPane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.layerpane {
+  flex: 0 1 44%;
+  min-height: 107px;
+}
+.propPane {
+  flex: 1;
+  border-top: 1px solid var(--line);
+}
+.sectionbar {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  min-height: 48px;
+}
+.count,.dim {
+  color: var(--mute);
+  font: .85rem var(--mono);
+}
+.layerlist,.inspector {
+  overflow: auto;
+  flex: 1;
+}
+.layer {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 4px 7px 4px 12px;
+  gap: 4px;
+  border-bottom: 1px solid #e6e8dd;
+  border-left: 3px solid transparent;
+}
+.layer.selected {
+  background: #eceee3;
+  border-left-color: var(--accent);
+}
+.layer .pick {
+  min-width: 0;
+  justify-content: flex-start;
+  flex: 1;
+  text-align: left;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.refTag {
+  font: .75rem var(--mono);
+  color: #436045;
+  letter-spacing: .5px;
+  background: #e0e9d8;
+  padding: 2px 3px;
+  border-radius: 3px;
+}
+.thumb {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+.pick span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.layer .icon {
+  width: 25px;
+  height: 26px;
+  min-height: 26px;
+}
+.layer .icon svg {
+  width: 14px;
+}
+.emptyLayers,.hint {
+  font-size: .9rem;
+  color: var(--mute);
+  margin: 16px;
+}
+.inspector {
+  padding: 13px 14px;
+}
+.fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 9px 0 13px;
+}
+label.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #616659;
+  font: .8rem var(--mono);
+  letter-spacing: .4px;
+}
+input[type=number],select,.field input,.field textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 4px;
+  padding: 6px;
+  font: .95rem -apple-system,BlinkMacSystemFont,Arial;
+  color: var(--ink);
+}
+.field textarea {
+  resize: vertical;
+  min-height: 65px;
+}
+.field input[type=color] {
+  height: 31px;
+  padding: 2px;
+}
+.field input[type=range] {
+  padding: 0;
+}
+.wide {
+  grid-column: 1/-1;
+}
+.inspector h3 {
+  font-size: 1rem;
+  margin: 0 0 8px;
+}
+.inspector .bar {
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.inspector .bar button {
+  font-size: .9rem;
+}
+.menu {
+  position: absolute;
+  z-index: 8;
+  right: 13px;
+  top: 54px;
+  background: var(--paper);
+  padding: 6px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  box-shadow: 0 6px 20px #29302122;
+  min-width: 199px;
+}
+.menu button {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  border: 0;
+}
+.toast {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  max-width: min(600px,92vw);
+  background: var(--ink);
+  color: white;
+  border-radius: 5px;
+  padding: 9px 14px;
+  z-index: 15;
+}
+.switch[aria-pressed=true] {
+  background: #e7ebde;
+  border-color: #c8cfbc;
+}
+.toolhint {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.frameRead {
+  white-space: nowrap;
+}
+.cropDlg {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  background: var(--paper);
+  width: min(700px,94vw);
+}
+dialog::backdrop {
+  background: #181c18a6;
+}
+.cropDlg canvas {
+  width: 100%;
+  height: min(55vh,460px);
+  background: #e1e4db;
+  touch-action: none;
+  cursor: crosshair;
+  display: block;
+  margin: 10px 0;
+}
+.cropDlg p {
+  font-size: .9rem;
+  color: var(--mute);
+}
+[hidden] {
+  display: none!important;
+}
+@media(max-width:900px) {
+  .status {
+    max-width: 90px;
+  }
+  .brand small {
+    display: none;
+  }
+  header {
+    padding: 8px 10px;
+    gap: 7px!important;
+  }
+  main {
+    grid-template-columns: minmax(0,1fr) 235px;
+  }
+  .workbar {
+    padding: 6px 8px;
+  }
+  .name {
+    font-size: 1.14rem;
+  }
+  .switch {
+    font-size: 0;
+    gap: 0;
+  }
+  .prompt {
+    height: 142px;
+  }
+}
+@media(max-width:650px) {
+  main {
+    grid-template-columns: minmax(0,1fr) min(38vw,195px);
+  }
+  header {
+    flex-wrap: wrap;
+    min-height: 48px;
+  }
+  .brand {
+    font-size: .9rem;
+  }
+  .status {
+    display: none;
+  }
+  header button {
+    font-size: .85rem;
+    padding: 4px 6px;
+  }
+  .tools {
+    top: 5px;
+    left: 5px;
+  }
+  .tools .icon {
+    width: 27px;
+    min-height: 27px;
+  }
+  .viewctl .fitlabel,.toolhint {
+    display: none;
+  }
+  .workbar {
+    flex-wrap: wrap;
+  }
+  .name {
+    width: 100%;
+    max-width: 100%;
+  }
+  .bar.workbar {
+    gap: 2px;
+  }
+  .workbar .push {
+    margin-left: 0;
+  }
+  .sectionbar,.inspector {
+    padding: 8px;
+  }
+  .prompt {
+    padding: 10px 6px 5px;
+  }
+  .prompt .heading {
+    font-size: .75rem;
+    letter-spacing: 0;
+  }
+  .prompt button {
+    font-size: .8rem;
+    min-height: 25px;
+  }
+  .prompt button svg {
+    display: none;
+  }
+  .empty small {
+    display: none;
+  }
+  .empty strong {
+    font-size: 1.07rem;
+  }
+  .layer {
+    padding-left: 3px;
+  }
+  .layer .icon {
+    width: 21px;
+  }
+  .layer .thumb {
+    display: none;
+  }
+  .empty {
+    left: 57%;
+  }
+  .foot {
+    font-size: .75rem;
+  }
+  .mark {
+    width: 21px;
+    height: 21px;
+  }
+  .sectionbar .heading {
+    font-size: .8rem;
+  }
+}
+.imageToolbar {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 3px;
+  border: 1px solid #c4c8bd;
+  border-radius: 6px;
+  background: var(--paper);
+  box-shadow: 0 2px 8px #20291a25;
+  max-width: calc(100% - 8px);
+  overflow: auto;
+}
+.imageToolbar button {
+  min-height: 28px;
+  width: 28px;
+  flex-shrink: 0;
+}
+.imageToolbar [aria-pressed="true"] {
+  background: #e4e8d9;
+}
+#exportDialog {
+  width: min(820px, 94vw);
+  max-height: 92dvh;
+  overflow: auto;
+}
+.exportControls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(120px,1fr));
+  gap: 10px;
+  margin: 14px 0 8px;
+}
+.exportChecks {
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+  font-size: .9rem;
+}
+.previewWell {
+  display: grid;
+  place-items: center;
+  height: min(42vh,420px);
+  padding: 12px;
+  background: #e4e6dd;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.previewWell img {
+  display: block;
+  max-height: 100%;
+  max-width: 100%;
+  min-height: 0;
+  object-fit: contain;
+}
+.previewWell p {
+  max-width: 36ch;
+  text-align: center;
+}
+.exportActions {
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+#boxEditor {
+  position: absolute;
+  z-index: 3;
+  transform-origin: 0 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-sizing: border-box;
+  resize: none;
+  font-family: Arial,sans-serif;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow: auto;
+  outline: 2px solid #da562f;
+}
+.pagebar {
+  border-bottom: 1px solid var(--line);
+  padding: 4px 12px;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.pagebar select {
+  width: auto;
+  max-width: 160px;
+}
+.pagebar button {
+  min-height: 28px;
+  font-size: .9rem;
+}
+#folderStatus {
+  font: .85rem var(--mono);
+  color: var(--mute);
+  margin-left: auto;
+  overflow-wrap: anywhere;
+}
+#folderStatus.warn {
+  color: #a33919;
+}
+#projectMenu {
+  max-height: 78dvh;
+  overflow: auto;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e9e9e6;
+  --mute: #b0b0ae;
+  --line: #424346;
+  --paper: #232426;
+  --accent: #ff835e;
+  --well: #18191b;
+  --hover: #343537;
+  --active: #48362f;
+  accent-color: var(--accent);
+}
+:root[data-theme="light"] { color-scheme: light; }
+[data-theme="dark"] .stage {
+  background-color: #151618;
+  background-image: radial-gradient(#38393b .8px, transparent .8px);
+}
+[data-theme="dark"] button:hover { background: var(--hover); }
+[data-theme="dark"] button.primary, [data-theme="dark"] .tools button.active {
+  background: var(--accent); border-color: var(--accent); color: #231913;
+}
+[data-theme="dark"] button.primary:hover, [data-theme="dark"] button.accent:hover { background: #ff9878; }
+[data-theme="dark"] .mark i { background: #231913; }
+[data-theme="dark"] :is(button,input,textarea,select,.split):focus-visible { outline-color: var(--accent); }
+[data-theme="dark"] .tools, [data-theme="dark"] .imageToolbar { border-color: var(--line); box-shadow: 0 2px 8px #0005; }
+[data-theme="dark"] .status, [data-theme="dark"] label.field { color: var(--mute); }
+[data-theme="dark"] .status:before { background: #97ac91; }
+[data-theme="dark"] .status.warn:before { background: var(--accent); }
+[data-theme="dark"] .foot { background: #1d1e20; color: var(--mute); }
+[data-theme="dark"] .split:after { background: #646568; }
+[data-theme="dark"] .prompt textarea,
+[data-theme="dark"] :is(input[type=number],select,.field input,.field textarea),
+[data-theme="dark"] .previewWell, [data-theme="dark"] .cropDlg canvas { background: var(--well); }
+[data-theme="dark"] :is(input,textarea)::placeholder { color: #9a9b9e; }
+[data-theme="dark"] .layer { border-bottom-color: #323335; }
+[data-theme="dark"] .layer.selected, [data-theme="dark"] .imageToolbar [aria-pressed="true"],
+[data-theme="dark"] .switch[aria-pressed="true"] { background: var(--active); }
+[data-theme="dark"] .switch[aria-pressed="true"] { border-color: #86614e; }
+[data-theme="dark"] .refTag { color: #bcd6bc; background: #303c31; }
+[data-theme="dark"] .toast { background: #38393d; color: var(--ink); box-shadow: 0 3px 14px #0006; }
+[data-theme="dark"] .cropDlg { color: var(--ink); }
+[data-theme="dark"] dialog::backdrop { background: #070708bc; }
+[data-theme="dark"] #folderStatus.warn { color: #ffab8f; }
+
+:root[data-ui-size="small"] { font-size: 87.5%; }
+:root[data-ui-size="bigger"] { font-size: 137.5%; }
+.uiSizeControl { display: inline-flex; align-items: center; gap: .35rem; white-space: nowrap; font-size: .85rem; }
+.uiSizeControl select { width: auto; padding: 4px 6px; }
+header { flex-wrap: wrap; }
+.workbar { flex-wrap: wrap; }
+.menu { max-width: calc(100vw - 16px); }
+.cropDlg { max-height: 90dvh; overflow: auto; }
+.prompt .bar { flex-shrink: 0; }
+
+/* Focus view: canvas only. Toggle with Tab or the view button; Tab / Esc exits. */
+body.focusView header, body.focusView .workbar, body.focusView .pagebar,
+body.focusView .foot, body.focusView #promptDock, body.focusView aside,
+body.focusView #canvasTools, body.focusView #imageToolbar, body.focusView .menu { display: none!important; }
+body.focusView main { grid-template-columns: minmax(0,1fr); }
+#focusExit {
+  display: none;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 4;
+  opacity: .0;
+  transition: opacity .15s;
+  background: var(--paper);
+  border-color: var(--line);
+}
+body.focusView #focusExit { display: inline-flex; }
+body.focusView .stage:hover #focusExit { opacity: .55; }
+body.focusView #focusExit:hover, body.focusView #focusExit:focus-visible { opacity: 1; }
+#focusToggle[aria-pressed="true"] { background: var(--active, #e4e8d9); }
+.coreLink { font: .85rem var(--mono); color: var(--mute); text-decoration: none; padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; }
+.coreLink:hover { color: var(--ink); }
+</style></head><body>
+<header class="bar"><a id="coreLink" class="coreLink" href="/studio/" title="Back to CORE projects" hidden>← CORE</a><div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>DAVID SZAUDER STUDIO <small>EDITOR</small></div><span id="status" class="status push" role="status">Local workspace</span><div class="bar"><button id="undo" data-icon="undo" class="icon quiet" title="Undo (⌘/Ctrl Z)"></button><button id="redo" data-icon="redo" class="icon quiet" title="Redo (⌘/Ctrl Shift Z)"></button></div><label class="uiSizeControl">Text size <select id="uiSize" aria-label="Interface text size"><option value="small">Small</option><option value="medium" selected>Medium</option><option value="bigger">Bigger</option></select></label><button id="themeToggle" class="icon quiet" type="button" aria-label="Dark mode" aria-pressed="true" title="Switch to light mode">◐</button><button id="projectMenuBtn" data-icon="folder" aria-expanded="false">Project</button><button class="primary" id="exportMenuBtn" data-icon="export" aria-expanded="false">Export</button></header>
+<div id="projectMenu" class="menu" hidden><button id="chooseFolder">Choose Project Folder…</button><button id="openFolder">Open Local Project…</button>
+<button id="saveFolder">Save to Folder</button><button id="saveNow">Save Now</button><button id="changeFolder">Change Folder…</button>
+<div class="divider"></div><button id="newProject">New project</button><button id="openProject">Open project ZIP…</button><button id="saveProject">Save project ZIP</button>
+<div id="cloudItems" hidden><div class="divider"></div><button id="driveSave">Save to Google Drive</button><button id="driveCopy">Save as new Drive copy</button><button id="driveReload">Reload from Google Drive…</button><button id="driveOpen">Open from CORE…</button></div></div>
+<div id="exportMenu" class="menu" hidden><button id="exportPreview">Preview &amp; settings…</button><div class="divider"></div><button id="clean">Clean JPEG</button><button id="annotated">Annotated JPEG</button><button id="promptFile">prompt.txt</button><div class="divider"></div><button id="pack">Complete project ZIP</button></div>
+<main><div class="work"><div class="bar workbar"><input id="name" class="name" value="Untitled composition" aria-label="Project name" title="Rename project"><button id="annotations" class="push switch" data-icon="annotations" aria-pressed="true" title="Show or hide annotations">Annotations</button><div class="bar viewctl"><button id="minus" class="icon quiet" data-icon="minus" title="Zoom out"></button><span id="zoom">100%</span><button id="plus" class="icon quiet" data-icon="plus" title="Zoom in"></button><button id="fit" class="quiet" data-icon="fit" title="Fit composition (F)"><span class="fitlabel">Fit</span></button><button id="focusToggle" class="icon quiet" data-icon="expand" aria-pressed="false" title="Focus view · canvas only (Tab)"></button></div></div>
+<div class="pagebar bar"><select id="pagePicker" aria-label="Current page"></select><button id="addPage" title="Add a page">+ Page</button>
+<button id="renamePage">Rename page</button><button id="reuseImage">Place original…</button><span role="status" id="folderStatus">Browser draft only</span></div>
+<div class="stage" id="stage"><canvas id="canvas" tabindex="0" aria-label="Composition canvas"></canvas><div class="tools" id="canvasTools" aria-label="Canvas tools"><button data-tool="select" data-icon="select" class="icon" title="Select (V)"></button><button data-tool="pan" data-icon="pan" class="icon" title="Pan (H or hold Space)"></button><div class="divider"></div><button data-tool="arrow" data-icon="arrow" class="icon" title="Draw arrow (A)"></button><button data-tool="text" data-icon="text" class="icon" title="Add text (T)"></button><button data-tool="frame" data-icon="frame" class="icon" title="Edit export frame (F to fit)"></button><div class="divider"></div><button id="importTool" data-icon="image" class="icon" title="Import images"></button></div>
+<button id="focusExit" data-icon="collapse" title="Exit focus view (Tab / Esc)">Exit</button>
+<textarea id="boxEditor" aria-label="Edit text box on canvas" spellcheck="true" hidden></textarea>
+<div id="imageToolbar" class="imageToolbar" role="toolbar" aria-label="Selected image commands" hidden></div>
+<div id="empty" class="empty"><span class="glyph" data-icon="image"></span><strong>Drop images here</strong><small>or choose files to start composing</small><button id="importEmpty" class="accent" data-icon="plus">Import images</button></div></div>
+<div class="foot bar"><span id="frameRead" class="frameRead"></span><span id="hint" class="toolhint push">Space to pan · Scroll to zoom</span></div>
+<section class="prompt" id="promptDock"><div id="split" class="split" role="separator" aria-label="Resize prompt panel" aria-orientation="horizontal" tabindex="0" title="Drag or use arrow keys to resize"></div><div class="bar"><label for="prompt" class="heading">PROMPT</label><button id="copy" class="push quiet" data-icon="copy">Copy</button></div><textarea id="prompt" spellcheck="false" placeholder="Write your generation prompt…" aria-label="PROMPT"></textarea></section></div>
+<aside><section class="layerpane"><div class="sectionbar bar"><h2 class="heading">LAYERS</h2><span class="count" id="count">0</span><button class="push icon quiet" data-icon="plus" id="importLayers" title="Import images"></button></div><div id="layers" class="layerlist"></div></section><section class="propPane"><div class="bar sectionbar"><h2 class="heading">PROPERTIES</h2></div><div class="inspector" id="inspector"></div></section></aside></main>
+<dialog id="pageDialog" class="cropDlg"><label class="field">Page name<input id="pageNameInput"></label><div class="bar exportActions"><button id="pageCancel">Cancel</button><button class="primary" id="pageApply">Apply</button></div></dialog>
+<dialog id="originalDialog" class="cropDlg"><label class="field">Project original<select id="originalPicker"></select></label><div class="bar exportActions"><button id="originalCancel">Cancel</button><button class="primary" id="originalApply">Place on page</button></div></dialog>
+<dialog id="cropDialog" class="cropDlg"><h2 class="heading">CROP IMAGE</h2><p>Drag to draw a crop. Drag a handle to resize or drag inside to move. Shift-drag starts a new crop.</p><canvas id="cropCanvas"></canvas><div class="bar"><button id="cropReset">Reset crop</button><button id="cropCancel" class="push">Cancel</button><button class="primary" id="cropApply">Apply crop</button></div></dialog>
+<dialog id="exportDialog" class="cropDlg" aria-labelledby="exportTitle">
+<div class="bar"><h2 class="heading" id="exportTitle">EXPORT PREVIEW</h2><button id="closePreview" class="push">Close</button></div>
+<div class="exportControls">
+<label class="field">Export area<select id="exportMode"><option value="auto">Auto Bounds</option><option value="selection">Selection</option><option value="custom">Custom Frame</option></select></label>
+<label class="field">JPEG version<select id="previewVariant"><option value="clean">Clean</option><option value="annotated">Annotated</option></select></label>
+<label id="paddingLabel" class="field">Auto padding · px<input id="exportPadding" type="number" min="0" max="16384" step="1" value="24"></label>
+</div>
+<div class="exportChecks bar">
+<button id="editFrame">Edit frame on canvas</button></div>
+<div class="previewWell"><img id="previewImage" alt="JPEG export preview" hidden><p id="previewMessage" role="status"></p></div>
+<div class="bar exportActions"><span class="dim" id="previewSize"></span><button class="primary push" id="downloadPreview">Download JPEG</button></div>
+</dialog>
+<dialog id="newDialog" class="cropDlg"><h2>Start a new project?</h2><p>This replaces the current local draft. Save a project ZIP to keep a copy.</p><div class="bar"><button id="newCancel">Cancel</button><button id="newSave">Save ZIP first</button><button class="primary" id="newConfirm">New project</button></div></dialog>
+<input hidden type="file" id="files" accept="image/*" multiple><input hidden type="file" id="projectFile" accept=".zip,application/zip"><div hidden id="toast" class="toast" role="status"></div>
+<script>
+'use strict';
+
+const $ = id => document.getElementById(id);
+const uiSizeKey = 'ds-studio-editor.ui-text-size';
+function setInterfaceSize(size) {
+  const value = ['small', 'medium', 'bigger'].includes(size) ? size : 'medium';
+  document.documentElement.dataset.uiSize = value;
+  $('uiSize').value = value;
+}
+let savedSize;
+try { savedSize = localStorage.getItem(uiSizeKey); } catch {}
+setInterfaceSize(savedSize);
+$('uiSize').onchange = () => {
+  setInterfaceSize($('uiSize').value);
+  try { localStorage.setItem(uiSizeKey, $('uiSize').value); } catch {}
+  draw();
+};
+const themeKey = 'ds-studio-editor.appearance';
+let darkMode = true;
+try { darkMode = localStorage.getItem(themeKey) !== 'light'; } catch {}
+function applyTheme() {
+  document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
+  const toggle = $('themeToggle');
+  toggle.setAttribute('aria-pressed', String(darkMode));
+  toggle.title = darkMode ? 'Switch to light mode' : 'Switch to dark mode';
+}
+applyTheme();
+$('themeToggle').onclick = () => {
+  darkMode = !darkMode;
+  applyTheme();
+  try { localStorage.setItem(themeKey, darkMode ? 'dark' : 'light'); } catch {}
+  draw();
+};
+const paths = {
+  pencil: 'm4 16 11-11 4 4L8 20l-5 1z M13 7l4 4',
+  callout: 'M2 3h10v8H2z M8 11v6h13m-4-4 4 4-4 4',
+  trash: 'M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7',
+  flip: 'M12 2v20 M9 5 2 17h7z M15 5l7 12h-7z',
+  crop: 'M6 2v16h16 M2 6h16v16',
+  undo: 'M5 6v5h5 M5 11c5-8 15-5 15 2 0 4-3 6-7 6',
+  redo: 'M19 6v5h-5 M19 11C14 3 4 6 4 13c0 4 3 6 7 6',
+  folder: 'M3 6h7l2 2h9v11H3z',
+  export: 'M12 15V3m-4 4 4-4 4 4 M4 13v7h16v-7',
+  select: 'm5 3 14 10-7 1-3 7z',
+  pan: 'M7 13V7a1.5 1.5 0 0 1 3 0v4-7a1.5 1.5 0 0 1 3 0v7-6a1.5 1.5 0 0 1 3 0v6-3a1.5 1.5 0 0 1 3 0v7c0 5-3 7-7 7-3 0-5-2-7-5l-2-3c-1-2 1-3 3-1l1 1',
+  arrow: 'M4 19 19 4m-8 0h8v8',
+  text: 'M4 7V4h16v3m-8-3v16m-4 0h8',
+  frame: 'M3 8V3h5m8 0h5v5m0 8v5h-5m-8 0H3v-5',
+  plus: 'M12 5v14M5 12h14',
+  minus: 'M5 12h14',
+  fit: 'M4 9V4h5m6 0h5v5m0 6v5h-5m-6 0H4v-5M8 8h8v8H8z',
+  image: 'M3 4h18v16H3z M3 16l6-6 5 5 3-3 4 4 M16 8h.01',
+  copy: 'M8 8h12v13H8zM16 8V3H3v13h5',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0',
+  hidden: 'M3 3l18 18M3 12s3-5 7-6m5 0c4 1 7 6 7 6s-2 4-6 6M4 15c3 3 6 4 9 4',
+  lock: 'M5 10h14v11H5z M8 10V7a4 4 0 0 1 8 0v3',
+  unlock: 'M5 10h14v11H5z M8 10V7a4 4 0 0 1 8 0',
+  annotations: 'M3 5h18v12h-9l-5 4v-4H3zM7 9h10m-10 4h7',
+  expand: 'M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5',
+  collapse: 'M9 4v5H4 M15 4v5h5 M9 20v-5H4 M15 20v-5h5'
+};
+function icon(key) {
+  return '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="' + paths[key] + '"/></svg>';
+}
+document.querySelectorAll('[data-icon]').forEach(el => {
+  el.insertAdjacentHTML('afterbegin', icon(el.dataset.icon));
+  if (el.title && !el.textContent.trim()) el.setAttribute('aria-label', el.title);
+});
+const clamp = (n, a, b) => Math.min(b, Math.max(a, n)),
+  uid = () => crypto.randomUUID(),
+  clone = o => JSON.parse(JSON.stringify(o)),
+  rad = a => a * Math.PI / 180;
+const exportDefaults = (mode = 'auto') => ({
+  mode,
+  padding: 24,
+  annotationExtents: true,
+  ratio: 'free',
+  selectionId: null
+});
+const exportModes = {
+  auto: 'Auto Bounds',
+  selection: 'Selection',
+  custom: 'Custom Frame'
+};
+const ratios = {
+  free: 0,
+  '1:1': 1,
+  '16:9': 16 / 9,
+  '9:16': 9 / 16,
+  '4:3': 4 / 3,
+  '3:2': 3 / 2,
+  '2.39:1': 2.39
+};
+const singlePage = () => ({
+  format: 'ds-studio',
+  version: 1,
+  name: 'Untitled composition',
+  prompt: '',
+  frame: {
+    x: 0,
+    y: 0,
+    w: 1920,
+    h: 1080
+  },
+  exportSettings: exportDefaults(),
+  layers: [],
+  annotations: true,
+  generationHistory: [],
+  assets: []
+});
+const pageKeys = ['prompt', 'frame', 'exportSettings', 'layers', 'annotations', 'generationHistory'];
+const sceneFrom = p => Object.fromEntries(pageKeys.map(key => [key, p[key]]));
+function initProjectIdentity(p) {
+  if (!p.projectId) {
+    const now = new Date().toISOString(),
+      pageId = uid();
+    Object.assign(p, {
+      projectId: uid(),
+      createdAt: now,
+      modifiedAt: now,
+      activePageId: pageId,
+      pages: [{
+        id: pageId,
+        name: 'Page 1',
+        scene: null
+      }]
+    });
+  }
+  return p;
+}
+const blank = () => initProjectIdentity(singlePage());
+function allScenes(p) {
+  return p.pages.map(page => page.id === p.activePageId ? p : page.scene);
+}
+let project = blank(),
+  assets = new Map(),
+  selected = null,
+  tool = 'select',
+  gesture = null,
+  space = false,
+  busy = false;
+const history = [],
+  future = [],
+  view = {
+    x: 0,
+    y: 0,
+    z: 1
+  };
+let drawFrameNext = false;
+let focusView = false,
+  focusRecenterUntil = 0,
+  lastStageSize = null;
+let viewReady = false,
+  toastTimer;
+const canvas = $('canvas'),
+  ctx = canvas.getContext('2d'),
+  stage = $('stage');
+function toast(s) {
+  $('toast').textContent = s;
+  $('toast').hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $('toast').hidden = true, 4200);
+}
+function status(s, bad = false) {
+  $('status').textContent = s;
+  $('status').classList.toggle('warn', bad);
+}
+const layer = () => project.layers.find(l => l.id === selected);
+// History snapshots reference immutable originals by ID, so undo never copies image bytes.
+function releaseUnusedAssets() {
+  const retained = new Set(project.assets.map(m => m.id));
+  if (retained.size === assets.size) return;
+  for (const state of [...history, ...future]) {
+    for (const m of JSON.parse(state).assets) retained.add(m.id);
+  }
+  for (const [id, a] of assets) {
+    if (!retained.has(id)) {
+      URL.revokeObjectURL(a.url);
+      assets.delete(id);
+    }
+  }
+}
+function changed(before) {
+  if (before === JSON.stringify(project)) return;
+  history.push(before);
+  if (history.length > 100) history.shift();
+  future.length = 0;
+  releaseUnusedAssets();
+  scheduleSave();
+  sync();
+}
+function edit(fn) {
+  const before = JSON.stringify(project);
+  fn();
+  changed(before);
+}
+function travel(from, to) {
+  if (!from.length) return;
+  to.push(JSON.stringify(project));
+  const identity = { projectId: project.projectId, createdAt: project.createdAt };
+  project = JSON.parse(from.pop());
+  // Undo changes content, never which stored project this is.
+  Object.assign(project, identity);
+  if (!layer()) selected = null;
+  scheduleSave();
+  sync();
+}
+function setTool(t) {
+  tool = t;
+  drawFrameNext = false;
+  if (t === 'frame') {
+    selected = null;
+    if (project.exportSettings.mode !== 'custom') {
+      edit(() => {
+        project.exportSettings.mode = 'custom';
+      });
+      return;
+    }
+  }
+  sync();
+}
+function visible(l, mode) {
+  if (!l.visible || l.mode === 'hidden') return false;
+  if (l.type === 'image') return mode === 'screen' || l.mode === 'composition';
+  return mode === 'annotated' || mode === 'screen' && project.annotations;
+}
+function rotate(x, y, a) {
+  const c = Math.cos(rad(a)),
+    s = Math.sin(rad(a));
+  return {
+    x: x * c - y * s,
+    y: x * s + y * c
+  };
+}
+function local(l, p) {
+  return rotate(p.x - l.x, p.y - l.y, -l.angle);
+}
+function corner(l, sx, sy) {
+  const p = rotate(sx * l.w / 2, sy * l.h / 2, l.angle);
+  return {
+    x: l.x + p.x,
+    y: l.y + p.y
+  };
+}
+function screen(p) {
+  return {
+    x: p.x * view.z + view.x,
+    y: p.y * view.z + view.y
+  };
+}
+function world(p) {
+  return {
+    x: (p.x - view.x) / view.z,
+    y: (p.y - view.y) / view.z
+  };
+}
+function pos(e, el = canvas) {
+  const b = el.getBoundingClientRect();
+  return {
+    x: e.clientX - b.left,
+    y: e.clientY - b.top
+  };
+}
+function fit() {
+  const f = project.exportSettings.mode === 'custom' ? project.frame : exportPlan('clean').bounds || boundsFor(project.layers.filter(l => visible(l, 'screen'))) || {
+      x: -960,
+      y: -540,
+      w: 1920,
+      h: 1080
+    },
+    w = stage.clientWidth,
+    h = stage.clientHeight;
+  view.z = clamp(Math.min(Math.max(24, w - 132) / f.w, Math.max(24, h - 78) / f.h), .002, 32);
+  view.x = w / 2 - (f.x + f.w / 2) * view.z;
+  view.y = h / 2 - (f.y + f.h / 2) * view.z;
+  viewReady = true;
+  draw();
+}
+function zoomAt(p, z) {
+  const w = world(p);
+  view.z = clamp(z, .002, 32);
+  view.x = p.x - w.x * view.z;
+  view.y = p.y - w.y * view.z;
+  draw();
+}
+function resizeCanvas(el) {
+  const b = el.getBoundingClientRect(),
+    d = devicePixelRatio || 1;
+  const w = Math.max(1, Math.round(b.width * d)),
+    h = Math.max(1, Math.round(b.height * d));
+  if (el.width !== w || el.height !== h) {
+    el.width = w;
+    el.height = h;
+  }
+  return d;
+}
+// The screen, both JPEG exports, and future generation inputs share this renderer.
+function paintLine(c, l) {
+  const dx = l.x2 - l.x,
+    dy = l.y2 - l.y,
+    len = Math.hypot(dx, dy);
+  if (len) {
+    c.translate(l.x, l.y);
+    c.rotate(Math.atan2(dy, dx));
+    const head = Math.min(len, l.thickness * 4.5);
+    c.strokeStyle = c.fillStyle = l.color;
+    c.lineWidth = l.thickness;
+    c.lineCap = 'round';
+    c.beginPath();
+    c.moveTo(0, 0);
+    c.lineTo(l.arrowhead === false ? len : Math.max(0, len - head * .65), 0);
+    c.stroke();
+    if (l.arrowhead === false) return;
+    c.beginPath();
+    c.moveTo(len, 0);
+    c.lineTo(len - head, -head * .42);
+    c.lineTo(len - head, head * .42);
+    c.closePath();
+    c.fill();
+  }
+}
+function paintLayer(c, l, sources = assets) {
+  c.save();
+  c.globalAlpha = l.opacity;
+  if (l.type === 'arrow') {
+    paintLine(c, l);
+  } else {
+    if (l.type === 'text' && l.connector) {
+      c.save();
+      paintLine(c, leaderFor(l));
+      c.restore();
+    }
+    c.translate(l.x, l.y);
+    c.rotate(rad(l.angle));
+    if (l.type === 'image') {
+      const a = sources.get(l.assetId);
+      if (a) {
+        const r = l.crop;
+        if (l.flipX) c.scale(-1, 1);
+        c.drawImage(a.image, r.x, r.y, r.w, r.h, -l.w / 2, -l.h / 2, l.w, l.h);
+      }
+    } else {
+      paintTextBox(c, l);
+    }
+  }
+  c.restore();
+}
+// Keep text wrapping in scene pixels so zoom, JPEG export and reopened layouts agree.
+const textMetrics = document.createElement('canvas').getContext('2d');
+const textLayoutCache = new WeakMap();
+const segments = typeof Intl.Segmenter === 'function' ? new Intl.Segmenter(undefined, {
+  granularity: 'grapheme'
+}) : null;
+function textLayout(l) {
+  const inset = l.box.padding + l.box.borderWidth;
+  const width = Math.max(1, l.w - 2 * inset);
+  const old = textLayoutCache.get(l);
+  if (old && old.text === l.text && old.width === width && old.size === l.size) return old;
+  textMetrics.font = l.size + 'px Arial, sans-serif';
+  const measure = str => textMetrics.measureText(str).width;
+  const lines = [];
+  let longest = 0;
+  function push(line) {
+    lines.push(line);
+    longest = Math.max(longest, measure(line));
+  }
+  for (const para of l.text.replace(/\r\n?/g, '\n').split('\n')) {
+    if (measure(para) <= width + .001) {
+      push(para);
+      continue;
+    }
+    let line = '';
+    for (const token of para.match(/\s+|\S+/gu) || []) {
+      if (measure(line + token) <= width + .001) {
+        line += token;
+        continue;
+      }
+      if (line.trimEnd()) {
+        push(line.trimEnd());
+        line = '';
+      }
+      if (!token.trim()) continue;
+      if (measure(token) <= width + .001) {
+        line = token;
+        continue;
+      }
+      // Long unbroken identifiers and words still wrap without splitting a grapheme.
+      const letters = segments ? segments.segment(token) : token;
+      for (const item of letters) {
+        const ch = typeof item === 'string' ? item : item.segment;
+        if (line && measure(line + ch) > width + .001) {
+          push(line);
+          line = '';
+        }
+        line += ch;
+      }
+    }
+    if (line || !para.trim()) push(line);
+  }
+  const result = {
+    text: l.text,
+    size: l.size,
+    width,
+    lines,
+    longest
+  };
+  textLayoutCache.set(l, result);
+  return result;
+}
+function fitTextBox(l, keepTop = true) {
+  const oldW = l.w,
+    oldH = l.h,
+    inset = l.box.padding + l.box.borderWidth;
+  l.w = Math.max(l.w, 2 * inset + 1);
+  let layout = textLayout(l);
+  if (layout.longest > layout.width + .001) {
+    l.w = Math.max(l.w, 2 * inset + layout.longest);
+    layout = textLayout(l);
+  }
+  l.h = Math.max(l.h, 2 * inset + layout.lines.length * l.size * 1.25);
+  if (keepTop) {
+    const delta = rotate((l.w - oldW) / 2, (l.h - oldH) / 2, l.angle);
+    l.x += delta.x;
+    l.y += delta.y;
+  }
+}
+function paintTextBox(c, l) {
+  const b = l.box,
+    x = -l.w / 2,
+    y = -l.h / 2,
+    inset = b.padding + b.borderWidth;
+  if (b.fill) {
+    c.fillStyle = b.background;
+    c.fillRect(x, y, l.w, l.h);
+  }
+  if (b.borderWidth > 0) {
+    const half = b.borderWidth / 2;
+    c.lineWidth = b.borderWidth;
+    c.strokeStyle = b.borderColor;
+    c.strokeRect(x + half, y + half, l.w - b.borderWidth, l.h - b.borderWidth);
+  }
+  c.font = l.size + 'px Arial, sans-serif';
+  c.textBaseline = 'top';
+  c.fillStyle = l.color;
+  textLayout(l).lines.forEach((line, i) => c.fillText(line, x + inset, y + inset + i * l.size * 1.25));
+}
+// The connector belongs to the box. Only its destination is stored in world coordinates.
+function leaderFor(l) {
+  const target = l.connector;
+  if (!target) return null;
+  let q = local(l, target);
+  if (!q.x && !q.y) q = {
+    x: 1,
+    y: 0
+  };
+  const factor = 1 / Math.max(Math.abs(q.x) / (l.w / 2), Math.abs(q.y) / (l.h / 2));
+  const edge = rotate(q.x * factor, q.y * factor, l.angle);
+  return {
+    x: l.x + edge.x,
+    y: l.y + edge.y,
+    x2: target.x,
+    y2: target.y,
+    thickness: target.thickness,
+    color: target.color,
+    arrowhead: target.arrowhead
+  };
+}
+function placeConnector() {
+  const l = layer();
+  if (l?.type !== 'text' || l.locked) return;
+  if (!project.annotations) edit(() => {
+    project.annotations = true;
+  });
+  setTool('callout');
+  canvas.focus();
+}
+let editingBoxId = null;
+const boxEditor = $('boxEditor');
+function positionBoxEditor() {
+  if (!editingBoxId) return;
+  const l = layer();
+  if (!l || l.id !== editingBoxId || !visible(l, 'screen') || l.locked) {
+    boxEditor.blur();
+    return;
+  }
+  const p = screen(corner(l, -1, -1)),
+    b = l.box;
+  Object.assign(boxEditor.style, {
+    left: p.x + 'px',
+    top: p.y + 'px',
+    width: l.w + 'px',
+    height: l.h + 'px',
+    transform: 'rotate(' + l.angle + 'deg) scale(' + view.z + ')',
+    fontSize: l.size + 'px',
+    lineHeight: String(1.25),
+    padding: b.padding + b.borderWidth + 'px',
+    color: l.color,
+    backgroundColor: b.fill ? b.background : '#fff'
+  });
+}
+function editTextOnCanvas() {
+  const l = layer();
+  if (l?.type !== 'text' || l.locked) return;
+  if (!visible(l, 'screen')) return;
+  editingBoxId = l.id;
+  boxEditor.value = l.text;
+  boxEditor.hidden = false;
+  positionBoxEditor();
+  boxEditor.focus();
+  boxEditor.select();
+  draw();
+}
+boxEditor.onfocus = () => beginTyping(boxEditor);
+boxEditor.oninput = () => {
+  const l = layer();
+  if (!l || l.id !== editingBoxId) return;
+  l.text = boxEditor.value;
+  fitTextBox(l);
+  if ($('textValue')) $('textValue').value = l.text;
+  draw();
+  scheduleSave();
+};
+boxEditor.onblur = () => {
+  finishTyping(boxEditor);
+  editingBoxId = null;
+  boxEditor.hidden = true;
+  draw();
+};
+boxEditor.onkeydown = e => {
+  if (e.key === 'Escape' || e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+    e.preventDefault();
+    e.stopPropagation();
+    boxEditor.blur();
+    canvas.focus();
+  }
+};
+function handles(l) {
+  if (l.type === 'arrow') return [{
+    x: l.x,
+    y: l.y,
+    key: 'start'
+  }, {
+    x: l.x2,
+    y: l.y2,
+    key: 'end'
+  }];
+  return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([sx, sy]) => ({
+    ...corner(l, sx, sy),
+    sx,
+    sy,
+    key: 'scale'
+  }));
+}
+function frameDimensions(w, h, driver = 'drag') {
+  const ratio = ratios[project.exportSettings.ratio];
+  if (ratio) {
+    if (driver === 'h' || driver === 'drag' && h * ratio > w) w = h * ratio;else h = w / ratio;
+    const scale = Math.min(1, 16384 / Math.max(1, w, h));
+    w *= scale;
+    h *= scale;
+  }
+  return {
+    w: clamp(Math.round(w), 1, 16384),
+    h: clamp(Math.round(h), 1, 16384)
+  };
+}
+function startFrameDrawing() {
+  setTool('frame');
+  drawFrameNext = true;
+  sync();
+  canvas.focus();
+}
+function frameBox() {
+  const f = project.frame;
+  return {
+    type: 'frame',
+    x: f.x + f.w / 2,
+    y: f.y + f.h / 2,
+    w: f.w,
+    h: f.h,
+    angle: 0
+  };
+}
+function rotationHandle(l) {
+  const p = corner(l, 0, -1),
+    v = rotate(0, -22 / view.z, l.angle);
+  return {
+    x: p.x + v.x,
+    y: p.y + v.y,
+    key: 'rotate'
+  };
+}
+function selection(l) {
+  const h = handles(l).map(p => screen(p));
+  ctx.strokeStyle = '#db4b20';
+  ctx.fillStyle = '#fff';
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  h.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+  if (l.type !== 'arrow') ctx.closePath();
+  ctx.stroke();
+  if (l.type !== 'arrow' && l.type !== 'frame') {
+    const top = screen(corner(l, 0, -1)),
+      r = screen(rotationHandle(l));
+    ctx.beginPath();
+    ctx.moveTo(top.x, top.y);
+    ctx.lineTo(r.x, r.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(r.x, r.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  }
+  if (l.type === 'text' && l.connector) {
+    const end = screen(l.connector);
+    ctx.beginPath();
+    ctx.arc(end.x, end.y, 5, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+  }
+  for (const p of h) {
+    ctx.fillRect(p.x - 3.5, p.y - 3.5, 7, 7);
+    ctx.strokeRect(p.x - 3.5, p.y - 3.5, 7, 7);
+  }
+}
+function toggleSelectedLock() {
+  const l = layer();
+  if (l) edit(() => {
+    l.locked = !l.locked;
+  });
+}
+function flipHorizontal() {
+  const l = layer();
+  if (l?.type === 'image' && !l.locked) edit(() => {
+    l.flipX = !l.flipX;
+  });
+}
+const imageCommands = [{
+  id: 'flip',
+  label: 'Flip Horizontal',
+  run: flipHorizontal,
+  edits: true
+}, {
+  id: 'crop',
+  label: 'Crop',
+  run: openCrop,
+  edits: true
+}, {
+  id: 'copy',
+  label: 'Duplicate',
+  run: duplicate
+}, {
+  id: 'lock',
+  label: 'Lock',
+  run: toggleSelectedLock
+}];
+const boxCommands = [{
+  id: 'pencil',
+  label: 'Edit text',
+  run: editTextOnCanvas,
+  edits: true
+}, {
+  id: 'callout',
+  label: 'Add connector',
+  run: placeConnector,
+  edits: true
+}, {
+  id: 'copy',
+  label: 'Duplicate',
+  run: duplicate
+}, {
+  id: 'trash',
+  label: 'Delete',
+  run: removeLayer,
+  edits: true
+}];
+const imageToolbar = $('imageToolbar');
+function toolbarButtons(commands) {
+  return commands.map(command => {
+    const b = button('', command.run, {
+      icon: command.id,
+      title: command.label
+    });
+    imageToolbar.append(b);
+    return b;
+  });
+}
+const imageButtons = toolbarButtons(imageCommands),
+  boxButtons = toolbarButtons(boxCommands);
+imageToolbar.onpointerdown = e => e.stopPropagation();
+imageToolbar.onclick = e => e.stopPropagation();
+function positionLayerToolbar(l) {
+  imageToolbar.hidden = focusView || !l || !['image', 'text'].includes(l.type) || !visible(l, 'screen') || tool === 'frame' || tool === 'callout' || editingBoxId === l.id;
+  if (imageToolbar.hidden) return;
+  const isBox = l.type === 'text';
+  imageToolbar.setAttribute('aria-label', isBox ? 'Text box commands' : 'Selected image commands');
+  for (const b of imageButtons) b.hidden = isBox;
+  for (const b of boxButtons) b.hidden = !isBox;
+  const commands = isBox ? boxCommands : imageCommands,
+    buttons = isBox ? boxButtons : imageButtons;
+  const corners = handles(l).map(screen);
+  const xMin = Math.min(...corners.map(p => p.x)),
+    xMax = Math.max(...corners.map(p => p.x));
+  const yMin = Math.min(...corners.map(p => p.y)),
+    yMax = Math.max(...corners.map(p => p.y));
+  const width = stage.clientWidth,
+    height = stage.clientHeight;
+  if (xMax < 0 || xMin > width || yMax < 0 || yMin > height) {
+    imageToolbar.hidden = true;
+    return;
+  }
+  const bw = imageToolbar.offsetWidth,
+    bh = imageToolbar.offsetHeight;
+  // Align with the left end of the top edge, keeping corner/rotation handles accessible.
+  let left = clamp(xMin, 4, Math.max(4, width - bw - 4));
+  let top = clamp(yMin - bh - 8, 4, Math.max(4, height - bh - 4));
+  const rotation = screen(rotationHandle(l));
+  if (rotation.x >= left - 7 && rotation.x <= left + bw + 7 && rotation.y >= top - 7 && rotation.y <= top + bh + 7) {
+    left = rotation.x + 10 + bw < width ? rotation.x + 10 : Math.max(4, rotation.x - bw - 10);
+  }
+  const rail = $('canvasTools');
+  const railRight = rail.offsetLeft + rail.offsetWidth + 4;
+  if (left < railRight && left + bw > rail.offsetLeft && top < rail.offsetTop + rail.offsetHeight + 4 && top + bh > rail.offsetTop) {
+    if (railRight + bw + 4 <= width) left = railRight;else top = clamp(rail.offsetTop + rail.offsetHeight + 4, 4, Math.max(4, height - bh - 4));
+  }
+  imageToolbar.style.left = left + 'px';
+  imageToolbar.style.top = top + 'px';
+  commands.forEach((command, i) => {
+    const b = buttons[i];
+    if (command.id === 'callout') {
+      b.title = l.connector ? 'Place connector endpoint' : 'Add connector';
+      b.setAttribute('aria-label', b.title);
+    }
+    b.disabled = Boolean(command.edits && l.locked);
+    if (command.id === 'flip') b.setAttribute('aria-pressed', String(l.flipX));
+    if (command.id === 'lock') {
+      b.title = l.locked ? 'Unlock' : 'Lock';
+      b.setAttribute('aria-label', b.title);
+      b.setAttribute('aria-pressed', String(l.locked));
+      if (b.dataset.lockState !== b.title) {
+        b.dataset.lockState = b.title;
+        b.innerHTML = icon(l.locked ? 'lock' : 'unlock');
+      }
+    }
+  });
+}
+function draw() {
+  const d = resizeCanvas(canvas);
+  const spacing = 16 * view.z / Math.pow(2, Math.floor(Math.log2(view.z)));
+  stage.style.backgroundSize = spacing + 'px ' + spacing + 'px';
+  stage.style.backgroundPosition = view.x % spacing - spacing / 2 + 'px ' + (view.y % spacing - spacing / 2) + 'px';
+  ctx.setTransform(d, 0, 0, d, 0, 0);
+  ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+  const f = project.frame,
+    p = screen(f);
+  ctx.save();
+  ctx.translate(view.x, view.y);
+  ctx.scale(view.z, view.z);
+  for (const l of project.layers) {
+    if (visible(l, 'screen')) paintLayer(ctx, l);
+  }
+  ctx.restore();
+  if (project.exportSettings.mode === 'custom') {
+    ctx.strokeStyle = darkMode ? '#909195' : '#89927f';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(p.x, p.y, f.w * view.z, f.h * view.z);
+    ctx.font = '10px Menlo, monospace';
+    ctx.fillStyle = darkMode ? '#c7c8ca' : '#5d6559';
+    ctx.fillText('CUSTOM FRAME', p.x, p.y - 8);
+  }
+  const l = layer();
+  positionLayerToolbar(l);
+  positionBoxEditor();
+  if (tool === 'frame') selection(frameBox());else if (l && visible(l, 'screen') && !l.locked) selection(l);
+  $('zoom').textContent = Math.round(view.z * 100) + '%';
+  $('frameRead').textContent = exportModes[project.exportSettings.mode] + (project.exportSettings.mode === 'custom' ? ' · ' + f.w + ' × ' + f.h + ' px' : '');
+  $('empty').hidden = project.layers.length > 0 || tool !== 'select' || gesture !== null;
+  if (!$('empty').hidden) {
+    $('empty').style.left = '50%';
+    $('empty').style.top = '50%';
+  }
+}
+function hit(l, p) {
+  if (l.type === 'text' && l.connector && hit({
+    type: 'arrow',
+    ...leaderFor(l)
+  }, p)) return true;
+  if (l.type === 'arrow') {
+    const dx = l.x2 - l.x,
+      dy = l.y2 - l.y,
+      len = dx * dx + dy * dy,
+      t = len ? clamp(((p.x - l.x) * dx + (p.y - l.y) * dy) / len, 0, 1) : 0;
+    return Math.hypot(p.x - l.x - t * dx, p.y - l.y - t * dy) < l.thickness / 2 + 7 / view.z;
+  }
+  const q = local(l, p);
+  return Math.abs(q.x) <= l.w / 2 && Math.abs(q.y) <= l.h / 2;
+}
+function nearHandle(l, p) {
+  const hs = handles(l);
+  if (l.type === 'text' && l.connector) hs.unshift({
+    ...l.connector,
+    key: 'calloutEnd'
+  });
+  if (l.type !== 'arrow' && l.type !== 'frame') hs.push(rotationHandle(l));
+  return hs.find(h => Math.hypot(h.x - p.x, h.y - p.y) * view.z < 9);
+}
+function base(type) {
+  return {
+    id: uid(),
+    type,
+    name: type === 'arrow' ? 'Arrow' : 'Text',
+    visible: true,
+    locked: false,
+    opacity: 1,
+    angle: 0
+  };
+}
+function createText(p) {
+  edit(() => {
+    const l = {
+      ...base('text'),
+      x: p.x,
+      y: p.y,
+      text: 'Text',
+      size: 18,
+      color: '#252822',
+      w: 250,
+      h: 76,
+      box: {
+        padding: 10,
+        fill: true,
+        background: '#fffbed',
+        borderColor: '#6d705f',
+        borderWidth: 1
+      },
+      connector: null
+    };
+    fitTextBox(l);
+    project.layers.push(l);
+    selected = l.id;
+    project.annotations = true;
+    tool = 'select';
+  });
+  $('textValue').focus();
+  $('textValue').select();
+}
+canvas.onpointerdown = e => {
+  if (busy || gesture || e.button === 2) return;
+  const s = pos(e),
+    p = world(s);
+  canvas.focus();
+  canvas.setPointerCapture(e.pointerId);
+  const start = {
+    before: JSON.stringify(project),
+    p,
+    s,
+    id: e.pointerId
+  };
+  if (space || tool === 'pan' || e.button === 1) {
+    gesture = {
+      ...start,
+      kind: 'pan',
+      vx: view.x,
+      vy: view.y
+    };
+    return;
+  }
+  if (tool === 'callout') {
+    const l = layer();
+    if (!l || l.type !== 'text' || l.locked || !visible(l, 'screen')) {
+      setTool('select');
+      return;
+    }
+    l.connector = {
+      color: '#d54b27',
+      thickness: Math.max(.5, 2 / view.z),
+      arrowhead: true,
+      ...l.connector,
+      x: p.x,
+      y: p.y
+    };
+    gesture = {
+      ...start,
+      kind: 'calloutEnd',
+      original: clone(l)
+    };
+    tool = 'select';
+    sync();
+    return;
+  }
+  if (tool === 'text') {
+    createText(p);
+    return;
+  }
+  if (tool === 'arrow') {
+    const l = {
+      ...base('arrow'),
+      x: p.x,
+      y: p.y,
+      x2: p.x,
+      y2: p.y,
+      color: '#df502b',
+      thickness: Math.max(2, Math.round(3 / view.z))
+    };
+    project.annotations = true;
+    project.layers.push(l);
+    selected = l.id;
+    gesture = {
+      ...start,
+      kind: 'end',
+      original: clone(l),
+      creating: true
+    };
+    sync();
+    return;
+  }
+  let l = tool === 'frame' ? frameBox() : layer();
+  let h = l && !l.locked && (tool === 'frame' || visible(l, 'screen')) ? nearHandle(l, p) : null;
+  if (tool === 'frame' && (drawFrameNext || !h && !hit(l, p))) {
+    gesture = {
+      ...start,
+      kind: 'drawFrame',
+      isFrame: true
+    };
+    return;
+  }
+  if (!h && tool !== 'frame') {
+    l = [...project.layers].reverse().find(item => visible(item, 'screen') && !item.locked && hit(item, p));
+    selected = l?.id || null;
+  }
+  if (l && (h || hit(l, p)) && !l.locked) {
+    gesture = {
+      ...start,
+      kind: h?.key || 'move',
+      h,
+      original: clone(l),
+      isFrame: tool === 'frame'
+    };
+  }
+  sync();
+};
+canvas.onpointermove = e => {
+  if (!gesture || gesture.id !== e.pointerId) return;
+  const g = gesture,
+    s = pos(e),
+    p = world(s),
+    o = g.original;
+  if (g.kind === 'pan') {
+    view.x = g.vx + s.x - g.s.x;
+    view.y = g.vy + s.y - g.s.y;
+    draw();
+    return;
+  }
+  if (g.kind === 'drawFrame') {
+    const dx = p.x - g.p.x,
+      dy = p.y - g.p.y;
+    const size = frameDimensions(Math.abs(dx), Math.abs(dy));
+    project.frame = {
+      x: Math.round(g.p.x) - (dx < 0 ? size.w : 0),
+      y: Math.round(g.p.y) - (dy < 0 ? size.h : 0),
+      ...size
+    };
+    draw();
+    return;
+  }
+  const l = g.isFrame ? frameBox() : layer();
+  if (!l) return;
+  const dx = p.x - g.p.x,
+    dy = p.y - g.p.y;
+  if (g.kind === 'move') {
+    l.x = o.x + dx;
+    l.y = o.y + dy;
+    if (l.type === 'arrow') {
+      l.x2 = o.x2 + dx;
+      l.y2 = o.y2 + dy;
+    }
+  }
+  if (g.kind === 'calloutEnd') {
+    l.connector.x = p.x;
+    l.connector.y = p.y;
+  }
+  if (g.kind === 'start') {
+    l.x = p.x;
+    l.y = p.y;
+  }
+  if (g.kind === 'end') {
+    l.x2 = p.x;
+    l.y2 = p.y;
+  }
+  if (g.kind === 'rotate') {
+    const a = Math.atan2(p.y - o.y, p.x - o.x) - Math.atan2(g.p.y - o.y, g.p.x - o.x);
+    l.angle = o.angle + a * 180 / Math.PI;
+    if (e.shiftKey) l.angle = Math.round(l.angle / 15) * 15;
+  }
+  if (g.kind === 'scale') {
+    const {
+        sx,
+        sy
+      } = g.h,
+      anchor = corner(o, -sx, -sy),
+      v = rotate(p.x - anchor.x, p.y - anchor.y, -o.angle);
+    l.w = Math.max(1, v.x * sx);
+    l.h = Math.max(1, v.y * sy);
+    if (l.type === 'text') fitTextBox(l, false);
+    if (l.type === 'image' && !e.shiftKey) {
+      const scale = Math.max(.001, (l.w * o.w + l.h * o.h) / (o.w * o.w + o.h * o.h));
+      l.w = o.w * scale;
+      l.h = o.h * scale;
+    }
+    if (g.isFrame) {
+      Object.assign(l, frameDimensions(l.w, l.h));
+    }
+    const center = rotate(sx * l.w / 2, sy * l.h / 2, o.angle);
+    l.x = anchor.x + center.x;
+    l.y = anchor.y + center.y;
+  }
+  if (g.isFrame) {
+    project.frame = {
+      x: Math.round(l.x - l.w / 2),
+      y: Math.round(l.y - l.h / 2),
+      w: l.w,
+      h: l.h
+    };
+  }
+  draw();
+};
+function finishPointer(e, cancel = false) {
+  if (!gesture || gesture.id !== e.pointerId) return;
+  const g = gesture;
+  gesture = null;
+  if (g.kind === 'drawFrame') drawFrameNext = false;
+  if (cancel) {
+    project = JSON.parse(g.before);
+  } else if (g.creating) {
+    const l = layer();
+    if (Math.hypot(l.x2 - l.x, l.y2 - l.y) * view.z < 3) {
+      project = JSON.parse(g.before);
+      selected = null;
+    } else tool = 'select';
+  }
+  if (g.kind !== 'pan' && !cancel) changed(g.before);
+  sync();
+}
+canvas.onpointerup = e => finishPointer(e);
+canvas.onpointercancel = e => finishPointer(e, true);
+canvas.onlostpointercapture = e => finishPointer(e, true);
+canvas.ondblclick = () => {
+  const l = layer();
+  if (!l || l.locked) return;
+  if (l.type === 'image') openCrop();
+  if (l.type === 'text') editTextOnCanvas();
+};
+canvas.onwheel = e => {
+  e.preventDefault();
+  if (e.shiftKey && !e.ctrlKey) {
+    view.x -= e.deltaY;
+    view.y -= e.deltaX;
+    draw();
+  } else zoomAt(pos(e), view.z * Math.exp(-clamp(e.deltaY, -160, 160) * .002));
+};
+function button(label, fn, options = {}) {
+  const b = document.createElement('button');
+  b.textContent = label;
+  b.onclick = fn;
+  if (options.icon) {
+    b.innerHTML = icon(options.icon);
+    b.className = 'icon quiet';
+  }
+  if (options.title) {
+    b.title = options.title;
+    b.setAttribute('aria-label', options.title);
+  }
+  b.disabled = !!options.disabled;
+  return b;
+}
+function layersUI() {
+  const box = $('layers');
+  box.replaceChildren();
+  $('count').textContent = project.layers.length;
+  if (!project.layers.length) {
+    const e = document.createElement('p');
+    e.className = 'emptyLayers';
+    e.textContent = 'Imported images and annotations appear here.';
+    box.append(e);
+  }
+  for (const l of [...project.layers].reverse()) {
+    const row = document.createElement('div');
+    row.className = 'layer' + (l.id === selected ? ' selected' : '');
+    const pick = button('', () => {
+      selected = l.id;
+      setTool('select');
+    });
+    pick.className = 'pick';
+    pick.title = l.name + (l.mode === 'reference' ? ' · Reference-only' : '');
+    if (l.type === 'image') {
+      const t = document.createElement('img');
+      t.className = 'thumb';
+      t.alt = '';
+      t.src = assets.get(l.assetId).url;
+      pick.append(t);
+    } else pick.innerHTML = icon(l.type);
+    const n = document.createElement('span');
+    n.textContent = l.name;
+    pick.append(n);
+    if (l.mode === 'reference') {
+      const tag = document.createElement('small');
+      tag.className = 'refTag';
+      tag.textContent = 'REF';
+      tag.title = 'Reference-only';
+      pick.append(tag);
+    }
+    row.append(pick, button('', () => edit(() => {
+      if (l.mode === 'hidden') {
+        l.mode = l.previousMode || 'composition';
+        l.visible = true;
+      } else l.visible = !l.visible;
+    }), {
+      icon: l.visible && l.mode !== 'hidden' ? 'eye' : 'hidden',
+      title: 'Toggle visibility of ' + l.name
+    }), button('', () => edit(() => l.locked = !l.locked), {
+      icon: l.locked ? 'lock' : 'unlock',
+      title: (l.locked ? 'Unlock ' : 'Lock ') + l.name
+    }));
+    box.append(row);
+  }
+}
+function field(grid, label, control, wide = false) {
+  const el = document.createElement('label');
+  el.className = 'field' + (wide ? ' wide' : '');
+  el.append(label, control);
+  grid.append(el);
+  return control;
+}
+function numberField(grid, label, value, fn, min, max) {
+  const i = document.createElement('input');
+  i.type = 'number';
+  i.step = 'any';
+  i.value = String(+value.toFixed(2));
+  if (min != null) i.min = min;
+  if (max != null) i.max = max;
+  i.onchange = () => {
+    if (i.value === '' || !Number.isFinite(i.valueAsNumber)) {
+      i.value = value;
+      return;
+    }
+    edit(() => fn(clamp(i.valueAsNumber, min ?? -Infinity, max ?? Infinity)));
+  };
+  return field(grid, label, i);
+}
+function group(host) {
+  const el = document.createElement('div');
+  el.className = 'fields';
+  host.append(el);
+  return el;
+}
+function actionBar(host) {
+  const bar = document.createElement('div');
+  bar.className = 'bar';
+  host.append(bar);
+  return bar;
+}
+function heading(host, s) {
+  const h = document.createElement('h3');
+  h.textContent = s;
+  host.append(h);
+}
+function duplicate() {
+  const l = layer();
+  if (!l) return;
+  edit(() => {
+    const n = clone(l);
+    n.id = uid();
+    n.name += ' copy';
+    n.locked = false;
+    n.x += 20;
+    n.y += 20;
+    if (n.type === 'arrow') {
+      n.x2 += 20;
+      n.y2 += 20;
+    }
+    project.layers.splice(project.layers.indexOf(l) + 1, 0, n);
+    selected = n.id;
+  });
+}
+function removeLayer() {
+  const l = layer();
+  if (!l || l.locked) return;
+  edit(() => {
+    project.layers.splice(project.layers.indexOf(l), 1);
+    selected = null;
+  });
+}
+function order(delta) {
+  const l = layer(),
+    i = project.layers.indexOf(l),
+    j = i + delta;
+  if (!l || l.locked || j < 0 || j >= project.layers.length) return;
+  edit(() => {
+    project.layers.splice(i, 1);
+    project.layers.splice(j, 0, l);
+  });
+}
+function inspectorUI() {
+  const host = $('inspector'),
+    scroll = host.scrollTop;
+  host.replaceChildren();
+  const l = layer();
+  if (!l || tool === 'frame') {
+    heading(host, exportModes[project.exportSettings.mode]);
+    if (project.exportSettings.mode !== 'custom') {
+      const bar = actionBar(host);
+      bar.append(button('Export preview…', openPreview), button('Draw custom frame', startFrameDrawing));
+      return;
+    }
+    const g = group(host),
+      f = project.frame;
+    for (const [k, label] of [['x', 'X'], ['y', 'Y'], ['w', 'Width · px'], ['h', 'Height · px']]) {
+      const dim = k === 'w' || k === 'h';
+      numberField(g, label, f[k], v => {
+        f[k] = Math.round(v);
+        if (dim) Object.assign(f, frameDimensions(f.w, f.h, k));
+      }, dim ? 1 : null, dim ? 16384 : null);
+    }
+    const aspect = document.createElement('select');
+    for (const key of Object.keys(ratios)) aspect.add(new Option(key === 'free' ? 'Free' : key, key));
+    aspect.value = project.exportSettings.ratio;
+    aspect.onchange = () => edit(() => {
+      project.exportSettings.ratio = aspect.value;
+      Object.assign(f, frameDimensions(f.w, f.h, 'w'));
+    });
+    field(g, 'Aspect ratio', aspect, true);
+    actionBar(host).append(button(tool === 'frame' ? 'Done' : 'Edit on canvas', () => setTool(tool === 'frame' ? 'select' : 'frame')), button('Draw new frame', startFrameDrawing), button('Export preview…', openPreview));
+    return;
+  }
+  heading(host, l.type === 'image' ? 'Image' : l.type === 'arrow' ? 'Arrow' : 'Text box');
+  const g = group(host);
+  const label = document.createElement('input');
+  label.value = l.name;
+  label.onchange = () => edit(() => l.name = label.value.trim() || l.type);
+  field(g, 'Layer name', label, true);
+  if (l.type === 'image') {
+    const mode = document.createElement('select');
+    for (const [v, s] of [['composition', 'Composition'], ['reference', 'Reference-only'], ['hidden', 'Hidden']]) mode.add(new Option(s, v));
+    mode.value = l.mode;
+    mode.onchange = () => edit(() => {
+      if (l.mode !== 'hidden') l.previousMode = l.mode;
+      l.mode = mode.value;
+      if (l.mode !== 'hidden') l.visible = true;
+    });
+    field(g, 'Image mode', mode, true);
+  }
+  if (l.type === 'text') {
+    const t = document.createElement('textarea');
+    t.id = 'textValue';
+    t.value = l.text;
+    t.onfocus = () => beginTyping(t);
+    t.oninput = () => {
+      l.text = t.value;
+      fitTextBox(l);
+      draw();
+      scheduleSave();
+    };
+    t.onblur = () => finishTyping(t);
+    field(g, 'Annotation text', t, true);
+  }
+  numberField(g, l.type === 'arrow' ? 'Start X' : 'Center X', l.x, v => l.x = v);
+  numberField(g, l.type === 'arrow' ? 'Start Y' : 'Center Y', l.y, v => l.y = v);
+  if (l.type === 'arrow') {
+    numberField(g, 'End X', l.x2, v => l.x2 = v);
+    numberField(g, 'End Y', l.y2, v => l.y2 = v);
+    numberField(g, 'Thickness · px', l.thickness, v => l.thickness = v, .2, 2000);
+  }
+  if (l.type === 'image' || l.type === 'text') {
+    for (const [k, label] of [['w', 'Width · px'], ['h', 'Height · px']]) {
+      numberField(g, label, l[k], v => {
+        l[k] = v;
+        if (l.type === 'text') fitTextBox(l);
+      }, .01);
+    }
+  }
+  if (l.type !== 'arrow') numberField(g, 'Rotation · °', l.angle, v => l.angle = v);
+  if (l.type === 'text') {
+    const setSize = n => {
+      l.size = n;
+      fitTextBox(l);
+    };
+    const numeric = numberField(g, 'Font size · px', l.size, setSize, 1, 4096);
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.min = 1;
+    slider.max = Math.max(96, Math.ceil(l.size));
+    slider.value = l.size;
+    let before = null,
+      startingBox = null;
+    slider.oninput = () => {
+      if (before === null) {
+        before = JSON.stringify(project);
+        startingBox = {
+          x: l.x,
+          y: l.y,
+          w: l.w,
+          h: l.h
+        };
+      }
+      Object.assign(l, startingBox);
+      setSize(Number(slider.value));
+      numeric.value = l.size;
+      draw();
+      scheduleSave();
+    };
+    slider.onchange = slider.onblur = () => {
+      if (before !== null) {
+        const old = before;
+        before = null;
+        changed(old);
+      }
+    };
+    field(g, 'Adjust font size', slider);
+  }
+  if (l.type !== 'image') {
+    const color = document.createElement('input');
+    color.type = 'color';
+    color.value = l.color;
+    color.onchange = () => edit(() => l.color = color.value);
+    field(g, 'Color', color);
+  }
+  if (l.type === 'text') {
+    const b = l.box;
+    function colorField(title, obj, key) {
+      const el = document.createElement('input');
+      el.type = 'color';
+      el.value = obj[key];
+      el.onchange = () => edit(() => {
+        obj[key] = el.value;
+      });
+      field(g, title, el);
+    }
+    function checkField(title, obj, key) {
+      const el = document.createElement('input');
+      el.type = 'checkbox';
+      el.checked = obj[key];
+      el.onchange = () => edit(() => {
+        obj[key] = el.checked;
+      });
+      field(g, title, el);
+    }
+    numberField(g, 'Padding · px', b.padding, v => {
+      b.padding = v;
+      fitTextBox(l);
+    }, 0);
+    checkField('Fill background', b, 'fill');
+    colorField('Background', b, 'background');
+    colorField('Border color', b, 'borderColor');
+    numberField(g, 'Border width · px', b.borderWidth, v => {
+      b.borderWidth = v;
+      fitTextBox(l);
+    }, 0);
+    if (l.connector) {
+      const line = l.connector;
+      colorField('Connector color', line, 'color');
+      numberField(g, 'Line thickness · px', line.thickness, v => line.thickness = v, .1);
+      checkField('Arrowhead', line, 'arrowhead');
+      numberField(g, 'Target X', line.x, v => line.x = v);
+      numberField(g, 'Target Y', line.y, v => line.y = v);
+    }
+  }
+  numberField(g, 'Opacity · %', l.opacity * 100, v => l.opacity = v / 100, 0, 100);
+  for (const c of g.querySelectorAll('input,select,textarea')) c.disabled = l.locked;
+  const bar = actionBar(host),
+    i = project.layers.indexOf(l);
+  if (l.type === 'text') {
+    bar.append(button(l.connector ? 'Place endpoint' : 'Add connector', placeConnector, {
+      disabled: l.locked
+    }));
+    if (l.connector) bar.append(button('Remove connector', () => edit(() => {
+      l.connector = null;
+    }), {
+      disabled: l.locked
+    }));
+  }
+  if (l.type === 'image') bar.append(button('Crop…', openCrop, {
+    disabled: l.locked
+  }));
+  bar.append(button('Raise', () => order(1), {
+    disabled: l.locked || i === project.layers.length - 1
+  }), button('Lower', () => order(-1), {
+    disabled: l.locked || i === 0
+  }), button('Duplicate', duplicate), button(l.locked ? 'Unlock' : 'Lock', toggleSelectedLock), button('Delete', removeLayer, {
+    disabled: l.locked
+  }));
+  host.scrollTop = scroll;
+}
+function syncPages() {
+  const picker = $('pagePicker');
+  picker.replaceChildren();
+  for (const page of project.pages) picker.add(new Option(page.name, page.id));
+  picker.value = project.activePageId;
+  $('reuseImage').disabled = !project.assets.length;
+}
+function activatePage(id) {
+  if (id === project.activePageId) return;
+  const prior = project.pages.find(page => page.id === project.activePageId);
+  const next = project.pages.find(page => page.id === id);
+  if (!prior || !next) return;
+  prior.scene = sceneFrom(project);
+  Object.assign(project, next.scene);
+  next.scene = null;
+  project.activePageId = id;
+  selected = project.exportSettings.mode === 'selection' ? project.exportSettings.selectionId : null;
+  tool = 'select';
+  gesture = null;
+  typing = null;
+  drawFrameNext = false;
+}
+$('pagePicker').onchange = e => {
+  activatePage(e.target.value);
+  scheduleSave();
+  fit();
+  sync();
+};
+let addingPage = false;
+function pageDialog(add) {
+  addingPage = add;
+  $('pageNameInput').value = add ? 'Page ' + (project.pages.length + 1) : project.pages.find(p => p.id === project.activePageId).name;
+  $('pageDialog').showModal();
+  $('pageNameInput').focus();
+  $('pageNameInput').select();
+}
+$('addPage').onclick = () => pageDialog(true);
+$('renamePage').onclick = () => pageDialog(false);
+$('pageCancel').onclick = () => $('pageDialog').close();
+$('pageApply').onclick = () => {
+  const name = $('pageNameInput').value.trim();
+  if (!name) return;
+  $('pageDialog').close();
+  edit(() => {
+    if (addingPage) {
+      const id = uid();
+      project.pages.push({
+        id,
+        name,
+        scene: sceneFrom(singlePage())
+      });
+      activatePage(id);
+      fit();
+    } else project.pages.find(p => p.id === project.activePageId).name = name;
+  });
+};
+$('reuseImage').onclick = () => {
+  const picker = $('originalPicker');
+  picker.replaceChildren();
+  for (const a of project.assets) picker.add(new Option(a.name, a.id));
+  picker.value = project.assets[0]?.id || '';
+  $('originalDialog').showModal();
+};
+$('originalCancel').onclick = () => $('originalDialog').close();
+$('originalApply').onclick = () => {
+  const a = assets.get($('originalPicker').value);
+  $('originalDialog').close();
+  if (a) edit(() => {
+    placeOriginal(a);
+    tool = 'select';
+  });
+};
+function sync() {
+  syncPages();
+  if (tool === 'frame' && project.exportSettings.mode !== 'custom') {
+    tool = 'select';
+    drawFrameNext = false;
+  }
+  const exportSelection = project.exportSettings.mode === 'selection' ? layer()?.id || null : null;
+  if (project.exportSettings.selectionId !== exportSelection) {
+    project.exportSettings.selectionId = exportSelection;
+    scheduleSave();
+  }
+  if (document.activeElement !== $('name')) $('name').value = project.name;
+  if (document.activeElement !== $('prompt')) $('prompt').value = project.prompt;
+  $('annotations').setAttribute('aria-pressed', String(project.annotations));
+  $('undo').disabled = !history.length;
+  $('redo').disabled = !future.length;
+  document.querySelectorAll('[data-tool]').forEach(b => {
+    b.classList.toggle('active', b.dataset.tool === tool);
+    b.setAttribute('aria-pressed', String(b.dataset.tool === tool));
+  });
+  canvas.style.cursor = space || tool === 'pan' ? 'grab' : tool === 'select' ? 'default' : 'crosshair';
+  $('hint').textContent = {
+    select: 'Space to pan · Scroll to zoom',
+    pan: 'Drag to pan · F to fit',
+    arrow: 'Drag from tail to tip',
+    text: 'Click to place a text box',
+    callout: 'Click or drag to place the connector endpoint',
+    frame: drawFrameNext ? 'Drag to draw a new export frame' : 'Drag frame or handles · Drag outside to draw'
+  }[tool];
+  layersUI();
+  inspectorUI();
+  draw();
+}
+let typing = null;
+function beginTyping(el) {
+  typing = {
+    el,
+    before: JSON.stringify(project)
+  };
+}
+function finishTyping(el) {
+  if (!typing || typing.el !== el) return;
+  const prev = typing.before;
+  typing = null;
+  if (prev !== JSON.stringify(project)) {
+    history.push(prev);
+    if (history.length > 100) history.shift();
+    future.length = 0;
+    $('undo').disabled = false;
+    $('redo').disabled = true;
+    scheduleSave();
+  }
+}
+$('prompt').onfocus = () => beginTyping($('prompt'));
+$('prompt').oninput = () => {
+  project.prompt = $('prompt').value;
+  scheduleSave();
+};
+$('prompt').onblur = () => finishTyping($('prompt'));
+$('name').onchange = () => edit(() => {
+  project.name = $('name').value.trim() || 'Untitled composition';
+  $('name').value = project.name;
+});
+let cropRect,
+  cropView,
+  cropStart = null;
+function openCrop() {
+  const l = layer();
+  if (l?.type !== 'image' || l.locked) return;
+  cropStart = null;
+  cropRect = clone(l.crop);
+  $('cropDialog').showModal();
+  drawCrop();
+}
+function drawCrop() {
+  const el = $('cropCanvas'),
+    d = resizeCanvas(el),
+    c = el.getContext('2d'),
+    a = assets.get(layer().assetId),
+    w = el.clientWidth,
+    h = el.clientHeight,
+    z = Math.min(Math.max(1, w - 24) / a.w, Math.max(1, h - 24) / a.h);
+  cropView = {
+    x: (w - a.w * z) / 2,
+    y: (h - a.h * z) / 2,
+    z
+  };
+  c.setTransform(d, 0, 0, d, 0, 0);
+  c.clearRect(0, 0, w, h);
+  c.translate(cropView.x, cropView.y);
+  c.scale(z, z);
+  if (layer().flipX) {
+    c.translate(a.w, 0);
+    c.scale(-1, 1);
+  }
+  c.drawImage(a.image, 0, 0);
+  c.fillStyle = '#20241dbb';
+  c.beginPath();
+  c.rect(0, 0, a.w, a.h);
+  c.rect(cropRect.x, cropRect.y, cropRect.w, cropRect.h);
+  c.fill('evenodd');
+  c.lineWidth = 1.5 / z;
+  c.strokeStyle = '#ff683b';
+  c.strokeRect(cropRect.x, cropRect.y, cropRect.w, cropRect.h);
+  c.setTransform(d, 0, 0, d, 0, 0);
+  c.fillStyle = '#fff';
+  c.strokeStyle = '#ba401d';
+  c.lineWidth = 1.5;
+  for (const h of cropHandles()) {
+    c.fillRect(h.x - 4, h.y - 4, 8, 8);
+    c.strokeRect(h.x - 4, h.y - 4, 8, 8);
+  }
+}
+function cropHandles() {
+  const a = assets.get(layer().assetId),
+    r = cropRect;
+  return [[-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0]].map(([sx, sy]) => {
+    const x = r.x + (1 + sx) * r.w / 2,
+      y = r.y + (1 + sy) * r.h / 2;
+    return {
+      sx,
+      sy,
+      x: cropView.x + (layer().flipX ? a.w - x : x) * cropView.z,
+      y: cropView.y + y * cropView.z
+    };
+  });
+}
+function cropPoint(e) {
+  const pt = pos(e, $('cropCanvas')),
+    a = assets.get(layer().assetId);
+  const x = (pt.x - cropView.x) / cropView.z;
+  return {
+    x: clamp(Math.round(layer().flipX ? a.w - x : x), 0, a.w),
+    y: clamp(Math.round((pt.y - cropView.y) / cropView.z), 0, a.h)
+  };
+}
+function cropAction(e) {
+  const pt = pos(e, $('cropCanvas')),
+    p = cropPoint(e),
+    r = cropRect,
+    a = assets.get(layer().assetId);
+  if (!e.shiftKey) {
+    let nearest = null,
+      distance = 9;
+    for (const h of cropHandles()) {
+      const d = Math.hypot(h.x - pt.x, h.y - pt.y);
+      if (d < distance) {
+        nearest = h;
+        distance = d;
+      }
+    }
+    if (nearest) return {
+      kind: 'resize',
+      ...nearest
+    };
+    const full = r.x === 0 && r.y === 0 && r.w === a.w && r.h === a.h;
+    if (!full && p.x > r.x && p.x < r.x + r.w && p.y > r.y && p.y < r.y + r.h) return {
+      kind: 'move'
+    };
+  }
+  return {
+    kind: 'draw'
+  };
+}
+function cropCursor(action) {
+  if (action.kind === 'move') return 'move';
+  if (action.kind === 'draw') return 'crosshair';
+  if (!action.sx) return 'ns-resize';
+  if (!action.sy) return 'ew-resize';
+  return (layer().flipX ? -action.sx : action.sx) === action.sy ? 'nwse-resize' : 'nesw-resize';
+}
+$('cropCanvas').onpointerdown = e => {
+  if (cropStart || e.button > 0) return;
+  cropStart = {
+    ...cropAction(e),
+    p: cropPoint(e),
+    rect: {
+      ...cropRect
+    },
+    id: e.pointerId
+  };
+  $('cropCanvas').setPointerCapture(e.pointerId);
+};
+$('cropCanvas').onpointermove = e => {
+  const c = $('cropCanvas'),
+    g = cropStart;
+  c.style.cursor = cropCursor(g || cropAction(e));
+  if (!g || g.id !== e.pointerId) return;
+  const a = assets.get(layer().assetId),
+    r = g.rect,
+    p = cropPoint(e),
+    dx = p.x - g.p.x,
+    dy = p.y - g.p.y;
+  if (g.kind === 'move') cropRect = {
+    ...r,
+    x: clamp(r.x + dx, 0, a.w - r.w),
+    y: clamp(r.y + dy, 0, a.h - r.h)
+  };else if (g.kind === 'resize') {
+    let x = r.x,
+      y = r.y,
+      right = x + r.w,
+      bottom = y + r.h;
+    if (g.sx < 0) x = clamp(x + dx, 0, right - 1);
+    if (g.sx > 0) right = clamp(right + dx, x + 1, a.w);
+    if (g.sy < 0) y = clamp(y + dy, 0, bottom - 1);
+    if (g.sy > 0) bottom = clamp(bottom + dy, y + 1, a.h);
+    cropRect = {
+      x,
+      y,
+      w: right - x,
+      h: bottom - y
+    };
+  } else if (dx && dy) cropRect = {
+    x: Math.min(p.x, g.p.x),
+    y: Math.min(p.y, g.p.y),
+    w: Math.abs(dx),
+    h: Math.abs(dy)
+  };
+  drawCrop();
+};
+$('cropCanvas').onpointerup = e => {
+  if (cropStart && (!e || e.pointerId === cropStart.id)) cropStart = null;
+};
+$('cropCanvas').onpointercancel = () => {
+  if (cropStart) cropRect = cropStart.rect;
+  cropStart = null;
+  drawCrop();
+};
+$('cropDialog').onclose = () => {
+  cropStart = null;
+};
+$('cropReset').onclick = () => {
+  const a = assets.get(layer().assetId);
+  cropRect = {
+    x: 0,
+    y: 0,
+    w: a.w,
+    h: a.h
+  };
+  drawCrop();
+};
+$('cropCancel').onclick = () => $('cropDialog').close();
+$('cropApply').onclick = () => {
+  const l = layer(),
+    r = cropRect,
+    o = l.crop,
+    sx = l.w / o.w,
+    sy = l.h / o.h,
+    v = rotate((r.x + r.w / 2 - o.x - o.w / 2) * sx * (l.flipX ? -1 : 1), (r.y + r.h / 2 - o.y - o.h / 2) * sy, l.angle);
+  $('cropDialog').close();
+  edit(() => {
+    l.x += v.x;
+    l.y += v.y;
+    l.w = r.w * sx;
+    l.h = r.h * sy;
+    l.crop = {
+      ...r
+    };
+  });
+};
+async function decodeAsset(meta, blob) {
+  const url = URL.createObjectURL(blob),
+    image = new Image();
+  image.src = url;
+  try {
+    await image.decode();
+    if (!image.naturalWidth) throw Error('Image has no dimensions');
+    return {
+      ...meta,
+      blob,
+      image,
+      url,
+      w: image.naturalWidth,
+      h: image.naturalHeight
+    };
+  } catch (e) {
+    URL.revokeObjectURL(url);
+    throw e;
+  }
+}
+function release(map) {
+  for (const a of map.values()) URL.revokeObjectURL(a.url);
+}
+function metaFor(file) {
+  const id = uid(),
+    name = file.name || 'Image';
+  return {
+    id,
+    name,
+    type: file.type,
+    path: 'originals/' + id + '/' + name.replace(/[\\/\x00-\x1f]/g, '_').replace(/^\.+$/, 'image')
+  };
+}
+function placeOriginal(a, p, index = 0) {
+  const first = project.layers.length === 0;
+  const sc = first ? 1 : Math.min(1, stage.clientWidth * .55 / (view.z * a.w), stage.clientHeight * .55 / (view.z * a.h));
+  const origin = p || (first ? {
+    x: a.w / 2,
+    y: a.h / 2
+  } : world({
+    x: stage.clientWidth / 2,
+    y: stage.clientHeight / 2
+  }));
+  const offset = first ? 0 : Math.min(index * 18, 120) / view.z;
+  const l = {
+    ...base('image'),
+    name: a.name,
+    assetId: a.id,
+    mode: 'composition',
+    flipX: false,
+    x: origin.x + offset,
+    y: origin.y + offset,
+    w: a.w * sc,
+    h: a.h * sc,
+    crop: {
+      x: 0,
+      y: 0,
+      w: a.w,
+      h: a.h
+    }
+  };
+  project.layers.push(l);
+  selected = l.id;
+  if (first) fit();
+}
+async function importImages(files, p) {
+  const loaded = [],
+    skipped = [];
+  for (const file of files) {
+    const m = metaFor(file);
+    try {
+      loaded.push(await decodeAsset(m, file));
+    } catch {
+      skipped.push(file.name);
+    }
+  }
+  if (loaded.length) {
+    edit(() => {
+      loaded.forEach((a, i) => {
+        assets.set(a.id, a);
+        project.assets.push({
+          id: a.id,
+          name: a.name,
+          type: a.type,
+          path: a.path
+        });
+        placeOriginal(a, p, i);
+      });
+      tool = 'select';
+    });
+  }
+  if (skipped.length) toast('Could not decode ' + skipped.join(', '));else if (loaded.length) toast(loaded.length + ' image' + (loaded.length === 1 ? '' : 's') + ' imported');
+}
+// Scene-space envelopes. Project to integer pixel edges only after taking the union.
+function layerEnvelope(l) {
+  if (l.type !== 'arrow') {
+    const points = handles(l);
+    if (l.type === 'text') {
+      // Include glyph ink beyond a zero-padding box (accents, descenders, and side bearings).
+      const inset = l.box.padding + l.box.borderWidth,
+        x = -l.w / 2 + inset,
+        y = -l.h / 2 + inset;
+      const lines = textLayout(l).lines;
+      textMetrics.font = l.size + 'px Arial, sans-serif';
+      textMetrics.textBaseline = 'top';
+      lines.forEach((line, i) => {
+        const m = textMetrics.measureText(line),
+          baseline = y + i * l.size * 1.25;
+        const left = x - m.actualBoundingBoxLeft,
+          right = x + m.actualBoundingBoxRight;
+        const top = baseline - m.actualBoundingBoxAscent,
+          bottom = baseline + m.actualBoundingBoxDescent;
+        if (left < -l.w / 2 || right > l.w / 2 || top < -l.h / 2 || bottom > l.h / 2) {
+          for (const [px, py] of [[left, top], [right, top], [right, bottom], [left, bottom]]) {
+            const delta = rotate(px, py, l.angle);
+            points.push({
+              x: l.x + delta.x,
+              y: l.y + delta.y
+            });
+          }
+        }
+      });
+    }
+    if (l.type === 'text' && l.connector) points.push(...layerEnvelope({
+      type: 'arrow',
+      ...leaderFor(l)
+    }));
+    return points;
+  }
+  const dx = l.x2 - l.x,
+    dy = l.y2 - l.y,
+    len = Math.hypot(dx, dy);
+  if (!len) return [];
+  const ux = dx / len,
+    uy = dy / len;
+  const head = Math.min(len, l.thickness * 4.5),
+    radius = l.thickness / 2;
+  const point = (along, across) => ({
+    x: l.x + ux * along - uy * across,
+    y: l.y + uy * along + ux * across
+  });
+  const points = l.arrowhead === false ? [] : [point(len, 0), point(len - head, -head * .42), point(len - head, head * .42)];
+  for (const center of [l, point(l.arrowhead === false ? len : len - head * .65, 0)]) {
+    points.push({
+      x: center.x - radius,
+      y: center.y - radius
+    }, {
+      x: center.x + radius,
+      y: center.y + radius
+    });
+  }
+  return points;
+}
+function boundsFor(layers, padding = 0) {
+  let left = Infinity,
+    top = Infinity,
+    right = -Infinity,
+    bottom = -Infinity;
+  for (const l of layers) {
+    for (const p of layerEnvelope(l)) {
+      left = Math.min(left, p.x);
+      right = Math.max(right, p.x);
+      top = Math.min(top, p.y);
+      bottom = Math.max(bottom, p.y);
+    }
+  }
+  if (!Number.isFinite(left)) return null;
+  // Suppress roundoff at quarter turns without discarding fractional pixel extents.
+  const snap = n => Math.abs(n - Math.round(n)) < 1e-9 ? Math.round(n) : n;
+  const x = Math.floor(snap(left)) - padding,
+    y = Math.floor(snap(top)) - padding;
+  return {
+    x,
+    y,
+    w: Math.max(1, Math.ceil(snap(right)) + padding - x),
+    h: Math.max(1, Math.ceil(snap(bottom)) + padding - y)
+  };
+}
+function exportPlan(variant) {
+  const settings = project.exportSettings;
+  let layers = project.layers.filter(l => l.opacity > 0 && visible(l, variant));
+  if (settings.mode === 'custom') return {
+    bounds: project.frame,
+    layers
+  };
+  if (settings.mode === 'selection') {
+    const l = layer();
+    if (!l || !l.visible || l.mode === 'hidden' || l.opacity <= 0) {
+      return {
+        bounds: null,
+        layers: [],
+        reason: 'Select a visible object on the canvas or in Layers.'
+      };
+    }
+    // Selecting a reference explicitly exports it in isolation. Annotations print only in Annotated.
+    return {
+      bounds: boundsFor([l]),
+      layers: l.type === 'image' || variant === 'annotated' ? [l] : [],
+      note: l.type !== 'image' && variant === 'clean' ? 'Clean JPEG omits the selected annotation.' : ''
+    };
+  }
+  return {
+    bounds: boundsFor(layers, settings.padding),
+    layers,
+    reason: variant === 'clean' ? 'Auto Bounds needs a visible Composition image.' : 'No visible composition images or annotations.'
+  };
+}
+function jpeg(mode, plan = exportPlan(mode)) {
+  const f = plan.bounds;
+  if (!f) throw Error(plan.reason || 'The export area is empty.');
+  if (f.w > 32767 || f.h > 32767 || f.w * f.h > 100000000) {
+    throw Error('Export area is too large for a single JPEG. Reduce the area or use a custom frame.');
+  }
+  const out = document.createElement('canvas');
+  out.width = f.w;
+  out.height = f.h;
+  const c = out.getContext('2d');
+  if (!c) throw Error('Export exceeds available canvas memory.');
+  c.fillStyle = '#fff';
+  c.fillRect(0, 0, f.w, f.h);
+  c.translate(-f.x, -f.y);
+  c.imageSmoothingQuality = 'high';
+  for (const l of plan.layers) paintLayer(c, l);
+  return new Promise((resolve, reject) => out.toBlob(b => {
+    out.width = out.height = 1;
+    b ? resolve(b) : reject(Error('JPEG encoding failed. Try a smaller export area.'));
+  }, 'image/jpeg', .96));
+}
+function download(blob, name) {
+  const url = URL.createObjectURL(blob),
+    a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+const safeName = () => project.name.replace(/[^\p{L}\p{N}_ .-]+/gu, '_').trim() || 'Composition';
+const promptBlob = () => new Blob([project.prompt], {
+  type: 'text/plain;charset=utf-8'
+});
+// Provider boundary. An eventual implementation calls a credential-holding server.
+// Results and lineage are independent of the renderer and the archive container.
+/** @typedef {{composition:Blob,annotatedComposition:Blob,references:Array<{id:string,name:string,blob:Blob}>,prompt:string,model:string,resolution:string,parentVersion:string|null}} GenerationRequest */
+/** @typedef {{id:string,blob:Blob,name:string,model:string,createdAt:string,parentVersion:string|null}} GenerationResult */
+/** @typedef {{generate:(request:GenerationRequest,signal?:AbortSignal)=>Promise<GenerationResult[]>}} GenerationProvider */
+async function generationRequest(model, resolution, parentVersion = null) {
+  const references = project.layers.filter(l => l.type === 'image' && l.mode === 'reference' && l.visible).map(l => ({
+    id: l.id,
+    name: l.name,
+    blob: assets.get(l.assetId).blob
+  }));
+  return {
+    composition: await jpeg('clean'),
+    annotatedComposition: await jpeg('annotated'),
+    references,
+    prompt: project.prompt,
+    model,
+    resolution,
+    parentVersion
+  };
+}
+// Standard uncompressed ZIP keeps already-compressed source images byte-identical.
+const utf8 = new TextEncoder(),
+  fromUtf8 = new TextDecoder(),
+  crcTable = Uint32Array.from({
+    length: 256
+  }, (_, i) => {
+    for (let j = 0; j < 8; j++) i = i & 1 ? i >>> 1 ^ 0xedb88320 : i >>> 1;
+    return i >>> 0;
+  });
+async function crc32(blob) {
+  let crc = -1;
+  for (let start = 0; start < blob.size; start += 1048576) {
+    const bytes = new Uint8Array(await blob.slice(start, start + 1048576).arrayBuffer());
+    for (const b of bytes) crc = crc >>> 8 ^ crcTable[(crc ^ b) & 255];
+  }
+  return ~crc >>> 0;
+}
+function zipHeader(size) {
+  const b = new Uint8Array(size),
+    v = new DataView(b.buffer);
+  return {
+    b,
+    u16: (i, n) => v.setUint16(i, n, true),
+    u32: (i, n) => v.setUint32(i, n, true)
+  };
+}
+async function zip(entries) {
+  if (entries.length >= 65535) throw Error('Project exceeds the ZIP entry limit');
+  const parts = [],
+    central = [];
+  let offset = 0,
+    dirSize = 0;
+  for (const [name, blob] of entries) {
+    const n = utf8.encode(name),
+      size = blob.size;
+    if (n.length > 65535 || offset + size + n.length + 30 >= 0xffffffff) throw Error('Project exceeds the 4 GiB ZIP limit');
+    const crc = await crc32(blob),
+      h = zipHeader(30),
+      c = zipHeader(46);
+    h.u32(0, 0x04034b50);
+    h.u16(4, 20);
+    h.u16(6, 0x800);
+    h.u16(12, 33);
+    h.u32(14, crc);
+    h.u32(18, size);
+    h.u32(22, size);
+    h.u16(26, n.length);
+    parts.push(h.b, n, blob);
+    c.u32(0, 0x02014b50);
+    c.u16(4, 20);
+    c.u16(6, 20);
+    c.u16(8, 0x800);
+    c.u16(14, 33);
+    c.u32(16, crc);
+    c.u32(20, size);
+    c.u32(24, size);
+    c.u16(28, n.length);
+    c.u32(42, offset);
+    central.push(c.b, n);
+    dirSize += 46 + n.length;
+    offset += 30 + n.length + size;
+  }
+  if (offset + dirSize + 22 >= 0xffffffff) throw Error('Project exceeds the 4 GiB ZIP limit');
+  const end = zipHeader(22);
+  end.u32(0, 0x06054b50);
+  end.u16(8, entries.length);
+  end.u16(10, entries.length);
+  end.u32(12, dirSize);
+  end.u32(16, offset);
+  return new Blob([...parts, ...central, end.b], {
+    type: 'application/zip'
+  });
+}
+async function readZip(blob) {
+  const end = new DataView(await blob.slice(-22).arrayBuffer());
+  if (end.byteLength !== 22 || end.getUint32(0, true) !== 0x06054b50) throw Error('Choose a ZIP saved by this editor');
+  const count = end.getUint16(10, true),
+    offset = end.getUint32(16, true),
+    length = end.getUint32(12, true);
+  if (offset + length !== blob.size - 22) throw Error('Incomplete ZIP directory');
+  const dir = new DataView(await blob.slice(offset, offset + length).arrayBuffer()),
+    entries = new Map();
+  let p = 0;
+  for (let i = 0; i < count; i++) {
+    if (dir.getUint32(p, true) !== 0x02014b50 || dir.getUint16(p + 10, true) !== 0) throw Error('Unsupported project archive');
+    const n = dir.getUint16(p + 28, true),
+      size = dir.getUint32(p + 20, true),
+      localOffset = dir.getUint32(p + 42, true),
+      name = fromUtf8.decode(new Uint8Array(dir.buffer, p + 46, n)),
+      crc = dir.getUint32(p + 16, true);
+    p += 46 + n + dir.getUint16(p + 30, true) + dir.getUint16(p + 32, true);
+    const head = new DataView(await blob.slice(localOffset, localOffset + 30).arrayBuffer());
+    if (head.getUint32(0, true) !== 0x04034b50 || entries.has(name)) throw Error('Invalid ZIP entry');
+    const dataOffset = localOffset + 30 + head.getUint16(26, true) + head.getUint16(28, true);
+    if (dataOffset + size > offset) throw Error('Incomplete ZIP entry');
+    entries.set(name, {
+      crc,
+      blob: blob.slice(dataOffset, dataOffset + size)
+    });
+  }
+  return async (path, type) => {
+    const e = entries.get(path);
+    if (!e || (await crc32(e.blob)) !== e.crc) throw Error('Missing or damaged file: ' + path);
+    return e.blob.slice(0, e.blob.size, type);
+  };
+}
+async function archive(skipped = []) {
+  const entries = [['project.json', new Blob([JSON.stringify(project, null, 2)])], ['prompt.txt', promptBlob()]];
+  for (const variant of ['clean', 'annotated']) {
+    try {
+      entries.push([variant + '.jpg', await jpeg(variant)]);
+    } catch (error) {
+      skipped.push(variant + '.jpg (' + error.message + ')');
+    }
+  }
+  for (const a of project.assets) entries.push([a.path, assets.get(a.id).blob]);
+  return zip(entries);
+}
+function validateScene(p) {
+  const ok = test => {
+      if (!test) throw Error('Invalid or unsupported project data');
+    },
+    finite = (...xs) => xs.every(Number.isFinite);
+  ok(p && p.format === 'ds-studio' && p.version === 1 && typeof p.prompt === 'string' && typeof p.name === 'string' && Array.isArray(p.layers) && Array.isArray(p.assets) && Array.isArray(p.generationHistory) && typeof p.annotations === 'boolean');
+  if (p.exportSettings === undefined) p.exportSettings = exportDefaults('custom');
+  const e = p.exportSettings;
+  ok(e && Object.hasOwn(exportModes, e.mode) && Number.isInteger(e.padding) && e.padding >= 0 && e.padding <= 16384 && typeof e.annotationExtents === 'boolean' && Object.hasOwn(ratios, e.ratio) && (e.selectionId === null || typeof e.selectionId === 'string'));
+  const f = p.frame;
+  ok(f && finite(f.x, f.y) && [f.w, f.h].every(n => Number.isInteger(n) && n >= 1 && n <= 16384));
+  e.annotationExtents = true;
+  const ids = new Set(),
+    paths = new Set();
+  for (const a of p.assets) {
+    ok(a && ['id', 'name', 'type', 'path'].every(k => typeof a[k] === 'string') && a.path.startsWith('originals/') && !ids.has(a.id) && !paths.has(a.path));
+    ids.add(a.id);
+    paths.add(a.path);
+  }
+  const layers = new Set();
+  for (const l of p.layers) {
+    ok(l && typeof l.id === 'string' && !layers.has(l.id) && typeof l.name === 'string' && typeof l.visible === 'boolean' && typeof l.locked === 'boolean' && finite(l.x, l.y, l.angle, l.opacity) && l.opacity >= 0 && l.opacity <= 1 && ['image', 'arrow', 'text'].includes(l.type));
+    layers.add(l.id);
+    if (l.type !== 'arrow') ok(finite(l.w, l.h) && l.w > 0 && l.h > 0);
+    if (l.type === 'image') {
+      if (l.flipX === undefined) l.flipX = false;
+      ok(typeof l.flipX === 'boolean');
+      const r = l.crop;
+      ok(ids.has(l.assetId) && ['composition', 'reference', 'hidden'].includes(l.mode) && r && finite(r.x, r.y, r.w, r.h) && r.x >= 0 && r.y >= 0 && r.w > 0 && r.h > 0);
+    } else {
+      ok(/^#[0-9a-f]{6}$/i.test(l.color));
+      if (l.type === 'arrow') ok(finite(l.x2, l.y2, l.thickness) && l.thickness > 0);else {
+        ok(typeof l.text === 'string' && finite(l.size) && l.size > 0);
+        // Legacy text keeps its original transparent appearance and scene coordinates.
+        if (l.box === undefined) l.box = {
+          padding: 0,
+          fill: false,
+          background: '#fffbed',
+          borderWidth: 0,
+          borderColor: '#6d705f'
+        };
+        if (l.connector === undefined) l.connector = null;
+        const b = l.box,
+          line = l.connector,
+          color = str => /^#[0-9a-f]{6}$/i.test(str);
+        ok(b && finite(b.padding, b.borderWidth) && b.padding >= 0 && b.borderWidth >= 0 && typeof b.fill === 'boolean' && color(b.background) && color(b.borderColor));
+        ok(line === null || line && finite(line.x, line.y, line.thickness) && line.thickness > 0 && typeof line.arrowhead === 'boolean' && color(line.color));
+        fitTextBox(l);
+      }
+    }
+  }
+}
+function validate(p) {
+  validateScene(p);
+  initProjectIdentity(p);
+  if (typeof p.projectId !== 'string' || !p.projectId || !Number.isFinite(Date.parse(p.createdAt)) || !Number.isFinite(Date.parse(p.modifiedAt)) || !Array.isArray(p.pages) || !p.pages.length) throw Error('Invalid project metadata.');
+  const ids = new Set();
+  for (const page of p.pages) {
+    if (!page || typeof page.id !== 'string' || ids.has(page.id) || typeof page.name !== 'string') throw Error('Invalid page list.');
+    ids.add(page.id);
+    if (page.id === p.activePageId) {
+      if (page.scene !== null) throw Error('Invalid active page.');
+    } else {
+      if (!page.scene || pageKeys.some(k => !(k in page.scene))) throw Error('Missing page data.');
+      validateScene({
+        ...p,
+        ...sceneFrom(page.scene)
+      });
+    }
+  }
+  if (!ids.has(p.activePageId)) throw Error('Missing active page.');
+}
+// Prepare the whole replacement before releasing the current editable project.
+async function install(p, getBlob) {
+  validate(p);
+  const next = new Map();
+  try {
+    for (const m of p.assets) {
+      next.set(m.id, await decodeAsset(m, await getBlob(m)));
+    }
+    for (const scene of allScenes(p)) for (const l of scene.layers) {
+      if (l.type !== 'image') continue;
+      const a = next.get(l.assetId),
+        r = l.crop;
+      if (r.x + r.w > a.w + .001 || r.y + r.h > a.h + .001) throw Error('Crop exceeds the original image');
+    }
+    await finishPreviousFolder();
+    await finishPreviousCloud();
+  } catch (e) {
+    release(next);
+    throw e;
+  }
+  release(assets);
+  assets = next;
+  project = p;
+  drawFrameNext = false;
+  selected = p.exportSettings.mode === 'selection' ? p.exportSettings.selectionId : null;
+  tool = 'select';
+  history.length = future.length = 0;
+  typing = null;
+  fit();
+  sync();
+}
+async function openZip(file) {
+  const get = await readZip(file),
+    p = JSON.parse(await (await get('project.json', 'application/json')).text());
+  await install(p, a => get(a.path, a.type));
+  savedAssets.clear();
+  scheduleSave(false);
+  toast('Project opened');
+}
+let db,
+  saveTimer,
+  saveQueue = Promise.resolve(),
+  revision = 0,
+  protectedRevision = 0,
+  storedRevision = null,
+  conflict = false;
+const savedAssets = new Set();
+// The folder adapter commits one manifest last. Referenced originals and thumbnails
+// are immutable, so an interrupted write leaves the previous manifest usable.
+const folderManifest = 'project.json',
+  ownerFile = 'studio-folder.json',
+  backupInterval = 5 * 60 * 1000;
+const digestCache = new WeakMap();
+let directorySession = null,
+  folderTimer = null,
+  folderQueue = Promise.resolve(),
+  zipProtected = -1;
+function folderMessage(message, warn = false) {
+  $('folderStatus').textContent = message;
+  $('folderStatus').classList.toggle('warn', warn);
+  $('folderStatus').title = message;
+}
+async function blobHash(blob) {
+  if (!digestCache.has(blob)) {
+    const promise = blob.arrayBuffer().then(bytes => crypto.subtle.digest('SHA-256', bytes)).then(hash => Array.from(new Uint8Array(hash), b => b.toString(16).padStart(2, '0')).join(''));
+    digestCache.set(blob, promise);
+  }
+  return digestCache.get(blob);
+}
+async function optionalFile(dir, name) {
+  try {
+    return await (await dir.getFileHandle(name)).getFile();
+  } catch (e) {
+    if (e.name === 'NotFoundError') return null;
+    throw e;
+  }
+}
+async function readJSON(dir, name) {
+  const file = await optionalFile(dir, name);
+  if (!file) return null;
+  return JSON.parse(await file.text());
+}
+async function putFile(dir, name, data, verifyCurrent) {
+  const handle = await dir.getFileHandle(name, {
+    create: true
+  });
+  const writer = await handle.createWritable({
+    mode: 'exclusive'
+  });
+  try {
+    if (verifyCurrent) await verifyCurrent(await handle.getFile());
+    await writer.write(data);
+    await writer.close();
+  } catch (e) {
+    try {
+      await writer.abort();
+    } catch {}
+    throw e;
+  }
+}
+async function ensureImmutable(dir, name, blob, hash, verified) {
+  const key = dir.name + '/' + name,
+    old = await optionalFile(dir, name);
+  if (old && old.size === blob.size && (verified.get(key) === old.lastModified || (await blobHash(old)) === hash)) {
+    verified.set(key, old.lastModified);
+    return;
+  }
+  if (old && old.size !== 0) throw Error('A stored asset or preview was changed on disk. Use Change Folder to save a separate copy.');
+  await putFile(dir, name, blob);
+  verified.set(key, (await (await dir.getFileHandle(name)).getFile()).lastModified);
+}
+const sourceExtension = a => ({
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+  'image/svg+xml': 'svg',
+  'image/avif': 'avif'
+})[a.type] || 'img';
+function thumbnail(scene, sources) {
+  const layers = scene.layers.filter(l => l.opacity > 0 && visible(l, scene.annotations ? 'annotated' : 'clean'));
+  const f = boundsFor(layers) || {
+      x: 0,
+      y: 0,
+      w: 320,
+      h: 180
+    },
+    scale = Math.min(1, 360 / f.w, 240 / f.h);
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.ceil(f.w * scale));
+  c.height = Math.max(1, Math.ceil(f.h * scale));
+  const context = c.getContext('2d');
+  context.fillStyle = '#fff';
+  context.fillRect(0, 0, c.width, c.height);
+  context.scale(scale, scale);
+  context.translate(-f.x, -f.y);
+  for (const l of layers) paintLayer(context, l, sources);
+  return new Promise((resolve, reject) => c.toBlob(blob => blob ? resolve(blob) : reject(Error('Thumbnail encoding failed.')), 'image/jpeg', .82));
+}
+function folderSession(dir, id, head = null) {
+  return {
+    dir,
+    id,
+    head,
+    saved: -1,
+    paused: false,
+    verified: new Map(),
+    thumbs: new Map(),
+    recovered: false
+  };
+}
+function folderError(e) {
+  if (e.name === 'NotAllowedError' || e.name === 'SecurityError') return 'Folder access unavailable. Use Save Now to reconnect, or Change Folder.';
+  if (e.name === 'QuotaExceededError') return 'Folder is full. Free space or use Change Folder.';
+  return e.message || String(e);
+}
+async function withFolderLock(work) {
+  return navigator.locks ? navigator.locks.request('ds-studio-folder-write', work) : work();
+}
+async function checkOwner(binding) {
+  const dir = binding.dir,
+    marker = await optionalFile(dir, ownerFile),
+    owner = marker?.size ? JSON.parse(await marker.text()) : null;
+  if (owner) {
+    if (owner.format !== 'ds-studio-folder' || owner.projectId !== binding.id) throw Error('This folder belongs to another project. Open it or choose an empty folder.');
+    return;
+  }
+  if (binding.head) throw Error('The project folder marker is missing. Choose a new folder.');
+  for await (const entry of dir.keys()) if (entry !== ownerFile) throw Error('Choose an empty folder for this project, or use Open Local Project.');
+  await putFile(dir, ownerFile, JSON.stringify({
+    format: 'ds-studio-folder',
+    projectId: binding.id
+  }), file => {
+    if (file.size) throw Error('Folder was claimed by another session. Reopen the project.');
+  });
+}
+async function commitFolder(binding, snapshot, sources) {
+  if ((await binding.dir.queryPermission({
+    mode: 'readwrite'
+  })) !== 'granted') throw new DOMException('Folder permission required', 'NotAllowedError');
+  return withFolderLock(async () => {
+    await checkOwner(binding);
+    const dir = binding.dir,
+      currentFile = await optionalFile(dir, folderManifest);
+    const previous = currentFile?.size ? JSON.parse(await currentFile.text()) : null;
+    if (previous && (previous.projectId !== binding.id || previous.folderStorage?.revision !== binding.head)) throw Error('A newer or different project is in this folder. Open it or use Change Folder for this draft.');
+    if (!previous && binding.head) throw Error('The saved project was removed. Choose a new folder or reopen a backup.');
+    const assetDir = await dir.getDirectoryHandle('originals', {
+        create: true
+      }),
+      previewDir = await dir.getDirectoryHandle('previews', {
+        create: true
+      });
+    const refs = Object.create(null),
+      previews = Object.create(null),
+      sameHash = new Map();
+    for (const meta of snapshot.assets) {
+      const blob = sources.get(meta.id).blob,
+        hash = await blobHash(blob);
+      const name = sameHash.get(hash) || hash + '.' + sourceExtension(meta);
+      if (!sameHash.has(hash)) await ensureImmutable(assetDir, name, blob, hash, binding.verified);
+      sameHash.set(hash, name);
+      refs[meta.id] = name;
+    }
+    for (const page of snapshot.pages) {
+      const scene = page.id === snapshot.activePageId ? snapshot : page.scene;
+      const key = JSON.stringify([scene.layers, scene.annotations]);
+      let memo = binding.thumbs.get(page.id);
+      if (!memo || memo.key !== key) {
+        const blob = await thumbnail(scene, sources);
+        memo = {
+          key,
+          blob,
+          hash: await blobHash(blob)
+        };
+        binding.thumbs.set(page.id, memo);
+      }
+      const name = memo.hash + '.jpg';
+      await ensureImmutable(previewDir, name, memo.blob, memo.hash, binding.verified);
+      previews[page.id] = name;
+    }
+    const now = Date.now(),
+      lastBackup = previous?.folderStorage?.lastBackup || 0,
+      checkpoint = !previous || now - lastBackup >= backupInterval;
+    const storage = {
+      version: 1,
+      revision: uid(),
+      savedAt: new Date(now).toISOString(),
+      lastBackup: checkpoint ? now : lastBackup,
+      originals: refs,
+      previews
+    };
+    const json = JSON.stringify({
+      ...snapshot,
+      folderStorage: storage
+    }, null, 2);
+    const backups = await dir.getDirectoryHandle('backups', {
+      create: true
+    });
+    if (previous) await putFile(backups, 'previous.json', JSON.stringify(previous));
+    if (checkpoint) {
+      const prior = previous || {
+        ...snapshot,
+        folderStorage: storage
+      };
+      const name = 'snapshot-' + new Date(now).toISOString().replace(/:/g, '-') + '-' + uid() + '.json';
+      await putFile(backups, name, JSON.stringify(prior, null, 2));
+    }
+    await putFile(dir, folderManifest, json, async file => {
+      const latest = file.size ? JSON.parse(await file.text()) : null;
+      if ((latest?.folderStorage?.revision ?? null) !== binding.head || latest && latest.projectId !== binding.id) throw Error('The folder changed during saving. Open the newer project or use Change Folder.');
+    });
+    binding.head = storage.revision;
+    binding.diskModifiedAt = snapshot.modifiedAt;
+  });
+}
+async function rememberDirectory(binding) {
+  if (!db) return;
+  try {
+    const tx = db.transaction('draft', 'readwrite'),
+      done = txDone(tx);
+    tx.objectStore('draft').put({
+      dir: binding.dir,
+      head: binding.head,
+      diskModifiedAt: binding.diskModifiedAt
+    }, 'folder:' + binding.id);
+    await done;
+  } catch {/* A browser may allow folder writes without persisting handles. Re-picking still works. */}
+}
+function enqueueFolder(force = false) {
+  clearTimeout(folderTimer);
+  const binding = directorySession;
+  if (!binding || binding.recovered || !force && binding.paused) return Promise.resolve(false);
+  const save = async () => {
+    if (binding !== directorySession || binding.id !== project.projectId) return false;
+    if (!force && binding.saved === revision) return true;
+    const n = revision,
+      snapshot = clone(project),
+      sources = new Map(assets);
+    folderMessage('Saving to ' + binding.dir.name + '…');
+    try {
+      await commitFolder(binding, snapshot, sources);
+      binding.saved = n;
+      binding.paused = false;
+      protectedRevision = Math.max(protectedRevision, n);
+      if (binding === directorySession) folderMessage(n === revision ? 'Saved to folder · ' + binding.dir.name : 'Folder changes pending…');
+      await rememberDirectory(binding);
+      return true;
+    } catch (e) {
+      binding.paused = true;
+      if (binding === directorySession) folderMessage(folderError(e), true);
+      return false;
+    }
+  };
+  folderQueue = folderQueue.then(save, save);
+  return folderQueue;
+}
+function scheduleFolderWrite() {
+  clearTimeout(folderTimer);
+  if (!directorySession || directorySession.paused) return;
+  folderMessage('Folder changes pending…');
+  folderTimer = setTimeout(() => enqueueFolder(), 1500);
+}
+async function finishPreviousFolder() {
+  const b = directorySession;
+  if (!b) return;
+  clearTimeout(folderTimer);
+  await folderQueue;
+  if (b.saved !== revision && zipProtected !== revision && !(await enqueueFolder())) {
+    throw Error('Current folder changes are pending. Save Now, Change Folder, or save a project ZIP before switching.');
+  }
+  directorySession = null;
+  folderMessage('Browser draft only');
+}
+function chooseDirectory() {
+  if (typeof window.showDirectoryPicker !== 'function') throw Error('Direct folder saving needs a standalone desktop browser with directory access. Open this HTML in Chrome or Edge. Browser drafts remain available here.');
+  return window.showDirectoryPicker({
+    id: 'ds-studio-project',
+    mode: 'readwrite'
+  });
+}
+async function selectDestination() {
+  const dir = await chooseDirectory(); // Starts in the button click, before any unrelated await.
+  // One storage provider at a time, so two providers never overwrite each other.
+  if (cloudSession) await finishPreviousCloud();
+  const old = directorySession;
+  clearTimeout(folderTimer);
+  await folderQueue;
+  if (old && (await dir.isSameEntry(old.dir))) return manualSave();
+  const next = folderSession(dir, project.projectId);
+  directorySession = next;
+  if (!(await enqueueFolder(true))) {
+    const explanation = $('folderStatus').textContent;
+    directorySession = old;
+    if (old && !old.paused && old.saved !== revision) scheduleFolderWrite();
+    throw Error(explanation);
+  }
+}
+async function manualSave() {
+  const b = directorySession;
+  if (!b) return selectDestination();
+  if (b.stale) throw Error('The disk version changed. Use Open Local Project or save this draft with Change Folder.');
+  if (b.recovered) throw Error('Recovered backup: choose Change Folder to save the recovered version.');
+  if ((await b.dir.requestPermission({
+    mode: 'readwrite'
+  })) !== 'granted') {
+    b.paused = true;
+    folderMessage('Folder permission denied · use Save Now to reconnect', true);
+    throw Error('Folder permission denied. Browser draft autosave remains active.');
+  }
+  b.paused = false;
+  if (!(await enqueueFolder(true))) throw Error($('folderStatus').textContent);
+}
+async function loadManifest(dir, doc, owner) {
+  if (!doc || !owner || owner.format !== 'ds-studio-folder' || doc.projectId !== owner.projectId || doc.folderStorage?.version !== 1) throw Error('Unrecognized project folder.');
+  const {
+    folderStorage: storage,
+    ...p
+  } = doc;
+  if (typeof storage.revision !== 'string' || !storage.originals) throw Error('Incomplete folder manifest.');
+  const originals = await dir.getDirectoryHandle('originals'),
+    checked = new Map();
+  await install(p, async meta => {
+    const name = storage.originals[meta.id];
+    if (typeof name !== 'string' || !/^[a-f0-9]{64}\.[a-z0-9]{1,6}$/.test(name)) throw Error('Invalid original reference.');
+    if (!checked.has(name)) {
+      const f = await optionalFile(originals, name);
+      if (!f || (await blobHash(f)) !== name.slice(0, 64)) throw Error('Missing or changed original: ' + meta.name);
+      checked.set(name, f);
+    }
+    const f = checked.get(name);
+    return f.slice(0, f.size, meta.type);
+  });
+  return storage.revision;
+}
+async function openLocalDirectory() {
+  const dir = await chooseDirectory();
+  // Flush the current version before reading the same folder back.
+  if (directorySession && (await dir.isSameEntry(directorySession.dir)) && !directorySession.paused && directorySession.saved !== revision) {
+    if (!(await enqueueFolder())) throw Error($('folderStatus').textContent);
+  }
+  const owner = await readJSON(dir, ownerFile);
+  if (!owner || owner.format !== 'ds-studio-folder') throw Error('Select the project folder containing project.json and ' + ownerFile + '.');
+  let head,
+    recovered = false;
+  try {
+    head = await loadManifest(dir, await readJSON(dir, folderManifest), owner);
+  } catch (originalError) {
+    if (directorySession && directorySession.saved !== revision && directorySession.paused) throw originalError;
+    let backups;
+    try {
+      backups = await dir.getDirectoryHandle('backups');
+    } catch {
+      throw originalError;
+    }
+    const names = [];
+    for await (const name of backups.keys()) if (/^snapshot-.*\.json$/.test(name)) names.push(name);
+    for (const name of ['previous.json', ...names.sort().reverse()]) {
+      try {
+        head = await loadManifest(dir, await readJSON(backups, name), owner);
+        recovered = true;
+        break;
+      } catch {}
+    }
+    if (!head) throw originalError;
+  }
+  savedAssets.clear();
+  scheduleSave(false);
+  const b = folderSession(dir, project.projectId, head);
+  b.saved = revision;
+  b.diskModifiedAt = project.modifiedAt;
+  b.recovered = b.paused = recovered;
+  directorySession = b;
+  folderMessage(recovered ? 'Recovered backup · Change Folder to resume saving' : 'Saved to folder · ' + dir.name, recovered);
+  if (!recovered) await rememberDirectory(b);
+}
+async function restoreDirectory() {
+  if (!db) return;
+  let saved;
+  try {
+    saved = await request(db.transaction('draft').objectStore('draft').get('folder:' + project.projectId));
+  } catch {
+    return;
+  }
+  if (!saved?.dir || typeof saved.dir.queryPermission !== 'function') return;
+  const b = folderSession(saved.dir, project.projectId, saved.head);
+  directorySession = b;
+  try {
+    if (saved.diskModifiedAt > project.modifiedAt) {
+      b.stale = true; b.saved = revision;
+      throw Error('The folder has a newer save. Open Local Project to restore it.');
+    }
+    if ((await b.dir.queryPermission({
+      mode: 'readwrite'
+    })) !== 'granted') throw Error('Reconnect folder with Save Now.');
+    const disk = await readJSON(b.dir, folderManifest);
+    if (disk?.folderStorage?.revision !== b.head || disk.projectId !== b.id || disk.modifiedAt > project.modifiedAt) {
+      b.stale = true;
+      b.saved = revision;
+      throw Error('Folder version changed. Open Local Project to read it, or Change Folder to keep this draft.');
+    }
+    if (disk.modifiedAt === project.modifiedAt) {
+      b.saved = revision;
+      folderMessage('Saved to folder · ' + b.dir.name);
+    } else scheduleFolderWrite();
+  } catch (e) {
+    b.paused = true;
+    folderMessage(folderError(e), true);
+  }
+}
+function folderAction(fn) {
+  return run(async () => {
+    try {
+      await fn();
+    } catch (e) {
+      if (e.name !== 'AbortError') {
+        folderMessage(folderError(e), true);
+        toast(folderError(e));
+      }
+    }
+  }, 'Folder…');
+}
+$('chooseFolder').onclick = $('changeFolder').onclick = () => folderAction(selectDestination);
+$('saveNow').onclick = $('saveFolder').onclick = () => folderAction(manualSave);
+$('openFolder').onclick = () => folderAction(openLocalDirectory);
+
+// ---------- Google Drive adapter (only on the private website, behind Cloudflare Access) ----------
+// The studio API writes project.json last, with a revision check, so another device's newer
+// save is never overwritten silently. Originals and previews are content-addressed and immutable.
+// A save is reported only after the server confirms Google Drive accepted it.
+const cloudApi = '/studio/api';
+const cloudRevisionKey = id => 'ds-studio-editor.drive-revision:' + id;
+let cloudAvailable = false,
+  cloudSession = null,
+  cloudTimer = null,
+  cloudQueue = Promise.resolve(),
+  cloudRetry = null;
+class CloudError extends Error {
+  constructor(message, code = null, status = 0, data = null) {
+    super(message);
+    this.code = code;
+    this.status = status;
+    this.data = data;
+  }
+}
+async function cloudFetch(path, init = {}) {
+  let r;
+  try {
+    r = await fetch(cloudApi + path, {
+      ...init,
+      redirect: 'manual',
+      credentials: 'same-origin',
+      headers: { 'X-Studio-Request': '1', ...(init.headers || {}) }
+    });
+  } catch {
+    throw new CloudError('Offline — changes are kept in this browser and will sync when the connection returns.', 'offline');
+  }
+  // Cloudflare Access answers an expired session with a redirect to its login page.
+  if (r.type === 'opaqueredirect' || r.status === 401) throw new CloudError('Sign-in expired. Save your work as ZIP if needed, then reload the page to sign in.', 'access', 401);
+  if (!r.ok) {
+    let data = {};
+    try { data = await r.json(); } catch {}
+    throw new CloudError(data.error || 'Google Drive request failed (' + r.status + ').', data.code || null, r.status, data);
+  }
+  return r;
+}
+function cloudMessage(message, warn = false) {
+  folderMessage(message, warn);
+}
+const timeLabel = iso => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+function cloudState(session) {
+  return session === cloudSession && session.projectId === project.projectId;
+}
+function cloudFailure(session, e) {
+  session.paused = true;
+  if (!cloudState(session)) return;
+  if (e.code === 'offline' || e.code === 'drive_busy') {
+    cloudMessage('Unsynced · ' + e.message, true);
+    clearTimeout(cloudRetry);
+    cloudRetry = setTimeout(() => resumeCloud(), 20000);
+  } else if (e.code === 'conflict') {
+    session.conflict = true;
+    cloudMessage('Unsynced · Drive has a newer version from another device. Your version stays in this browser.', true);
+    toast('This project was saved from another device. Nothing was overwritten. Use “Reload from Google Drive…” or “Save as new Drive copy”.');
+  } else if (e.code === 'drive_disconnected') {
+    cloudMessage('Unsynced · Google Drive is not connected. Open CORE to connect it.', true);
+  } else {
+    cloudMessage('Unsynced · ' + e.message, true);
+  }
+}
+async function uploadCloudFile(session, dir, name, blob) {
+  const key = dir + '/' + name;
+  if (session.uploaded.has(key)) return;
+  await cloudFetch('/projects/' + encodeURIComponent(session.projectId) + '/' + dir + '/' + name, {
+    method: 'PUT',
+    headers: { 'content-type': blob.type || 'application/octet-stream' },
+    body: blob
+  });
+  session.uploaded.add(key);
+}
+async function commitCloud(session, snapshot, sources) {
+  const originals = Object.create(null),
+    previews = Object.create(null);
+  const sameHash = new Map();
+  for (const meta of snapshot.assets) {
+    const blob = sources.get(meta.id).blob,
+      hash = await blobHash(blob);
+    const name = sameHash.get(hash) || hash + '.' + sourceExtension(meta);
+    if (!sameHash.has(hash)) await uploadCloudFile(session, 'originals', name, blob.type ? blob : blob.slice(0, blob.size, meta.type));
+    sameHash.set(hash, name);
+    originals[meta.id] = name;
+  }
+  for (const page of snapshot.pages) {
+    const scene = page.id === snapshot.activePageId ? snapshot : page.scene;
+    const key = JSON.stringify([scene.layers, scene.annotations]);
+    let memo = session.thumbs.get(page.id);
+    if (!memo || memo.key !== key) {
+      const blob = await thumbnail(scene, sources);
+      memo = { key, blob, hash: await blobHash(blob) };
+      session.thumbs.set(page.id, memo);
+    }
+    const name = memo.hash + '.jpg';
+    await uploadCloudFile(session, 'previews', name, memo.blob);
+    previews[page.id] = name;
+  }
+  const body = JSON.stringify({ ...snapshot, cloudStorage: { version: 1, originals, previews } });
+  const r = await cloudFetch('/projects/' + encodeURIComponent(session.projectId), {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json', 'If-Match': session.revision || 'new' },
+    body
+  });
+  const result = await r.json();
+  session.revision = result.revision;
+  try { localStorage.setItem(cloudRevisionKey(session.projectId), result.revision); } catch {}
+  return result;
+}
+function enqueueCloud(force = false) {
+  clearTimeout(cloudTimer);
+  const session = cloudSession;
+  if (!session || session.conflict || !force && session.paused) return Promise.resolve(false);
+  const save = async () => {
+    if (!cloudState(session)) return false;
+    if (!force && session.saved === revision) return true;
+    const n = revision,
+      snapshot = clone(project),
+      sources = new Map(assets);
+    cloudMessage('Saving to Google Drive…');
+    try {
+      const result = await commitCloud(session, snapshot, sources);
+      session.saved = n;
+      session.paused = false;
+      protectedRevision = Math.max(protectedRevision, n);
+      if (cloudState(session)) cloudMessage(n === revision ? 'Saved to Google Drive · ' + timeLabel(result.savedAt) : 'Google Drive changes pending…');
+      if (n !== revision) scheduleCloudWrite();
+      return true;
+    } catch (e) {
+      cloudFailure(session, e);
+      return false;
+    }
+  };
+  cloudQueue = cloudQueue.then(save, save);
+  return cloudQueue;
+}
+function scheduleCloudWrite() {
+  clearTimeout(cloudTimer);
+  if (!cloudSession || cloudSession.paused || cloudSession.conflict) return;
+  cloudMessage('Google Drive changes pending…');
+  cloudTimer = setTimeout(() => enqueueCloud(), 2000);
+}
+function resumeCloud() {
+  const s = cloudSession;
+  if (!s || s.conflict || s.saved === revision) return;
+  s.paused = false;
+  enqueueCloud(true);
+}
+window.addEventListener('online', resumeCloud);
+function newCloudSession(projectId, revisionId) {
+  return { projectId, revision: revisionId, saved: -1, paused: false, conflict: false, uploaded: new Set(), thumbs: new Map() };
+}
+async function finishPreviousCloud() {
+  const s = cloudSession;
+  if (!s) return;
+  clearTimeout(cloudTimer);
+  await cloudQueue;
+  if (s.saved !== revision && zipProtected !== revision && !s.conflict && !(await enqueueCloud(true))) {
+    throw Error('Google Drive changes are not saved yet. Save a project ZIP or wait for the connection before switching.');
+  }
+  if (s.conflict && zipProtected !== revision) throw Error('This version conflicts with Google Drive. Save it as a new Drive copy or a ZIP before switching.');
+  cloudSession = null;
+  folderMessage('Browser draft only');
+}
+function updateDriveQuery(projectId) {
+  const url = new URL(location.href);
+  url.searchParams.set('project', projectId);
+  url.searchParams.delete('new');
+  url.searchParams.delete('drive');
+  window.history.replaceState(null, '', url);
+}
+async function startCloud(asNewCopy = false) {
+  if (!cloudAvailable) throw Error('Google Drive saving is available on the studio website.');
+  if (directorySession) await finishPreviousFolder();
+  if (asNewCopy) {
+    await finishPreviousCloud().catch(() => {});
+    cloudSession = null;
+    // A new identity keeps both versions: the other device's save and this one.
+    project.projectId = uid();
+    project.name = project.name.replace(/( · copy)?$/, ' · copy');
+    project.createdAt = new Date().toISOString();
+    scheduleSave();
+    sync();
+  }
+  if (cloudSession && cloudSession.projectId === project.projectId && !cloudSession.conflict) return enqueueCloud(true);
+  let known = null;
+  try {
+    const r = await cloudFetch('/projects/' + encodeURIComponent(project.projectId));
+    known = r.headers.get('X-Revision') || null;
+  } catch (e) {
+    if (e.status !== 404) throw e;
+  }
+  let remembered = null;
+  try { remembered = localStorage.getItem(cloudRevisionKey(project.projectId)); } catch {}
+  if (known && known !== remembered) {
+    throw Error('Google Drive already has a different version of this project. Open it from CORE, or use “Save as new Drive copy”.');
+  }
+  cloudSession = newCloudSession(project.projectId, known);
+  updateDriveQuery(project.projectId);
+  if (!(await enqueueCloud(true))) throw Error($('folderStatus').textContent);
+  toast('Saved to Google Drive');
+}
+async function openFromCloud(projectId, force = false) {
+  const r = await cloudFetch('/projects/' + encodeURIComponent(projectId));
+  const driveRevision = r.headers.get('X-Revision') || null;
+  const doc = await r.json();
+  const { cloudStorage: stored, ...p } = doc;
+  if (!stored || stored.version !== 1 || !stored.originals) throw Error('Unrecognized Google Drive project.');
+  // Unsynced local edits of the same project win only if Drive has not changed since they were made.
+  let remembered = null;
+  try { remembered = localStorage.getItem(cloudRevisionKey(projectId)); } catch {}
+  if (!force && project.projectId === projectId && project.modifiedAt > p.modifiedAt) {
+    if (driveRevision === remembered) {
+      cloudSession = newCloudSession(projectId, driveRevision);
+      cloudMessage('Uploading changes made while offline…');
+      if (!(await enqueueCloud(true))) throw Error($('folderStatus').textContent);
+      return;
+    }
+    const s = newCloudSession(projectId, driveRevision);
+    cloudSession = s;
+    cloudFailure(s, new CloudError('conflict', 'conflict'));
+    return;
+  }
+  await install(p, async meta => {
+    const name = stored.originals[meta.id];
+    if (typeof name !== 'string' || !/^[a-f0-9]{64}\.[a-z0-9]{1,6}$/.test(name)) throw Error('Invalid original reference.');
+    const blob = await (await cloudFetch('/projects/' + encodeURIComponent(projectId) + '/originals/' + name)).blob();
+    if ((await blobHash(blob)) !== name.slice(0, 64)) throw Error('An original image in Google Drive is damaged: ' + meta.name);
+    return blob.slice(0, blob.size, meta.type);
+  });
+  savedAssets.clear();
+  scheduleSave(false);
+  const s = newCloudSession(projectId, driveRevision);
+  s.saved = revision;
+  for (const name of Object.values(stored.originals)) s.uploaded.add('originals/' + name);
+  cloudSession = s;
+  try { localStorage.setItem(cloudRevisionKey(projectId), driveRevision || ''); } catch {}
+  protectedRevision = Math.max(protectedRevision, revision);
+  cloudMessage('Saved to Google Drive · opened ' + timeLabel(r.headers.get('X-Saved-At') || new Date().toISOString()));
+}
+// The browser keeps one draft. Before another project replaces it, upload any edits of the
+// previous Drive project that never reached Drive (for example, made while offline).
+async function flushRestoredDraft(nextId) {
+  if (project.projectId === nextId || !project.assets.length && !project.layers.length && project.pages.length === 1) return;
+  let remembered = null;
+  try { remembered = localStorage.getItem(cloudRevisionKey(project.projectId)); } catch {}
+  if (!remembered) return;
+  let r;
+  try {
+    r = await cloudFetch('/projects/' + encodeURIComponent(project.projectId));
+  } catch (e) {
+    if (e.status === 404) return;
+    throw e;
+  }
+  const driveRevision = r.headers.get('X-Revision') || null,
+    doc = await r.json();
+  if (!(project.modifiedAt > doc.modifiedAt)) return;
+  if (driveRevision !== remembered) throw Error('Unsynced changes of “' + project.name + '” conflict with Google Drive. Save them as a project ZIP before opening another project.');
+  cloudSession = newCloudSession(project.projectId, driveRevision);
+  if (!(await enqueueCloud(true))) throw Error('Unsynced changes of “' + project.name + '” could not be uploaded yet: ' + $('folderStatus').textContent);
+}
+async function reloadFromCloud() {
+  const s = cloudSession;
+  if (!s) throw Error('This project is not saved to Google Drive yet.');
+  if (!confirm('Replace the open version with the latest one from Google Drive? Unsynced changes in this tab will be lost unless you save a ZIP first.')) return;
+  zipProtected = revision;
+  cloudSession = null;
+  const id = s.projectId;
+  await openFromCloud(id, true);
+  toast('Reloaded from Google Drive');
+}
+function cloudAction(fn) {
+  return run(async () => {
+    try {
+      await fn();
+    } catch (e) {
+      folderMessage(e.message || String(e), true);
+      toast(e.message || String(e));
+    }
+  }, 'Google Drive…');
+}
+$('driveSave').onclick = () => cloudAction(() => startCloud(false));
+$('driveCopy').onclick = () => cloudAction(() => startCloud(true));
+$('driveReload').onclick = () => cloudAction(reloadFromCloud);
+$('driveOpen').onclick = () => {
+  location.href = '/studio/';
+};
+async function detectCloud() {
+  if (location.protocol !== 'https:' || !location.pathname.startsWith('/studio/')) return null;
+  try {
+    const status = await (await cloudFetch('/status', { headers: {} })).json();
+    cloudAvailable = true;
+    $('cloudItems').hidden = false;
+    $('coreLink').hidden = false;
+    return status;
+  } catch {
+    return null;
+  }
+}
+
+function request(req) {
+  return new Promise((resolve, reject) => {
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+function txDone(t) {
+  return new Promise((resolve, reject) => {
+    t.oncomplete = resolve;
+    t.onabort = t.onerror = () => reject(t.error || Error('Storage transaction interrupted'));
+  });
+}
+async function storage() {
+  const op = indexedDB.open('ds-studio-editor:' + location.pathname, 1);
+  op.onupgradeneeded = () => {
+    op.result.createObjectStore('draft');
+    op.result.createObjectStore('assets');
+  };
+  db = await request(op);
+  const t = db.transaction(['draft', 'assets']),
+    draft = await request(t.objectStore('draft').get('current'));
+  if (!draft) {
+    status('Browser draft saved');
+    return;
+  }
+  const reads = draft.p.assets.map(a => request(t.objectStore('assets').get(a.id)));
+  const data = await Promise.all(reads);
+  const blobs = new Map(draft.p.assets.map((a, i) => [a.id, data[i]]));
+  await install(draft.p, a => blobs.get(a.id));
+  storedRevision = draft.revision;
+  for (const a of draft.p.assets) savedAssets.add(a.id);
+  status('Browser draft saved');
+}
+function scheduleSave(touch = true) {
+  if (typing) $('undo').disabled = false;
+  revision++;
+  if (touch) project.modifiedAt = new Date().toISOString();
+  scheduleFolderWrite();
+  scheduleCloudWrite();
+  clearTimeout(saveTimer);
+  if (!db || conflict) {
+    status('Browser autosave unavailable', true);
+    return;
+  }
+  status('Saving…');
+  saveTimer = setTimeout(flushSave, 220);
+}
+function flushSave() {
+  clearTimeout(saveTimer);
+  if (!db || conflict) return;
+  const n = revision,
+    p = clone(project),
+    records = p.assets.map(m => [m.id, assets.get(m.id)?.blob]);
+  saveQueue = saveQueue.then(async () => {
+    if (conflict) return;
+    const t = db.transaction(['draft', 'assets'], 'readwrite'),
+      done = txDone(t),
+      docs = t.objectStore('draft'),
+      store = t.objectStore('assets');
+    const old = await request(docs.get('current'));
+    if ((old?.revision ?? null) !== storedRevision) {
+      conflict = true;
+      await done;
+      status('Save ZIP to keep', true);
+      toast('Another tab changed the local draft. Save this version as a ZIP.');
+      return;
+    }
+    const nextRevision = uid(),
+      wanted = new Set(records.map(([id]) => id));
+    for (const [id, blob] of records) if (!savedAssets.has(id)) store.put(blob, id);
+    for (const m of old?.p.assets || []) if (!wanted.has(m.id)) store.delete(m.id);
+    docs.put({
+      p,
+      revision: nextRevision
+    }, 'current');
+    await done;
+    storedRevision = nextRevision;
+    savedAssets.clear();
+    for (const id of wanted) savedAssets.add(id);
+    protectedRevision = Math.max(protectedRevision, n);
+    if (n === revision) status('Browser draft saved');
+  }).catch(() => {
+    status('Save ZIP to keep', true);
+    toast('Local autosave failed. Export a project ZIP to keep your work.');
+  });
+  return saveQueue;
+}
+async function run(fn, message) {
+  if (busy) return;
+  busy = true;
+  document.querySelector('main').inert = true;
+  document.querySelector('header').inert = true;
+  const baseStatus = $('status').textContent,
+    wasWarn = $('status').classList.contains('warn');
+  status(message);
+  try {
+    await fn();
+  } catch (e) {
+    toast(e.message || String(e));
+  } finally {
+    busy = false;
+    document.querySelector('main').inert = false;
+    document.querySelector('header').inert = false;
+    if ($('status').textContent === message) status(baseStatus, wasWarn);
+  }
+}
+function closeMenus() {
+  for (const id of ['projectMenu', 'exportMenu']) {
+    $(id).hidden = true;
+    $(id + 'Btn').setAttribute('aria-expanded', 'false');
+  }
+}
+for (const id of ['projectMenu', 'exportMenu']) {
+  $(id + 'Btn').onclick = e => {
+    e.stopPropagation();
+    const open = $(id).hidden;
+    closeMenus();
+    if (open) {
+      $(id).hidden = false;
+      $(id + 'Btn').setAttribute('aria-expanded', 'true');
+      const anchor = $(id + 'Btn').getBoundingClientRect();
+      $(id).style.top = anchor.bottom + 4 + 'px';
+      $(id).style.right = Math.max(8, innerWidth - anchor.right) + 'px';
+    }
+  };
+}
+document.addEventListener('click', closeMenus);
+for (const id of ['importEmpty', 'importTool', 'importLayers']) $(id).onclick = () => $('files').click();
+$('files').onchange = e => {
+  const fs = [...e.target.files];
+  e.target.value = '';
+  if (fs.length) run(() => importImages(fs), 'Importing…');
+};
+$('openProject').onclick = () => $('projectFile').click();
+$('projectFile').onchange = e => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (f) run(() => openZip(f), 'Opening…');
+};
+let previewSerial = 0,
+  previewURL = null,
+  previewJPEG = null;
+function clearPreview() {
+  ++previewSerial;
+  if (previewURL) URL.revokeObjectURL(previewURL);
+  previewURL = null;
+  previewJPEG = null;
+  $('previewImage').hidden = true;
+  $('downloadPreview').disabled = true;
+}
+async function updatePreview() {
+  clearPreview();
+  const serial = previewSerial,
+    settings = project.exportSettings;
+  const variant = $('previewVariant').value || 'clean';
+  $('exportMode').value = settings.mode;
+  $('exportPadding').value = settings.padding;
+  $('paddingLabel').hidden = settings.mode !== 'auto';
+  $('editFrame').hidden = settings.mode !== 'custom';
+  const plan = exportPlan(variant);
+  const f = plan.bounds;
+  $('previewSize').textContent = f ? f.w + ' × ' + f.h + ' px' + (plan.note ? ' · ' + plan.note : '') : '';
+  $('previewMessage').textContent = f ? 'Rendering JPEG…' : plan.reason || 'The export area is empty.';
+  $('previewMessage').hidden = false;
+  if (!f) return;
+  try {
+    const blob = await jpeg(variant, plan);
+    if (serial !== previewSerial || !$('exportDialog').open) return;
+    previewJPEG = blob;
+    previewURL = URL.createObjectURL(blob);
+    $('previewImage').src = previewURL;
+    $('previewImage').hidden = false;
+    $('previewMessage').hidden = true;
+    $('downloadPreview').disabled = false;
+  } catch (err) {
+    if (serial === previewSerial) $('previewMessage').textContent = err.message;
+  }
+}
+function openPreview() {
+  $('exportDialog').showModal();
+  return updatePreview();
+}
+$('exportPreview').onclick = openPreview;
+$('closePreview').onclick = () => $('exportDialog').close();
+$('exportDialog').onclose = clearPreview;
+$('previewVariant').onchange = updatePreview;
+$('exportMode').onchange = e => {
+  edit(() => {
+    project.exportSettings.mode = e.target.value;
+  });
+  updatePreview();
+};
+$('exportPadding').onchange = e => {
+  edit(() => {
+    project.exportSettings.padding = clamp(Math.round(Number(e.target.value) || 0), 0, 16384);
+  });
+  updatePreview();
+};
+$('editFrame').onclick = () => {
+  $('exportDialog').close();
+  setTool('frame');
+};
+$('downloadPreview').onclick = () => {
+  if (previewJPEG) download(previewJPEG, safeName() + '-' + ($('previewVariant').value || 'clean') + '.jpg');
+};
+for (const mode of ['clean', 'annotated']) $(mode).onclick = () => run(async () => {
+  download(await jpeg(mode), safeName() + '-' + mode + '.jpg');
+  toast('Exported ' + mode + ' JPEG');
+}, 'Exporting…');
+$('promptFile').onclick = () => download(promptBlob(), 'prompt.txt');
+async function saveZip() {
+  const n = revision;
+  const skipped = [];
+  download(await archive(skipped), safeName() + '.zip');
+  zipProtected = n;
+  protectedRevision = Math.max(n, protectedRevision);
+  toast(skipped.length ? 'Editable ZIP saved. Omitted: ' + skipped.join(', ') : 'Project ZIP exported');
+}
+for (const id of ['saveProject', 'pack']) $(id).onclick = () => run(saveZip, 'Packing ZIP…');
+$('newProject').onclick = () => $('newDialog').showModal();
+$('newCancel').onclick = () => $('newDialog').close();
+$('newSave').onclick = () => {
+  $('newDialog').close();
+  run(saveZip, 'Packing ZIP…');
+};
+$('newConfirm').onclick = () => {
+  $('newDialog').close();
+  run(async () => {
+    await install(blank(), () => {});
+    scheduleSave();
+    if (cloudAvailable) {
+      try {
+        await startCloud(false);
+      } catch (e) {
+        folderMessage(e.message || String(e), true);
+      }
+    }
+  }, 'New project…');
+};
+$('copy').onclick = async () => {
+  let copied = false;
+  try {
+    await navigator.clipboard.writeText(project.prompt);
+    copied = true;
+  } catch {
+    const t = $('prompt');
+    t.focus();
+    t.select();
+    copied = document.execCommand('copy');
+  }
+  toast(copied ? 'Prompt copied' : 'Press ⌘/Ctrl C to copy the selected prompt');
+};
+$('annotations').onclick = () => edit(() => project.annotations = !project.annotations);
+$('undo').onclick = () => travel(history, future);
+$('redo').onclick = () => travel(future, history);
+for (const b of document.querySelectorAll('[data-tool]')) b.onclick = () => setTool(b.dataset.tool);
+$('fit').onclick = fit;
+// Focus view hides every panel; the scene keeps its centre while the stage grows or shrinks.
+function setFocusView(on) {
+  if (on === focusView) return;
+  focusView = on;
+  focusRecenterUntil = performance.now() + 900;
+  closeMenus();
+  document.body.classList.toggle('focusView', on);
+  $('focusToggle').setAttribute('aria-pressed', String(on));
+  const full = document.fullscreenElement;
+  try {
+    if (on && !full && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+    else if (!on && full && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+  } catch {}
+  if (on) {
+    if (document.activeElement instanceof HTMLElement && document.activeElement !== canvas) document.activeElement.blur();
+    canvas.focus();
+    toast('Focus view · Tab or Esc to exit');
+  } else $('focusToggle').focus();
+  draw();
+}
+$('focusToggle').onclick = () => setFocusView(!focusView);
+$('focusExit').onclick = e => {
+  e.stopPropagation();
+  setFocusView(false);
+};
+$('focusExit').onpointerdown = e => e.stopPropagation();
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && focusView) setFocusView(false);
+});
+for (const [id, factor] of [['plus', 1.25], ['minus', .8]]) $(id).onclick = () => zoomAt({
+  x: canvas.clientWidth / 2,
+  y: canvas.clientHeight / 2
+}, view.z * factor);
+stage.ondragover = e => {
+  e.preventDefault();
+  stage.classList.add('over');
+};
+stage.ondragleave = e => {
+  if (!stage.contains(e.relatedTarget)) stage.classList.remove('over');
+};
+stage.ondrop = e => {
+  e.preventDefault();
+  stage.classList.remove('over');
+  const fs = [...e.dataTransfer.files],
+    p = world(pos(e));
+  if (fs.length === 1 && /\.zip$/i.test(fs[0].name)) run(() => openZip(fs[0]), 'Opening…');else if (fs.length) run(() => importImages(fs, p), 'Importing…');
+};
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => e.preventDefault());
+let splitStart;
+const setDock = h => {
+  $('promptDock').style.height = clamp(h, 90, innerHeight * .47) + 'px';
+};
+$('split').onpointerdown = e => {
+  splitStart = {
+    y: e.clientY,
+    h: $('promptDock').offsetHeight
+  };
+  $('split').setPointerCapture(e.pointerId);
+};
+$('split').onpointermove = e => {
+  if (splitStart) setDock(splitStart.h + splitStart.y - e.clientY);
+};
+$('split').onpointerup = $('split').onpointercancel = () => splitStart = null;
+$('split').onkeydown = e => {
+  if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+    e.preventDefault();
+    e.stopPropagation();
+    setDock($('promptDock').offsetHeight + (e.key === 'ArrowUp' ? 12 : -12));
+  }
+};
+window.addEventListener('keydown', e => {
+  if (busy || e.isComposing || document.querySelector('dialog[open]')) return;
+  const k = e.key.toLowerCase(),
+    mod = e.metaKey || e.ctrlKey;
+  if (mod && k === 's') {
+    e.preventDefault();
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    folderAction(manualSave);
+    return;
+  }
+  if (e.target.closest('input,textarea,select,[contenteditable=true]')) return;
+  // Tab toggles focus view only from the canvas or page, so keyboard navigation of controls still works.
+  if (e.key === 'Tab' && !mod && !e.altKey && !e.shiftKey && (e.target === document.body || e.target === canvas || e.target === $('focusToggle') || e.target === $('focusExit'))) {
+    e.preventDefault();
+    setFocusView(!focusView);
+    return;
+  }
+  if (e.key === 'Escape') {
+    closeMenus();
+    if (gesture) finishPointer({
+      pointerId: gesture.id
+    }, true);else if (focusView) setFocusView(false);else {
+      selected = null;
+      setTool('select');
+    }
+    return;
+  }
+  if (mod && ['z', 'y', 'd', 'o'].includes(k)) {
+    e.preventDefault();
+    if (k === 'z' && !e.shiftKey) travel(history, future);else if (k === 'z' || k === 'y') travel(future, history);else if (k === 'd') duplicate();else $('projectFile').click();
+    return;
+  }
+  if (mod || e.altKey) return;
+  if (k === ' ' && e.target.tagName !== 'BUTTON') {
+    e.preventDefault();
+    space = true;
+    canvas.style.cursor = 'grab';
+    return;
+  }
+  const keys = {
+    v: 'select',
+    h: 'pan',
+    a: 'arrow',
+    t: 'text'
+  };
+  if (keys[k]) setTool(keys[k]);
+  if (k === 'f') fit();
+  if (['backspace', 'delete'].includes(k)) {
+    e.preventDefault();
+    removeLayer();
+  }
+  const l = layer();
+  if (l && !l.locked && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+    e.preventDefault();
+    const d = e.shiftKey ? 10 : 1,
+      dx = (Number(e.key === 'ArrowRight') - Number(e.key === 'ArrowLeft')) * d,
+      dy = (Number(e.key === 'ArrowDown') - Number(e.key === 'ArrowUp')) * d;
+    edit(() => {
+      l.x += dx;
+      l.y += dy;
+      if (l.type === 'arrow') {
+        l.x2 += dx;
+        l.y2 += dy;
+      }
+    });
+  }
+});
+function releaseSpace() {
+  if (space) {
+    space = false;
+    canvas.style.cursor = tool === 'pan' ? 'grab' : tool === 'select' ? 'default' : 'crosshair';
+  }
+}
+window.addEventListener('keyup', e => {
+  if (e.key === ' ') releaseSpace();
+});
+window.addEventListener('blur', releaseSpace);
+window.addEventListener('beforeunload', e => {
+  const cloudPending = cloudSession && cloudSession.saved !== revision;
+  if (revision > protectedRevision || cloudPending || directorySession && !directorySession.paused && directorySession.saved !== revision) {
+    if (directorySession && !directorySession.paused) enqueueFolder();
+    if (cloudPending && !cloudSession.paused) enqueueCloud();
+    flushSave();
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    if (db) flushSave();
+    if (directorySession && !directorySession.paused && directorySession.saved !== revision) enqueueFolder();
+    if (cloudSession && !cloudSession.paused && cloudSession.saved !== revision) enqueueCloud();
+  }
+});
+window.addEventListener('pagehide', () => {
+  if (db) flushSave();
+});
+new ResizeObserver(() => {
+  const size = {
+    w: stage.clientWidth,
+    h: stage.clientHeight
+  };
+  if (viewReady && lastStageSize && performance.now() < focusRecenterUntil) {
+    view.x += (size.w - lastStageSize.w) / 2;
+    view.y += (size.h - lastStageSize.h) / 2;
+  }
+  lastStageSize = size;
+  if (!viewReady) fit();else draw();
+  if ($('cropDialog').open) drawCrop();
+}).observe(stage);
+fit();
+sync();
+const ready = run(async () => {
+  try {
+    await storage();
+    await restoreDirectory();
+  } catch {
+    db = null;
+    status('Save ZIP to keep', true);
+    toast('Local autosave is unavailable. Save and reopen projects with ZIP.');
+  }
+  // On the studio website: open the project chosen in CORE, or start a new Drive project.
+  const cloud = await detectCloud();
+  if (!cloud) return;
+  const params = new URLSearchParams(location.search);
+  try {
+    if (!cloud.drive.connected) {
+      folderMessage('Google Drive is not connected · open CORE to connect it', true);
+    } else if (params.get('project')) {
+      await flushRestoredDraft(params.get('project'));
+      await openFromCloud(params.get('project'));
+    } else if (params.get('new') === '1') {
+      await flushRestoredDraft(null);
+      await install(blank(), () => {});
+      scheduleSave();
+      await startCloud(false);
+    } else {
+      folderMessage('Browser draft only · Project → Save to Google Drive');
+    }
+  } catch (e) {
+    folderMessage(e.message || String(e), true);
+    toast(e.message || String(e));
+  }
+}, 'Opening draft…');
+</script></body></html>

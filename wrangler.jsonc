@@ -1,8 +1,24 @@
 {
   "name": "szauder",
   "compatibility_date": "2026-08-01",
+  // The worker script only runs for the private studio API; everything else is static.
+  "main": "worker/index.js",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "404-page"
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/studio/api/*"]
+  },
+  "kv_namespaces": [
+    { "binding": "STUDIO_KV", "id": "ee05c1c53a5f4d2c818460bf480feffe" }
+  ],
+  // Public identifiers only. The Google client secret is a Worker secret
+  // (GOOGLE_CLIENT_SECRET), added in the Cloudflare dashboard, never in this file.
+  "vars": {
+    "PUBLIC_ORIGIN": "https://www.davidarielszauder.com",
+    "ACCESS_TEAM_DOMAIN": "https://yellow-sky-ef9f.cloudflareaccess.com",
+    "ALLOWED_ACCESS_EMAILS": "david_szauder@yahoo.com",
+    "GOOGLE_CLIENT_ID": "721327786672-0c1bfhhq0a0iluudehor9tqqjllm7rep.apps.googleusercontent.com",
+    "GOOGLE_ACCOUNT": "pixelnoizz@gmail.com"
   }
 }
