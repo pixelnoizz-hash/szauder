@@ -932,6 +932,8 @@ const paths = {
   lock: 'M5 10h14v11H5z M8 10V7a4 4 0 0 1 8 0v3',
   unlock: 'M5 10h14v11H5z M8 10V7a4 4 0 0 1 8 0',
   annotations: 'M3 5h18v12h-9l-5 4v-4H3zM7 9h10m-10 4h7',
+  textBigger: 'M3 19 8 5l5 14M5 14h6 M17 7v8M13 11h8',
+  textSmaller: 'M3 19 8 5l5 14M5 14h6 M14 11h7',
   expand: 'M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5',
   collapse: 'M9 4v5H4 M15 4v5h5 M9 20v-5H4 M15 20v-5h5'
 };
@@ -1543,6 +1545,16 @@ const boxCommands = [{
   run: editTextOnCanvas,
   edits: true
 }, {
+  id: 'textSmaller',
+  label: 'Smaller text (Shift -)',
+  run: () => scaleText(1 / 1.25),
+  edits: true
+}, {
+  id: 'textBigger',
+  label: 'Larger text (Shift +)',
+  run: () => scaleText(1.25),
+  edits: true
+}, {
   id: 'callout',
   label: 'Add connector',
   run: placeConnector,
@@ -1698,23 +1710,39 @@ function base(type) {
     angle: 0
   };
 }
+// Scales the whole box (text, padding, border) so the layout of the note is kept.
+function scaleText(f) {
+  const l = layer();
+  if (l?.type !== 'text' || l.locked) return;
+  edit(() => {
+    l.size = clamp(Math.round(l.size * f * 10) / 10, 1, 4096);
+    l.w *= f;
+    l.h *= f;
+    l.box.padding = Math.round(l.box.padding * f * 10) / 10;
+    if (l.box.borderWidth) l.box.borderWidth = Math.max(.5, Math.round(l.box.borderWidth * f * 10) / 10);
+    fitTextBox(l, false);
+  });
+}
 function createText(p) {
+  // New boxes read at about 18 px on screen, whatever the zoom, so notes on large images stay legible.
+  const k = clamp(1 / view.z, .5, 200),
+    size = Math.round(18 * k);
   edit(() => {
     const l = {
       ...base('text'),
       x: p.x,
       y: p.y,
       text: 'Text',
-      size: 18,
+      size,
       color: '#252822',
-      w: 250,
-      h: 76,
+      w: 250 * k,
+      h: 76 * k,
       box: {
-        padding: 10,
+        padding: Math.round(10 * k),
         fill: true,
         background: '#fffbed',
         borderColor: '#6d705f',
-        borderWidth: 1
+        borderWidth: Math.max(1, Math.round(k))
       },
       connector: null
     };
@@ -4495,6 +4523,11 @@ window.addEventListener('keydown', e => {
     removeLayer();
   }
   const l = layer();
+  if (l?.type === 'text' && !l.locked && e.shiftKey && ['+', '=', '-', '_'].includes(e.key)) {
+    e.preventDefault();
+    scaleText(e.key === '-' || e.key === '_' ? 1 / 1.25 : 1.25);
+    return;
+  }
   if (l && !l.locked && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
     e.preventDefault();
     const d = e.shiftKey ? 10 : 1,
