@@ -845,11 +845,11 @@ body.focusView #focusExit:hover, body.focusView #focusExit:focus-visible { opaci
 <div class="divider"></div><button id="newProject">New project</button><button id="openProject">Open project ZIP…</button><button id="saveProject">Save project ZIP</button>
 <div id="cloudItems" hidden><div class="divider"></div><button id="driveSave">Save to Google Drive</button><button id="driveCopy">Save as new Drive copy</button><button id="driveReload">Reload from Google Drive…</button><button id="driveOpen">Open from CORE…</button></div></div>
 <div id="exportMenu" class="menu" hidden><button id="exportPreview">Preview &amp; settings…</button><div class="divider"></div><button id="clean">Clean JPEG</button><button id="annotated">Annotated JPEG</button><button id="promptFile">prompt.txt</button><div class="divider"></div><button id="pack">Complete project ZIP</button></div>
-<main><div class="work"><div class="bar workbar"><input id="name" class="name" value="Untitled composition" aria-label="Project name" title="Rename project"><button id="annotations" class="push switch" data-icon="annotations" aria-pressed="true" title="Show or hide annotations">Annotations</button><div class="bar viewctl"><button id="minus" class="icon quiet" data-icon="minus" title="Zoom out"></button><span id="zoom">100%</span><button id="plus" class="icon quiet" data-icon="plus" title="Zoom in"></button><button id="fit" class="quiet" data-icon="fit" title="Fit composition (F)"><span class="fitlabel">Fit</span></button><button id="focusToggle" class="icon quiet" data-icon="expand" aria-pressed="false" title="Focus view · canvas only (Tab)"></button></div></div>
+<main><div class="work"><div class="bar workbar"><input id="name" class="name" value="Untitled composition" aria-label="Project name" title="Rename project"><button id="annotations" class="push switch" data-icon="annotations" aria-pressed="true" title="Show or hide annotations">Annotations</button><div class="bar viewctl"><button id="minus" class="icon quiet" data-icon="minus" title="Zoom out"></button><span id="zoom">100%</span><button id="plus" class="icon quiet" data-icon="plus" title="Zoom in"></button><button id="fit" class="quiet" data-icon="fit" title="Fit composition (Shift+F)"><span class="fitlabel">Fit</span></button><button id="focusToggle" class="quiet" data-icon="expand" aria-pressed="false" title="Full screen · canvas only (F)">Full screen</button></div></div>
 <div class="pagebar bar"><select id="pagePicker" aria-label="Current page"></select><button id="addPage" title="Add a page">+ Page</button><button id="dupPage" title="Duplicate this page with its layers, annotations and prompt">Duplicate page</button>
 <button id="renamePage">Rename page</button><button id="reuseImage">Place original…</button><span role="status" id="folderStatus">Browser draft only</span></div>
-<div class="stage" id="stage"><canvas id="canvas" tabindex="0" aria-label="Composition canvas"></canvas><div class="tools" id="canvasTools" aria-label="Canvas tools"><button data-tool="select" data-icon="select" class="icon" title="Select (V)"></button><button data-tool="pan" data-icon="pan" class="icon" title="Pan (H or hold Space)"></button><div class="divider"></div><button data-tool="arrow" data-icon="arrow" class="icon" title="Draw arrow (A)"></button><button data-tool="text" data-icon="text" class="icon" title="Add text (T)"></button><button data-tool="frame" data-icon="frame" class="icon" title="Edit export frame (F to fit)"></button><div class="divider"></div><button id="importTool" data-icon="image" class="icon" title="Import images"></button></div>
-<button id="focusExit" data-icon="collapse" title="Exit focus view (Tab / Esc)">Exit</button>
+<div class="stage" id="stage"><canvas id="canvas" tabindex="0" aria-label="Composition canvas"></canvas><div class="tools" id="canvasTools" aria-label="Canvas tools"><button data-tool="select" data-icon="select" class="icon" title="Select (V)"></button><button data-tool="pan" data-icon="pan" class="icon" title="Pan (H or hold Space)"></button><div class="divider"></div><button data-tool="arrow" data-icon="arrow" class="icon" title="Draw arrow (A)"></button><button data-tool="text" data-icon="text" class="icon" title="Add text (T)"></button><button data-tool="frame" data-icon="frame" class="icon" title="Edit export frame (Shift+F to fit)"></button><div class="divider"></div><button id="importTool" data-icon="image" class="icon" title="Import images"></button></div>
+<button id="focusExit" data-icon="collapse" title="Exit full screen (F / Esc)">Exit</button>
 <textarea id="boxEditor" aria-label="Edit text box on canvas" spellcheck="true" hidden></textarea>
 <div id="imageToolbar" class="imageToolbar" role="toolbar" aria-label="Selected image commands" hidden></div>
 <div id="empty" class="empty"><span class="glyph" data-icon="image"></span><strong>Drop images here</strong><small>or choose files to start composing</small><button id="importEmpty" class="accent" data-icon="plus">Import images</button></div></div>
@@ -2650,7 +2650,7 @@ function sync() {
   canvas.style.cursor = space || tool === 'pan' ? 'grab' : tool === 'select' ? 'default' : 'crosshair';
   $('hint').textContent = {
     select: 'Space to pan · Scroll to zoom',
-    pan: 'Drag to pan · F to fit',
+    pan: 'Drag to pan · Shift+F to fit',
     arrow: 'Drag from tail to tip',
     text: 'Click to place a text box',
     callout: 'Click or drag to place the connector endpoint',
@@ -4387,7 +4387,7 @@ function setFocusView(on) {
   if (on) {
     if (document.activeElement instanceof HTMLElement && document.activeElement !== canvas) document.activeElement.blur();
     canvas.focus();
-    toast('Focus view · Tab or Esc to exit');
+    toast('Full screen · press F or Esc to exit');
   } else $('focusToggle').focus();
   draw();
 }
@@ -4488,7 +4488,8 @@ window.addEventListener('keydown', e => {
     t: 'text'
   };
   if (keys[k]) setTool(keys[k]);
-  if (k === 'f') fit();
+  // F toggles full screen (canvas only); Shift+F fits the composition.
+  if (k === 'f') e.shiftKey ? fit() : setFocusView(!focusView);
   if (['backspace', 'delete'].includes(k)) {
     e.preventDefault();
     removeLayer();
