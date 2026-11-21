@@ -1,0 +1,4 @@
+IS-Net (isnet-general-use), Xuebin Qin et al., "Highly Accurate Dichotomous Image Segmentation" (ECCV 2022).
+Weights and code: Apache License 2.0 - https://github.com/xuebinqin/DIS
+This copy: uint8 dynamic quantization (onnxruntime quantize_dynamic, QUInt8) of the isnet-general-use ONNX export,
+split into parts of 23,000,000 bytes for static hosting.
