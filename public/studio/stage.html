@@ -116,7 +116,7 @@ dialog .bar { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14
       </div>
       <h2 style="margin-top:10px">PRESETS</h2>
       <div class="btns" id="addPresets"></div>
-      <div class="btns" style="margin-top:10px"><button id="importCard" title="A flat, rotatable card with a 2D image (characters, cut-outs)">Image card…</button><button id="importModel">Import GLB / GLTF…</button></div>
+      <div class="btns" style="margin-top:10px"><button id="importCard" title="A 2D image as a solid block with depth: its outline is cut from the image (characters, cut-outs, set pieces)">Image block…</button><button id="importModel">Import GLB / GLTF…</button></div>
       <p class="dim">Presets use typical sizes. Set the real measurements on the right.</p>
     </section>
     <section class="section" id="librarySection">
@@ -396,9 +396,115 @@ async function loadTexture(file) {
     t.colorSpace = THREE.SRGBColorSpace;
     t.flipY = false;
     t.needsUpdate = true;
-    return { t, aspect: bmp.width / bmp.height };
+    return { t, aspect: bmp.width / bmp.height, bmp };
   })());
   return texCache.get(file);
+}
+
+// ---------- image blocks: the picture's silhouette extruded into a solid with real depth ----------
+// The outline is traced from the image's alpha (a rectangle for opaque images), so a cut-out
+// character or the ear becomes a block you can walk around; front and back show the image.
+const blockCache = new Map();
+function traceOutlines(alpha, W, H) {
+  // Marching squares on a padded mask; returns closed loops in pixel units.
+  const at = (x, y) => x >= 0 && y >= 0 && x < W && y < H && alpha[y * W + x] ? 1 : 0;
+  const segs = new Map(), key = (x, y) => x + ',' + y;
+  const add = (a, b) => segs.set(key(...a), b);
+  for (let y = -1; y < H; y++) for (let x = -1; x < W; x++) {
+    const c = at(x, y) << 3 | at(x + 1, y) << 2 | at(x + 1, y + 1) << 1 | at(x, y + 1);
+    const T = [x + .5, y], R = [x + 1, y + .5], B = [x + .5, y + 1], L = [x, y + .5];
+    // Orientation keeps solid on one side, so outer loops and holes wind oppositely.
+    switch (c) {
+      case 1: add(B, L); break; case 2: add(R, B); break; case 3: add(R, L); break;
+      case 4: add(T, R); break; case 5: add(T, L); add(B, R); break; case 6: add(T, B); break;
+      case 7: add(T, L); break; case 8: add(L, T); break; case 9: add(B, T); break;
+      case 10: add(L, B); add(R, T); break; case 11: add(R, T); break; case 12: add(L, R); break;
+      case 13: add(B, R); break; case 14: add(L, B); break;
+    }
+  }
+  // The map is keyed by segment start; chain them.
+  const starts = new Map();
+  for (const [k, b] of segs) starts.set(k, b);
+  const loops = [];
+  while (starts.size) {
+    const [k0] = starts.keys();
+    const loop = [];
+    let k = k0;
+    while (starts.has(k)) {
+      const [x, y] = k.split(',').map(Number);
+      loop.push([x, y]);
+      const nb = starts.get(k);
+      starts.delete(k);
+      k = key(...nb);
+    }
+    if (loop.length > 8) loops.push(loop);
+  }
+  return loops;
+}
+function simplify(pts, eps) {
+  if (pts.length < 4) return pts;
+  const keep = new Uint8Array(pts.length);
+  keep[0] = keep[pts.length - 1] = 1;
+  const stack = [[0, pts.length - 1]];
+  while (stack.length) {
+    const [a, b] = stack.pop();
+    const [ax, ay] = pts[a], [bx, by] = pts[b], dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy) || 1;
+    let best = -1, bi = -1;
+    for (let i = a + 1; i < b; i++) {
+      const d = Math.abs(dy * pts[i][0] - dx * pts[i][1] + bx * ay - by * ax) / len;
+      if (d > best) best = d, bi = i;
+    }
+    if (best > eps) {
+      keep[bi] = 1;
+      stack.push([a, bi], [bi, b]);
+    }
+  }
+  return pts.filter((_, i) => keep[i]);
+}
+async function imageBlock(file) {
+  if (!blockCache.has(file)) blockCache.set(file, (async () => {
+    const { t, bmp } = await loadTexture(file);
+    const k = Math.min(1, 220 / Math.max(bmp.width, bmp.height));
+    const W = Math.max(2, Math.round(bmp.width * k)), H = Math.max(2, Math.round(bmp.height * k));
+    const c = new OffscreenCanvas(W, H), x = c.getContext('2d', { willReadFrequently: true });
+    x.drawImage(bmp, 0, 0, W, H);
+    const px = x.getImageData(0, 0, W, H).data, alpha = new Uint8Array(W * H);
+    let r = 0, g = 0, b = 0, n = 0;
+    for (let i = 0; i < W * H; i++) {
+      if (px[i * 4 + 3] > 128) {
+        alpha[i] = 1;
+        r += px[i * 4];
+        g += px[i * 4 + 1];
+        b += px[i * 4 + 2];
+        n++;
+      }
+    }
+    const toShape = loop => loop.map(([px_, py]) => new THREE.Vector2(px_ / W - .5, 1 - py / H));
+    const loops = traceOutlines(alpha, W, H).map(l => toShape(simplify([...l, l[0]], .7).slice(0, -1))).filter(l => l.length > 2 && Math.abs(THREE.ShapeUtils.area(l)) > .0004);
+    const outer = loops.filter(l => !THREE.ShapeUtils.isClockWise(l)), holes = loops.filter(l => THREE.ShapeUtils.isClockWise(l));
+    if (!outer.length) outer.push([new THREE.Vector2(-.5, 0), new THREE.Vector2(.5, 0), new THREE.Vector2(.5, 1), new THREE.Vector2(-.5, 1)]);
+    const inside = (p, poly) => {
+      let c2 = false;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) if ((poly[i].y > p.y) !== (poly[j].y > p.y) && p.x < (poly[j].x - poly[i].x) * (p.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x) c2 = !c2;
+      return c2;
+    };
+    const shapes = outer.map(o => {
+      const sh = new THREE.Shape(o);
+      sh.holes = holes.filter(h => inside(h[0], o)).map(h => new THREE.Path(h));
+      return sh;
+    });
+    // Caps use the image (u, v from the outline position); side walls take the image's mean colour.
+    const uv = {
+      generateTopUV: (geo, v, a, b2, c3) => [a, b2, c3].map(i => new THREE.Vector2(v[i * 3] + .5, 1 - v[i * 3 + 1])),
+      generateSideWallUV: () => [0, 0, 0, 0].map(() => new THREE.Vector2(0, 0))
+    };
+    const geo = new THREE.ExtrudeGeometry(shapes, { depth: 1, bevelEnabled: false, UVGenerator: uv, curveSegments: 1 });
+    geo.translate(0, 0, -.5);
+    geo.computeVertexNormals();
+    const side = new THREE.Color(n ? `rgb(${Math.round(r / n * .7)},${Math.round(g / n * .7)},${Math.round(b / n * .7)})` : '#777');
+    return { geo, materials: [new THREE.MeshStandardMaterial({ map: t, alphaTest: .5, roughness: .9 }), new THREE.MeshStandardMaterial({ color: side, roughness: .95 })] };
+  })());
+  return blockCache.get(file);
 }
 
 // ---------- object <-> three ----------
@@ -416,12 +522,8 @@ async function buildBody(o) {
     if (proxy === 'box') return unitShape('box', o.color || '#8a8f99');
     const g = new THREE.Group();
     if (o.texture) {
-      const { t } = await loadTexture(o.texture);
-      const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1).translate(0, .5, 0), new THREE.MeshBasicMaterial({ map: t, transparent: true, alphaTest: .04, side: THREE.DoubleSide }));
-      // Flip because the texture is uploaded with flipY = false.
-      m.scale.y = -1;
-      m.position.y = 1;
-      g.add(m);
+      const { geo, materials } = await imageBlock(o.texture);
+      g.add(new THREE.Mesh(geo, materials));
     } else g.add(unitShape('plane', '#8a8f99'));
     return g;
   }
@@ -696,8 +798,8 @@ $('cardFile').onchange = async e => {
     const name = await putFile(f, ext);
     const { aspect } = await loadTexture(name);
     const h = 1.75;
-    await addObject({ kind: 'card', texture: name, name: f.name.replace(/\.[^.]+$/, ''), dims: { w: r3(h * aspect), d: 0.02, h } });
-    toast('Image card placed at 1.75 m height. Set the real height on the right; the width follows the image.');
+    await addObject({ kind: 'card', texture: name, name: f.name.replace(/\.[^.]+$/, ''), dims: { w: r3(h * aspect), d: 0.3, h } });
+    toast('Image block placed: 1.75 m high, 0.30 m deep. Set the real height and depth on the right; the width follows the image.');
   } catch (err) {
     toast('Could not use this image: ' + err.message);
   }
@@ -736,7 +838,7 @@ async function placeLibrary(o) {
   let dims = { ...p.dims };
   if (p.proxy === 'card' && tex) {
     const { aspect } = await loadTexture(tex);
-    dims = { w: r3(dims.h * aspect), d: 0.02, h: dims.h };
+    dims = { w: r3(dims.h * aspect), d: Math.max(dims.d, .3), h: dims.h };
   }
   await addObject({ kind: 'library', name: o.name, objectRef: { objectId: o.id, versionId: v.id }, texture: tex, proxy: p.proxy, file: p.file || null, native: p.native || null, dims });
 }
@@ -958,7 +1060,7 @@ function listUI() {
   mk('reference', 'Stage reference', REFERENCES[stage.reference.preset]?.label.split(' — ')[0] || '');
   if (stage.theatreModel) mk('theatre', 'Theatre model', stage.theatreModel.locked ? 'locked' : 'model');
   for (const o of [...stage.objects].reverse()) {
-    const r = mk(o.id, o.name, o.kind === 'preset' ? PRESETS[o.preset]?.label.toLowerCase() : o.kind === 'primitive' ? o.shape : o.kind === 'library' ? 'library' : o.kind === 'card' ? 'card' : 'model', [
+    const r = mk(o.id, o.name, o.kind === 'preset' ? PRESETS[o.preset]?.label.toLowerCase() : o.kind === 'primitive' ? o.shape : o.kind === 'library' ? 'library' : o.kind === 'card' ? 'image' : 'model', [
       rowBtn(o.visible ? '👁' : '–', o.visible ? 'Hide' : 'Show', () => edit(() => o.visible = !o.visible)),
       rowBtn(o.locked ? '🔒' : '○', o.locked ? 'Unlock' : 'Lock', () => edit(() => o.locked = !o.locked))
     ]);
@@ -1028,7 +1130,7 @@ function propsUI(live = false) {
     box.append(p);
     return;
   }
-  $('propsTitle').textContent = 'PROPERTIES · ' + (o.kind === 'preset' ? PRESETS[o.preset].label.toUpperCase() : o.kind === 'primitive' ? o.shape.toUpperCase() : o.kind === 'library' ? 'LIBRARY OBJECT' : o.kind === 'card' ? 'IMAGE CARD' : 'MODEL');
+  $('propsTitle').textContent = 'PROPERTIES · ' + (o.kind === 'preset' ? PRESETS[o.preset].label.toUpperCase() : o.kind === 'primitive' ? o.shape.toUpperCase() : o.kind === 'library' ? 'LIBRARY OBJECT' : o.kind === 'card' ? 'IMAGE BLOCK' : 'MODEL');
   const dis = o.locked;
   const nameL = document.createElement('label');
   nameL.textContent = 'Name';
