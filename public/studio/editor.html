@@ -825,6 +825,8 @@ body.focusView #focusCtl:hover, body.focusView #focusCtl:focus-within { opacity:
 /* Object Library */
 .libPane { display: flex; flex-direction: column; min-height: 0; flex: 0 1 auto; max-height: 34%; border-bottom: 1px solid var(--line); }
 .libPane .sectionbar { border-bottom: 0; }
+.libPane:not(.open) .libList, .libPane:not(.open) #newObject { display: none; }
+#libToggle { min-height: 24px; padding: 0 6px; }
 .libList { overflow: auto; padding: 0 10px 10px; display: grid; gap: 6px; }
 .libEmpty { color: var(--mute); font-size: .9rem; margin: 0 4px 6px; }
 .libCard { display: grid; grid-template-columns: 52px minmax(0,1fr) auto; gap: 8px; align-items: center; padding: 5px; border: 1px solid var(--line); border-radius: 6px; }
@@ -863,7 +865,7 @@ body.objectMode .stage { box-shadow: inset 0 0 0 3px var(--accent); }
 .promptHint { font-size: .78rem; color: var(--mute); margin: 2px 0 0; }
 @media(max-width:650px) { .promptCols { grid-template-columns: 1fr; } .promptCols .instr { max-height: 70px; } }
 </style></head><body>
-<header class="bar"><a id="coreLink" class="coreLink" href="/studio/" title="Back to CORE projects" hidden>← CORE</a><div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>DAVID SZAUDER STUDIO <small>EDITOR</small></div><span id="status" class="status push" role="status">Local workspace</span><div class="bar"><button id="undo" data-icon="undo" class="icon quiet" title="Undo (⌘/Ctrl Z)"></button><button id="redo" data-icon="redo" class="icon quiet" title="Redo (⌘/Ctrl Shift Z)"></button></div><label class="uiSizeControl">Text size <select id="uiSize" aria-label="Interface text size"><option value="small">Small</option><option value="medium" selected>Medium</option><option value="bigger">Bigger</option></select></label><button id="themeToggle" class="icon quiet" type="button" aria-label="Dark mode" aria-pressed="true" title="Switch to light mode">◐</button><button id="projectMenuBtn" data-icon="folder" aria-expanded="false">Project</button><button class="primary" id="exportMenuBtn" data-icon="export" aria-expanded="false">Export</button></header>
+<header class="bar"><a id="coreLink" class="coreLink" href="/studio/" title="Back to CORE projects" hidden>← CORE</a><a id="stageLink" class="coreLink" href="/studio/" title="Open this project's 3D Stage (separate workspace; this editor stays as it is)" hidden>3D Stage →</a><div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>DAVID SZAUDER STUDIO <small>EDITOR</small></div><span id="status" class="status push" role="status">Local workspace</span><div class="bar"><button id="undo" data-icon="undo" class="icon quiet" title="Undo (⌘/Ctrl Z)"></button><button id="redo" data-icon="redo" class="icon quiet" title="Redo (⌘/Ctrl Shift Z)"></button></div><label class="uiSizeControl">Text size <select id="uiSize" aria-label="Interface text size"><option value="small">Small</option><option value="medium" selected>Medium</option><option value="bigger">Bigger</option></select></label><button id="themeToggle" class="icon quiet" type="button" aria-label="Dark mode" aria-pressed="true" title="Switch to light mode">◐</button><button id="projectMenuBtn" data-icon="folder" aria-expanded="false">Project</button><button class="primary" id="exportMenuBtn" data-icon="export" aria-expanded="false">Export</button></header>
 <div id="projectMenu" class="menu" hidden><button id="chooseFolder">Choose Project Folder…</button><button id="openFolder">Open Local Project…</button>
 <button id="saveFolder">Save to Folder</button><button id="saveNow">Save Now</button><button id="changeFolder">Change Folder…</button>
 <div class="divider"></div><button id="newProject">New project</button><button id="openProject">Open project ZIP…</button><button id="saveProject">Save project ZIP</button>
@@ -879,7 +881,7 @@ body.objectMode .stage { box-shadow: inset 0 0 0 3px var(--accent); }
 <div id="empty" class="empty"><span class="glyph" data-icon="image"></span><strong>Drop images here</strong><small>or choose files to start composing</small><button id="importEmpty" class="accent" data-icon="plus">Import images</button></div></div>
 <div class="foot bar"><span id="frameRead" class="frameRead"></span><span id="hint" class="toolhint push">Space to pan · Scroll to zoom</span></div>
 <section class="prompt" id="promptDock"><div id="split" class="split" role="separator" aria-label="Resize prompt panel" aria-orientation="horizontal" tabindex="0" title="Drag or use arrow keys to resize"></div><div class="bar"><label for="prompt" class="heading">PROMPT</label><button id="genPrompt" class="small primary" title="Build a short prompt from the base image, objects, annotations and your instructions">Generate prompt</button><button id="promptHistoryBtn" class="small quiet" aria-expanded="false" title="Earlier versions of this page's prompt">History</button><button id="promptPackage" class="small quiet" title="Download the numbered images and the prompt for Nano Banana">Images + prompt ↓</button><button id="copy" class="push quiet" data-icon="copy">Copy</button></div><div class="promptCols"><label class="instr"><span class="heading">MY INSTRUCTIONS</span><textarea id="promptInstructions" spellcheck="true" placeholder="Your own words for this page. They go into the prompt unchanged." aria-label="My instructions"></textarea></label><textarea id="prompt" spellcheck="false" placeholder="Write your generation prompt, or press Generate prompt…" aria-label="PROMPT"></textarea></div><div id="promptHistory" class="historyMenu" role="menu" hidden></div></section></div>
-<aside><section class="libPane" id="libPane"><div class="sectionbar bar"><h2 class="heading">LIBRARY</h2><span class="count" id="libCount">0</span><button class="push small" id="newObject" title="Add an object to this project's Library">+ Object</button></div><div id="libList" class="libList"></div></section><section class="layerpane"><div class="sectionbar bar"><h2 class="heading">LAYERS</h2><span class="count" id="count">0</span><button class="push icon quiet" data-icon="plus" id="importLayers" title="Import images"></button></div><div id="layers" class="layerlist"></div></section><section class="propPane"><div class="bar sectionbar"><h2 class="heading">PROPERTIES</h2></div><div class="inspector" id="inspector"></div></section></aside></main>
+<aside><section class="libPane" id="libPane"><div class="sectionbar bar"><button id="libToggle" class="quiet small" aria-expanded="false" title="Show or hide the Object Library">▸</button><h2 class="heading">LIBRARY</h2><span class="count" id="libCount">0</span><button class="push small" id="newObject" title="Add an object to this project's Library">+ Object</button></div><div id="libList" class="libList"></div></section><section class="layerpane"><div class="sectionbar bar"><h2 class="heading">LAYERS</h2><span class="count" id="count">0</span><button class="push icon quiet" data-icon="plus" id="importLayers" title="Import images"></button></div><div id="layers" class="layerlist"></div></section><section class="propPane"><div class="bar sectionbar"><h2 class="heading">PROPERTIES</h2></div><div class="inspector" id="inspector"></div></section></aside></main>
 <dialog id="objectDialog" class="cropDlg"><h2 class="heading">NEW LIBRARY OBJECT</h2><label class="field">Name<input id="objNewName"></label><label class="field">Category<input id="objNewCategory" list="objCategories" placeholder="e.g. Character, Furniture, Machine"></label><label class="field">Image<select id="objNewSource"></select></label><p class="dim" id="objNewHint"></p><div class="bar exportActions"><button id="objNewCancel">Cancel</button><button class="primary" id="objNewApply">Create object</button></div></dialog><datalist id="objCategories"><option value="Character"><option value="Furniture"><option value="Machine"><option value="Set piece"><option value="Architecture"><option value="Prop"><option value="Costume"><option value="Other"></datalist><dialog id="objDoneDialog" class="cropDlg"><h2 class="heading">UNSAVED OBJECT CHANGES</h2><p>This object changed since its last saved version. Pages only use saved versions. Your working state is kept either way.</p><div class="bar exportActions"><button id="objDoneStay">Keep editing</button><button id="objDoneLeave">Back without saving</button><button class="primary" id="objDoneSave">Save version &amp; back</button></div></dialog><dialog id="pageDialog" class="cropDlg"><label class="field">Page name<input id="pageNameInput"></label><div class="bar exportActions"><button id="pageCancel">Cancel</button><button class="primary" id="pageApply">Apply</button></div></dialog>
 <dialog id="originalDialog" class="cropDlg"><label class="field">Project original<select id="originalPicker"></select></label><div class="bar exportActions"><button id="originalCancel">Cancel</button><button class="primary" id="originalApply">Place on page</button></div></dialog>
 <dialog id="cropDialog" class="cropDlg"><h2 class="heading">CROP IMAGE</h2><p>Drag to draw a crop. Drag a handle to resize or drag inside to move. Shift-drag starts a new crop.</p><canvas id="cropCanvas"></canvas><div class="bar"><button id="cropReset">Reset crop</button><button id="cropCancel" class="push">Cancel</button><button class="primary" id="cropApply">Apply crop</button></div></dialog>
@@ -2698,6 +2700,7 @@ async function createObject({ name, category, layerId, file }) {
     project.objects.push(o);
   });
   await saveObjectVersion(o);
+  if (!libOpen) setLibOpen(true);
   toast('“' + o.name + '” is in the Library');
   return o;
 }
@@ -2757,9 +2760,32 @@ function placeObject(id) {
   });
   toast('Placed “' + o.name + '” (version ' + v.n + ')');
 }
+// The Library stays folded unless opened, so the 2D collage workflow looks and works as before.
+let libOpen = false;
+try {
+  libOpen = localStorage.getItem('ds-studio-editor.library-open') === '1';
+} catch {}
+function setLibOpen(v) {
+  libOpen = v;
+  try {
+    localStorage.setItem('ds-studio-editor.library-open', v ? '1' : '0');
+  } catch {}
+  libraryUI();
+}
+$('libToggle').onclick = () => setLibOpen(!libOpen);
+function updateStageLink() {
+  const pid = new URLSearchParams(location.search).get('project');
+  $('stageLink').hidden = !pid || $('coreLink').hidden;
+  if (pid) $('stageLink').href = '/studio/stage.html?project=' + encodeURIComponent(pid);
+}
 function libraryUI() {
   const list = $('libList'),
-    objects = project.objects || [];
+    objects = project.objects || [],
+    open = libOpen || !!project.editingObjectId;
+  $('libPane').classList.toggle('open', open);
+  $('libToggle').textContent = open ? '▾' : '▸';
+  $('libToggle').setAttribute('aria-expanded', open);
+  updateStageLink();
   $('libCount').textContent = objects.length;
   list.replaceChildren();
   if (!objects.length) {
@@ -4370,6 +4396,7 @@ function updateDriveQuery(projectId) {
   url.searchParams.delete('new');
   url.searchParams.delete('drive');
   window.history.replaceState(null, '', url);
+  updateStageLink();
 }
 async function startCloud(asNewCopy = false) {
   if (!cloudAvailable) throw Error('Google Drive saving is available on the studio website.');
@@ -4494,6 +4521,7 @@ async function detectCloud() {
     cloudAvailable = true;
     $('cloudItems').hidden = false;
     $('coreLink').hidden = false;
+    updateStageLink();
     return status;
   } catch {
     return null;
