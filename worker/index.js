@@ -483,6 +483,71 @@ async function commitManifest(env, folders, projectId, current, p, bytes) {
   }
 }
 
+// ---------- 3D Stage ----------
+// stage.json sits next to project.json with its own revision, so the 3D workspace and the
+// 2D editor never overwrite each other. Models and textures go to originals/ (content-addressed).
+const STAGE_FILE = 'stage.json';
+
+async function readStage(env, projectId) {
+  return withProject(env, projectId, false, async folders => {
+    const file = await findChild(env, folders.folderId, STAGE_FILE);
+    if (!file) fail(404, 'This project has no 3D stage yet.', 'no_stage');
+    const body = await (await drive(env, '/files/' + file.id + '?alt=media')).text();
+    return new Response(body, {
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'cache-control': 'no-store',
+        'X-Revision': file.appProperties?.revision || '',
+        'X-Saved-At': file.modifiedTime
+      }
+    });
+  });
+}
+
+async function writeStage(env, request, projectId) {
+  const expected = request.headers.get('If-Match') || '';
+  if (!expected) fail(428, 'Missing If-Match revision.');
+  const bytes = await request.arrayBuffer();
+  if (bytes.byteLength > MAX_MANIFEST) fail(413, 'Stage data is too large.');
+  let s;
+  try {
+    s = JSON.parse(new TextDecoder().decode(bytes));
+  } catch {
+    fail(400, 'Stage data is not valid JSON.');
+  }
+  if (!s || s.format !== 'ds-stage' || s.projectId !== projectId) fail(400, 'Stage data does not match this project.');
+  return withProject(env, projectId, false, async folders => {
+    if (!(await findChild(env, folders.folderId, 'project.json'))) fail(404, 'Project not found in Google Drive.', 'not_found');
+    const current = await findChild(env, folders.folderId, STAGE_FILE);
+    checkRevision(current, expected);
+    return json(await commitStage(env, folders, projectId, current, bytes));
+  });
+}
+
+async function commitStage(env, folders, projectId, current, bytes) {
+  const now = Date.now();
+  let versionAt = Number(current?.appProperties?.versionAt || 0);
+  if (current && now - versionAt >= VERSION_INTERVAL) {
+    const stamp = new Date(now).toISOString().replace(/[:.]/g, '-');
+    await drive(env, '/files/' + current.id + '/copy?fields=id', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: 'stage-' + stamp + '.json', parents: [folders.dirs.versions], appProperties: { szauderRole: 'version', projectId } })
+    });
+    versionAt = now;
+  }
+  const revision = crypto.randomUUID();
+  const saved = await uploadFile(env, {
+    id: current?.id || null,
+    parents: [folders.folderId],
+    name: STAGE_FILE,
+    mime: 'application/json',
+    appProperties: { szauderRole: 'stage', projectId, revision, versionAt: String(versionAt || now) },
+    bytes
+  });
+  return { revision, savedAt: saved.modifiedTime };
+}
+
 async function readManifestDoc(env, file) {
   return JSON.parse(await (await drive(env, '/files/' + file.id + '?alt=media')).text());
 }
@@ -527,6 +592,12 @@ async function duplicateProject(env, projectId) {
   Object.assign(p, { projectId: newId, name: (p.name || 'Untitled') + ' copy', createdAt: now, modifiedAt: now, archived: false });
   const bytes = new TextEncoder().encode(JSON.stringify(p));
   await commitManifest(env, dst, newId, null, p, bytes);
+  const stageFile = await findChild(env, src.folderId, STAGE_FILE);
+  if (stageFile) {
+    const st = await readManifestDoc(env, stageFile);
+    st.projectId = newId;
+    await commitStage(env, dst, newId, null, new TextEncoder().encode(JSON.stringify(st)));
+  }
   return json({ projectId: newId }, 201);
 }
 
@@ -592,6 +663,12 @@ async function route(request, env, url, user) {
   if (action && method === 'POST') {
     if (!PROJECT_ID.test(action[1])) fail(400, 'Invalid project ID.');
     return action[2] === 'meta' ? updateMeta(env, request, action[1]) : duplicateProject(env, action[1]);
+  }
+  const st = path.match(/^\/projects\/([^/]+)\/stage$/);
+  if (st) {
+    if (!PROJECT_ID.test(st[1])) fail(400, 'Invalid project ID.');
+    if (method === 'GET') return readStage(env, st[1]);
+    if (method === 'PUT') return writeStage(env, request, st[1]);
   }
   const m = path.match(/^\/projects\/([^/]+)(?:\/(originals|previews)\/([^/]+))?$/);
   if (m) {

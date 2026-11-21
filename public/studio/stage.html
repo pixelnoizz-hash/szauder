@@ -1,0 +1,1478 @@
+<!doctype html>
+<html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="color-scheme" content="dark"><title>David Szauder Studio — 3D Stage</title>
+<style>
+* { box-sizing: border-box; }
+:root {
+  --ink: #e9e9e6; --mute: #a3a4a6; --line: #424346; --paper: #232426; --well: #18191b;
+  --hover: #343537; --accent: #ff835e; --warn: #ffab8f; --ok: #97ac91;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  font: 100%/1.4 "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--ink); background: var(--well); color-scheme: dark; accent-color: var(--accent);
+}
+html, body { margin: 0; height: 100%; overflow: hidden; }
+button, input, select { font: inherit; color: inherit; }
+button, .button {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 3px 10px;
+  border: 1px solid var(--line); border-radius: 5px; background: var(--paper); cursor: pointer;
+  text-decoration: none; white-space: nowrap; font-size: .85rem;
+}
+button:hover, .button:hover { background: var(--hover); }
+button:disabled { opacity: .4; cursor: default; }
+button[aria-pressed="true"] { background: #4a2f25; border-color: var(--accent); }
+.primary { background: var(--accent); border-color: var(--accent); color: #231913; font-weight: 600; }
+.primary:hover { background: #ff9878; }
+.quiet { border-color: transparent; background: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+input, select { background: var(--well); border: 1px solid var(--line); border-radius: 4px; padding: 3px 6px; min-height: 28px; min-width: 0; }
+.app { display: grid; grid-template-rows: auto 1fr; height: 100%; }
+header { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-bottom: 1px solid var(--line); background: var(--paper); flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 760; letter-spacing: -.3px; font-size: .95rem; }
+.mark { width: 24px; height: 24px; background: var(--accent); display: grid; grid-template-columns: repeat(3, 4px); gap: 2px; align-content: center; justify-content: center; border-radius: 4px; }
+.mark i { height: 12px; background: #231913; transform: skew(-18deg); }
+.brand small { font: .78rem var(--mono); color: var(--mute); padding-left: 10px; border-left: 1px solid var(--line); letter-spacing: 1px; }
+#projectName { font-weight: 600; max-width: 28ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.status { margin-left: auto; font: .76rem var(--mono); color: var(--mute); display: flex; align-items: center; gap: 6px; }
+.status:before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
+.status.warn { color: var(--warn); }
+.status.warn:before { background: var(--accent); }
+.work { display: grid; grid-template-columns: 250px minmax(0, 1fr) 290px; min-height: 0; }
+.side { background: var(--paper); overflow: auto; min-height: 0; }
+.side.left { border-right: 1px solid var(--line); }
+.side.right { border-left: 1px solid var(--line); }
+.section { border-bottom: 1px solid var(--line); padding: 10px 12px; }
+.section h2 { font: 600 .72rem var(--mono); letter-spacing: 1.2px; color: var(--mute); margin: 0 0 8px; display: flex; align-items: center; gap: 6px; }
+.section h2 .grow { margin-left: auto; }
+.btns { display: flex; flex-wrap: wrap; gap: 5px; }
+.btns button { padding: 2px 8px; min-height: 26px; font-size: .8rem; }
+.list { display: grid; gap: 2px; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 4px; align-items: center; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: .86rem; }
+.row:hover { background: var(--hover); }
+.row.sel { background: #4a2f25; }
+.row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row small { font: .7rem var(--mono); color: var(--mute); }
+.row button { min-height: 22px; padding: 0 5px; border: 0; background: none; font-size: .75rem; color: var(--mute); }
+.row.hiddenObj span { opacity: .45; }
+.libItem { display: grid; grid-template-columns: 40px minmax(0,1fr); gap: 7px; align-items: center; padding: 4px 0; }
+.libItem img { width: 40px; height: 40px; object-fit: contain; background: #121314; border-radius: 3px; }
+.libItem b { display: block; font-size: .85rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.libItem .btns { margin-top: 3px; }
+.dim { color: var(--mute); font-size: .78rem; margin: 6px 0 0; }
+.viewport { position: relative; min-width: 0; min-height: 0; background: #121314; }
+#gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.overlay { position: absolute; left: 10px; right: 10px; top: 10px; display: flex; gap: 6px; flex-wrap: wrap; pointer-events: none; }
+.overlay > * { pointer-events: auto; }
+.overlay .group { display: inline-flex; gap: 2px; background: #232426e6; border: 1px solid var(--line); border-radius: 6px; padding: 2px; }
+.overlay .group button { border: 0; min-height: 26px; padding: 2px 8px; font-size: .78rem; background: none; }
+.overlay .group button[aria-pressed="true"] { background: #4a2f25; }
+.overlay label { display: inline-flex; gap: 4px; align-items: center; font: .74rem var(--mono); color: var(--mute); padding: 0 6px; }
+.overlay input { width: 58px; min-height: 24px; padding: 1px 4px; }
+.hud { position: absolute; left: 10px; bottom: 34px; max-width: calc(100% - 20px); font: .72rem var(--mono); color: var(--mute); background: #232426d0; padding: 4px 8px; border-radius: 4px; pointer-events: none; }
+.axes { position: absolute; left: 10px; bottom: 10px; font: .72rem var(--mono); color: var(--mute); background: #232426d0; padding: 4px 8px; border-radius: 4px; pointer-events: none; }
+.props { display: grid; gap: 7px; }
+.props label { display: grid; gap: 3px; font: .72rem var(--mono); color: var(--mute); }
+.trio { display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: 4px; align-items: center; font: .72rem var(--mono); color: var(--mute); }
+.trio input { width: 100%; font: .82rem var(--mono); text-align: right; }
+.trio .ax { font-size: .66rem; }
+.check { display: flex !important; grid-template-columns: none; flex-direction: row; align-items: center; gap: 6px; }
+.empty { color: var(--mute); font-size: .85rem; }
+.toast { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); max-width: min(620px, 92vw); background: #38393d; color: var(--ink); border-radius: 5px; padding: 8px 14px; box-shadow: 0 3px 14px #0006; z-index: 9; font-size: .88rem; }
+.menu { position: relative; }
+.menu .pop { position: absolute; right: 0; top: calc(100% + 4px); background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 4px; display: grid; gap: 2px; z-index: 8; min-width: 240px; box-shadow: 0 6px 20px #0008; }
+.menu .pop button { border: 0; justify-content: flex-start; background: none; }
+.menu .pop button:hover { background: var(--hover); }
+.refnote { font-size: .76rem; color: var(--mute); margin: 6px 0 0; line-height: 1.45; }
+.refnote b { color: var(--ink); font-weight: 600; }
+dialog { background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 18px; width: min(460px, 92vw); }
+dialog::backdrop { background: #070708bc; }
+dialog .bar { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+[hidden] { display: none !important; }
+@media (max-width: 960px) { .work { grid-template-columns: 200px minmax(0,1fr) 240px; } }
+</style>
+<script type="importmap">{ "imports": { "three-stage": "/studio/vendor/three-0.187.0.min.js" } }</script>
+</head><body>
+<div class="app">
+<header>
+  <a class="button quiet" id="coreLink" href="/studio/">← CORE</a>
+  <div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>DAVID SZAUDER STUDIO <small>3D STAGE</small></div>
+  <span id="projectName"></span>
+  <span id="status" class="status" role="status">Loading…</span>
+  <button id="undo" title="Undo (Ctrl/Cmd+Z)" disabled>Undo</button>
+  <button id="redo" title="Redo (Shift+Ctrl/Cmd+Z)" disabled>Redo</button>
+  <button id="saveNow" title="Save to Google Drive now">Save</button>
+  <div class="menu"><button id="exportBtn" class="primary" aria-haspopup="true" aria-expanded="false">Export</button>
+    <div class="pop" id="exportMenu" hidden>
+      <button id="exportPng">Camera view as PNG</button>
+      <button id="exportTo2d">Camera view → new page in 2D Editor</button>
+      <button id="exportGlb">Scene geometry as GLB</button>
+    </div>
+  </div>
+</header>
+<div class="work">
+  <aside class="side left">
+    <section class="section">
+      <h2>ADD</h2>
+      <div class="btns" id="addPrimitives">
+        <button data-shape="box">Box</button><button data-shape="cylinder">Cylinder</button><button data-shape="sphere">Sphere</button><button data-shape="plane">Plane</button>
+      </div>
+      <h2 style="margin-top:10px">PRESETS</h2>
+      <div class="btns" id="addPresets"></div>
+      <div class="btns" style="margin-top:10px"><button id="importModel">Import GLB / GLTF…</button></div>
+      <p class="dim">Presets use typical sizes. Set the real measurements on the right.</p>
+    </section>
+    <section class="section" id="librarySection">
+      <h2>LIBRARY OBJECTS <small id="libCount"></small></h2>
+      <div id="libList"></div>
+    </section>
+    <section class="section">
+      <h2>SCENE <span class="grow"></span><small id="objCount"></small></h2>
+      <div class="list" id="sceneList"></div>
+    </section>
+  </aside>
+  <div class="viewport" id="viewport">
+    <canvas id="gl" tabindex="0" aria-label="3D stage viewport"></canvas>
+    <div class="overlay">
+      <div class="group" role="group" aria-label="Camera">
+        <button data-view="perspective" aria-pressed="true" title="Free perspective (1)">Perspective</button>
+        <button data-view="audience" title="From the audience (2)">Audience</button>
+        <button data-view="front" title="Front, orthographic (3)">Front</button>
+        <button data-view="side" title="Side, orthographic (4)">Side</button>
+        <button data-view="top" title="Top / overhead, orthographic (5)">Top</button>
+        <button id="frameSel" title="Frame selected (F)">Frame</button>
+      </div>
+      <div class="group" role="group" aria-label="Gizmo">
+        <button data-mode="translate" aria-pressed="true" title="Move (W)">Move</button>
+        <button data-mode="rotate" title="Rotate (E)">Rotate</button>
+        <button data-mode="scale" title="Scale (R)">Scale</button>
+      </div>
+      <div class="group">
+        <label><input type="checkbox" id="snapOn" checked style="width:auto">Snap</label>
+        <label>step <input id="snapStep" type="number" step="0.01" min="0.001" value="0.1"> m</label>
+        <label>angle <input id="snapAngle" type="number" step="1" min="1" value="15">°</label>
+      </div>
+    </div>
+    <div class="hud" id="hud"></div>
+    <div class="axes">X right (from audience) · Y up · Z toward audience · 0,0,0 = portal centre line on the stage floor</div>
+  </div>
+  <aside class="side right">
+    <section class="section" id="propsSection">
+      <h2 id="propsTitle">PROPERTIES</h2>
+      <div id="props" class="props"><p class="empty">Select an object in the viewport or the scene list.</p></div>
+    </section>
+    <section class="section">
+      <h2>STAGE REFERENCE</h2>
+      <div class="props" id="stageProps"></div>
+    </section>
+  </aside>
+</div>
+</div>
+<input type="file" id="modelFile" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" hidden>
+<input type="file" id="theatreFile" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" hidden>
+<dialog id="conflictDialog"><h2>Changed elsewhere</h2><p>This 3D stage was saved from another tab or device. Reload it from Google Drive? Your unsaved change in this tab will be lost.</p><div class="bar"><button id="conflictKeep">Keep this tab</button><button class="primary" id="conflictReload">Reload from Drive</button></div></dialog>
+<div class="toast" id="toast" hidden></div>
+<script type="module">
+import * as THREE from 'three-stage';
+const { OrbitControls, TransformControls, GLTFLoader, GLTFExporter } = THREE;
+const $ = id => document.getElementById(id);
+const uid = () => crypto.randomUUID();
+const r3 = n => Math.round(n * 1000) / 1000;
+const deg = THREE.MathUtils.radToDeg, rad = THREE.MathUtils.degToRad;
+const clone = x => JSON.parse(JSON.stringify(x));
+let toastTimer = 0;
+function toast(t, ms = 3800) {
+  $('toast').textContent = t;
+  $('toast').hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $('toast').hidden = true, ms);
+}
+function setStatus(t, warn = false) {
+  $('status').textContent = t;
+  $('status').classList.toggle('warn', warn);
+}
+
+// ---------- reference presets ----------
+// HNK Zagreb: only the figures confirmed from the theatre's technical data are drawn.
+// Everything else (wall thickness, wing shapes, fly tower, orchestra pit) is deliberately absent.
+const REFERENCES = {
+  'hnk-zagreb': {
+    label: 'HNK Zagreb — main stage',
+    stageWidth: 24.04,
+    stageDepth: 13.34,
+    stageHeight: 18.5,
+    portalWidth: 10.13,
+    portalHeight: 7.2,
+    note: 'Main stage incl. wings 24.04 m wide, 13.34 m deep behind the portal, max. height 18.50 m. Portal 10.13 m wide, max. 7.20 m high (lower with surtitles). These figures are not the complete stage geometry; import the theatre\'s official 3D model for detail.'
+  },
+  none: { label: 'No reference' }
+};
+
+// ---------- presets (unit space: 1×1×1 box, base on y = 0, centred in x/z) ----------
+const PRESETS = {
+  bed: { label: 'Bed', dims: { w: 1.0, d: 2.0, h: 0.55 }, color: '#b7a58c', parts: [[0, 0.15, 0, 1, 0.3, 1], [0, 0.45, 0.02, 0.96, 0.2, 0.94], [0, 0.6, -0.48, 1, 0.8, 0.04]] },
+  harmonium: { label: 'Harmonium', dims: { w: 1.2, d: 0.55, h: 1.1 }, color: '#7a5a3c', parts: [[0, 0.33, 0, 1, 0.66, 1], [0, 0.69, 0.18, 1, 0.06, 0.64], [0, 0.86, -0.2, 1, 0.28, 0.6]] },
+  table: { label: 'Table', dims: { w: 1.6, d: 0.8, h: 0.75 }, color: '#9b8466', parts: [[0, 0.96, 0, 1, 0.08, 1], [-0.46, 0.46, -0.42, 0.06, 0.92, 0.1], [0.46, 0.46, -0.42, 0.06, 0.92, 0.1], [-0.46, 0.46, 0.42, 0.06, 0.92, 0.1], [0.46, 0.46, 0.42, 0.06, 0.92, 0.1]] },
+  chair: { label: 'Chair', dims: { w: 0.45, d: 0.5, h: 0.9 }, color: '#8c7a63', parts: [[0, 0.49, 0, 1, 0.06, 1], [0, 0.76, -0.45, 1, 0.48, 0.1], [-0.42, 0.24, -0.42, 0.12, 0.48, 0.12], [0.42, 0.24, -0.42, 0.12, 0.48, 0.12], [-0.42, 0.24, 0.42, 0.12, 0.48, 0.12], [0.42, 0.24, 0.42, 0.12, 0.48, 0.12]] },
+  platform: { label: 'Platform', dims: { w: 2.0, d: 1.0, h: 0.4 }, color: '#5d6066', parts: [[0, 0.5, 0, 1, 1, 1]] },
+  wall: { label: 'Wall', dims: { w: 3.0, d: 0.1, h: 3.0 }, color: '#8d8f94', parts: [[0, 0.5, 0, 1, 1, 1]] },
+  pipe: { label: 'Pipe', dims: { w: 0.15, d: 0.15, h: 2.5 }, color: '#a7a9ad', cylinder: true }
+};
+const SHAPES = { box: 'Box', cylinder: 'Cylinder', sphere: 'Sphere', plane: 'Plane' };
+for (const [key, p] of Object.entries(PRESETS)) {
+  const b = document.createElement('button');
+  b.textContent = p.label;
+  b.dataset.preset = key;
+  $('addPresets').append(b);
+}
+
+// ---------- state ----------
+const params = new URLSearchParams(location.search);
+const projectId = params.get('project');
+const API = '/studio/api';
+const cloud = location.protocol === 'https:' && location.pathname.startsWith('/studio/') && !!projectId;
+function freshStage() {
+  const now = new Date().toISOString();
+  return {
+    format: 'ds-stage', version: 1, projectId: projectId || 'local', units: 'm',
+    createdAt: now, modifiedAt: now,
+    grid: { snap: true, step: 0.1, angle: 15 },
+    reference: { preset: 'hnk-zagreb', visible: true, position: { x: 0, y: 0, z: 0 }, rotationY: 0 },
+    theatreModel: null,
+    objects: [],
+    libraryProxies: {},
+    camera: null
+  };
+}
+let stage = freshStage();
+let selectedId = null;          // object id, or 'reference' / 'theatre'
+let manifest = null;            // read-only copy of the 2D project (name, Object Library)
+let revision = null;            // stage.json revision on Drive (null = not created yet)
+const files = new Map();        // 'sha.ext' -> Blob (models and textures)
+const uploaded = new Set();
+let dirty = false, saving = false, saveTimer = 0, conflicted = false;
+
+// ---------- three.js setup ----------
+const canvas = $('gl');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: false });
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#141517');
+scene.add(new THREE.HemisphereLight(0xffffff, 0x3a3b3f, 1.6));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(6, 14, 10);
+scene.add(sun);
+const helpers = new THREE.Group();     // grid, reference lines: never exported as geometry
+scene.add(helpers);
+const content = new THREE.Group();     // user objects
+scene.add(content);
+const theatreRoot = new THREE.Group(); // imported official model
+scene.add(theatreRoot);
+const refRoot = new THREE.Group();
+helpers.add(refRoot);
+let grid = null;
+function buildGrid() {
+  if (grid) helpers.remove(grid);
+  grid = new THREE.GridHelper(60, 60, 0x55575c, 0x2c2d31);
+  grid.material.transparent = true;
+  grid.material.opacity = .7;
+  helpers.add(grid);
+}
+buildGrid();
+const axesHelper = new THREE.AxesHelper(1);
+helpers.add(axesHelper);
+
+const persp = new THREE.PerspectiveCamera(40, 1, 0.05, 500);
+persp.position.set(14, 9, 18);
+const ortho = new THREE.OrthographicCamera(-10, 10, 10, -10, -200, 500);
+let camera = persp;
+let viewName = 'perspective';
+const orbit = new OrbitControls(persp, canvas);
+orbit.target.set(0, 1.5, -5);
+orbit.enableDamping = true;
+orbit.update();
+const gizmo = new TransformControls(persp, canvas);
+gizmo.setSize(.9);
+scene.add(gizmo.getHelper());
+gizmo.addEventListener('dragging-changed', e => {
+  orbit.enabled = !e.value;
+  if (e.value) dragStart = snapshot();
+  else if (dragStart) {
+    foldScale(gizmo.object);
+    readBack(gizmo.object);
+    commit(dragStart);
+    dragStart = null;
+  }
+});
+// While scaling, the gizmo keeps its own start scale, so dimensions are folded in only at the end.
+gizmo.addEventListener('objectChange', () => {
+  const node = gizmo.object;
+  if (!node) return;
+  if (gizmo.dragging && gizmo.mode === 'scale') {
+    // Starting a uniform scale right on the centre can produce absurd factors; keep it sane.
+    for (const k of ['x', 'y', 'z']) node.scale[k] = Math.min(50, Math.max(.02, Math.abs(node.scale[k]) || 1));
+    const o = objOf(node);
+    if (o && o !== 'theatre') $('hud').textContent = 'Scaling ' + o.name + ': ' + (o.dims.w * Math.abs(node.scale.x)).toFixed(3) + ' × ' + (o.dims.d * Math.abs(node.scale.z)).toFixed(3) + ' × ' + (o.dims.h * Math.abs(node.scale.y)).toFixed(3) + ' m';
+    return;
+  }
+  readBack(node);
+  propsUI(true);
+  stageUI();
+  hud();
+});
+let dragStart = null;
+const selBox = new THREE.BoxHelper(undefined, 0xff835e);
+selBox.visible = false;
+helpers.add(selBox);
+
+function resize() {
+  const r = canvas.parentElement.getBoundingClientRect();
+  renderer.setSize(r.width, r.height, false);
+  persp.aspect = r.width / Math.max(1, r.height);
+  persp.updateProjectionMatrix();
+  orthoFrustum();
+}
+function orthoFrustum() {
+  const r = canvas.parentElement.getBoundingClientRect();
+  const a = r.width / Math.max(1, r.height), h = ortho.userData.half || 10;
+  ortho.left = -h * a;
+  ortho.right = h * a;
+  ortho.top = h;
+  ortho.bottom = -h;
+  ortho.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(canvas.parentElement);
+
+// ---------- geometry builders ----------
+const edgeMat = new THREE.LineBasicMaterial({ color: 0x111111, transparent: true, opacity: .45 });
+function mat(color) {
+  return new THREE.MeshStandardMaterial({ color, roughness: .85, metalness: 0 });
+}
+function withEdges(mesh) {
+  const e = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry, 25), edgeMat);
+  mesh.add(e);
+  return mesh;
+}
+function unitShape(shape, color) {
+  let g;
+  if (shape === 'box') g = new THREE.BoxGeometry(1, 1, 1).translate(0, .5, 0);
+  else if (shape === 'cylinder') g = new THREE.CylinderGeometry(.5, .5, 1, 40).translate(0, .5, 0);
+  else if (shape === 'sphere') g = new THREE.SphereGeometry(.5, 40, 20).translate(0, .5, 0);
+  else g = new THREE.BoxGeometry(1, 1, 1).translate(0, .5, 0); // plane = very thin box
+  return withEdges(new THREE.Mesh(g, mat(color)));
+}
+function unitPreset(key, color) {
+  const p = PRESETS[key], g = new THREE.Group();
+  if (p.cylinder) g.add(unitShape('cylinder', color));
+  else for (const [x, y, z, w, h, d] of p.parts) {
+    const m = withEdges(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color)));
+    m.position.set(x, y, z);
+    g.add(m);
+  }
+  return g;
+}
+const gltfCache = new Map();
+async function loadModelScene(file) {
+  if (!gltfCache.has(file)) gltfCache.set(file, (async () => {
+    const blob = await getFile(file);
+    const buf = await blob.arrayBuffer();
+    const gltf = await new GLTFLoader().parseAsync(buf, '');
+    return gltf.scene;
+  })());
+  return (await gltfCache.get(file)).clone(true);
+}
+// A model is normalised so its footprint is centred and its base sits on y = 0.
+function normalise(model) {
+  const box = new THREE.Box3().setFromObject(model), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
+  const inner = new THREE.Group();
+  model.position.sub(new THREE.Vector3(c.x, box.min.y, c.z));
+  inner.add(model);
+  return { inner, native: { w: size.x || 1, d: size.z || 1, h: size.y || 1 } };
+}
+const texCache = new Map();
+async function loadTexture(file) {
+  if (!texCache.has(file)) texCache.set(file, (async () => {
+    const bmp = await createImageBitmap(await getFile(file));
+    const t = new THREE.Texture(bmp);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.flipY = false;
+    t.needsUpdate = true;
+    return { t, aspect: bmp.width / bmp.height };
+  })());
+  return texCache.get(file);
+}
+
+// ---------- object <-> three ----------
+const nodes = new Map(); // id -> wrapper Group
+async function buildBody(o) {
+  if (o.kind === 'preset') return unitPreset(o.preset, o.color);
+  if (o.kind === 'primitive') return unitShape(o.shape, o.color);
+  if (o.kind === 'model') {
+    const m = await loadModelScene(o.file);
+    return normalise(m).inner;
+  }
+  if (o.kind === 'library') {
+    const proxy = o.proxy || 'card';
+    if (proxy === 'model' && o.file) return normalise(await loadModelScene(o.file)).inner;
+    if (proxy === 'box') return unitShape('box', o.color || '#8a8f99');
+    const g = new THREE.Group();
+    if (o.texture) {
+      const { t } = await loadTexture(o.texture);
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1).translate(0, .5, 0), new THREE.MeshBasicMaterial({ map: t, transparent: true, alphaTest: .04, side: THREE.DoubleSide }));
+      // Flip because the texture is uploaded with flipY = false.
+      m.scale.y = -1;
+      m.position.y = 1;
+      g.add(m);
+    } else g.add(unitShape('plane', '#8a8f99'));
+    return g;
+  }
+  return unitShape('box', '#888');
+}
+function nativeOf(o) {
+  return o.native || { w: 1, d: 1, h: 1 };
+}
+function applyTransform(node, o) {
+  node.position.set(o.position.x, o.position.y, o.position.z);
+  node.rotation.set(rad(o.rotation.x), rad(o.rotation.y), rad(o.rotation.z), 'YXZ');
+  node.scale.set(1, 1, 1);
+  const n = nativeOf(o), body = node.userData.body;
+  if (body) body.scale.set(Math.max(1e-4, o.dims.w) / n.w, Math.max(1e-4, o.dims.h) / n.h, Math.max(1e-4, o.dims.d) / n.d);
+  node.visible = o.visible;
+}
+async function syncScene() {
+  const want = new Set(stage.objects.map(o => o.id));
+  for (const [id, node] of nodes) if (!want.has(id)) {
+    content.remove(node);
+    nodes.delete(id);
+  }
+  for (const o of stage.objects) {
+    let node = nodes.get(o.id);
+    const sig = JSON.stringify([o.kind, o.shape, o.preset, o.file, o.texture, o.color, o.proxy]);
+    if (!node || node.userData.sig !== sig) {
+      if (node) content.remove(node);
+      node = new THREE.Group();
+      node.userData = { id: o.id, sig };
+      try {
+        node.userData.body = await buildBody(o);
+      } catch (e) {
+        node.userData.body = unitShape('box', '#aa3333');
+        toast('Could not load ' + o.name + ': ' + e.message);
+      }
+      node.add(node.userData.body);
+      nodes.set(o.id, node);
+      content.add(node);
+    }
+    applyTransform(node, o);
+  }
+  // Keep scene order = list order.
+  content.children.sort((a, b) => stage.objects.findIndex(o => o.id === a.userData.id) - stage.objects.findIndex(o => o.id === b.userData.id));
+  await syncTheatre();
+  buildReference();
+  attachGizmo();
+  listUI();
+  propsUI();
+  stageUI();
+}
+// Scale from the gizmo is folded into real dimensions, so the numbers always mean metres.
+function foldScale(node) {
+  if (!node) return;
+  const o = objOf(node);
+  if (!o || o === 'theatre') return;
+  const s = node.scale;
+  if (s.x === 1 && s.y === 1 && s.z === 1) return;
+  o.dims.w = Math.max(.001, o.dims.w * Math.abs(s.x));
+  o.dims.h = Math.max(.001, o.dims.h * Math.abs(s.y));
+  o.dims.d = Math.max(.001, o.dims.d * Math.abs(s.z));
+  if (o.kind === 'library' && (o.proxy || 'card') === 'card') o.dims.d = Math.max(.001, o.dims.d);
+  applyTransform(node, o);
+}
+function readBack(node) {
+  const o = objOf(node);
+  if (o === 'theatre') {
+    const t = stage.theatreModel;
+    t.position = { x: r3(node.position.x), y: r3(node.position.y), z: r3(node.position.z) };
+    t.rotationY = r3(deg(node.rotation.y));
+    return;
+  }
+  if (!o) return;
+  o.position = { x: r3(node.position.x), y: r3(node.position.y), z: r3(node.position.z) };
+  const e = new THREE.Euler().setFromQuaternion(node.quaternion, 'YXZ');
+  o.rotation = { x: r3(deg(e.x)), y: r3(deg(e.y)), z: r3(deg(e.z)) };
+  o.dims = { w: r3(o.dims.w), d: r3(o.dims.d), h: r3(o.dims.h) };
+}
+function objOf(node) {
+  if (!node) return null;
+  if (node === theatreRoot) return 'theatre';
+  return stage.objects.find(o => o.id === node.userData.id) || null;
+}
+const objById = id => stage.objects.find(o => o.id === id) || null;
+
+// ---------- reference & theatre model ----------
+function line(points, color = 0xff835e, dashed = false) {
+  const g = new THREE.BufferGeometry().setFromPoints(points.map(p => new THREE.Vector3(...p)));
+  const m = dashed ? new THREE.LineDashedMaterial({ color, dashSize: .3, gapSize: .2 }) : new THREE.LineBasicMaterial({ color });
+  const l = new THREE.Line(g, m);
+  if (dashed) l.computeLineDistances();
+  return l;
+}
+function label(text, pos, color = '#ffb39b') {
+  const c = document.createElement('canvas'), x = c.getContext('2d');
+  x.font = '600 44px Inter, sans-serif';
+  c.width = Math.ceil(x.measureText(text).width) + 24;
+  c.height = 64;
+  x.font = '600 44px Inter, sans-serif';
+  x.fillStyle = color;
+  x.fillText(text, 12, 46);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, transparent: true }));
+  s.scale.set(c.width / c.height * .45, .45, 1);
+  s.position.set(...pos);
+  s.renderOrder = 5;
+  return s;
+}
+function buildReference() {
+  refRoot.clear();
+  const ref = stage.reference, R = REFERENCES[ref.preset];
+  refRoot.visible = ref.visible && ref.preset !== 'none';
+  refRoot.position.set(ref.position.x, ref.position.y, ref.position.z);
+  refRoot.rotation.set(0, rad(ref.rotationY || 0), 0);
+  if (!R || ref.preset === 'none') return;
+  const W = R.stageWidth / 2, D = R.stageDepth, H = R.stageHeight, PW = R.portalWidth / 2, PH = R.portalHeight;
+  // Stage floor (incl. wings), behind the portal line.
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(R.stageWidth, D).rotateX(-Math.PI / 2).translate(0, 0, -D / 2), new THREE.MeshStandardMaterial({ color: 0x3b3229, roughness: 1, transparent: true, opacity: .55, depthWrite: false }));
+  floor.userData.reference = true;
+  refRoot.add(floor);
+  refRoot.add(line([[-W, .002, 0], [W, .002, 0], [W, .002, -D], [-W, .002, -D], [-W, .002, 0]], 0xff835e));
+  // Maximum height envelope (outline only).
+  for (const [x, z] of [[-W, 0], [W, 0], [W, -D], [-W, -D]]) refRoot.add(line([[x, 0, z], [x, H, z]], 0x6b5146, true));
+  refRoot.add(line([[-W, H, 0], [W, H, 0], [W, H, -D], [-W, H, -D], [-W, H, 0]], 0x6b5146, true));
+  // Portal opening.
+  refRoot.add(line([[-PW, 0, 0], [-PW, PH, 0], [PW, PH, 0], [PW, 0, 0]], 0xffd2c2));
+  // Centre line.
+  refRoot.add(line([[0, .003, 2], [0, .003, -D]], 0x7d8fa3, true));
+  refRoot.add(label('Portal ' + R.portalWidth.toFixed(2) + ' × max ' + R.portalHeight.toFixed(2) + ' m', [0, PH + .45, 0]));
+  refRoot.add(label('Stage width incl. wings ' + R.stageWidth.toFixed(2) + ' m', [0, .3, -D]));
+  refRoot.add(label('Depth behind portal ' + R.stageDepth.toFixed(2) + ' m', [W + .2, .3, -D / 2]));
+  refRoot.add(label('Max. height ' + R.stageHeight.toFixed(2) + ' m', [-W, H + .4, -D]));
+}
+async function syncTheatre() {
+  const t = stage.theatreModel;
+  if (!t) {
+    theatreRoot.clear();
+    theatreRoot.userData.file = null;
+    return;
+  }
+  if (theatreRoot.userData.file !== t.file) {
+    theatreRoot.clear();
+    try {
+      theatreRoot.add(await loadModelScene(t.file));
+    } catch (e) {
+      toast('Could not load the theatre model: ' + e.message);
+    }
+    theatreRoot.userData.file = t.file;
+  }
+  theatreRoot.position.set(t.position.x, t.position.y, t.position.z);
+  theatreRoot.rotation.set(0, rad(t.rotationY || 0), 0);
+  theatreRoot.scale.setScalar(t.scale || 1);
+  theatreRoot.visible = t.visible;
+}
+
+// ---------- history ----------
+const undoStack = [], redoStack = [];
+const docKeys = ['reference', 'theatreModel', 'objects', 'libraryProxies', 'grid'];
+function snapshot() {
+  return JSON.stringify(Object.fromEntries(docKeys.map(k => [k, stage[k]])));
+}
+let lastSnap = null;
+function commit(before = lastSnap) {
+  const now = snapshot();
+  if (before && before !== now) {
+    undoStack.push(before);
+    if (undoStack.length > 200) undoStack.shift();
+    redoStack.length = 0;
+  }
+  lastSnap = now;
+  stage.modifiedAt = new Date().toISOString();
+  markDirty();
+  $('undo').disabled = !undoStack.length;
+  $('redo').disabled = !redoStack.length;
+}
+async function edit(fn) {
+  const before = snapshot();
+  fn();
+  commit(before);
+  await syncScene();
+}
+async function travel(from, to) {
+  if (!from.length) return;
+  to.push(snapshot());
+  Object.assign(stage, JSON.parse(from.pop()));
+  lastSnap = snapshot();
+  if (selectedId && selectedId !== 'reference' && selectedId !== 'theatre' && !objById(selectedId)) selectedId = null;
+  stage.modifiedAt = new Date().toISOString();
+  markDirty();
+  $('undo').disabled = !undoStack.length;
+  $('redo').disabled = !redoStack.length;
+  await syncScene();
+}
+$('undo').onclick = () => travel(undoStack, redoStack);
+$('redo').onclick = () => travel(redoStack, undoStack);
+
+// ---------- adding objects ----------
+function frontPosition() {
+  // New objects land on the stage floor near where the camera looks, snapped.
+  const t = orbit.target, step = stage.grid.step || .1;
+  const snap = v => Math.round(v / step) * step;
+  return { x: r3(snap(t.x)), y: 0, z: r3(snap(Math.min(t.z, -1))) };
+}
+function uniqueName(base) {
+  const names = new Set(stage.objects.map(o => o.name));
+  if (!names.has(base)) return base;
+  let i = 2;
+  while (names.has(base + ' ' + i)) i++;
+  return base + ' ' + i;
+}
+async function addObject(o) {
+  const full = {
+    id: uid(), visible: true, locked: false, color: '#9aa0a8',
+    position: frontPosition(), rotation: { x: 0, y: 0, z: 0 }, ...o
+  };
+  full.name = uniqueName(full.name);
+  await edit(() => stage.objects.push(full));
+  select(full.id);
+  return full;
+}
+$('addPrimitives').onclick = e => {
+  const s = e.target.dataset.shape;
+  if (!s) return;
+  const dims = s === 'plane' ? { w: 2, d: 2, h: .01 } : { w: 1, d: 1, h: 1 };
+  addObject({ kind: 'primitive', shape: s, name: SHAPES[s], dims, color: '#9aa0a8' });
+};
+$('addPresets').onclick = e => {
+  const k = e.target.dataset.preset;
+  if (!k) return;
+  const p = PRESETS[k];
+  addObject({ kind: 'preset', preset: k, name: p.label, dims: { ...p.dims }, color: p.color });
+};
+
+// ---------- files (content-addressed, stored once in the project's originals/) ----------
+async function sha256(blob) {
+  const h = await crypto.subtle.digest('SHA-256', await blob.arrayBuffer());
+  return Array.from(new Uint8Array(h), b => b.toString(16).padStart(2, '0')).join('');
+}
+async function putFile(blob, ext) {
+  const name = (await sha256(blob)) + '.' + ext;
+  files.set(name, blob);
+  if (cloud && !uploaded.has(name)) {
+    await api('/projects/' + encodeURIComponent(projectId) + '/originals/' + name, { method: 'PUT', body: blob, headers: { 'content-type': blob.type || 'application/octet-stream' } });
+    uploaded.add(name);
+  }
+  return name;
+}
+async function getFile(name) {
+  if (files.has(name)) return files.get(name);
+  if (!cloud) throw Error('File not available offline.');
+  const b = await (await api('/projects/' + encodeURIComponent(projectId) + '/originals/' + name)).blob();
+  if ((await sha256(b)) !== name.slice(0, 64)) throw Error('A file in Google Drive is damaged.');
+  files.set(name, b);
+  uploaded.add(name);
+  return b;
+}
+function modelBlob(file) {
+  const ext = /\.gltf$/i.test(file.name) ? 'gltf' : 'glb';
+  return { blob: file.slice(0, file.size, ext === 'glb' ? 'model/gltf-binary' : 'model/gltf+json'), ext };
+}
+$('importModel').onclick = () => $('modelFile').click();
+$('modelFile').onchange = async e => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  try {
+    setStatus('Importing ' + f.name + '…');
+    const { blob, ext } = modelBlob(f);
+    const name = await putFile(blob, ext);
+    const { native } = normalise(await loadModelScene(name));
+    await addObject({ kind: 'model', file: name, name: f.name.replace(/\.(glb|gltf)$/i, ''), native: { w: r3(native.w), d: r3(native.d), h: r3(native.h) }, dims: { w: r3(native.w), d: r3(native.d), h: r3(native.h) } });
+    toast('Imported ' + f.name + ' (' + r3(native.w) + ' × ' + r3(native.d) + ' × ' + r3(native.h) + ' m as modelled)');
+    await saveNow();
+  } catch (err) {
+    toast('Import failed: ' + err.message);
+    setStatus('Import failed', true);
+  }
+};
+
+// ---------- Object Library (read-only from the 2D project) ----------
+function libraryObjects() {
+  return Array.isArray(manifest?.objects) ? manifest.objects.filter(o => o.versions?.length) : [];
+}
+function libraryTextureName(o, v) {
+  return manifest?.cloudStorage?.originals?.[v.assetId] || null;
+}
+function proxyFor(o) {
+  return stage.libraryProxies[o.id] || { proxy: 'card', dims: { w: 0.6, d: 0.02, h: /character|figure/i.test(o.category) ? 1.75 : 1.0 } };
+}
+async function placeLibrary(o) {
+  const v = o.versions.at(-1), tex = libraryTextureName(o, v), p = proxyFor(o);
+  let dims = { ...p.dims };
+  if (p.proxy === 'card' && tex) {
+    const { aspect } = await loadTexture(tex);
+    dims = { w: r3(dims.h * aspect), d: 0.02, h: dims.h };
+  }
+  await addObject({ kind: 'library', name: o.name, objectRef: { objectId: o.id, versionId: v.id }, texture: tex, proxy: p.proxy, file: p.file || null, native: p.native || null, dims });
+}
+async function attachLibraryModel(o) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.glb,.gltf';
+  input.onchange = async () => {
+    const f = input.files[0];
+    if (!f) return;
+    const { blob, ext } = modelBlob(f);
+    const name = await putFile(blob, ext);
+    const { native } = normalise(await loadModelScene(name));
+    const n = { w: r3(native.w), d: r3(native.d), h: r3(native.h) };
+    await edit(() => stage.libraryProxies[o.id] = { proxy: 'model', file: name, native: n, dims: { ...n } });
+    toast('3D proxy attached to “' + o.name + '”. New placements use it.');
+    libraryUI();
+  };
+  input.click();
+}
+function libraryUI() {
+  const list = $('libList'), objs = libraryObjects();
+  $('libCount').textContent = objs.length ? objs.length : '';
+  list.replaceChildren();
+  if (!objs.length) {
+    const p = document.createElement('p');
+    p.className = 'dim';
+    p.textContent = cloud ? 'Objects saved in this project\'s 2D Library appear here and can be placed as stand-in cards, boxes or 3D models.' : 'Open a project from CORE to use its Object Library.';
+    list.append(p);
+    return;
+  }
+  for (const o of objs) {
+    const v = o.versions.at(-1), p = proxyFor(o), item = document.createElement('div');
+    item.className = 'libItem';
+    const img = document.createElement('img');
+    img.alt = '';
+    const tex = libraryTextureName(o, v);
+    if (tex) getFile(tex).then(b => img.src = URL.createObjectURL(b)).catch(() => {});
+    const body = document.createElement('div');
+    const t = document.createElement('b');
+    t.textContent = o.name;
+    const sm = document.createElement('div');
+    sm.className = 'dim';
+    sm.style.margin = 0;
+    sm.textContent = o.category + ' · v' + v.n + ' · ' + (p.proxy === 'model' ? '3D model' : p.proxy === 'box' ? 'box' : 'card');
+    const b = document.createElement('div');
+    b.className = 'btns';
+    const place = document.createElement('button');
+    place.textContent = 'Place';
+    place.onclick = () => placeLibrary(o);
+    const attach = document.createElement('button');
+    attach.textContent = p.proxy === 'model' ? 'Replace 3D…' : 'Attach 3D…';
+    attach.onclick = () => attachLibraryModel(o);
+    b.append(place, attach);
+    body.append(t, sm, b);
+    item.append(img, body);
+    list.append(item);
+  }
+}
+
+// ---------- selection & picking ----------
+function select(id) {
+  selectedId = id;
+  attachGizmo();
+  listUI();
+  propsUI();
+  stageUI();
+  hud();
+}
+function attachGizmo() {
+  let node = null, locked = false;
+  if (selectedId === 'theatre' && stage.theatreModel) {
+    node = theatreRoot;
+    locked = stage.theatreModel.locked;
+  } else if (selectedId && nodes.has(selectedId)) {
+    node = nodes.get(selectedId);
+    const o = objById(selectedId);
+    locked = !o || o.locked || !o.visible;
+  }
+  if (node && !locked) {
+    if (gizmo.object !== node) gizmo.attach(node);
+    gizmo.showY = true;
+    gizmo.enabled = true;
+    if (node === theatreRoot && gizmo.mode === 'scale') setMode('translate');
+  } else gizmo.detach();
+  if (node && node.visible) {
+    selBox.setFromObject(node);
+    selBox.visible = true;
+  } else selBox.visible = false;
+}
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+let downAt = null;
+canvas.addEventListener('pointerdown', e => downAt = [e.clientX, e.clientY]);
+canvas.addEventListener('pointerup', e => {
+  if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 4 || gizmo.dragging) return;
+  const r = canvas.getBoundingClientRect();
+  ndc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const hits = ray.intersectObjects(content.children.filter(n => n.visible), true).filter(h => h.object.isMesh);
+  if (hits.length) {
+    let n = hits[0].object;
+    while (n.parent && n.parent !== content) n = n.parent;
+    select(n.userData.id);
+  } else select(null);
+});
+
+// ---------- cameras ----------
+const VIEWS = {
+  perspective: { cam: 'p', pos: [14, 9, 18], target: [0, 1.5, -5] },
+  audience: { cam: 'p', pos: [0, 3.2, 24], target: [0, 2.6, -6] },
+  front: { cam: 'o', pos: [0, 4, 60], target: [0, 4, -5], half: 11 },
+  side: { cam: 'o', pos: [60, 4, -5], target: [0, 4, -5], half: 11 },
+  top: { cam: 'o', pos: [0, 80, -5.0001], target: [0, 0, -5], half: 14 }
+};
+function setView(name, keepTarget = false) {
+  const v = VIEWS[name];
+  viewName = name;
+  for (const b of document.querySelectorAll('[data-view]')) b.setAttribute('aria-pressed', b.dataset.view === name);
+  camera = v.cam === 'p' ? persp : ortho;
+  orbit.object = camera;
+  gizmo.camera = camera;
+  orbit.enableRotate = v.cam === 'p';
+  const target = keepTarget ? orbit.target.clone() : new THREE.Vector3(...v.target);
+  if (v.cam === 'o') {
+    ortho.userData.half = v.half;
+    ortho.zoom = 1;
+    orthoFrustum();
+    const dir = new THREE.Vector3(...v.pos).sub(new THREE.Vector3(...v.target)).normalize();
+    ortho.position.copy(target).addScaledVector(dir, 60);
+    ortho.up.set(0, name === 'top' ? 0 : 1, name === 'top' ? -1 : 0);
+  } else {
+    persp.up.set(0, 1, 0);
+    if (!keepTarget) persp.position.set(...v.pos);
+  }
+  camera.lookAt(target);
+  orbit.target.copy(target);
+  orbit.update();
+  hud();
+}
+for (const b of document.querySelectorAll('[data-view]')) b.onclick = () => setView(b.dataset.view);
+function frameSelected() {
+  let node = selectedId === 'theatre' ? theatreRoot : nodes.get(selectedId);
+  const box = new THREE.Box3();
+  if (node) box.setFromObject(node);
+  else {
+    box.setFromObject(content);
+    if (box.isEmpty()) box.set(new THREE.Vector3(-12, 0, -13.34), new THREE.Vector3(12, 7.2, 0));
+  }
+  const c = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3()).length() || 1;
+  if (camera === persp) {
+    const dir = persp.position.clone().sub(orbit.target).normalize();
+    persp.position.copy(c).addScaledVector(dir, size / (2 * Math.tan(rad(persp.fov / 2))) * 1.25);
+  } else {
+    const dir = ortho.position.clone().sub(orbit.target).normalize();
+    ortho.position.copy(c).addScaledVector(dir, 60);
+    ortho.zoom = Math.max(.05, (ortho.userData.half || 10) / (size * .65));
+    ortho.updateProjectionMatrix();
+  }
+  orbit.target.copy(c);
+  orbit.update();
+}
+$('frameSel').onclick = frameSelected;
+function setMode(m) {
+  if (m === 'scale' && gizmo.object === theatreRoot) m = 'translate';
+  gizmo.setMode(m);
+  for (const b of document.querySelectorAll('[data-mode]')) b.setAttribute('aria-pressed', b.dataset.mode === m);
+}
+for (const b of document.querySelectorAll('[data-mode]')) b.onclick = () => setMode(b.dataset.mode);
+function applySnap() {
+  const g = stage.grid;
+  gizmo.setTranslationSnap(g.snap ? g.step : null);
+  gizmo.setRotationSnap(g.snap ? rad(g.angle) : null);
+  gizmo.setScaleSnap(g.snap ? .05 : null);
+  $('snapOn').checked = g.snap;
+  $('snapStep').value = g.step;
+  $('snapAngle').value = g.angle;
+}
+$('snapOn').onchange = () => edit(() => stage.grid.snap = $('snapOn').checked).then(applySnap);
+$('snapStep').onchange = () => edit(() => stage.grid.step = Math.max(.001, +$('snapStep').value || .1)).then(applySnap);
+$('snapAngle').onchange = () => edit(() => stage.grid.angle = Math.min(90, Math.max(1, +$('snapAngle').value || 15))).then(applySnap);
+function hud() {
+  const o = objById(selectedId);
+  const cam = viewName[0].toUpperCase() + viewName.slice(1);
+  $('hud').textContent = cam + (o ? ' · ' + o.name + ' @ ' + o.position.x.toFixed(2) + ', ' + o.position.y.toFixed(2) + ', ' + o.position.z.toFixed(2) + ' m · ' + o.dims.w.toFixed(2) + ' × ' + o.dims.d.toFixed(2) + ' × ' + o.dims.h.toFixed(2) + ' m' : '');
+}
+
+// ---------- UI: scene list ----------
+function rowBtn(text, title, fn) {
+  const b = document.createElement('button');
+  b.textContent = text;
+  b.title = title;
+  b.onclick = e => {
+    e.stopPropagation();
+    fn();
+  };
+  return b;
+}
+function listUI() {
+  const list = $('sceneList');
+  list.replaceChildren();
+  $('objCount').textContent = stage.objects.length;
+  const mk = (id, name, sub, extra = []) => {
+    const r = document.createElement('div');
+    r.className = 'row' + (selectedId === id ? ' sel' : '');
+    r.dataset.id = id;
+    const s = document.createElement('span');
+    s.textContent = name;
+    const sm = document.createElement('small');
+    sm.textContent = sub;
+    r.append(s, sm, ...extra);
+    r.onclick = () => select(id);
+    r.ondblclick = () => {
+      select(id);
+      frameSelected();
+    };
+    list.append(r);
+    return r;
+  };
+  mk('reference', 'Stage reference', REFERENCES[stage.reference.preset]?.label.split(' — ')[0] || '');
+  if (stage.theatreModel) mk('theatre', 'Theatre model', stage.theatreModel.locked ? 'locked' : 'model');
+  for (const o of [...stage.objects].reverse()) {
+    const r = mk(o.id, o.name, o.kind === 'preset' ? PRESETS[o.preset]?.label.toLowerCase() : o.kind === 'primitive' ? o.shape : o.kind === 'library' ? 'library' : 'model', [
+      rowBtn(o.visible ? '👁' : '–', o.visible ? 'Hide' : 'Show', () => edit(() => o.visible = !o.visible)),
+      rowBtn(o.locked ? '🔒' : '○', o.locked ? 'Unlock' : 'Lock', () => edit(() => o.locked = !o.locked))
+    ]);
+    r.classList.toggle('hiddenObj', !o.visible);
+  }
+}
+
+// ---------- UI: properties ----------
+function trio(label, values, onSet, opts = {}) {
+  const w = document.createElement('div');
+  w.className = 'trio';
+  const l = document.createElement('span');
+  l.textContent = label;
+  w.append(l);
+  for (const [axis, val] of values) {
+    const i = document.createElement('input');
+    i.type = 'number';
+    i.step = opts.step || '0.01';
+    if (opts.min !== undefined) i.min = opts.min;
+    i.value = val;
+    i.title = axis;
+    i.setAttribute('aria-label', label + ' ' + axis);
+    i.dataset.axis = axis;
+    i.disabled = !!opts.disabled;
+    i.onchange = () => {
+      const n = parseFloat(i.value.replace(',', '.'));
+      if (Number.isFinite(n)) onSet(axis, n);
+      else i.value = val;
+    };
+    w.append(i);
+  }
+  return w;
+}
+function axisRow(labels) {
+  const w = document.createElement('div');
+  w.className = 'trio';
+  w.append(document.createElement('span'));
+  for (const t of labels) {
+    const s = document.createElement('span');
+    s.className = 'ax';
+    s.textContent = t;
+    s.style.textAlign = 'right';
+    w.append(s);
+  }
+  return w;
+}
+let lockRatio = false;
+function propsUI(live = false) {
+  const box = $('props');
+  if (live && document.activeElement && box.contains(document.activeElement)) return;
+  box.replaceChildren();
+  const o = objById(selectedId);
+  if (selectedId === 'reference' || selectedId === 'theatre') {
+    $('propsTitle').textContent = 'PROPERTIES';
+    const p = document.createElement('p');
+    p.className = 'empty';
+    p.textContent = 'Set up the stage reference and the theatre model in the panel below.';
+    box.append(p);
+    return;
+  }
+  if (!o) {
+    $('propsTitle').textContent = 'PROPERTIES';
+    const p = document.createElement('p');
+    p.className = 'empty';
+    p.textContent = 'Select an object in the viewport or the scene list.';
+    box.append(p);
+    return;
+  }
+  $('propsTitle').textContent = 'PROPERTIES · ' + (o.kind === 'preset' ? PRESETS[o.preset].label.toUpperCase() : o.kind === 'primitive' ? o.shape.toUpperCase() : o.kind === 'library' ? 'LIBRARY OBJECT' : 'MODEL');
+  const dis = o.locked;
+  const nameL = document.createElement('label');
+  nameL.textContent = 'Name';
+  const name = document.createElement('input');
+  name.id = 'objName';
+  name.value = o.name;
+  name.onchange = () => edit(() => o.name = name.value.trim() || o.name);
+  nameL.append(name);
+  box.append(nameL);
+  box.append(axisRow(['X', 'Y', 'Z']));
+  box.append(trio('Pos m', [['x', o.position.x], ['y', o.position.y], ['z', o.position.z]], (a, n) => edit(() => o.position[a] = r3(n)), { disabled: dis }));
+  box.append(trio('Rot °', [['x', o.rotation.x], ['y', o.rotation.y], ['z', o.rotation.z]], (a, n) => edit(() => o.rotation[a] = r3(n)), { step: '1', disabled: dis }));
+  box.append(axisRow(['Width', 'Depth', 'Height']));
+  box.append(trio('Size m', [['w', o.dims.w], ['d', o.dims.d], ['h', o.dims.h]], (a, n) => edit(() => {
+    n = Math.max(.001, n);
+    if (lockRatio) {
+      const f = n / o.dims[a];
+      for (const k of ['w', 'd', 'h']) o.dims[k] = r3(Math.max(.001, o.dims[k] * f));
+    } else o.dims[a] = r3(n);
+  }), { min: '0.001', disabled: dis }));
+  const lr = document.createElement('label');
+  lr.className = 'check';
+  const lri = document.createElement('input');
+  lri.type = 'checkbox';
+  lri.checked = lockRatio;
+  lri.onchange = () => lockRatio = lri.checked;
+  lr.append(lri, 'Keep proportions');
+  box.append(lr);
+  if (o.kind === 'model' || (o.kind === 'library' && o.native)) {
+    const n = nativeOf(o), p = document.createElement('p');
+    p.className = 'dim';
+    p.textContent = 'As modelled: ' + n.w + ' × ' + n.d + ' × ' + n.h + ' m';
+    const reset = rowBtn('Reset size', 'Back to the modelled size', () => edit(() => o.dims = { ...n }));
+    box.append(p, reset);
+  }
+  if (o.kind !== 'model' && !(o.kind === 'library' && (o.proxy || 'card') === 'card')) {
+    const cl = document.createElement('label');
+    cl.textContent = 'Colour';
+    const c = document.createElement('input');
+    c.type = 'color';
+    c.value = o.color || '#9aa0a8';
+    c.disabled = dis;
+    c.onchange = () => edit(() => o.color = c.value);
+    cl.append(c);
+    box.append(cl);
+  }
+  if (o.kind === 'library') {
+    const lib = libraryObjects().find(x => x.id === o.objectRef.objectId);
+    const v = lib?.versions.find(x => x.id === o.objectRef.versionId);
+    const p = document.createElement('p');
+    p.className = 'dim';
+    p.textContent = lib ? 'Library: ' + lib.name + ' · version ' + (v?.n ?? '?') + (lib.versions.at(-1).n > (v?.n ?? 0) ? ' (Library has version ' + lib.versions.at(-1).n + ')' : '') : 'From a Library object that is no longer in the project.';
+    box.append(p);
+    if (lib) {
+      const save = rowBtn('Use this size for new placements', 'Store as the default proxy size of this Library object', () => edit(() => stage.libraryProxies[lib.id] = { ...(stage.libraryProxies[lib.id] || { proxy: o.proxy || 'card' }), proxy: o.proxy || 'card', file: o.file || stage.libraryProxies[lib.id]?.file || null, native: o.native || null, dims: { ...o.dims } }));
+      box.append(save);
+    }
+  }
+  const acts = document.createElement('div');
+  acts.className = 'btns';
+  acts.style.marginTop = '6px';
+  const b = (t, fn, d = false) => {
+    const x = document.createElement('button');
+    x.textContent = t;
+    x.onclick = fn;
+    x.disabled = d;
+    acts.append(x);
+  };
+  b('Duplicate', () => duplicate(), false);
+  b(o.visible ? 'Hide' : 'Show', () => edit(() => o.visible = !o.visible));
+  b(o.locked ? 'Unlock' : 'Lock', () => edit(() => o.locked = !o.locked));
+  b('Drop to floor', () => edit(() => o.position.y = 0), dis);
+  b('Set as origin', () => setOriginAt(o), false);
+  b('Delete', () => removeSelected(), false);
+  box.append(acts);
+}
+async function duplicate() {
+  const o = objById(selectedId);
+  if (!o) return;
+  const c = clone(o);
+  c.id = uid();
+  c.name = uniqueName(o.name.replace(/ \d+$/, ''));
+  c.locked = false;
+  c.position.x = r3(c.position.x + (stage.grid.step >= .5 ? stage.grid.step : .5));
+  await edit(() => stage.objects.push(c));
+  select(c.id);
+}
+async function removeSelected() {
+  const o = objById(selectedId);
+  if (!o) return;
+  await edit(() => stage.objects.splice(stage.objects.indexOf(o), 1));
+  select(null);
+  toast('Deleted “' + o.name + '” · Undo brings it back');
+}
+// Moving the origin shifts everything (reference, model, objects) so the chosen point becomes 0,0,0.
+async function setOriginAt(o) {
+  const d = { ...o.position };
+  if (!confirm('Make the position of “' + o.name + '” the new stage origin (0, 0, 0)? Everything moves by ' + -d.x + ', ' + -d.y + ', ' + -d.z + ' m.')) return;
+  await edit(() => {
+    for (const x of stage.objects) for (const k of ['x', 'y', 'z']) x.position[k] = r3(x.position[k] - d[k]);
+    for (const k of ['x', 'y', 'z']) stage.reference.position[k] = r3(stage.reference.position[k] - d[k]);
+    if (stage.theatreModel) for (const k of ['x', 'y', 'z']) stage.theatreModel.position[k] = r3(stage.theatreModel.position[k] - d[k]);
+  });
+}
+
+// ---------- UI: stage reference / theatre model ----------
+function stageUI() {
+  const box = $('stageProps'), ref = stage.reference, R = REFERENCES[ref.preset];
+  if (document.activeElement?.matches('input, select') && box.contains(document.activeElement)) return;
+  box.replaceChildren();
+  const sl = document.createElement('label');
+  sl.textContent = 'Reference';
+  const sel = document.createElement('select');
+  sel.id = 'refPreset';
+  for (const [k, v] of Object.entries(REFERENCES)) sel.add(new Option(v.label, k, false, k === ref.preset));
+  sel.onchange = () => edit(() => ref.preset = sel.value);
+  sl.append(sel);
+  box.append(sl);
+  const vis = document.createElement('label');
+  vis.className = 'check';
+  const vi = document.createElement('input');
+  vi.type = 'checkbox';
+  vi.checked = ref.visible;
+  vi.onchange = () => edit(() => ref.visible = vi.checked);
+  vis.append(vi, 'Show reference');
+  box.append(vis);
+  if (R?.note) {
+    const p = document.createElement('p');
+    p.className = 'refnote';
+    p.textContent = R.note;
+    box.append(p);
+  }
+  box.append(axisRow(['X', 'Y', 'Z']));
+  box.append(trio('Offset m', [['x', ref.position.x], ['y', ref.position.y], ['z', ref.position.z]], (a, n) => edit(() => ref.position[a] = r3(n))));
+  box.append(trio('Turn °', [['y', ref.rotationY || 0]], (a, n) => edit(() => ref.rotationY = r3(n)), { step: '0.1' }));
+  const h = document.createElement('h2');
+  h.textContent = 'THEATRE MODEL';
+  h.style.marginTop = '12px';
+  box.append(h);
+  const t = stage.theatreModel;
+  if (!t) {
+    const p = document.createElement('p');
+    p.className = 'refnote';
+    p.textContent = 'Import the theatre\'s official 3D model (GLB/GLTF) when you have it, then align it to the reference.';
+    box.append(p, rowBtn('Import theatre model…', '', () => $('theatreFile').click()));
+    return;
+  }
+  const p = document.createElement('p');
+  p.className = 'refnote';
+  p.textContent = t.name;
+  box.append(p);
+  box.append(axisRow(['X', 'Y', 'Z']));
+  box.append(trio('Pos m', [['x', t.position.x], ['y', t.position.y], ['z', t.position.z]], (a, n) => edit(() => t.position[a] = r3(n)), { disabled: t.locked }));
+  box.append(trio('Turn °', [['y', t.rotationY || 0]], (a, n) => edit(() => t.rotationY = r3(n)), { step: '0.1', disabled: t.locked }));
+  const ul = document.createElement('label');
+  ul.textContent = 'Model units';
+  const us = document.createElement('select');
+  for (const [v, l] of [[1, 'metres'], [.01, 'centimetres'], [.001, 'millimetres'], [.0254, 'inches']]) us.add(new Option(l, v, false, Math.abs((t.scale || 1) - v) < 1e-9));
+  if (![1, .01, .001, .0254].some(v => Math.abs((t.scale || 1) - v) < 1e-9)) us.add(new Option('custom ×' + t.scale, t.scale, false, true));
+  us.disabled = t.locked;
+  us.onchange = () => edit(() => t.scale = +us.value);
+  ul.append(us);
+  box.append(ul);
+  const acts = document.createElement('div');
+  acts.className = 'btns';
+  acts.append(
+    rowBtn(t.visible ? 'Hide' : 'Show', '', () => edit(() => t.visible = !t.visible)),
+    rowBtn(t.locked ? 'Unlock to align' : 'Lock', '', () => edit(() => t.locked = !t.locked).then(() => select('theatre'))),
+    rowBtn('Replace…', '', () => $('theatreFile').click()),
+    rowBtn('Remove', '', () => edit(() => stage.theatreModel = null))
+  );
+  box.append(acts);
+}
+$('theatreFile').onchange = async e => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  try {
+    setStatus('Importing theatre model…');
+    const { blob, ext } = modelBlob(f);
+    const name = await putFile(blob, ext);
+    await loadModelScene(name);
+    await edit(() => stage.theatreModel = { file: name, name: f.name, visible: true, locked: false, position: { x: 0, y: 0, z: 0 }, rotationY: 0, scale: 1 });
+    select('theatre');
+    toast('Theatre model imported. Check “Model units”, then move it so the portal line sits on the reference, and lock it.');
+    await saveNow();
+  } catch (err) {
+    toast('Import failed: ' + err.message);
+  }
+};
+
+// ---------- keyboard ----------
+addEventListener('keydown', e => {
+  if (e.target.closest('input, select, textarea')) return;
+  const mod = e.metaKey || e.ctrlKey;
+  if (mod && e.key.toLowerCase() === 'z') {
+    e.preventDefault();
+    travel(e.shiftKey ? redoStack : undoStack, e.shiftKey ? undoStack : redoStack);
+  } else if (mod && e.key.toLowerCase() === 'd') {
+    e.preventDefault();
+    duplicate();
+  } else if (mod && e.key.toLowerCase() === 's') {
+    e.preventDefault();
+    saveNow();
+  } else if (mod) return;
+  else if (e.key === 'w') setMode('translate');
+  else if (e.key === 'e') setMode('rotate');
+  else if (e.key === 'r') setMode('scale');
+  else if (e.key === 'f') frameSelected();
+  else if (e.key === 'Escape') select(null);
+  else if ((e.key === 'Delete' || e.key === 'Backspace') && objById(selectedId)) removeSelected();
+  else if (/^[1-5]$/.test(e.key)) setView(['perspective', 'audience', 'front', 'side', 'top'][+e.key - 1]);
+});
+
+// ---------- export ----------
+$('exportBtn').onclick = () => {
+  const m = $('exportMenu');
+  m.hidden = !m.hidden;
+  $('exportBtn').setAttribute('aria-expanded', !m.hidden);
+};
+addEventListener('pointerdown', e => {
+  if (!e.target.closest('.menu')) $('exportMenu').hidden = true;
+});
+async function renderPng(width = 1920) {
+  const r = canvas.parentElement.getBoundingClientRect(), aspect = r.width / Math.max(1, r.height);
+  const w = Math.round(width), h = Math.round(width / aspect);
+  const helper = gizmo.getHelper(), was = [helper.visible, selBox.visible, grid.visible, axesHelper.visible];
+  helper.visible = selBox.visible = axesHelper.visible = false;
+  const pr = renderer.getPixelRatio();
+  renderer.setPixelRatio(1);
+  renderer.setSize(w, h, false);
+  if (camera === persp) {
+    persp.aspect = w / h;
+    persp.updateProjectionMatrix();
+  }
+  renderer.render(scene, camera);
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+  [helper.visible, selBox.visible, grid.visible, axesHelper.visible] = was;
+  renderer.setPixelRatio(pr);
+  resize();
+  return { blob, w, h };
+}
+function download(blob, name) {
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: name });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+const fileBase = () => ((manifest?.name || 'stage') + ' - 3D ' + viewName).replace(/[\\/:*?"<>|]/g, '_');
+$('exportPng').onclick = async () => {
+  $('exportMenu').hidden = true;
+  const { blob } = await renderPng();
+  download(blob, fileBase() + '.png');
+};
+$('exportGlb').onclick = async () => {
+  $('exportMenu').hidden = true;
+  try {
+    const root = new THREE.Group();
+    root.name = 'Stage';
+    for (const n of content.children) if (n.visible) {
+      const c = n.clone(true);
+      c.name = objOf(n)?.name || 'Object';
+      c.traverse(x => {
+        if (x.isLineSegments) x.visible = false;
+      });
+      root.add(c);
+    }
+    root.updateMatrixWorld(true);
+    const data = await new GLTFExporter().parseAsync(root, { binary: true, onlyVisible: true });
+    download(new Blob([data], { type: 'model/gltf-binary' }), fileBase().replace(/ - 3D .*/, '') + ' - stage.glb');
+    toast('GLB exported (objects only, in metres; the reference outline is not included).');
+  } catch (e) {
+    toast('GLB export failed: ' + e.message);
+  }
+};
+// Adds the current camera view as a new page of the 2D project (append-only, revision-checked).
+$('exportTo2d').onclick = async () => {
+  $('exportMenu').hidden = true;
+  if (!cloud) {
+    toast('Open this 3D stage from a CORE project to send views to the 2D Editor.');
+    return;
+  }
+  try {
+    setStatus('Sending view to the 2D Editor…');
+    const { blob, w, h } = await renderPng(1920);
+    const name = await putFile(blob, 'png');
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const r = await api('/projects/' + encodeURIComponent(projectId));
+      const rev = r.headers.get('X-Revision');
+      const p = await r.json();
+      const assetId = uid(), pageId = uid(), now = new Date();
+      const label = '3D ' + viewName + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      p.assets.push({ id: assetId, name: label + '.png', type: 'image/png', path: 'originals/' + assetId + '/' + label.replace(/[\\/:]/g, '-') + '.png' });
+      p.cloudStorage.originals[assetId] = name;
+      p.pages.push({
+        id: pageId, name: label,
+        scene: {
+          prompt: '', frame: { x: 0, y: 0, w, h }, exportSettings: clone(p.exportSettings), annotations: true, generationHistory: [],
+          promptAssistant: { version: 1, instructions: '', lastGenerated: '', history: [] },
+          layers: [{ id: uid(), type: 'image', name: label, visible: true, locked: false, opacity: 1, angle: 0, assetId, mode: 'composition', flipX: false, x: w / 2, y: h / 2, w, h, crop: { x: 0, y: 0, w, h } }]
+        }
+      });
+      p.modifiedAt = now.toISOString();
+      try {
+        await api('/projects/' + encodeURIComponent(projectId), { method: 'PUT', body: JSON.stringify(p), headers: { 'content-type': 'application/json', 'If-Match': rev } });
+        manifest = p;
+        setStatus('Saved to Google Drive');
+        toast('Added page “' + label + '” to the 2D project. If the 2D Editor is open, reload it from Google Drive.', 7000);
+        return;
+      } catch (e) {
+        if (e.code !== 'conflict' || attempt) throw e;
+      }
+    }
+  } catch (e) {
+    setStatus('Could not send the view', true);
+    toast('Could not add the view to the 2D Editor: ' + e.message);
+  }
+};
+
+// ---------- cloud ----------
+class ApiError extends Error {
+  constructor(m, code, status) {
+    super(m);
+    this.code = code;
+    this.status = status;
+  }
+}
+async function api(path, init = {}) {
+  let r;
+  try {
+    r = await fetch(API + path, { ...init, redirect: 'manual', credentials: 'same-origin', headers: { 'X-Studio-Request': '1', ...(init.headers || {}) } });
+  } catch {
+    throw new ApiError('Offline', 'offline', 0);
+  }
+  if (r.type === 'opaqueredirect' || r.status === 401) throw new ApiError('Sign-in expired. Reload the page to sign in.', 'access', 401);
+  if (!r.ok) {
+    let d = {};
+    try { d = await r.json(); } catch {}
+    throw new ApiError(d.error || 'Request failed (' + r.status + ')', d.code || null, r.status);
+  }
+  return r;
+}
+function markDirty() {
+  dirty = true;
+  if (!cloud) {
+    setStatus('Scratch stage · not saved (open from CORE to save)', true);
+    return;
+  }
+  if (conflicted) return;
+  setStatus('Unsaved changes…');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, 1500);
+}
+async function saveNow() {
+  if (!cloud || conflicted) return;
+  if (saving) {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveNow, 600);
+    return;
+  }
+  if (!dirty && revision) {
+    setStatus('Saved to Google Drive');
+    return;
+  }
+  saving = true;
+  dirty = false;
+  try {
+    setStatus('Saving…');
+    // Every referenced file must already be in Drive before the stage points to it.
+    const refs = new Set();
+    for (const o of stage.objects) for (const f of [o.file, o.texture]) if (f) refs.add(f);
+    if (stage.theatreModel) refs.add(stage.theatreModel.file);
+    for (const p of Object.values(stage.libraryProxies)) if (p.file) refs.add(p.file);
+    for (const f of refs) if (!uploaded.has(f) && files.has(f)) await putFile(files.get(f), f.split('.').pop());
+    stage.camera = { view: viewName, position: camera.position.toArray().map(r3), target: orbit.target.toArray().map(r3), zoom: camera.zoom };
+    const r = await api('/projects/' + encodeURIComponent(projectId) + '/stage', { method: 'PUT', body: JSON.stringify(stage), headers: { 'content-type': 'application/json', 'If-Match': revision || 'new' } });
+    const d = await r.json();
+    revision = d.revision;
+    setStatus('Saved to Google Drive · ' + new Date(d.savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  } catch (e) {
+    dirty = true;
+    if (e.code === 'conflict') {
+      conflicted = true;
+      setStatus('Changed in another tab or device', true);
+      $('conflictDialog').showModal();
+    } else {
+      setStatus(e.code === 'offline' ? 'Offline · will retry' : 'Not saved: ' + e.message, true);
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveNow, 8000);
+    }
+  } finally {
+    saving = false;
+  }
+}
+$('saveNow').onclick = () => {
+  dirty = true;
+  saveNow();
+};
+$('conflictKeep').onclick = () => $('conflictDialog').close();
+$('conflictReload').onclick = () => location.reload();
+addEventListener('beforeunload', e => {
+  if (cloud && (dirty || saving)) e.preventDefault();
+});
+async function load() {
+  if (!cloud) {
+    $('projectName').textContent = projectId ? '' : 'Scratch stage';
+    $('coreLink').hidden = location.protocol !== 'https:';
+    setStatus('Scratch stage · open a project from CORE to save', true);
+    return;
+  }
+  setStatus('Opening from Google Drive…');
+  const mr = await api('/projects/' + encodeURIComponent(projectId));
+  manifest = await mr.json();
+  $('projectName').textContent = manifest.name || 'Untitled';
+  document.title = (manifest.name || 'Untitled') + ' — 3D Stage';
+  try {
+    const r = await api('/projects/' + encodeURIComponent(projectId) + '/stage');
+    revision = r.headers.get('X-Revision') || null;
+    const s = await r.json();
+    if (s.format !== 'ds-stage' || s.version !== 1) throw Error('Unrecognized 3D stage data.');
+    stage = { ...freshStage(), ...s };
+    setStatus('Opened from Google Drive');
+  } catch (e) {
+    if (e.code !== 'no_stage') throw e;
+    stage = freshStage();
+    revision = null;
+    dirty = true;
+    setStatus('New 3D stage for this project');
+  }
+}
+async function start() {
+  try {
+    await load();
+  } catch (e) {
+    setStatus('Could not open: ' + e.message, true);
+    toast(e.message, 9000);
+  }
+  lastSnap = snapshot();
+  applySnap();
+  libraryUI();
+  await syncScene();
+  resize();
+  const c = stage.camera;
+  setView(c?.view && VIEWS[c.view] ? c.view : 'perspective');
+  if (c?.position && c?.target) {
+    camera.position.fromArray(c.position);
+    orbit.target.fromArray(c.target);
+    if (c.zoom) {
+      camera.zoom = c.zoom;
+      camera.updateProjectionMatrix();
+    }
+    orbit.update();
+  }
+  if (cloud && !revision) saveNow();
+  else dirty = false;
+  hud();
+  window.stageApp = { get stage() { return stage; }, get revision() { return revision; }, select, setView, nodes, edit, saveNow, renderPng, get camera() { return camera; } };
+  document.body.dataset.ready = '1';
+}
+renderer.setAnimationLoop(() => {
+  orbit.update();
+  if (selBox.visible) {
+    const n = selectedId === 'theatre' ? theatreRoot : nodes.get(selectedId);
+    if (n) selBox.setFromObject(n);
+  }
+  renderer.render(scene, camera);
+});
+start();
+</script>
+</body></html>
