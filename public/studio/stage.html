@@ -480,7 +480,16 @@ async function imageBlock(file) {
       }
     }
     const toShape = loop => loop.map(([px_, py]) => new THREE.Vector2(px_ / W - .5, 1 - py / H));
-    const loops = traceOutlines(alpha, W, H).map(l => toShape(simplify([...l, l[0]], .7).slice(0, -1))).filter(l => l.length > 2 && Math.abs(THREE.ShapeUtils.area(l)) > .0004);
+    // A closed loop is simplified as two open halves, split at the point farthest from its start.
+    const simplifyClosed = l => {
+      let m = 0, best = -1;
+      for (let i = 1; i < l.length; i++) {
+        const d = Math.hypot(l[i][0] - l[0][0], l[i][1] - l[0][1]);
+        if (d > best) best = d, m = i;
+      }
+      return [...simplify(l.slice(0, m + 1), .7).slice(0, -1), ...simplify([...l.slice(m), l[0]], .7).slice(0, -1)];
+    };
+    const loops = traceOutlines(alpha, W, H).map(l => toShape(simplifyClosed(l))).filter(l => l.length > 2 && Math.abs(THREE.ShapeUtils.area(l)) > .0004);
     const outer = loops.filter(l => !THREE.ShapeUtils.isClockWise(l)), holes = loops.filter(l => THREE.ShapeUtils.isClockWise(l));
     if (!outer.length) outer.push([new THREE.Vector2(-.5, 0), new THREE.Vector2(.5, 0), new THREE.Vector2(.5, 1), new THREE.Vector2(-.5, 1)]);
     const inside = (p, poly) => {
