@@ -48,7 +48,7 @@ main { padding: 22px 24px 60px; max-width: 1480px; margin: 0 auto; }
 .tag { font: .7rem var(--mono); color: #bcd6bc; background: #303c31; padding: 1px 5px; border-radius: 3px; margin-left: 6px; }
 .actions { display: flex; gap: 6px; padding: 8px 13px 13px; margin-top: auto; flex-wrap: wrap; }
 .actions .primary { flex: 1; justify-content: center; }
-.actions button { padding: 4px 9px; min-height: 30px; font-size: .8rem; }
+.actions button, .actions a.button:not(.primary) { padding: 4px 9px; min-height: 30px; font-size: .8rem; }
 .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 22px 24px; max-width: 640px; }
 .panel h2 { margin: 0 0 8px; font-size: 1.15rem; }
 .panel p { color: var(--mute); margin: 0 0 14px; }
@@ -179,7 +179,8 @@ function render() {
     const rename = Object.assign(document.createElement('button'), { textContent: 'Rename', onclick: () => renameProject(p) });
     const dup = Object.assign(document.createElement('button'), { textContent: 'Duplicate', onclick: () => duplicateProject(p) });
     const arch = Object.assign(document.createElement('button'), { textContent: p.archived ? 'Restore' : 'Archive', onclick: () => archiveProject(p) });
-    actions.append(open, rename, dup, arch);
+    const stage = Object.assign(document.createElement('a'), { className: 'button', href: '/studio/stage.html?project=' + encodeURIComponent(p.projectId), textContent: '3D Stage', title: '3D blockout of this project' });
+    actions.append(open, stage, rename, dup, arch);
     card.append(thumb, meta, actions);
     grid.append(card);
   }
