@@ -116,7 +116,7 @@ dialog .bar { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14
       </div>
       <h2 style="margin-top:10px">PRESETS</h2>
       <div class="btns" id="addPresets"></div>
-      <div class="btns" style="margin-top:10px"><button id="importModel">Import GLB / GLTF…</button></div>
+      <div class="btns" style="margin-top:10px"><button id="importCard" title="A flat, rotatable card with a 2D image (characters, cut-outs)">Image card…</button><button id="importModel">Import GLB / GLTF…</button></div>
       <p class="dim">Presets use typical sizes. Set the real measurements on the right.</p>
     </section>
     <section class="section" id="librarySection">
@@ -166,6 +166,7 @@ dialog .bar { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14
 </div>
 </div>
 <input type="file" id="modelFile" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" hidden>
+<input type="file" id="cardFile" accept="image/png,image/jpeg,image/webp" hidden>
 <input type="file" id="theatreFile" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" hidden>
 <dialog id="conflictDialog"><h2>Changed elsewhere</h2><p>This 3D stage was saved from another tab or device. Reload it from Google Drive? Your unsaved change in this tab will be lost.</p><div class="bar"><button id="conflictKeep">Keep this tab</button><button class="primary" id="conflictReload">Reload from Drive</button></div></dialog>
 <div class="toast" id="toast" hidden></div>
@@ -409,8 +410,8 @@ async function buildBody(o) {
     const m = await loadModelScene(o.file);
     return normalise(m).inner;
   }
-  if (o.kind === 'library') {
-    const proxy = o.proxy || 'card';
+  if (o.kind === 'library' || o.kind === 'card') {
+    const proxy = o.kind === 'card' ? 'card' : o.proxy || 'card';
     if (proxy === 'model' && o.file) return normalise(await loadModelScene(o.file)).inner;
     if (proxy === 'box') return unitShape('box', o.color || '#8a8f99');
     const g = new THREE.Group();
@@ -681,6 +682,23 @@ function modelBlob(file) {
   const ext = /\.gltf$/i.test(file.name) ? 'gltf' : 'glb';
   return { blob: file.slice(0, file.size, ext === 'glb' ? 'model/gltf-binary' : 'model/gltf+json'), ext };
 }
+// A 2D image as a standing, rotatable card at real-world height (e.g. a character at 1.75 m).
+$('importCard').onclick = () => $('cardFile').click();
+$('cardFile').onchange = async e => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  try {
+    const ext = f.type === 'image/png' ? 'png' : f.type === 'image/webp' ? 'webp' : 'jpg';
+    const name = await putFile(f, ext);
+    const { aspect } = await loadTexture(name);
+    const h = 1.75;
+    await addObject({ kind: 'card', texture: name, name: f.name.replace(/\.[^.]+$/, ''), dims: { w: r3(h * aspect), d: 0.02, h } });
+    toast('Image card placed at 1.75 m height. Set the real height on the right; the width follows the image.');
+  } catch (err) {
+    toast('Could not use this image: ' + err.message);
+  }
+};
 $('importModel').onclick = () => $('modelFile').click();
 $('modelFile').onchange = async e => {
   const f = e.target.files[0];
@@ -937,7 +955,7 @@ function listUI() {
   mk('reference', 'Stage reference', REFERENCES[stage.reference.preset]?.label.split(' — ')[0] || '');
   if (stage.theatreModel) mk('theatre', 'Theatre model', stage.theatreModel.locked ? 'locked' : 'model');
   for (const o of [...stage.objects].reverse()) {
-    const r = mk(o.id, o.name, o.kind === 'preset' ? PRESETS[o.preset]?.label.toLowerCase() : o.kind === 'primitive' ? o.shape : o.kind === 'library' ? 'library' : 'model', [
+    const r = mk(o.id, o.name, o.kind === 'preset' ? PRESETS[o.preset]?.label.toLowerCase() : o.kind === 'primitive' ? o.shape : o.kind === 'library' ? 'library' : o.kind === 'card' ? 'card' : 'model', [
       rowBtn(o.visible ? '👁' : '–', o.visible ? 'Hide' : 'Show', () => edit(() => o.visible = !o.visible)),
       rowBtn(o.locked ? '🔒' : '○', o.locked ? 'Unlock' : 'Lock', () => edit(() => o.locked = !o.locked))
     ]);
@@ -985,6 +1003,7 @@ function axisRow(labels) {
   return w;
 }
 let lockRatio = false;
+const isCard = o => o.kind === 'card' || (o.kind === 'library' && (o.proxy || 'card') === 'card');
 function propsUI(live = false) {
   const box = $('props');
   if (live && document.activeElement && box.contains(document.activeElement)) return;
@@ -1006,7 +1025,7 @@ function propsUI(live = false) {
     box.append(p);
     return;
   }
-  $('propsTitle').textContent = 'PROPERTIES · ' + (o.kind === 'preset' ? PRESETS[o.preset].label.toUpperCase() : o.kind === 'primitive' ? o.shape.toUpperCase() : o.kind === 'library' ? 'LIBRARY OBJECT' : 'MODEL');
+  $('propsTitle').textContent = 'PROPERTIES · ' + (o.kind === 'preset' ? PRESETS[o.preset].label.toUpperCase() : o.kind === 'primitive' ? o.shape.toUpperCase() : o.kind === 'library' ? 'LIBRARY OBJECT' : o.kind === 'card' ? 'IMAGE CARD' : 'MODEL');
   const dis = o.locked;
   const nameL = document.createElement('label');
   nameL.textContent = 'Name';
@@ -1022,9 +1041,9 @@ function propsUI(live = false) {
   box.append(axisRow(['Width', 'Depth', 'Height']));
   box.append(trio('Size m', [['w', o.dims.w], ['d', o.dims.d], ['h', o.dims.h]], (a, n) => edit(() => {
     n = Math.max(.001, n);
-    if (lockRatio) {
+    if (lockRatio || (isCard(o) && a !== 'd')) {
       const f = n / o.dims[a];
-      for (const k of ['w', 'd', 'h']) o.dims[k] = r3(Math.max(.001, o.dims[k] * f));
+      for (const k of ['w', 'd', 'h']) if (!(isCard(o) && k === 'd')) o.dims[k] = r3(Math.max(.001, o.dims[k] * f));
     } else o.dims[a] = r3(n);
   }), { min: '0.001', disabled: dis }));
   const lr = document.createElement('label');
@@ -1042,7 +1061,7 @@ function propsUI(live = false) {
     const reset = rowBtn('Reset size', 'Back to the modelled size', () => edit(() => o.dims = { ...n }));
     box.append(p, reset);
   }
-  if (o.kind !== 'model' && !(o.kind === 'library' && (o.proxy || 'card') === 'card')) {
+  if (o.kind !== 'model' && o.kind !== 'card' && !(o.kind === 'library' && (o.proxy || 'card') === 'card')) {
     const cl = document.createElement('label');
     cl.textContent = 'Colour';
     const c = document.createElement('input');
