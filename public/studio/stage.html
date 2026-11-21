@@ -93,6 +93,7 @@ dialog .bar { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14
 <div class="app">
 <header>
   <a class="button quiet" id="coreLink" href="/studio/">← CORE</a>
+  <a class="button quiet" id="editorLink" href="/studio/" hidden title="Back to this project in the 2D Editor">← 2D Editor</a>
   <div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>DAVID SZAUDER STUDIO <small>3D STAGE</small></div>
   <span id="projectName"></span>
   <span id="status" class="status" role="status">Loading…</span>
@@ -1557,6 +1558,8 @@ async function load() {
   const mr = await api('/projects/' + encodeURIComponent(projectId));
   manifest = await mr.json();
   $('projectName').textContent = manifest.name || 'Untitled';
+  $('editorLink').href = '/studio/editor.html?project=' + encodeURIComponent(projectId);
+  $('editorLink').hidden = false;
   document.title = (manifest.name || 'Untitled') + ' — 3D Stage';
   try {
     const r = await api('/projects/' + encodeURIComponent(projectId) + '/stage');
