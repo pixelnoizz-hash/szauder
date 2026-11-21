@@ -620,10 +620,13 @@ $('redo').onclick = () => travel(redoStack, undoStack);
 
 // ---------- adding objects ----------
 function frontPosition() {
-  // New objects land on the stage floor near where the camera looks, snapped.
+  // New objects land on the stage floor near where the camera looks, snapped,
+  // and step sideways while that spot is already taken.
   const t = orbit.target, step = stage.grid.step || .1;
   const snap = v => Math.round(v / step) * step;
-  return { x: r3(snap(t.x)), y: 0, z: r3(snap(Math.min(t.z, -1))) };
+  const p = { x: r3(snap(t.x)), y: 0, z: r3(snap(Math.min(t.z, -1))) };
+  for (let i = 0; i < 40 && stage.objects.some(o => Math.abs(o.position.x - p.x) < 1 && Math.abs(o.position.z - p.z) < 1); i++) p.x = r3(snap(p.x + 1.5));
+  return p;
 }
 function uniqueName(base) {
   const names = new Set(stage.objects.map(o => o.name));
