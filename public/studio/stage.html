@@ -1235,6 +1235,9 @@ async function renderPng(width = 1920) {
   const w = Math.round(width), h = Math.round(width / aspect);
   const helper = gizmo.getHelper(), was = [helper.visible, selBox.visible, grid.visible, axesHelper.visible];
   helper.visible = selBox.visible = axesHelper.visible = false;
+  // Measurement labels stay on screen but are left out of exported images.
+  const labels = refRoot.children.filter(c => c.isSprite);
+  for (const l of labels) l.visible = false;
   const pr = renderer.getPixelRatio();
   renderer.setPixelRatio(1);
   renderer.setSize(w, h, false);
@@ -1245,6 +1248,7 @@ async function renderPng(width = 1920) {
   renderer.render(scene, camera);
   const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
   [helper.visible, selBox.visible, grid.visible, axesHelper.visible] = was;
+  for (const l of labels) l.visible = true;
   renderer.setPixelRatio(pr);
   resize();
   return { blob, w, h };
