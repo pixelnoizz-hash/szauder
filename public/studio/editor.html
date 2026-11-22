@@ -882,7 +882,7 @@ body.objectMode .stage { box-shadow: inset 0 0 0 3px var(--accent); }
 <div class="foot bar"><span id="frameRead" class="frameRead"></span><span id="hint" class="toolhint push">Space to pan · Scroll to zoom</span></div>
 <section class="prompt" id="promptDock"><div id="split" class="split" role="separator" aria-label="Resize prompt panel" aria-orientation="horizontal" tabindex="0" title="Drag or use arrow keys to resize"></div><div class="bar"><label for="prompt" class="heading">PROMPT</label><button id="genPrompt" class="small primary" title="Build a short prompt from the base image, objects, annotations and your instructions">Generate prompt</button><button id="promptHistoryBtn" class="small quiet" aria-expanded="false" title="Earlier versions of this page's prompt">History</button><button id="promptPackage" class="small quiet" title="Download the numbered images and the prompt for Nano Banana">Images + prompt ↓</button><button id="copy" class="push quiet" data-icon="copy">Copy</button></div><div class="promptCols"><label class="instr"><span class="heading">MY INSTRUCTIONS</span><textarea id="promptInstructions" spellcheck="true" placeholder="Your own words for this page. They go into the prompt unchanged." aria-label="My instructions"></textarea></label><textarea id="prompt" spellcheck="false" placeholder="Write your generation prompt, or press Generate prompt…" aria-label="PROMPT"></textarea></div><div id="promptHistory" class="historyMenu" role="menu" hidden></div></section></div>
 <aside><section class="libPane" id="libPane"><div class="sectionbar bar"><button id="libToggle" class="quiet small" aria-expanded="false" title="Show or hide the Object Library">▸</button><h2 class="heading">LIBRARY</h2><span class="count" id="libCount">0</span><button class="push small" id="newObject" title="Add an object to this project's Library">+ Object</button></div><div id="libList" class="libList"></div></section><section class="layerpane"><div class="sectionbar bar"><h2 class="heading">LAYERS</h2><span class="count" id="count">0</span><button class="push icon quiet" data-icon="plus" id="importLayers" title="Import images"></button></div><div id="layers" class="layerlist"></div></section><section class="propPane"><div class="bar sectionbar"><h2 class="heading">PROPERTIES</h2></div><div class="inspector" id="inspector"></div></section></aside></main>
-<dialog id="objectDialog" class="cropDlg"><h2 class="heading">NEW LIBRARY OBJECT</h2><label class="field">Name<input id="objNewName"></label><label class="field">Category<input id="objNewCategory" list="objCategories" placeholder="e.g. Character, Furniture, Machine"></label><label class="field">Image<select id="objNewSource"></select></label><p class="dim" id="objNewHint"></p><div class="bar exportActions"><button id="objNewCancel">Cancel</button><button class="primary" id="objNewApply">Create object</button></div></dialog><datalist id="objCategories"><option value="Character"><option value="Furniture"><option value="Machine"><option value="Set piece"><option value="Architecture"><option value="Prop"><option value="Costume"><option value="Other"></datalist><dialog id="objDoneDialog" class="cropDlg"><h2 class="heading">UNSAVED OBJECT CHANGES</h2><p>This object changed since its last saved version. Pages only use saved versions. Your working state is kept either way.</p><div class="bar exportActions"><button id="objDoneStay">Keep editing</button><button id="objDoneLeave">Back without saving</button><button class="primary" id="objDoneSave">Save version &amp; back</button></div></dialog><dialog id="pageDialog" class="cropDlg"><label class="field">Page name<input id="pageNameInput"></label><div class="bar exportActions"><button id="pageCancel">Cancel</button><button class="primary" id="pageApply">Apply</button></div></dialog>
+<dialog id="objectDialog" class="cropDlg"><h2 class="heading">NEW LIBRARY OBJECT</h2><label class="field">Name<input id="objNewName"></label><label class="field">Category<input id="objNewCategory" list="objCategories" placeholder="e.g. Character, Furniture, Machine"></label><label class="field">Image<select id="objNewSource"></select></label><label class="field" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="objNewCutout" style="width:auto">Remove background (cut-out)</label><p class="dim" id="objNewHint"></p><div class="bar exportActions"><button id="objNewCancel">Cancel</button><button class="primary" id="objNewApply">Create object</button></div></dialog><datalist id="objCategories"><option value="Character"><option value="Furniture"><option value="Machine"><option value="Set piece"><option value="Architecture"><option value="Prop"><option value="Costume"><option value="Other"></datalist><dialog id="objDoneDialog" class="cropDlg"><h2 class="heading">UNSAVED OBJECT CHANGES</h2><p>This object changed since its last saved version. Pages only use saved versions. Your working state is kept either way.</p><div class="bar exportActions"><button id="objDoneStay">Keep editing</button><button id="objDoneLeave">Back without saving</button><button class="primary" id="objDoneSave">Save version &amp; back</button></div></dialog><dialog id="pageDialog" class="cropDlg"><label class="field">Page name<input id="pageNameInput"></label><div class="bar exportActions"><button id="pageCancel">Cancel</button><button class="primary" id="pageApply">Apply</button></div></dialog>
 <dialog id="originalDialog" class="cropDlg"><label class="field">Project original<select id="originalPicker"></select></label><div class="bar exportActions"><button id="originalCancel">Cancel</button><button class="primary" id="originalApply">Place on page</button></div></dialog>
 <dialog id="cropDialog" class="cropDlg"><h2 class="heading">CROP IMAGE</h2><p>Drag to draw a crop. Drag a handle to resize or drag inside to move. Shift-drag starts a new crop.</p><canvas id="cropCanvas"></canvas><div class="bar"><button id="cropReset">Reset crop</button><button id="cropCancel" class="push">Cancel</button><button class="primary" id="cropApply">Apply crop</button></div></dialog>
 <dialog id="exportDialog" class="cropDlg" aria-labelledby="exportTitle">
@@ -2354,6 +2354,9 @@ function inspectorUI() {
   if (l.type === 'image') bar.append(button('Crop…', openCrop, {
     disabled: l.locked
   }));
+  if (l.type === 'image') bar.append(button('Remove background', () => removeBackground(l.id), {
+    disabled: l.locked
+  }));
   if (l.type === 'image' && l.objectRef && objectById(l.objectRef.objectId)) bar.append(button('Open object', () => openObject(l.objectRef.objectId)));
   if (l.type === 'image' && !project.editingObjectId) bar.append(button('Make Library object…', () => openObjectDialog(l.id)));
   bar.append(button('Raise', () => order(1), {
@@ -2679,7 +2682,7 @@ function newObjectScene(a, from = null) {
   scene.layers.push(l);
   return scene;
 }
-async function createObject({ name, category, layerId, file }) {
+async function createObject({ name, category, layerId, file, cutout = false }) {
   let a,
     from = null;
   if (file) {
@@ -2689,6 +2692,8 @@ async function createObject({ name, category, layerId, file }) {
     if (!from) throw Error('Select an image layer first.');
     a = assets.get(from.assetId);
   }
+  let cut = null;
+  if (cutout) cut = await cutoutAsset(a, undefined, true);
   const now = new Date().toISOString(),
     o = { id: uid(), name: name || from?.name || a.name.replace(/\.[^.]+$/, ''), category: category || 'Other', createdAt: now, modifiedAt: now, scene: null, versions: [] };
   edit(() => {
@@ -2696,7 +2701,12 @@ async function createObject({ name, category, layerId, file }) {
       assets.set(a.id, a);
       project.assets.push({ id: a.id, name: a.name, type: a.type, path: a.path });
     }
-    o.scene = newObjectScene(a, from);
+    if (cut) {
+      assets.set(cut.id, cut);
+      project.assets.push({ id: cut.id, name: cut.name, type: cut.type, path: cut.path });
+    }
+    // A trimmed cut-out has its own pixel frame, so the source layer's crop no longer applies.
+    o.scene = newObjectScene(cut || a, cut && from ? { ...from, crop: { x: 0, y: 0, w: cut.w, h: cut.h } } : from);
     project.objects.push(o);
   });
   await saveObjectVersion(o);
@@ -2896,10 +2906,11 @@ $('objNewApply').onclick = () => {
   const name = $('objNewName').value.trim(),
     category = $('objNewCategory').value.trim();
   $('objectDialog').close();
+  const cutout = $('objNewCutout').checked;
   if ($('objNewSource').value === 'file') {
-    pendingObject = { name, category };
+    pendingObject = { name, category, cutout };
     $('objectFile').click();
-  } else run(() => createObject({ name, category, layerId: objectSourceLayer }), 'Creating object…');
+  } else run(() => createObject({ name, category, layerId: objectSourceLayer, cutout }), 'Creating object…');
 };
 let pendingObject = null;
 $('objectFile').onchange = e => {
@@ -2909,6 +2920,152 @@ $('objectFile').onchange = e => {
   pendingObject = null;
   if (f) run(() => createObject({ ...info, file: f }), 'Creating object…');
 };
+
+// ---------- Background removal (runs in this browser; nothing is uploaded) ----------
+// IS-Net general-use (Apache-2.0), uint8-quantized, executed with onnxruntime-web (MIT, WASM)
+// in a worker. The model (~46 MB) is downloaded once from this site and kept in the browser cache.
+const BG_MODEL = { parts: ['isnet-general-use-q8.onnx.part0', 'isnet-general-use-q8.onnx.part1', 'isnet-general-use-q8.onnx.part2'], base: '/studio/models/', size: 46360717, cache: 'ds-studio-models-v1' };
+let bgWorker = null;
+async function bgModelBytes(progress) {
+  let cache = null;
+  try {
+    cache = await caches.open(BG_MODEL.cache);
+  } catch {}
+  const out = new Uint8Array(BG_MODEL.size);
+  let off = 0;
+  for (const part of BG_MODEL.parts) {
+    const url = BG_MODEL.base + part;
+    let r = cache && await cache.match(url);
+    if (!r) {
+      progress('Downloading the background model, once (' + Math.round(off / 1e6) + ' / ' + Math.round(BG_MODEL.size / 1e6) + ' MB)…');
+      r = await fetch(url, { credentials: 'same-origin' });
+      if (!r.ok) throw Error('Could not download the background model (' + r.status + ').');
+      if (cache) await cache.put(url, r.clone()).catch(() => {});
+    }
+    const b = new Uint8Array(await r.arrayBuffer());
+    if (off + b.length > out.length) throw Error('The background model download is damaged.');
+    out.set(b, off);
+    off += b.length;
+  }
+  if (off !== BG_MODEL.size) throw Error('The background model download is incomplete.');
+  return out.buffer;
+}
+function bgCall(msg, transfer = []) {
+  return new Promise((res, rej) => {
+    bgWorker.onmessage = e => e.data.type === 'error' ? rej(Error(e.data.message)) : res(e.data);
+    bgWorker.onerror = e => rej(Error(e.message || 'Background removal failed.'));
+    bgWorker.postMessage(msg, transfer);
+  });
+}
+async function bgReady(progress) {
+  if (bgWorker) return;
+  const src = `let ort = null, session = null;
+self.onmessage = async e => {
+  const m = e.data;
+  try {
+    if (m.type === 'init') {
+      ort = await import(m.ortUrl);
+      ort.env.wasm.wasmPaths = m.wasmBase;
+      ort.env.wasm.numThreads = m.threads;
+      session = await ort.InferenceSession.create(new Uint8Array(m.model), { executionProviders: ['wasm'] });
+      self.postMessage({ type: 'ready' });
+    } else if (m.type === 'run') {
+      const out = await session.run({ [session.inputNames[0]]: new ort.Tensor('float32', m.input, [1, 3, 1024, 1024]) });
+      const d = new Float32Array(out[session.outputNames[0]].data.subarray(0, 1024 * 1024));
+      self.postMessage({ type: 'mask', data: d }, [d.buffer]);
+    }
+  } catch (err) {
+    self.postMessage({ type: 'error', message: String(err && err.message || err) });
+  }
+};`;
+  const w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })), { type: 'module' });
+  bgWorker = w;
+  try {
+    const model = await bgModelBytes(progress);
+    progress('Starting background removal…');
+    await bgCall({ type: 'init', model, ortUrl: new URL('/studio/vendor/ort/ort.wasm.min.mjs', location.href).href, wasmBase: new URL('/studio/vendor/ort/', location.href).href, threads: self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 1) : 1 }, [model]);
+  } catch (e) {
+    w.terminate();
+    bgWorker = null;
+    throw e;
+  }
+}
+// Returns a new decoded PNG asset (same size as the source) with the background made transparent.
+async function cutoutAsset(a, progress = t => status(t), trim = false) {
+  await bgReady(progress);
+  progress('Removing background from “' + a.name + '”…');
+  const S = 1024, c = document.createElement('canvas');
+  c.width = c.height = S;
+  const x = c.getContext('2d', { willReadFrequently: true });
+  x.imageSmoothingQuality = 'high';
+  x.drawImage(a.image, 0, 0, S, S);
+  const px = x.getImageData(0, 0, S, S).data;
+  let max = 1;
+  for (let i = 0; i < px.length; i += 4) max = Math.max(max, px[i], px[i + 1], px[i + 2]);
+  const input = new Float32Array(3 * S * S);
+  for (let i = 0, j = 0; i < px.length; i += 4, j++) {
+    input[j] = px[i] / max - .5;
+    input[S * S + j] = px[i + 1] / max - .5;
+    input[2 * S * S + j] = px[i + 2] / max - .5;
+  }
+  const { data } = await bgCall({ type: 'run', input }, [input.buffer]);
+  let lo = Infinity, hi = -Infinity;
+  for (const v of data) {
+    if (v < lo) lo = v;
+    if (v > hi) hi = v;
+  }
+  const mask = x.createImageData(S, S), span = hi - lo || 1;
+  for (let j = 0; j < S * S; j++) {
+    const v = (data[j] - lo) / span;
+    mask.data[j * 4 + 3] = v < .04 ? 0 : v > .96 ? 255 : Math.round(v * 255);
+  }
+  x.putImageData(mask, 0, 0);
+  // For Library objects the cut-out is trimmed to what is left (plus a small margin).
+  let bx = 0, by = 0, bw = a.w, bh = a.h;
+  if (trim) {
+    let x0 = S, y0 = S, x1 = -1, y1 = -1;
+    for (let j = 0; j < S * S; j++) if (mask.data[j * 4 + 3] > 20) {
+      const px_ = j % S, py = (j / S) | 0;
+      if (px_ < x0) x0 = px_;
+      if (px_ > x1) x1 = px_;
+      if (py < y0) y0 = py;
+      if (py > y1) y1 = py;
+    }
+    if (x1 >= 0) {
+      const sx = a.w / S, sy = a.h / S, m = 2;
+      bx = Math.max(0, Math.floor((x0 - m) * sx));
+      by = Math.max(0, Math.floor((y0 - m) * sy));
+      bw = Math.min(a.w, Math.ceil((x1 + 1 + m) * sx)) - bx;
+      bh = Math.min(a.h, Math.ceil((y1 + 1 + m) * sy)) - by;
+    }
+  }
+  const out = document.createElement('canvas');
+  out.width = bw;
+  out.height = bh;
+  const o = out.getContext('2d');
+  o.imageSmoothingQuality = 'high';
+  o.drawImage(a.image, -bx, -by);
+  o.globalCompositeOperation = 'destination-in';
+  o.drawImage(c, -bx, -by, a.w, a.h);
+  const blob = await new Promise((res, rej) => out.toBlob(b => b ? res(b) : rej(Error('Could not create the cut-out.')), 'image/png'));
+  out.width = out.height = c.width = c.height = 1;
+  const name = a.name.replace(/\.[^.]+$/, '') + ' cut-out.png', id = uid();
+  return decodeAsset({ id, name, type: 'image/png', path: 'originals/' + id + '/' + name.replace(/[\\/\x00-\x1f]/g, '_') }, blob);
+}
+function removeBackground(layerId) {
+  const l = project.layers.find(x => x.id === layerId && x.type === 'image');
+  if (!l) return;
+  const a = assets.get(l.assetId);
+  run(async () => {
+    const cut = await cutoutAsset(a);
+    edit(() => {
+      assets.set(cut.id, cut);
+      project.assets.push({ id: cut.id, name: cut.name, type: cut.type, path: cut.path });
+      l.assetId = cut.id;
+    });
+    toast('Background removed. Undo brings the original back.');
+  }, 'Removing background…');
+}
 function annotationFields(g, l) {
   const ann = l.ann || { type: 'general', source: null, target: null, note: '' };
   const commit = change => edit(() => {
