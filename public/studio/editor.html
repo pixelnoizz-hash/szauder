@@ -883,7 +883,7 @@ body.objectMode .stage { box-shadow: inset 0 0 0 3px var(--accent); }
 <section class="prompt" id="promptDock"><div id="split" class="split" role="separator" aria-label="Resize prompt panel" aria-orientation="horizontal" tabindex="0" title="Drag or use arrow keys to resize"></div><div class="bar"><label for="prompt" class="heading">PROMPT</label><button id="genPrompt" class="small primary" title="Build a short prompt from the base image, objects, annotations and your instructions">Generate prompt</button><button id="promptHistoryBtn" class="small quiet" aria-expanded="false" title="Earlier versions of this page's prompt">History</button><button id="promptPackage" class="small quiet" title="Download the numbered images and the prompt for Nano Banana">Images + prompt ↓</button><button id="copy" class="push quiet" data-icon="copy">Copy</button></div><div class="promptCols"><label class="instr"><span class="heading">MY INSTRUCTIONS</span><textarea id="promptInstructions" spellcheck="true" placeholder="Your own words for this page. They go into the prompt unchanged." aria-label="My instructions"></textarea></label><textarea id="prompt" spellcheck="false" placeholder="Write your generation prompt, or press Generate prompt…" aria-label="PROMPT"></textarea></div><div id="promptHistory" class="historyMenu" role="menu" hidden></div></section></div>
 <aside><section class="libPane" id="libPane"><div class="sectionbar bar"><button id="libToggle" class="quiet small" aria-expanded="false" title="Show or hide the Object Library">▸</button><h2 class="heading">LIBRARY</h2><span class="count" id="libCount">0</span><button class="push small" id="newObject" title="Add an object to this project's Library">+ Object</button></div><div id="libList" class="libList"></div></section><section class="layerpane"><div class="sectionbar bar"><h2 class="heading">LAYERS</h2><span class="count" id="count">0</span><button class="push icon quiet" data-icon="plus" id="importLayers" title="Import images"></button></div><div id="layers" class="layerlist"></div></section><section class="propPane"><div class="bar sectionbar"><h2 class="heading">PROPERTIES</h2></div><div class="inspector" id="inspector"></div></section></aside></main>
 <dialog id="objectDialog" class="cropDlg"><h2 class="heading">NEW LIBRARY OBJECT</h2><label class="field">Name<input id="objNewName"></label><label class="field">Category<input id="objNewCategory" list="objCategories" placeholder="e.g. Character, Furniture, Machine"></label><label class="field">Image<select id="objNewSource"></select></label><label class="field" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="objNewCutout" style="width:auto">Remove background (cut-out)</label><p class="dim" id="objNewHint"></p><div class="bar exportActions"><button id="objNewCancel">Cancel</button><button class="primary" id="objNewApply">Create object</button></div></dialog><datalist id="objCategories"><option value="Character"><option value="Furniture"><option value="Machine"><option value="Set piece"><option value="Architecture"><option value="Prop"><option value="Costume"><option value="Other"></datalist><dialog id="objDoneDialog" class="cropDlg"><h2 class="heading">UNSAVED OBJECT CHANGES</h2><p>This object changed since its last saved version. Pages only use saved versions. Your working state is kept either way.</p><div class="bar exportActions"><button id="objDoneStay">Keep editing</button><button id="objDoneLeave">Back without saving</button><button class="primary" id="objDoneSave">Save version &amp; back</button></div></dialog><dialog id="pageDialog" class="cropDlg"><label class="field">Page name<input id="pageNameInput"></label><div class="bar exportActions"><button id="pageCancel">Cancel</button><button class="primary" id="pageApply">Apply</button></div></dialog>
-<dialog id="originalDialog" class="cropDlg"><label class="field">Project original<select id="originalPicker"></select></label><div class="bar exportActions"><button id="originalCancel">Cancel</button><button class="primary" id="originalApply">Place on page</button></div></dialog>
+<dialog id="replaceDialog" class="cropDlg"><h2 class="heading">REPLACE SOURCE</h2><p class="dim" id="replaceHint"></p><label class="field">Image already in this project<select id="replacePicker"></select></label><div class="bar exportActions"><button id="replaceCancel">Cancel</button><button id="replaceFromFile">From file…</button><button class="primary" id="replaceApply">Replace</button></div></dialog><dialog id="originalDialog" class="cropDlg"><label class="field">Project original<select id="originalPicker"></select></label><div class="bar exportActions"><button id="originalCancel">Cancel</button><button class="primary" id="originalApply">Place on page</button></div></dialog>
 <dialog id="cropDialog" class="cropDlg"><h2 class="heading">CROP IMAGE</h2><p>Drag to draw a crop. Drag a handle to resize or drag inside to move. Shift-drag starts a new crop.</p><canvas id="cropCanvas"></canvas><div class="bar"><button id="cropReset">Reset crop</button><button id="cropCancel" class="push">Cancel</button><button class="primary" id="cropApply">Apply crop</button></div></dialog>
 <dialog id="exportDialog" class="cropDlg" aria-labelledby="exportTitle">
 <div class="bar"><h2 class="heading" id="exportTitle">EXPORT PREVIEW</h2><button id="closePreview" class="push">Close</button></div>
@@ -898,7 +898,7 @@ body.objectMode .stage { box-shadow: inset 0 0 0 3px var(--accent); }
 <div class="bar exportActions"><span class="dim" id="previewSize"></span><button class="primary push" id="downloadPreview">Download JPEG</button></div>
 </dialog>
 <dialog id="newDialog" class="cropDlg"><h2>Start a new project?</h2><p>This replaces the current local draft. Save a project ZIP to keep a copy.</p><div class="bar"><button id="newCancel">Cancel</button><button id="newSave">Save ZIP first</button><button class="primary" id="newConfirm">New project</button></div></dialog>
-<input hidden type="file" id="files" accept="image/*" multiple><input hidden type="file" id="objectFile" accept="image/*"><input hidden type="file" id="projectFile" accept=".zip,application/zip"><div hidden id="toast" class="toast" role="status"></div>
+<input hidden type="file" id="files" accept="image/*" multiple><input hidden type="file" id="objectFile" accept="image/*"><input hidden type="file" id="replaceFile" accept="image/*"><input hidden type="file" id="projectFile" accept=".zip,application/zip"><div hidden id="toast" class="toast" role="status"></div>
 <script>
 'use strict';
 
@@ -2193,6 +2193,7 @@ function inspectorUI() {
     note.textContent = o ? 'Library object: ' + o.name + ' · version ' + (v ? v.n : '?') + (latest && v && latest.n > v.n ? ' (Library has version ' + latest.n + ')' : '') : 'Placed from a Library object that was deleted. This copy keeps working.';
     g.append(note);
   }
+  if (l.type === 'image') sourceFields(g, l);
   if (l.type === 'image') {
     const mode = document.createElement('select');
     for (const [v, s] of [['composition', 'Composition'], ['reference', 'Reference-only'], ['hidden', 'Hidden']]) mode.add(new Option(s, v));
@@ -2354,7 +2355,13 @@ function inspectorUI() {
   if (l.type === 'image') bar.append(button('Crop…', openCrop, {
     disabled: l.locked
   }));
-  if (l.type === 'image') bar.append(button('Remove background', () => removeBackground(l.id), {
+  if (l.type === 'image') bar.append(button(l.cutout ? 'Redo background removal' : 'Remove background', () => removeBackground(l.id), {
+    disabled: l.locked
+  }));
+  if (l.type === 'image' && l.cutout) bar.append(button('Restore original', () => restoreOriginal(l.id), {
+    disabled: l.locked
+  }));
+  if (l.type === 'image') bar.append(button('Replace source…', () => openReplace(l.id), {
     disabled: l.locked
   }));
   if (l.type === 'image' && l.objectRef && objectById(l.objectRef.objectId)) bar.append(button('Open object', () => openObject(l.objectRef.objectId)));
@@ -2523,7 +2530,7 @@ function openPromptHistory() {
   box.hidden = false;
   $('promptHistoryBtn').setAttribute('aria-expanded', 'true');
 }
-function originalJPEG(l) {
+function originalImage(l, keepAlpha = false) {
   const a = assets.get(l.assetId),
     r = l.crop,
     scale = Math.min(1, 4096 / Math.max(r.w, r.h));
@@ -2531,16 +2538,20 @@ function originalJPEG(l) {
   c.width = Math.max(1, Math.round(r.w * scale));
   c.height = Math.max(1, Math.round(r.h * scale));
   const x = c.getContext('2d');
-  x.fillStyle = '#fff';
-  x.fillRect(0, 0, c.width, c.height);
+  if (!keepAlpha) {
+    x.fillStyle = '#fff';
+    x.fillRect(0, 0, c.width, c.height);
+  }
   if (l.flipX) {
     x.translate(c.width, 0);
     x.scale(-1, 1);
   }
   x.imageSmoothingQuality = 'high';
   x.drawImage(a.image, r.x, r.y, r.w, r.h, 0, 0, c.width, c.height);
-  return new Promise((resolve, reject) => c.toBlob(b => b ? resolve(b) : reject(Error('JPEG encoding failed.')), 'image/jpeg', .95));
+  return new Promise((resolve, reject) => c.toBlob(b => b ? resolve(b) : reject(Error('Image encoding failed.')), keepAlpha ? 'image/png' : 'image/jpeg', .95));
 }
+// Cut-outs and Library objects are PNGs with transparency; the package keeps that instead of a white backdrop.
+const keepsAlpha = l => /png|webp|gif/.test(assets.get(l.assetId)?.type || '');
 async function promptPackage() {
   const { text, plan } = buildPrompt(project);
   const pa = project.promptAssistant;
@@ -2553,8 +2564,9 @@ async function promptPackage() {
   const clean = s => s.replace(/[^\p{L}\p{N}_ -]+/gu, '_').trim().slice(0, 40) || 'image';
   const entries = [];
   for (const img of plan.images) {
-    const blob = img.kind === 'layout' ? await jpeg('annotated') : await originalJPEG(img.layer);
-    entries.push([String(img.n).padStart(2, '0') + '_' + (img.kind === 'layout' ? 'layout' : img.kind + '_' + clean(img.layer.name)) + '.jpg', blob]);
+    const alpha = img.kind === 'object' && keepsAlpha(img.layer);
+    const blob = img.kind === 'layout' ? await jpeg('annotated') : await originalImage(img.layer, alpha);
+    entries.push([String(img.n).padStart(2, '0') + '_' + (img.kind === 'layout' ? 'layout' : img.kind + '_' + clean(img.layer.name)) + (alpha ? '.png' : '.jpg'), blob]);
   }
   entries.push(['prompt.txt', new Blob([project.prompt], { type: 'text/plain;charset=utf-8' })]);
   const page = project.pages.find(p => p.id === project.activePageId);
@@ -2991,7 +3003,7 @@ self.onmessage = async e => {
   }
 }
 // Returns a new decoded PNG asset (same size as the source) with the background made transparent.
-async function cutoutAsset(a, progress = t => status(t), trim = false) {
+async function cutoutAsset(a, progress = t => status(t), trim = false, withMask = false) {
   await bgReady(progress);
   progress('Removing background from “' + a.name + '”…');
   const S = 1024, c = document.createElement('canvas');
@@ -3048,24 +3060,143 @@ async function cutoutAsset(a, progress = t => status(t), trim = false) {
   o.globalCompositeOperation = 'destination-in';
   o.drawImage(c, -bx, -by, a.w, a.h);
   const blob = await new Promise((res, rej) => out.toBlob(b => b ? res(b) : rej(Error('Could not create the cut-out.')), 'image/png'));
+  let maskBlob = null;
+  if (withMask) {
+    // The mask is kept separately (white = kept), at the source's own size, so the cut-out can be redone or corrected later.
+    out.width = a.w;
+    out.height = a.h;
+    o.fillStyle = '#fff';
+    o.fillRect(0, 0, a.w, a.h);
+    o.globalCompositeOperation = 'destination-in';
+    o.drawImage(c, 0, 0, a.w, a.h);
+    maskBlob = await new Promise((res, rej) => out.toBlob(b => b ? res(b) : rej(Error('Could not save the mask.')), 'image/png'));
+  }
   out.width = out.height = c.width = c.height = 1;
-  const name = a.name.replace(/\.[^.]+$/, '') + ' cut-out.png', id = uid();
-  return decodeAsset({ id, name, type: 'image/png', path: 'originals/' + id + '/' + name.replace(/[\\/\x00-\x1f]/g, '_') }, blob);
+  const stem = a.name.replace(/\.[^.]+$/, ''), name = stem + ' cut-out.png', id = uid();
+  const cut = await decodeAsset({ id, name, type: 'image/png', path: 'originals/' + id + '/' + name.replace(/[\\/\x00-\x1f]/g, '_') }, blob);
+  if (!withMask) return cut;
+  const mid = uid(), mname = stem + ' mask.png';
+  const maskAsset = await decodeAsset({ id: mid, name: mname, type: 'image/png', role: 'mask', path: 'originals/' + mid + '/' + mname.replace(/[\\/\x00-\x1f]/g, '_') }, maskBlob);
+  return [cut, maskAsset];
+}
+function addAsset(a) {
+  assets.set(a.id, a);
+  project.assets.push({ id: a.id, name: a.name, type: a.type, path: a.path, ...(a.role ? { role: a.role } : {}) });
 }
 function removeBackground(layerId) {
   const l = project.layers.find(x => x.id === layerId && x.type === 'image');
   if (!l) return;
-  const a = assets.get(l.assetId);
+  // Always cut from the untouched source, never from an earlier cut-out.
+  const srcId = l.cutout && assets.has(l.cutout.sourceAssetId) ? l.cutout.sourceAssetId : l.assetId;
+  const a = assets.get(srcId);
   run(async () => {
-    const cut = await cutoutAsset(a);
+    const [cut, mask] = await cutoutAsset(a, undefined, false, true);
     edit(() => {
-      assets.set(cut.id, cut);
-      project.assets.push({ id: cut.id, name: cut.name, type: cut.type, path: cut.path });
-      l.assetId = cut.id;
+      addAsset(cut);
+      addAsset(mask);
+      setSource(l, { assetId: cut.id, crop: l.crop, cutout: { sourceAssetId: srcId, maskAssetId: mask.id }, objectRef: l.objectRef });
     });
-    toast('Background removed. Undo brings the original back.');
+    toast('Background removed. “Restore original” brings the full image back.');
   }, 'Removing background…');
 }
+// ---------- Layer source: replace, restore, earlier sources (position and size stay) ----------
+const isMaskMeta = m => m && m.role === 'mask';
+function sourceSnapshot(l) {
+  return { assetId: l.assetId, crop: { ...l.crop }, ...(l.cutout ? { cutout: { ...l.cutout } } : {}), ...(l.objectRef ? { objectRef: { ...l.objectRef } } : {}) };
+}
+function setSource(l, entry, rename = false) {
+  const a = assets.get(entry.assetId);
+  if (!a) throw Error('That image is not in this project any more.');
+  const prev = sourceSnapshot(l),
+    prevAsset = assets.get(prev.assetId);
+  const r = entry.crop,
+    crop = r && r.x >= 0 && r.y >= 0 && r.w > 0 && r.h > 0 && r.x + r.w <= a.w + .5 && r.y + r.h <= a.h + .5 ? { ...r } : { x: 0, y: 0, w: a.w, h: a.h };
+  if (prev.assetId !== a.id) {
+    l.sourceHistory = [prev, ...(l.sourceHistory || []).filter(h => h.assetId !== prev.assetId && h.assetId !== a.id)].slice(0, 8);
+  }
+  // Same place, same height on the page; the width follows the new image's proportions.
+  const was = l.crop.w / l.crop.h,
+    now = crop.w / crop.h;
+  if (Math.abs(now - was) > 1e-3 * was) l.w = l.h * now;
+  // A replaced image brings its own name unless the layer was renamed by hand; cut-outs keep the layer's name.
+  if (rename && prevAsset && l.name === prevAsset.name) l.name = a.name;
+  l.assetId = a.id;
+  l.crop = crop;
+  if (entry.cutout) l.cutout = { ...entry.cutout };else delete l.cutout;
+  if (entry.objectRef) l.objectRef = { ...entry.objectRef };else delete l.objectRef;
+}
+function restoreOriginal(layerId) {
+  const l = project.layers.find(x => x.id === layerId && x.type === 'image');
+  if (!l || !l.cutout) return;
+  const id = l.cutout.sourceAssetId;
+  edit(() => setSource(l, { assetId: id, crop: l.crop, objectRef: l.objectRef }));
+  toast('Original restored. The cut-out stays under “Earlier sources”.');
+}
+function sourceFields(g, l) {
+  const a = assets.get(l.assetId),
+    src = l.cutout && assets.get(l.cutout.sourceAssetId);
+  const note = document.createElement('p');
+  note.className = 'instanceNote wide';
+  note.textContent = 'Source: ' + (src ? src.name + ' · background removed' : a ? a.name : '?') + (a ? ' · ' + a.w + ' × ' + a.h + ' px' : '');
+  g.append(note);
+  const earlier = (l.sourceHistory || []).filter(h => assets.has(h.assetId));
+  if (!earlier.length) return;
+  const sel = document.createElement('select');
+  sel.add(new Option('Switch back to…', ''));
+  earlier.forEach((h, i) => {
+    const m = assets.get(h.assetId);
+    sel.add(new Option(m.name + (h.cutout ? ' (cut-out)' : '') + ' · ' + m.w + ' × ' + m.h, String(i)));
+  });
+  sel.onchange = () => {
+    const h = earlier[Number(sel.value)];
+    if (h) edit(() => setSource(l, h));
+  };
+  field(g, 'Earlier sources', sel, true);
+}
+let replaceTarget = null;
+function openReplace(layerId) {
+  const l = project.layers.find(x => x.id === layerId && x.type === 'image');
+  if (!l) return;
+  replaceTarget = l.id;
+  const picker = $('replacePicker');
+  picker.replaceChildren(new Option('—', ''));
+  for (const m of project.assets) if (!isMaskMeta(m) && m.id !== l.assetId && assets.has(m.id)) picker.add(new Option(m.name, m.id));
+  picker.value = '';
+  $('replaceApply').disabled = true;
+  $('replaceHint').textContent = 'The new image takes the place of “' + l.name + '”: same position, height, rotation and settings. The old image stays in the project; you can switch back under Earlier sources.' + (l.objectRef ? ' The link to the Library object is kept only for the old image.' : '');
+  $('replaceDialog').showModal();
+}
+function replaceWith(a) {
+  const l = project.layers.find(x => x.id === replaceTarget);
+  if (!l || !a) return;
+  edit(() => setSource(l, { assetId: a.id }, true));
+  toast('Source replaced. Earlier sources keeps the previous image.');
+}
+$('replacePicker').onchange = () => $('replaceApply').disabled = !$('replacePicker').value;
+$('replaceCancel').onclick = () => $('replaceDialog').close();
+$('replaceApply').onclick = () => {
+  $('replaceDialog').close();
+  replaceWith(assets.get($('replacePicker').value));
+};
+$('replaceFromFile').onclick = () => {
+  $('replaceDialog').close();
+  $('replaceFile').value = '';
+  $('replaceFile').click();
+};
+$('replaceFile').onchange = () => {
+  const f = $('replaceFile').files[0];
+  if (!f) return;
+  run(async () => {
+    const a = await decodeAsset(metaFor(f), f);
+    const l = project.layers.find(x => x.id === replaceTarget);
+    if (!l) return;
+    edit(() => {
+      addAsset(a);
+      setSource(l, { assetId: a.id }, true);
+    });
+    toast('Source replaced. Earlier sources keeps the previous image.');
+  }, 'Loading image…');
+};
 function annotationFields(g, l) {
   const ann = l.ann || { type: 'general', source: null, target: null, note: '' };
   const commit = change => edit(() => {
@@ -3158,8 +3289,9 @@ $('pageApply').onclick = () => {
 $('reuseImage').onclick = () => {
   const picker = $('originalPicker');
   picker.replaceChildren();
-  for (const a of project.assets) picker.add(new Option(a.name, a.id));
-  picker.value = project.assets[0]?.id || '';
+  const usable = project.assets.filter(a => !isMaskMeta(a));
+  for (const a of usable) picker.add(new Option(a.name, a.id));
+  picker.value = usable[0]?.id || '';
   $('originalDialog').showModal();
 };
 $('originalCancel').onclick = () => $('originalDialog').close();
@@ -3848,6 +3980,16 @@ function validateScene(p) {
       if (l.flipX === undefined) l.flipX = false;
       ok(typeof l.flipX === 'boolean');
       if (l.objectRef !== undefined) ok(l.objectRef && typeof l.objectRef.objectId === 'string' && typeof l.objectRef.versionId === 'string');
+      const goodRef = c => c && ids.has(c.sourceAssetId) && ids.has(c.maskAssetId);
+      if (l.cutout !== undefined && !goodRef(l.cutout)) delete l.cutout;
+      if (l.sourceHistory !== undefined) {
+        l.sourceHistory = (Array.isArray(l.sourceHistory) ? l.sourceHistory : []).filter(h => h && ids.has(h.assetId) && h.crop && finite(h.crop.x, h.crop.y, h.crop.w, h.crop.h) && h.crop.w > 0 && h.crop.h > 0).slice(0, 8);
+        for (const h of l.sourceHistory) {
+          if (h.cutout !== undefined && !goodRef(h.cutout)) delete h.cutout;
+          if (h.objectRef !== undefined && !(h.objectRef && typeof h.objectRef.objectId === 'string' && typeof h.objectRef.versionId === 'string')) delete h.objectRef;
+        }
+        if (!l.sourceHistory.length) delete l.sourceHistory;
+      }
       const r = l.crop;
       ok(ids.has(l.assetId) && ['composition', 'reference', 'hidden'].includes(l.mode) && r && finite(r.x, r.y, r.w, r.h) && r.x >= 0 && r.y >= 0 && r.w > 0 && r.h > 0);
     } else {
